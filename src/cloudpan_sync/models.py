@@ -42,3 +42,26 @@ class TransferPlan(BaseModel):
     thresholdMB: int
     items: list[PlanItem]
     summary: PlanSummary
+
+
+class AuthProfile(BaseModel):
+    profileId: str
+    providerKey: str
+    authMode: str
+    displayName: str
+    token: str = ""
+    cookie: str = ""
+    extra: dict[str, str] = Field(default_factory=dict)
+    status: str = "unverified"
+    lastError: str = ""
+    createdAt: str
+    updatedAt: str
+
+
+class AuthProfileInput(BaseModel):
+    providerKey: str
+    authMode: str
+    displayName: str
+    token: str = ""
+    cookie: str = ""
+    extra: dict[str, str] = Field(default_factory=dict)

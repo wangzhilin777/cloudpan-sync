@@ -115,11 +115,56 @@ button.ghost {
   border-radius: 6px;
   background: #f8fbfd;
   color: #355066;
+  cursor: pointer;
+}
+
+.tab.active {
+  border-color: var(--accent);
+  color: var(--accent-2);
+  background: #eef8f4;
 }
 
 .placeholder {
   margin-top: 12px;
   color: var(--muted);
+}
+
+.auth-panel {
+  margin-top: 12px;
+}
+
+.auth-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.auth-list-wrap {
+  margin-top: 14px;
+}
+
+.auth-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  display: grid;
+  gap: 8px;
+}
+
+.auth-item {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  background: #fcfdff;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.auth-item-meta {
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .error {
@@ -131,5 +176,8 @@ button.ghost {
   .topbar {
     align-items: flex-start;
     flex-direction: column;
+  }
+  .auth-grid {
+    grid-template-columns: 1fr;
   }
 }

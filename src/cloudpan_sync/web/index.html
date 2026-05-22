@@ -33,9 +33,28 @@
 
       <section class="panel app-panel" id="appPanel" hidden>
         <nav class="tabs" id="tabs"></nav>
-        <article class="placeholder">
+        <article class="placeholder" id="generalPanel">
           <p id="lockedText"></p>
         </article>
+        <section class="auth-panel" id="authPanel" hidden>
+          <h3 id="authTitle">Auth Management</h3>
+          <div class="auth-grid">
+            <input id="authDisplayName" type="text" placeholder="display name" />
+            <select id="authProvider"></select>
+            <select id="authMode">
+              <option value="manual_token">manual_token</option>
+              <option value="manual_cookie">manual_cookie</option>
+              <option value="web_login_capture">web_login_capture</option>
+            </select>
+            <input id="authToken" type="text" placeholder="token (optional)" />
+            <input id="authCookie" type="text" placeholder="cookie (optional)" />
+            <button id="authSaveBtn">Save Auth</button>
+          </div>
+          <div class="auth-list-wrap">
+            <button id="authReloadBtn" class="ghost">Reload</button>
+            <ul id="authList" class="auth-list"></ul>
+          </div>
+        </section>
       </section>
     </main>
   </div>

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, Response
@@ -7,10 +8,18 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from .auth_store import (
+    delete_profile,
+    get_profile,
+    list_profiles,
+    masked_profile,
+    save_profile,
+    update_profile,
+)
 from .auth import build_session_token, verify_session_token
 from .config import ADMIN_PASSWORD, SESSION_COOKIE
 from .i18n import MESSAGES, messages_for
-from .models import SourceEntry
+from .models import AuthProfileInput, SourceEntry
 from .planner import build_transfer_plan
 from .provider_registry import build_provider_registry
 
@@ -27,6 +36,10 @@ class MockPlanRequest(BaseModel):
     targetProvider: str
     thresholdMB: int = 0
     entries: list[SourceEntry]
+
+
+class CaptureStartRequest(BaseModel):
+    providerKey: str
 
 
 def _is_logged_in(request: Request) -> bool:
@@ -57,6 +70,57 @@ def create_app() -> FastAPI:
     def providers() -> dict[str, object]:
         rows = [adapter.profile.model_dump() for adapter in build_provider_registry()]
         return {"items": rows}
+
+    @app.get("/api/auth/profiles")
+    def auth_profiles(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        return {"items": [masked_profile(p) for p in list_profiles()]}
+
+    @app.post("/api/auth/profiles")
+    def auth_profile_create(payload: AuthProfileInput, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        profile = save_profile(payload)
+        return {"item": masked_profile(profile)}
+
+    @app.delete("/api/auth/profiles/{profile_id}")
+    def auth_profile_delete(profile_id: str, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        ok = delete_profile(profile_id)
+        if not ok:
+            raise HTTPException(status_code=404, detail="profile_not_found")
+        return {"ok": True}
+
+    @app.post("/api/auth/capture/start")
+    def auth_capture_start(payload: CaptureStartRequest, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        # M3 keeps capture flow as guided placeholder. Real browser capture will be added in later milestone.
+        return {
+            "providerKey": payload.providerKey,
+            "status": "capture_pending",
+            "loginUrlHint": f"https://{payload.providerKey}.example.com/login",
+            "message": "Open provider login page and paste token/cookie from session into auth form.",
+        }
+
+    @app.post("/api/auth/profiles/{profile_id}/validate")
+    def auth_profile_validate(profile_id: str, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        profile = get_profile(profile_id)
+        if profile is None:
+            raise HTTPException(status_code=404, detail="profile_not_found")
+        if profile.token or profile.cookie:
+            profile.status = "verified"
+            profile.lastError = ""
+        else:
+            profile.status = "invalid"
+            profile.lastError = "missing_token_or_cookie"
+        profile.updatedAt = datetime.now(timezone.utc).isoformat()
+        update_profile(profile)
+        return {"item": masked_profile(profile)}
 
     @app.get("/api/session")
     def session(request: Request) -> dict[str, bool]:

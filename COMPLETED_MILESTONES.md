@@ -27,3 +27,18 @@
 - Verification evidence:
   - `GET /api/providers` returned provider capability list
   - `POST /api/plan/mock` (after login) returned per-file strategies with summary counts
+
+### M3 - Auth System
+
+- Completed on: 2026-05-23
+- Scope:
+  - `AuthProfile` model and local auth profile store
+  - Auth profile APIs: create/list/delete/validate
+  - Web login capture starter API (`capture_pending` guidance flow)
+  - Auth management UI panel in `Auth` tab
+- Verification evidence:
+  - `POST /api/auth/profiles` returned masked token (e.g. `tok_***56`)
+  - `GET /api/auth/profiles` returned profile list for current session
+  - `POST /api/auth/profiles/{id}/validate` changed status to `verified`
+  - `POST /api/auth/capture/start` returned `capture_pending`
+  - `DELETE /api/auth/profiles/{id}` succeeded and list count returned to `0`

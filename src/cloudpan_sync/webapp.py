@@ -10,6 +10,9 @@ from pydantic import BaseModel
 from .auth import build_session_token, verify_session_token
 from .config import ADMIN_PASSWORD, SESSION_COOKIE
 from .i18n import MESSAGES, messages_for
+from .models import SourceEntry
+from .planner import build_transfer_plan
+from .provider_registry import build_provider_registry
 
 
 WEB_DIR = Path(__file__).parent / "web"
@@ -17,6 +20,13 @@ WEB_DIR = Path(__file__).parent / "web"
 
 class LoginRequest(BaseModel):
     password: str
+
+
+class MockPlanRequest(BaseModel):
+    sourceProvider: str
+    targetProvider: str
+    thresholdMB: int = 0
+    entries: list[SourceEntry]
 
 
 def _is_logged_in(request: Request) -> bool:
@@ -43,6 +53,11 @@ def create_app() -> FastAPI:
             "messages": messages_for(lang),
         }
 
+    @app.get("/api/providers")
+    def providers() -> dict[str, object]:
+        rows = [adapter.profile.model_dump() for adapter in build_provider_registry()]
+        return {"items": rows}
+
     @app.get("/api/session")
     def session(request: Request) -> dict[str, bool]:
         return {"loggedIn": _is_logged_in(request)}
@@ -66,5 +81,17 @@ def create_app() -> FastAPI:
         response = JSONResponse({"ok": True})
         response.delete_cookie(SESSION_COOKIE)
         return response
+
+    @app.post("/api/plan/mock")
+    def mock_plan(payload: MockPlanRequest, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        plan = build_transfer_plan(
+            source_provider=payload.sourceProvider,
+            target_provider=payload.targetProvider,
+            entries=payload.entries,
+            threshold_mb=payload.thresholdMB,
+        )
+        return plan.model_dump()
 
     return app

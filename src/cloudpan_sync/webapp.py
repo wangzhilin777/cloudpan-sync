@@ -20,6 +20,7 @@ from .auth import build_session_token, verify_session_token
 from .config import ADMIN_PASSWORD, SESSION_COOKIE
 from .i18n import MESSAGES, messages_for
 from .models import AuthProfileInput, SourceEntry
+from .guangya import guangya_fast_check, guangya_mock_list
 from .planner import build_transfer_plan
 from .provider_registry import build_provider_registry
 
@@ -40,6 +41,14 @@ class MockPlanRequest(BaseModel):
 
 class CaptureStartRequest(BaseModel):
     providerKey: str
+
+
+class GuangyaListRequest(BaseModel):
+    path: str = "/"
+
+
+class GuangyaFastCheckRequest(BaseModel):
+    entries: list[SourceEntry]
 
 
 def _is_logged_in(request: Request) -> bool:
@@ -157,5 +166,41 @@ def create_app() -> FastAPI:
             threshold_mb=payload.thresholdMB,
         )
         return plan.model_dump()
+
+    @app.post("/api/providers/guangya/list")
+    def guangya_list(payload: GuangyaListRequest, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        return {
+            "providerKey": "guangya",
+            "path": payload.path,
+            "items": guangya_mock_list(payload.path),
+            "mode": "mock",
+            "note": "This is a local mock list in M4. Real Guangya listing will be wired in later milestones.",
+        }
+
+    @app.post("/api/providers/guangya/fast_check")
+    def guangya_fast_precheck(payload: GuangyaFastCheckRequest, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        rows: list[dict[str, object]] = []
+        for entry in payload.entries:
+            result = guangya_fast_check(entry)
+            rows.append(
+                {
+                    "path": entry.path,
+                    "size": entry.size,
+                    "supported": result.supported,
+                    "hashKind": result.hashKind,
+                    "normalizedHash": result.normalizedHash,
+                    "reason": result.reason,
+                    "riskHint": result.riskHint,
+                }
+            )
+        return {
+            "providerKey": "guangya",
+            "mode": "local_precheck",
+            "items": rows,
+        }
 
     return app

@@ -42,3 +42,18 @@
   - `POST /api/auth/profiles/{id}/validate` changed status to `verified`
   - `POST /api/auth/capture/start` returned `capture_pending`
   - `DELETE /api/auth/profiles/{id}` succeeded and list count returned to `0`
+
+### M4 - Guangya Provider Foundation
+
+- Completed on: 2026-05-23
+- Scope:
+  - Added Guangya hash normalization and precheck logic (`md5` / `gcid`)
+  - Added Guangya provider APIs:
+    - `POST /api/providers/guangya/list` (mock list for local flow)
+    - `POST /api/providers/guangya/fast_check` (local precheck with risk hints)
+  - Added explicit notes that this milestone is local/mock precheck only (not full live Guangya API binding)
+- Verification evidence:
+  - `POST /api/providers/guangya/list` returned `mode=mock` with item list
+  - `POST /api/providers/guangya/fast_check` returned mixed results:
+    - supported (`md5` / `gcid`) entries
+    - unsupported entry when fast-upload fingerprints are missing

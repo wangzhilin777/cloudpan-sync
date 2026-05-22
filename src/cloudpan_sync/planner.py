@@ -24,6 +24,7 @@ def build_transfer_plan(
     target_provider: str,
     entries: list[SourceEntry],
     threshold_mb: int,
+    selected_roots: list[str] | None = None,
 ) -> TransferPlan:
     target_profile = get_provider_profile(target_provider)
     if target_profile is None:
@@ -56,10 +57,75 @@ def build_transfer_plan(
         )
         counts[strategy] = counts.get(strategy, 0) + 1
 
+    execution_groups = _build_execution_groups(items, selected_roots or [])
+    pending_items = [
+        {
+            "path": item.path,
+            "size": item.size,
+            "reason": item.reason,
+            "missingFastInputs": item.missingFastInputs,
+        }
+        for item in items
+        if item.strategy == "pending_manual"
+    ]
+
     return TransferPlan(
         sourceProvider=source_provider,
         targetProvider=target_provider,
         thresholdMB=max(0, int(threshold_mb)),
         items=items,
         summary=PlanSummary(total=len(items), strategyCounts=counts),
+        executionGroups=execution_groups,
+        pendingItems=pending_items,
     )
+
+
+def _normalize_path(path: str) -> str:
+    value = (path or "/").replace("\\", "/").strip()
+    value = "/" + value.strip("/")
+    return "/" if value == "" else value
+
+
+def _path_depth(path: str) -> int:
+    normalized = _normalize_path(path)
+    if normalized == "/":
+        return 0
+    return len([seg for seg in normalized.split("/") if seg])
+
+
+def _build_execution_groups(items: list[PlanItem], selected_roots: list[str]) -> list[dict[str, object]]:
+    if not items:
+        return []
+    roots = [_normalize_path(root) for root in selected_roots if str(root or "").strip()]
+    if not roots:
+        # fallback: infer roots from first segment, preserve appearance order
+        seen: set[str] = set()
+        for item in items:
+            normalized = _normalize_path(item.path)
+            parts = [seg for seg in normalized.split("/") if seg]
+            root = f"/{parts[0]}" if parts else "/"
+            if root not in seen:
+                roots.append(root)
+                seen.add(root)
+
+    groups: list[dict[str, object]] = []
+    for root in roots:
+        scoped = [item for item in items if _normalize_path(item.path).startswith(root.rstrip("/") + "/") or _normalize_path(item.path) == root]
+        if not scoped:
+            continue
+        scoped_sorted = sorted(scoped, key=lambda x: (-_path_depth(x.path), _normalize_path(x.path)))
+        groups.append(
+            {
+                "root": root,
+                "order": "deepest_first",
+                "items": [
+                    {
+                        "path": item.path,
+                        "size": item.size,
+                        "strategy": item.strategy,
+                    }
+                    for item in scoped_sorted
+                ],
+            }
+        )
+    return groups

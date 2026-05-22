@@ -42,6 +42,8 @@ class TransferPlan(BaseModel):
     thresholdMB: int
     items: list[PlanItem]
     summary: PlanSummary
+    executionGroups: list[dict[str, object]] = Field(default_factory=list)
+    pendingItems: list[dict[str, object]] = Field(default_factory=list)
 
 
 class AuthProfile(BaseModel):

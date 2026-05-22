@@ -76,3 +76,18 @@
   - `GET /api/providers/research` returned `4` research rows
   - `POST /api/providers/aliyundrive_open/list` returned `mode=mock` and list items
   - `POST /api/providers/115_open/metadata` returned `mode=mock` and non-empty `md5`
+
+### M6 - Transfer Planner Enhancement
+
+- Completed on: 2026-05-23
+- Scope:
+  - Extended transfer planner with:
+    - configurable `selectedRoots`
+    - `executionGroups` output
+    - `pendingItems` output
+  - Implemented root-order + deepest-first grouping logic
+  - Kept fallback threshold strategy with explicit `download_upload` vs `pending_manual` split
+- Verification evidence:
+  - `POST /api/plan/mock` with `selectedRoots=['/1','/2','/3']` returned `executionGroups` roots in `/1,/2,/3` order
+  - Response returned `pendingItems` and strategy summary counts
+  - Example run produced mixed strategies (`fast_upload`, `download_upload`, `pending_manual`) as expected by threshold and hash availability

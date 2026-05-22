@@ -38,6 +38,7 @@ class MockPlanRequest(BaseModel):
     sourceProvider: str
     targetProvider: str
     thresholdMB: int = 0
+    selectedRoots: list[str] = []
     entries: list[SourceEntry]
 
 
@@ -176,6 +177,7 @@ def create_app() -> FastAPI:
             target_provider=payload.targetProvider,
             entries=payload.entries,
             threshold_mb=payload.thresholdMB,
+            selected_roots=payload.selectedRoots,
         )
         return plan.model_dump()
 

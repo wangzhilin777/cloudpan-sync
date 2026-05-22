@@ -57,3 +57,22 @@
   - `POST /api/providers/guangya/fast_check` returned mixed results:
     - supported (`md5` / `gcid`) entries
     - unsupported entry when fast-upload fingerprints are missing
+
+### M5 - First-Wave Common Provider Foundation
+
+- Completed on: 2026-05-23
+- Scope:
+  - Added provider research index with evidence pointers for:
+    - `guangya`
+    - `aliyundrive_open`
+    - `115_open`
+    - `quark`
+  - Added generic provider APIs:
+    - `GET /api/providers/research`
+    - `POST /api/providers/{providerKey}/list` (mock list)
+    - `POST /api/providers/{providerKey}/metadata` (mock metadata/hash extraction)
+  - Covered first-wave non-Guangya providers with executable API stubs for iterative live integration
+- Verification evidence:
+  - `GET /api/providers/research` returned `4` research rows
+  - `POST /api/providers/aliyundrive_open/list` returned `mode=mock` and list items
+  - `POST /api/providers/115_open/metadata` returned `mode=mock` and non-empty `md5`

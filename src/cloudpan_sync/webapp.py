@@ -22,6 +22,8 @@ from .i18n import MESSAGES, messages_for
 from .models import AuthProfileInput, SourceEntry
 from .guangya import guangya_fast_check, guangya_mock_list
 from .planner import build_transfer_plan
+from .provider_mock import provider_mock_list, provider_mock_metadata
+from .provider_research import build_provider_research_index
 from .provider_registry import build_provider_registry
 
 
@@ -49,6 +51,10 @@ class GuangyaListRequest(BaseModel):
 
 class GuangyaFastCheckRequest(BaseModel):
     entries: list[SourceEntry]
+
+
+class ProviderPathRequest(BaseModel):
+    path: str = "/"
 
 
 def _is_logged_in(request: Request) -> bool:
@@ -79,6 +85,12 @@ def create_app() -> FastAPI:
     def providers() -> dict[str, object]:
         rows = [adapter.profile.model_dump() for adapter in build_provider_registry()]
         return {"items": rows}
+
+    @app.get("/api/providers/research")
+    def provider_research(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        return {"items": build_provider_research_index()}
 
     @app.get("/api/auth/profiles")
     def auth_profiles(request: Request) -> dict[str, object]:
@@ -201,6 +213,35 @@ def create_app() -> FastAPI:
             "providerKey": "guangya",
             "mode": "local_precheck",
             "items": rows,
+        }
+
+    @app.post("/api/providers/{provider_key}/list")
+    def provider_list(provider_key: str, payload: ProviderPathRequest, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        if provider_key == "guangya":
+            items = guangya_mock_list(payload.path)
+        else:
+            items = provider_mock_list(provider_key, payload.path)
+        if not items:
+            raise HTTPException(status_code=404, detail="provider_or_path_not_supported")
+        return {
+            "providerKey": provider_key,
+            "path": payload.path,
+            "items": items,
+            "mode": "mock",
+        }
+
+    @app.post("/api/providers/{provider_key}/metadata")
+    def provider_metadata(provider_key: str, payload: ProviderPathRequest, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        entry = provider_mock_metadata(provider_key, payload.path)
+        return {
+            "providerKey": provider_key,
+            "path": payload.path,
+            "mode": "mock",
+            "entry": entry.model_dump(),
         }
 
     return app

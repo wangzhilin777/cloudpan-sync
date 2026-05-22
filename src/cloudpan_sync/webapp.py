@@ -20,11 +20,13 @@ from .auth import build_session_token, verify_session_token
 from .config import ADMIN_PASSWORD, SESSION_COOKIE
 from .i18n import MESSAGES, messages_for
 from .models import AuthProfileInput, SourceEntry
+from .models import TaskActionRequest, TaskCreateRequest
 from .guangya import guangya_fast_check, guangya_mock_list
 from .planner import build_transfer_plan
 from .provider_mock import provider_mock_list, provider_mock_metadata
 from .provider_research import build_provider_research_index
 from .provider_registry import build_provider_registry
+from .task_runtime import create_task, get_task, list_tasks, pause_task, resume_task, retry_task, run_task
 
 
 WEB_DIR = Path(__file__).parent / "web"
@@ -245,5 +247,46 @@ def create_app() -> FastAPI:
             "mode": "mock",
             "entry": entry.model_dump(),
         }
+
+    @app.get("/api/tasks")
+    def tasks(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        return {"items": list_tasks()}
+
+    @app.post("/api/tasks")
+    def task_create(payload: TaskCreateRequest, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        return {"item": create_task(payload)}
+
+    @app.get("/api/tasks/{task_id}")
+    def task_get(task_id: str, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        task = get_task(task_id)
+        if task is None:
+            raise HTTPException(status_code=404, detail="task_not_found")
+        return {"item": task}
+
+    @app.post("/api/tasks/{task_id}/action")
+    def task_action(task_id: str, payload: TaskActionRequest, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        task = get_task(task_id)
+        if task is None:
+            raise HTTPException(status_code=404, detail="task_not_found")
+        action = payload.action.strip().lower()
+        if action == "run":
+            task = run_task(task_id)
+        elif action == "pause":
+            task = pause_task(task_id)
+        elif action == "resume":
+            task = resume_task(task_id)
+        elif action == "retry":
+            task = retry_task(task_id)
+        else:
+            raise HTTPException(status_code=400, detail="unsupported_action")
+        return {"item": task}
 
     return app

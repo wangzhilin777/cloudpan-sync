@@ -143,6 +143,12 @@ button.ghost {
   margin-top: 14px;
 }
 
+.queue-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
 .auth-list {
   list-style: none;
   padding: 0;

@@ -14,6 +14,7 @@ const state = {
   activeTab: "nav.new_task",
   providers: [],
   authProfiles: [],
+  tasks: [],
 };
 
 function t(key) {
@@ -61,15 +62,22 @@ function render() {
   const logoutBtn = document.getElementById("logoutBtn");
   const generalPanel = document.getElementById("generalPanel");
   const authPanel = document.getElementById("authPanel");
+  const queuePanel = document.getElementById("queuePanel");
   loginPanel.hidden = state.loggedIn;
   appPanel.hidden = !state.loggedIn;
   logoutBtn.hidden = !state.loggedIn;
   if (state.loggedIn) {
     const authTab = state.activeTab === "nav.auth";
+    const queueTab = state.activeTab === "nav.queue";
     generalPanel.hidden = authTab;
     authPanel.hidden = !authTab;
+    queuePanel.hidden = !queueTab;
+    if (!authTab && !queueTab) {
+      generalPanel.hidden = false;
+    }
   }
   renderAuthList();
+  renderTaskList();
 }
 
 async function loadI18n(lang) {
@@ -165,6 +173,67 @@ async function deleteAuth(profileId) {
   await loadAuthProfiles();
 }
 
+function renderTaskList() {
+  const list = document.getElementById("taskList");
+  if (!list) return;
+  list.innerHTML = "";
+  for (const task of state.tasks) {
+    const node = document.createElement("li");
+    node.className = "auth-item";
+    const left = document.createElement("div");
+    const title = document.createElement("div");
+    title.textContent = `${task.sourceProvider} -> ${task.targetProvider}`;
+    const meta = document.createElement("div");
+    meta.className = "auth-item-meta";
+    meta.textContent = `state=${task.state}, done=${task.progress.done}/${task.progress.total}, failed=${task.progress.failed}, pending=${task.progress.pendingManual}`;
+    left.appendChild(title);
+    left.appendChild(meta);
+
+    const actions = document.createElement("div");
+    for (const action of ["run", "pause", "resume", "retry"]) {
+      const btn = document.createElement("button");
+      btn.className = "ghost";
+      btn.textContent = action;
+      btn.addEventListener("click", () => taskAction(task.taskId, action));
+      actions.appendChild(btn);
+    }
+    node.appendChild(left);
+    node.appendChild(actions);
+    list.appendChild(node);
+  }
+}
+
+async function loadTasks() {
+  if (!state.loggedIn) return;
+  const data = await fetchJson("/api/tasks");
+  state.tasks = data.items || [];
+  renderTaskList();
+}
+
+async function createDemoTask() {
+  const body = {
+    sourceProvider: "quark",
+    targetProvider: "guangya",
+    thresholdMB: 200,
+    selectedRoots: ["/1", "/2"],
+    entries: [
+      { path: "/1/11/111/a.bin", size: 100, md5: "e10adc3949ba59abbe56e057f20f883e" },
+      { path: "/1/11/112/b.bin", size: 100, md5: "" },
+      { path: "/2/21/211/c.bin", size: 1000000000, md5: "" },
+    ],
+  };
+  await fetchJson("/api/tasks", { method: "POST", body: JSON.stringify(body) });
+  await loadTasks();
+}
+
+async function taskAction(taskId, action) {
+  await fetchJson(`/api/tasks/${taskId}/action`, {
+    method: "POST",
+    body: JSON.stringify({ action }),
+  });
+  await loadTasks();
+}
+
 async function onLogin() {
   const input = document.getElementById("passwordInput");
   const errorNode = document.getElementById("loginError");
@@ -200,10 +269,13 @@ async function bootstrap() {
   document.getElementById("logoutBtn").addEventListener("click", onLogout);
   document.getElementById("authSaveBtn").addEventListener("click", saveAuth);
   document.getElementById("authReloadBtn").addEventListener("click", loadAuthProfiles);
+  document.getElementById("taskCreateDemoBtn").addEventListener("click", createDemoTask);
+  document.getElementById("taskReloadBtn").addEventListener("click", loadTasks);
   await loadI18n("zh-CN");
   await loadProviders();
   await refreshSession();
   await loadAuthProfiles();
+  await loadTasks();
 }
 
 bootstrap().catch((error) => {

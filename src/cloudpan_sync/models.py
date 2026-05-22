@@ -67,3 +67,15 @@ class AuthProfileInput(BaseModel):
     token: str = ""
     cookie: str = ""
     extra: dict[str, str] = Field(default_factory=dict)
+
+
+class TaskCreateRequest(BaseModel):
+    sourceProvider: str
+    targetProvider: str
+    thresholdMB: int = 0
+    selectedRoots: list[str] = Field(default_factory=list)
+    entries: list[SourceEntry]
+
+
+class TaskActionRequest(BaseModel):
+    action: str

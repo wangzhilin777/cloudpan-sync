@@ -91,3 +91,23 @@
   - `POST /api/plan/mock` with `selectedRoots=['/1','/2','/3']` returned `executionGroups` roots in `/1,/2,/3` order
   - Response returned `pendingItems` and strategy summary counts
   - Example run produced mixed strategies (`fast_upload`, `download_upload`, `pending_manual`) as expected by threshold and hash availability
+
+### M7 - Controlled Runtime and Queue View
+
+- Completed on: 2026-05-23
+- Scope:
+  - Added task runtime state machine:
+    - task create/list/get
+    - actions: `run`, `pause`, `resume`, `retry`
+    - risk-based pause flag for high pending-manual volume
+  - Added queue APIs:
+    - `GET /api/tasks`
+    - `POST /api/tasks`
+    - `GET /api/tasks/{taskId}`
+    - `POST /api/tasks/{taskId}/action`
+  - Added queue UI panel with action buttons and progress summary
+- Verification evidence:
+  - Creating a task with multiple `pending_manual` items produced initial `risk_paused` state
+  - Action flow verified:
+    - `resume` -> `run` -> `retry` -> `pause`
+  - Runtime returned expected states (`completed`, `ready`, `paused`) and preserved pending-manual counts

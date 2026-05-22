@@ -1,0 +1,135 @@
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --text: #172029;
+  --muted: #516173;
+  --accent: #0c8a6a;
+  --accent-2: #0a6f55;
+  --danger: #ba2b2b;
+  --border: #d9e2e8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 10% 10%, #e7f8f2 0%, transparent 28%),
+    radial-gradient(circle at 90% 90%, #e7eef9 0%, transparent 26%),
+    var(--bg);
+}
+
+.page {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.topbar p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.layout {
+  margin-top: 18px;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.login-panel {
+  max-width: 420px;
+}
+
+label {
+  display: block;
+  margin: 10px 0 6px;
+  color: var(--muted);
+}
+
+input, select, button {
+  font: inherit;
+}
+
+input, select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+button {
+  margin-top: 12px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--accent-2);
+}
+
+button.ghost {
+  margin: 0;
+  background: #edf2f6;
+  color: var(--text);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tab {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #f8fbfd;
+  color: #355066;
+}
+
+.placeholder {
+  margin-top: 12px;
+  color: var(--muted);
+}
+
+.error {
+  margin-top: 8px;
+  color: var(--danger);
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

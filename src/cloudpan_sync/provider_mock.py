@@ -20,6 +20,36 @@ def provider_mock_list(provider_key: str, path: str) -> list[dict[str, object]]:
             {"name": "docs", "path": f"{base}/docs", "type": "dir"},
             {"name": "ebook.epub", "path": f"{base}/ebook.epub", "type": "file", "size": 6172839},
         ]
+    if provider_key == "189cloud":
+        return [
+            {"name": "work", "path": f"{base}/work", "type": "dir"},
+            {"name": "report.xlsx", "path": f"{base}/report.xlsx", "type": "file", "size": 3291823},
+        ]
+    if provider_key == "baidu_netdisk":
+        return [
+            {"name": "share", "path": f"{base}/share", "type": "dir"},
+            {"name": "movie.mkv", "path": f"{base}/movie.mkv", "type": "file", "size": 1503238553},
+        ]
+    if provider_key == "uc":
+        return [
+            {"name": "notes", "path": f"{base}/notes", "type": "dir"},
+            {"name": "slides.pptx", "path": f"{base}/slides.pptx", "type": "file", "size": 8721312},
+        ]
+    if provider_key == "xunlei":
+        return [
+            {"name": "downloads", "path": f"{base}/downloads", "type": "dir"},
+            {"name": "linux.iso", "path": f"{base}/linux.iso", "type": "file", "size": 2382364672},
+        ]
+    if provider_key == "pikpak":
+        return [
+            {"name": "saved", "path": f"{base}/saved", "type": "dir"},
+            {"name": "clip.mp4", "path": f"{base}/clip.mp4", "type": "file", "size": 18823212},
+        ]
+    if provider_key == "123_open":
+        return [
+            {"name": "backup", "path": f"{base}/backup", "type": "dir"},
+            {"name": "db.dump", "path": f"{base}/db.dump", "type": "file", "size": 91231345},
+        ]
     return []
 
 
@@ -31,8 +61,8 @@ def provider_mock_metadata(provider_key: str, path: str) -> SourceEntry:
         path=path,
         size=max(128, len(seed) * 1024),
         md5=fake_md5,
-        sha1="",
+        sha1=("0" * 40) if provider_key == "115_open" else "",
         sha256="",
-        gcid="",
+        gcid=("a" * 40) if provider_key in {"xunlei", "pikpak"} else "",
         etag=fake_md5,
     )

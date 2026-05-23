@@ -27,6 +27,7 @@ from .provider_mock import provider_mock_list, provider_mock_metadata
 from .provider_research import build_provider_research_index
 from .provider_registry import build_provider_registry
 from .plan_audit import run_plan_audit, to_markdown
+from .live_probe import run_live_probe, probe_to_markdown
 from .task_runtime import create_task, get_task, list_tasks, pause_task, resume_task, retry_task, run_task
 
 
@@ -108,6 +109,19 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=401, detail="please_login_first")
         audit = run_plan_audit()
         return {"markdown": to_markdown(audit)}
+
+    @app.get("/api/providers/live_probe")
+    def providers_live_probe(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        return run_live_probe()
+
+    @app.get("/api/providers/live_probe_markdown")
+    def providers_live_probe_markdown(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        data = run_live_probe()
+        return {"markdown": probe_to_markdown(data)}
 
     @app.get("/api/auth/profiles")
     def auth_profiles(request: Request) -> dict[str, object]:

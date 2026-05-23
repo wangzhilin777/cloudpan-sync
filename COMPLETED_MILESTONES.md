@@ -159,3 +159,23 @@
   - `POST /api/auth/capture/start` 返回 `capture_pending`
   - 首页 HTML 包含 `wizard-steps` 与 `authModal` 结构
   - `GET /api/tasks` 正常返回（`hasItemsField=true`）
+
+### M11 - 首批 Provider 在线探测验证层
+
+- 完成日期：`2026-05-23`
+- 完成范围：
+  - 新增 `live_probe` 模块，对 provider 的 `officialDocsUrl/webLoginUrl` 执行在线探测
+  - 新增探测 API：
+    - `GET /api/providers/live_probe`
+    - `GET /api/providers/live_probe_markdown`
+  - 新增报告导出脚本：
+    - `scripts/export_live_probe_report.py`
+  - 生成探测报告文档：
+    - `docs/PROVIDER_LIVE_PROBE_REPORT.md`
+- 验证证据：
+  - `GET /api/providers/live_probe` 返回：
+    - `providerCount=10`
+    - `totalChecks=12`
+    - `failedChecks=0`
+  - `GET /api/providers/live_probe_markdown` 返回非空 Markdown
+  - 导出脚本成功生成 `docs/PROVIDER_LIVE_PROBE_REPORT.md`

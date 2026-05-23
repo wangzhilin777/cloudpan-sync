@@ -12,7 +12,7 @@ from cloudpan_sync.provider_status_matrix import build_status_matrix, matrix_to_
 
 
 def main() -> None:
-    out = ROOT / "docs" / "PROVIDER_STATUS_MATRIX.md"
+    out = ROOT / "docs" / "06-PROVIDER_STATUS_MATRIX.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(matrix_to_markdown(build_status_matrix()), encoding="utf-8")
     print(out)

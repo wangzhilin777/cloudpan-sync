@@ -12,6 +12,11 @@ def build_provider_registry() -> list[ProviderAdapter]:
             authModes=["web_login_capture", "manual_token"],
             fastUploadInputs=["md5", "size", "name"],
             fallbackModes=["download_upload"],
+            conflictPolicies=["overwrite_existing", "auto_rename_new"],
+            supportsOverwrite=False,
+            supportsAutoRename=True,
+            overwriteBehavior="downgrade_to_auto_rename",
+            conflictNotes="当前 Guangya fallback 上传链路已接受 overwrite_existing / auto_rename_new，但 overwrite_existing 仍会诚实降级为 auto_rename_new。",
             status="researching",
         ),
         ProviderProfile(
@@ -20,6 +25,7 @@ def build_provider_registry() -> list[ProviderAdapter]:
             authModes=["official_oauth"],
             fastUploadInputs=["md5", "size"],
             fallbackModes=["download_upload"],
+            conflictNotes="当前任务运行时尚未暴露该 provider 的同名冲突处理链路。",
             status="researching",
         ),
         ProviderProfile(
@@ -28,6 +34,7 @@ def build_provider_registry() -> list[ProviderAdapter]:
             authModes=["official_oauth", "manual_cookie"],
             fastUploadInputs=["sha1", "size"],
             fallbackModes=["download_upload"],
+            conflictNotes="当前任务运行时尚未暴露该 provider 的同名冲突处理链路。",
             status="researching",
         ),
         ProviderProfile(
@@ -36,7 +43,8 @@ def build_provider_registry() -> list[ProviderAdapter]:
             authModes=["web_login_capture", "manual_cookie"],
             fastUploadInputs=["md5", "size"],
             fallbackModes=["download_upload"],
-            status="planned",
+            conflictNotes="当前任务运行时尚未暴露该 provider 的同名冲突处理链路。",
+            status="researching",
         ),
         ProviderProfile(
             providerKey="189cloud",
@@ -44,7 +52,9 @@ def build_provider_registry() -> list[ProviderAdapter]:
             authModes=["web_login_capture", "manual_cookie"],
             fastUploadInputs=["md5", "size"],
             fallbackModes=["download_upload"],
-            status="planned",
+            overwriteBehavior="readonly_auth_blocked",
+            conflictNotes="当前 189Cloud 仅验证到 shareCode/accessCode 只读链路，写入链路未就绪，因此不能承诺覆盖或自动重命名。",
+            status="researching",
         ),
         ProviderProfile(
             providerKey="baidu_netdisk",
@@ -52,7 +62,8 @@ def build_provider_registry() -> list[ProviderAdapter]:
             authModes=["official_oauth", "manual_cookie"],
             fastUploadInputs=["md5", "size"],
             fallbackModes=["download_upload"],
-            status="planned",
+            conflictNotes="当前任务运行时尚未暴露该 provider 的同名冲突处理链路。",
+            status="researching",
         ),
         ProviderProfile(
             providerKey="uc",
@@ -60,7 +71,8 @@ def build_provider_registry() -> list[ProviderAdapter]:
             authModes=["web_login_capture", "manual_cookie"],
             fastUploadInputs=["md5", "size"],
             fallbackModes=["download_upload"],
-            status="planned",
+            conflictNotes="当前任务运行时尚未暴露该 provider 的同名冲突处理链路。",
+            status="researching",
         ),
         ProviderProfile(
             providerKey="xunlei",
@@ -68,7 +80,8 @@ def build_provider_registry() -> list[ProviderAdapter]:
             authModes=["web_login_capture", "manual_cookie"],
             fastUploadInputs=["gcid", "size"],
             fallbackModes=["download_upload"],
-            status="planned",
+            conflictNotes="当前任务运行时尚未暴露该 provider 的同名冲突处理链路。",
+            status="researching",
         ),
         ProviderProfile(
             providerKey="pikpak",
@@ -76,7 +89,8 @@ def build_provider_registry() -> list[ProviderAdapter]:
             authModes=["manual_token", "manual_cookie"],
             fastUploadInputs=["gcid", "size"],
             fallbackModes=["download_upload"],
-            status="planned",
+            conflictNotes="当前任务运行时尚未暴露该 provider 的同名冲突处理链路。",
+            status="researching",
         ),
         ProviderProfile(
             providerKey="123_open",
@@ -84,7 +98,8 @@ def build_provider_registry() -> list[ProviderAdapter]:
             authModes=["official_oauth", "manual_token"],
             fastUploadInputs=["md5", "size"],
             fallbackModes=["download_upload"],
-            status="planned",
+            conflictNotes="当前任务运行时尚未暴露该 provider 的同名冲突处理链路。",
+            status="researching",
         ),
     ]
     return [ProviderAdapter(profile=item) for item in providers]

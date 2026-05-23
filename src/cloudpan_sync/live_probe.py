@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
+from .provider_live_probe_store import latest_provider_live_probes, list_provider_live_probes, provider_live_probe_summary
 from .provider_research import build_provider_research_index
 
 
@@ -83,8 +84,11 @@ def _probe_url(kind: str, url: str, timeout_sec: int = 8) -> ProbeResult:
 def run_live_probe() -> dict[str, object]:
     rows: list[dict[str, object]] = []
     research = build_provider_research_index()
+    saved_profile_probes = {str(row.get("providerKey") or ""): dict(row) for row in latest_provider_live_probes()}
+    probe_summary = provider_live_probe_summary()
     ok_checks = 0
     total_checks = 0
+    adapter_probe_ok = 0
     for provider in research:
         provider_key = str(provider.get("providerKey") or "")
         display_name = str(provider.get("displayName") or provider_key)
@@ -97,11 +101,21 @@ def run_live_probe() -> dict[str, object]:
             checks.append(_probe_url("web_login", login_url))
         total_checks += len(checks)
         ok_checks += sum(1 for c in checks if c.ok)
+        saved_probe = saved_profile_probes.get(provider_key, {})
+        saved_probe_ok = bool(saved_probe.get("ok"))
+        if saved_probe_ok:
+            adapter_probe_ok += 1
         rows.append(
             {
                 "providerKey": provider_key,
                 "displayName": display_name,
                 "checks": [c.to_dict() for c in checks],
+                "profileProbe": {
+                    "ok": saved_probe_ok,
+                    "mode": str(saved_probe.get("mode") or ""),
+                    "summary": str(saved_probe.get("summary") or ""),
+                    "checkCount": len(saved_probe.get("checks") or []) if isinstance(saved_probe.get("checks"), list) else 0,
+                },
             }
         )
     return {
@@ -111,6 +125,9 @@ def run_live_probe() -> dict[str, object]:
             "totalChecks": total_checks,
             "okChecks": ok_checks,
             "failedChecks": max(0, total_checks - ok_checks),
+            "profileProbeProviderCount": int(probe_summary.get("profileCount", 0) or 0),
+            "profileProbeOkCount": int(probe_summary.get("okCount", 0) or 0),
+            "profileProbeFailedCount": int(probe_summary.get("failedCount", 0) or 0),
         },
         "items": rows,
     }
@@ -123,7 +140,7 @@ def probe_to_markdown(payload: dict[str, object]) -> str:
     lines.append("")
     lines.append(f"- GeneratedAt: `{payload.get('generatedAt', '')}`")
     lines.append(
-        f"- Summary: providerCount={summary.get('providerCount', 0)}, totalChecks={summary.get('totalChecks', 0)}, okChecks={summary.get('okChecks', 0)}, failedChecks={summary.get('failedChecks', 0)}"
+        f"- Summary: providerCount={summary.get('providerCount', 0)}, totalChecks={summary.get('totalChecks', 0)}, okChecks={summary.get('okChecks', 0)}, failedChecks={summary.get('failedChecks', 0)}, profileProbeProviderCount={summary.get('profileProbeProviderCount', 0)}, profileProbeOkCount={summary.get('profileProbeOkCount', 0)}, profileProbeFailedCount={summary.get('profileProbeFailedCount', 0)}"
     )
     lines.append("")
     for item in payload.get("items", []):
@@ -136,6 +153,11 @@ def probe_to_markdown(payload: dict[str, object]) -> str:
             ck = dict(c or {})
             lines.append(
                 f"- {ck.get('kind', '')}: ok={ck.get('ok', False)} status={ck.get('status', 0)} url={ck.get('url', '')} final={ck.get('finalUrl', '')} error={ck.get('error', '')}"
+            )
+        profile_probe = dict(row.get("profileProbe") or {})
+        if int(profile_probe.get("checkCount", 0) or 0) > 0:
+            lines.append(
+                f"- profile_probe: ok={profile_probe.get('ok', False)} mode={profile_probe.get('mode', '')} checks={profile_probe.get('checkCount', 0)} summary={profile_probe.get('summary', '')}"
             )
         lines.append("")
     return "\n".join(lines).strip() + "\n"

@@ -1,14 +1,10 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path
-from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
 
-from .auth_store import DATA_DIR, get_profile
-from .auth_store import list_profiles
+from .auth_store import DATA_DIR, get_profile, list_profiles
+from .provider_live_probe import run_provider_live_probe, run_provider_live_probe_for_profile
 
 
 VALIDATION_FILE = DATA_DIR / "auth_live_validations.json"
@@ -41,100 +37,156 @@ def list_live_validations() -> list[dict[str, object]]:
     return _read_rows()
 
 
-@dataclass
-class ValidationEndpoint:
-    provider_key: str
-    url: str
-    kind: str
+def latest_live_validations() -> list[dict[str, object]]:
+    latest_by_profile: dict[str, dict[str, object]] = {}
+    for row in _read_rows():
+        profile_id = str(row.get("profileId") or "")
+        if not profile_id:
+            continue
+        latest_by_profile[profile_id] = row
+    return list(latest_by_profile.values())
 
 
-def _resolve_endpoint(provider_key: str) -> ValidationEndpoint | None:
-    mapping = {
-        "guangya": ValidationEndpoint("guangya", "https://guangyapan.com/", "web_home"),
-        "aliyundrive_open": ValidationEndpoint("aliyundrive_open", "https://www.alipan.com/", "web_home"),
-        "115_open": ValidationEndpoint("115_open", "https://115.com/", "web_home"),
-        "189cloud": ValidationEndpoint("189cloud", "https://cloud.189.cn/", "web_home"),
-        "baidu_netdisk": ValidationEndpoint("baidu_netdisk", "https://pan.baidu.com/", "web_home"),
-        "quark": ValidationEndpoint("quark", "https://pan.quark.cn/", "web_home"),
-        "uc": ValidationEndpoint("uc", "https://drive.uc.cn/", "web_home"),
-        "xunlei": ValidationEndpoint("xunlei", "https://pan.xunlei.com/", "web_home"),
-        "pikpak": ValidationEndpoint("pikpak", "https://mypikpak.com/", "web_home"),
-        "123_open": ValidationEndpoint("123_open", "https://www.123pan.com/", "web_home"),
+def latest_live_validation_for_profile(profile_id: str) -> dict[str, object] | None:
+    target = str(profile_id or "")
+    if not target:
+        return None
+    latest: dict[str, object] | None = None
+    for row in _read_rows():
+        if str(row.get("profileId") or "") == target:
+            latest = row
+    return latest
+
+
+def live_validation_summary() -> dict[str, object]:
+    rows = latest_live_validations()
+    return {
+        "profileCount": len(rows),
+        "okCount": sum(1 for row in rows if bool(row.get("ok"))),
+        "failedCount": sum(1 for row in rows if not bool(row.get("ok"))),
+        "providerKeys": sorted({str(row.get("providerKey") or "") for row in rows if str(row.get("providerKey") or "")}),
     }
-    return mapping.get(provider_key)
+
+
+def append_live_validation(row: dict[str, object]) -> dict[str, object]:
+    rows = _read_rows()
+    rows.append(row)
+    _write_rows(rows)
+    return row
+
+
+def _profile_probe_defaults(profile: object) -> tuple[str, str]:
+    extra = getattr(profile, "extra", {}) or {}
+    provider_key = str(getattr(profile, "providerKey", "") or "")
+
+    if provider_key == "guangya":
+        return (
+            str(
+                extra.get("parentId")
+                or extra.get("parent_id")
+                or extra.get("parentFileId")
+                or extra.get("parent_file_id")
+                or extra.get("dirId")
+                or extra.get("dir_id")
+                or extra.get("pid")
+                or ""
+            ),
+            str(extra.get("fileId") or extra.get("file_id") or extra.get("resId") or extra.get("res_id") or ""),
+        )
+    if provider_key == "aliyundrive_open":
+        return str(extra.get("parentFileId") or "root"), str(extra.get("fileId") or "")
+    if provider_key == "189cloud":
+        return "", str(extra.get("fileId") or "")
+    if provider_key == "baidu_netdisk":
+        return str(extra.get("path") or "/"), str(extra.get("fileId") or "")
+    if provider_key == "123_open":
+        return str(extra.get("parentFileId") or "0"), str(extra.get("fileId") or "")
+    if provider_key == "115_open":
+        return str(extra.get("parentId") or extra.get("cid") or "0"), str(extra.get("fileId") or "")
+    if provider_key == "xunlei":
+        return str(extra.get("parentId") or ""), str(extra.get("fileId") or "")
+    if provider_key == "pikpak":
+        return str(extra.get("parentId") or ""), str(extra.get("fileId") or "")
+    if provider_key == "quark":
+        return str(extra.get("parentId") or "0"), str(extra.get("fileId") or "")
+    if provider_key == "uc":
+        return str(extra.get("parentId") or "0"), str(extra.get("fileId") or "")
+    return "", ""
+
+
+def _required_field_hints(provider_key: str, error: str) -> list[str]:
+    mapping = {
+        ("guangya", "missing_parent_id"): ["extra.parentId", "aliases: parent_id/parentFileId/dirId/pid", "optional extra.did", "optional extra.dt"],
+        ("guangya", "missing_file_id"): ["extra.fileId", "aliases: file_id/resId", "extra.parentId for list/create_dir probes"],
+        ("guangya", "missing_authorization"): ["token", "or extra.authorization", "aliases: extra.Authorization/extra.accessToken"],
+        ("aliyundrive_open", "missing_domain_id"): ["extra.domainId", "extra.driveId"],
+        ("quark", "missing_pwd_id"): ["extra.pwdId", "or extra.sharePwdId", "optional extra.passcode"],
+        ("uc", "missing_pwd_id"): ["extra.pwdId", "or extra.sharePwdId", "optional extra.passcode"],
+    }
+    return mapping.get((provider_key, error), [])
+
+
+def _summarize_check_status(checks: list[dict[str, object]]) -> int:
+    best = 0
+    for check in checks:
+        try:
+            status = int(check.get("status", 0) or 0)
+        except Exception:
+            status = 0
+        best = max(best, status)
+    return best
+
+
+def validate_profile_object(profile: object) -> dict[str, object]:
+    parent_id, file_id = _profile_probe_defaults(profile)
+    probe = run_provider_live_probe_for_profile(
+        profile=profile,
+        parent_id=parent_id,
+        file_id=file_id,
+        page_size=100,
+        dir_name="",
+    )
+    checks = [dict(item or {}) for item in probe.get("checks", [])]
+    first_error = next((str(check.get("error") or "") for check in checks if str(check.get("error") or "")), "")
+    first_risk_hint = next((str(check.get("note") or "") for check in checks if str(check.get("error") or "")), "")
+    return {
+        "ok": bool(probe.get("ok")),
+        "profileId": profile.profileId,
+        "providerKey": profile.providerKey,
+        "providerDisplayName": profile.displayName,
+        "mode": str(probe.get("mode") or ""),
+        "status": _summarize_check_status(checks),
+        "error": first_error,
+        "summary": str(probe.get("summary") or ""),
+        "checkedAt": _now_iso(),
+        "checks": checks,
+        "parentId": parent_id,
+        "fileId": file_id,
+        "riskHint": first_risk_hint,
+        "requiredFieldHints": _required_field_hints(str(profile.providerKey or ""), first_error),
+    }
 
 
 def run_profile_live_validation(profile_id: str) -> dict[str, object]:
     profile = get_profile(profile_id)
     if profile is None:
-        return {
+        row = {
             "ok": False,
             "profileId": profile_id,
             "providerKey": "",
+            "providerDisplayName": "",
+            "mode": "profile_missing",
             "status": 0,
             "error": "profile_not_found",
+            "summary": "Auth profile not found.",
             "checkedAt": _now_iso(),
+            "checks": [],
         }
-    endpoint = _resolve_endpoint(profile.providerKey)
-    if endpoint is None:
-        return {
-            "ok": False,
-            "profileId": profile.profileId,
-            "providerKey": profile.providerKey,
-            "status": 0,
-            "error": "provider_not_supported",
-            "checkedAt": _now_iso(),
-        }
-    headers = {
-        "User-Agent": "CloudPanSyncLiveValidate/1.0",
-        "Accept": "text/html,application/json,*/*",
-    }
-    if profile.cookie:
-        headers["Cookie"] = profile.cookie
-    if profile.token:
-        headers["Authorization"] = profile.token
-    for k, v in profile.extra.items():
-        if k.lower() in {"header", "x-auth-token", "x-device-id"} and v:
-            if k.lower() == "header":
-                parts = v.split("=", 1)
-                if len(parts) == 2:
-                    headers[parts[0].strip()] = parts[1].strip()
-            else:
-                headers[k] = v
+        append_live_validation(row)
+        return row
 
-    status = 0
-    final_url = endpoint.url
-    error = ""
-    ok = False
-    try:
-        req = Request(endpoint.url, headers=headers, method="GET")
-        with urlopen(req, timeout=10) as resp:
-            status = int(getattr(resp, "status", 0) or 0)
-            final_url = str(getattr(resp, "url", endpoint.url) or endpoint.url)
-            ok = 200 <= status < 400
-    except HTTPError as exc:
-        status = int(exc.code or 0)
-        error = f"http_error:{exc.code}"
-    except URLError as exc:
-        error = f"url_error:{exc.reason}"
-    except Exception as exc:  # pragma: no cover
-        error = f"unexpected:{exc}"
-
-    row = {
-        "ok": ok,
-        "profileId": profile.profileId,
-        "providerKey": profile.providerKey,
-        "providerDisplayName": profile.displayName,
-        "endpointUrl": endpoint.url,
-        "endpointKind": endpoint.kind,
-        "status": status,
-        "finalUrl": final_url,
-        "error": error,
-        "checkedAt": _now_iso(),
-    }
-    rows = _read_rows()
-    rows.append(row)
-    _write_rows(rows)
+    row = validate_profile_object(profile)
+    append_live_validation(row)
     return row
 
 

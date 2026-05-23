@@ -1,0 +1,127 @@
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from fastapi.testclient import TestClient
+
+from cloudpan_sync import task_runtime, webapp
+
+
+def main() -> None:
+    original_password = webapp.ADMIN_PASSWORD
+    original_tasks = dict(task_runtime._TASKS)
+    task_runtime._TASKS.clear()
+
+    try:
+        webapp.ADMIN_PASSWORD = "admin123"
+        app = webapp.create_app()
+        client = TestClient(app)
+        login = client.post("/api/login", json={"password": "admin123"})
+        assert login.status_code == 200, login.text
+
+        create_resp = client.post(
+            "/api/tasks",
+            json={
+                "sourceProvider": "quark",
+                "targetProvider": "guangya",
+                "targetProfileId": "",
+                "targetParentId": "",
+                "thresholdMB": 200,
+                "conflictPolicy": "auto_rename_new",
+                "acknowledgePendingManual": True,
+                "acknowledgeDownloadUpload": True,
+                "selectedRoots": ["/demo.bin"],
+                "entries": [{"path": "/demo.bin", "size": 4, "md5": ""}],
+            },
+        )
+        assert create_resp.status_code == 200, create_resp.text
+        created = create_resp.json()
+        created_item = dict(created.get("item") or {})
+        created_list = dict(created.get("listView") or {})
+        created_detail = dict(created.get("detailView") or {})
+        task_id = str(created_item.get("taskId") or "")
+        assert task_id, created
+
+        list_resp = client.get("/api/tasks")
+        assert list_resp.status_code == 200, list_resp.text
+        listed = list_resp.json()
+        list_items = list(listed.get("listItems") or [])
+        assert list_items, listed
+        first_list = dict(list_items[0] or {})
+
+        get_resp = client.get(f"/api/tasks/{task_id}")
+        assert get_resp.status_code == 200, get_resp.text
+        fetched = get_resp.json()
+        fetched_list = dict(fetched.get("listView") or {})
+        fetched_detail = dict(fetched.get("detailView") or {})
+
+        action_resp = client.post(f"/api/tasks/{task_id}/action", json={"action": "run"})
+        assert action_resp.status_code == 200, action_resp.text
+        action = action_resp.json()
+        action_list = dict(action.get("listView") or {})
+        action_detail = dict(action.get("detailView") or {})
+
+        print(
+            json.dumps(
+                {
+                    "createTaskHasViews": bool(created_list and created_detail),
+                    "createListView": {
+                        "taskId": created_list.get("taskId"),
+                        "state": created_list.get("state"),
+                        "hasProgress": isinstance(created_list.get("progress"), dict),
+                        "hasSummary": isinstance(created_list.get("summary"), dict),
+                        "hasGuard": isinstance(created_list.get("guard"), dict),
+                        "latestResultsCount": len(created_list.get("latestResults") or []),
+                    },
+                    "createDetailView": {
+                        "taskId": created_detail.get("taskId"),
+                        "state": ((created_detail.get("summary") or {}).get("state")),
+                        "hasPlanSummary": isinstance(created_detail.get("planSummary"), dict),
+                        "executionGroupsCount": len(created_detail.get("executionGroups") or []),
+                        "pendingItemsCount": len(created_detail.get("pendingItems") or []),
+                        "resultsCount": len(created_detail.get("results") or []),
+                        "sourceEntriesCount": len(created_detail.get("sourceEntries") or []),
+                    },
+                    "listEndpoint": {
+                        "itemsCount": len(listed.get("items") or []),
+                        "listItemsCount": len(list_items),
+                        "firstTaskId": first_list.get("taskId"),
+                        "firstHasSummary": isinstance(first_list.get("summary"), dict),
+                        "firstHasProgress": isinstance(first_list.get("progress"), dict),
+                        "firstHasLatestResults": isinstance(first_list.get("latestResults"), list),
+                    },
+                    "getEndpoint": {
+                        "hasListView": bool(fetched_list),
+                        "hasDetailView": bool(fetched_detail),
+                        "detailHasResults": isinstance(fetched_detail.get("results"), list),
+                        "detailHasSourceEntries": isinstance(fetched_detail.get("sourceEntries"), list),
+                    },
+                    "actionEndpoint": {
+                        "action": action.get("action"),
+                        "actionApplied": action.get("actionApplied"),
+                        "allowedActions": action.get("allowedActions"),
+                        "hasListView": bool(action_list),
+                        "hasDetailView": bool(action_detail),
+                        "detailState": ((action_detail.get("summary") or {}).get("state")),
+                        "detailResultsCount": len(action_detail.get("results") or []),
+                    },
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+    finally:
+        webapp.ADMIN_PASSWORD = original_password
+        task_runtime._TASKS.clear()
+        task_runtime._TASKS.update(original_tasks)
+
+
+if __name__ == "__main__":
+    main()

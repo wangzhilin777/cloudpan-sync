@@ -6,24 +6,440 @@ const tabKeys = [
   "nav.providers",
   "nav.settings",
 ];
-const wizardKeys = [
-  "选择来源网盘",
-  "选择目标网盘",
-  "选择来源文件夹",
-  "扫描分析",
-  "确认策略",
-  "执行任务",
+
+const wizardSteps = [
+  { title: "wizard.step.1", description: "wizard.desc.1" },
+  { title: "wizard.step.2", description: "wizard.desc.2" },
+  { title: "wizard.step.3", description: "wizard.desc.3" },
+  { title: "wizard.step.4", description: "wizard.desc.4" },
+  { title: "wizard.step.5", description: "wizard.desc.5" },
+  { title: "wizard.step.6", description: "wizard.desc.6" },
 ];
+
+const tabPanelIds = {
+  "nav.new_task": "newTaskPanel",
+  "nav.auth": "authPanel",
+  "nav.queue": "queuePanel",
+  "nav.pending": "pendingPanel",
+  "nav.providers": "providersPanel",
+  "nav.settings": "settingsPanel",
+};
 
 const state = {
   lang: "zh-CN",
   messages: {},
   loggedIn: false,
   activeTab: "nav.new_task",
+  activeWizardStep: 0,
   providers: [],
+  providerResearch: [],
+  statusMatrix: null,
+  auditSummary: null,
   authProfiles: [],
+  authEditingProfileId: "",
+  liveValidations: [],
+  liveValidationMeta: { historyCount: 0, summary: null },
+  providerLiveProbes: {},
+  providerLiveProbeMeta: { historyCount: 0, summary: null },
   tasks: [],
+  taskPlanPreview: null,
 };
+
+const liveProbeProviderSet = new Set([
+  "guangya",
+  "aliyundrive_open",
+  "189cloud",
+  "baidu_netdisk",
+  "123_open",
+  "115_open",
+  "xunlei",
+  "pikpak",
+  "quark",
+  "uc",
+]);
+
+function latestValidationByProfile(profileId) {
+  for (let index = state.liveValidations.length - 1; index >= 0; index -= 1) {
+    const row = state.liveValidations[index];
+    if (row && row.profileId === profileId) {
+      return row;
+    }
+  }
+  return null;
+}
+
+function resolvedParentIdForProfile(profile) {
+  if (!profile) {
+    return "";
+  }
+  return profile.resolvedParentId || profile.extra?.parentId || "";
+}
+
+function resolvedFileIdForProfile(profile) {
+  if (!profile) {
+    return "";
+  }
+  return profile.resolvedFileId || profile.extra?.fileId || "";
+}
+
+function buildPatchCommandHint(profile) {
+  if (!profile || !Array.isArray(profile.missingFieldHints) || !profile.missingFieldHints.length) {
+    return "";
+  }
+  const base = `.\\.venv\\Scripts\\python.exe scripts\\patch_auth_profile_extra.py --profile-id ${profile.profileId}`;
+  if (profile.providerKey === "guangya") {
+    return `${base} --set parentId=YOUR_REAL_PARENT_ID --write --revalidate`;
+  }
+  if (profile.providerKey === "aliyundrive_open") {
+    return `${base} --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write --revalidate`;
+  }
+  if (profile.providerKey === "xunlei") {
+    return `${base} --set deviceId=YOUR_DEVICE_ID --write --revalidate`;
+  }
+  if (profile.providerKey === "quark" || profile.providerKey === "uc") {
+    return `${base} --set pwdId=YOUR_SHARE_PWD_ID --write --revalidate`;
+  }
+  return `${base} --set key=value --write --revalidate`;
+}
+
+function updateAuthFormMode() {
+  const saveBtn = document.getElementById("authSaveBtn");
+  const resetBtn = document.getElementById("authResetBtn");
+  const editHint = document.getElementById("authEditHint");
+  const tokenInput = document.getElementById("authToken");
+  const cookieInput = document.getElementById("authCookie");
+  if (saveBtn) {
+    saveBtn.textContent = state.authEditingProfileId ? "Update Auth" : "Save Auth";
+  }
+  if (resetBtn) {
+    resetBtn.textContent = state.authEditingProfileId ? "Cancel Edit" : "Reset Form";
+  }
+  if (editHint) {
+    if (state.authEditingProfileId) {
+      const profile = state.authProfiles.find((item) => item.profileId === state.authEditingProfileId);
+      editHint.hidden = false;
+      editHint.textContent = `Editing ${profile?.displayName || state.authEditingProfileId}. Leave token/cookie blank to keep existing secrets, then update only the fields you want to change.`;
+    } else {
+      editHint.hidden = true;
+      editHint.textContent = "";
+    }
+  }
+  if (tokenInput) {
+    tokenInput.placeholder = state.authEditingProfileId ? "token (leave blank to keep current)" : "token (optional)";
+  }
+  if (cookieInput) {
+    cookieInput.placeholder = state.authEditingProfileId ? "cookie (leave blank to keep current)" : "cookie (optional)";
+  }
+}
+
+function resetAuthForm() {
+  state.authEditingProfileId = "";
+  document.getElementById("authDisplayName").value = "";
+  document.getElementById("authToken").value = "";
+  document.getElementById("authCookie").value = "";
+  document.getElementById("authExtraHeader").value = "";
+  document.getElementById("authExtraDevice").value = "";
+  document.getElementById("authExtraCaptchaToken").value = "";
+  document.getElementById("authExtraClientId").value = "";
+  document.getElementById("authExtraDid").value = "";
+  document.getElementById("authExtraDt").value = "";
+  document.getElementById("authExtraParentId").value = "";
+  document.getElementById("authExtraPageSize").value = "";
+  document.getElementById("authExtraFileId").value = "";
+  document.getElementById("authExtraDirName").value = "";
+  document.getElementById("authExtraPwdId").value = "";
+  document.getElementById("authExtraPasscode").value = "";
+  document.getElementById("authExtraDomainId").value = "";
+  document.getElementById("authExtraDriveId").value = "";
+  document.getElementById("authExtraShareCode").value = "";
+  document.getElementById("authExtraAccessCode").value = "";
+  document.getElementById("authExtraPathPrefix").value = "";
+  updateAuthFormMode();
+}
+
+function fillAuthForm(profile) {
+  if (!profile) {
+    resetAuthForm();
+    return;
+  }
+  state.authEditingProfileId = profile.profileId || "";
+  document.getElementById("authDisplayName").value = profile.displayName || "";
+  document.getElementById("authProvider").value = profile.providerKey || "";
+  syncAuthModeOptions();
+  document.getElementById("authMode").value = profile.authMode || document.getElementById("authMode").value;
+  document.getElementById("authToken").value = "";
+  document.getElementById("authCookie").value = "";
+  document.getElementById("authExtraHeader").value = profile.extra?.header || "";
+  document.getElementById("authExtraDevice").value = profile.extra?.deviceId || profile.extra?.["x-device-id"] || "";
+  document.getElementById("authExtraCaptchaToken").value = profile.extra?.captchaToken || "";
+  document.getElementById("authExtraClientId").value = profile.extra?.clientId || "";
+  document.getElementById("authExtraDid").value = profile.extra?.did || "";
+  document.getElementById("authExtraDt").value = profile.extra?.dt || "";
+  document.getElementById("authExtraParentId").value = resolvedParentIdForProfile(profile) || "";
+  document.getElementById("authExtraPageSize").value = profile.extra?.pageSize || "";
+  document.getElementById("authExtraFileId").value = resolvedFileIdForProfile(profile) || "";
+  document.getElementById("authExtraDirName").value = profile.extra?.dirName || "";
+  document.getElementById("authExtraPwdId").value = profile.extra?.pwdId || profile.extra?.sharePwdId || "";
+  document.getElementById("authExtraPasscode").value = profile.extra?.passcode || "";
+  document.getElementById("authExtraDomainId").value = profile.extra?.domainId || "";
+  document.getElementById("authExtraDriveId").value = profile.extra?.driveId || "";
+  document.getElementById("authExtraShareCode").value = profile.extra?.shareCode || "";
+  document.getElementById("authExtraAccessCode").value = profile.extra?.accessCode || "";
+  document.getElementById("authExtraPathPrefix").value = profile.extra?.pathPrefix || "";
+  updateAuthFormMode();
+}
+
+function collectAuthPayload() {
+  const providerKey = document.getElementById("authProvider").value;
+  const authMode = document.getElementById("authMode").value;
+  const displayName = document.getElementById("authDisplayName").value.trim() || providerKey;
+  const token = document.getElementById("authToken").value.trim();
+  const cookie = document.getElementById("authCookie").value.trim();
+  const extraHeader = document.getElementById("authExtraHeader").value.trim();
+  const extraDevice = document.getElementById("authExtraDevice").value.trim();
+  const extraCaptchaToken = document.getElementById("authExtraCaptchaToken").value.trim();
+  const extraClientId = document.getElementById("authExtraClientId").value.trim();
+  const extraDid = document.getElementById("authExtraDid").value.trim();
+  const extraDt = document.getElementById("authExtraDt").value.trim();
+  const extraParentId = document.getElementById("authExtraParentId").value.trim();
+  const extraPageSize = document.getElementById("authExtraPageSize").value.trim();
+  const extraFileId = document.getElementById("authExtraFileId").value.trim();
+  const extraDirName = document.getElementById("authExtraDirName").value.trim();
+  const extraPwdId = document.getElementById("authExtraPwdId").value.trim();
+  const extraPasscode = document.getElementById("authExtraPasscode").value.trim();
+  const extraDomainId = document.getElementById("authExtraDomainId").value.trim();
+  const extraDriveId = document.getElementById("authExtraDriveId").value.trim();
+  const extraShareCode = document.getElementById("authExtraShareCode").value.trim();
+  const extraAccessCode = document.getElementById("authExtraAccessCode").value.trim();
+  const extraPathPrefix = document.getElementById("authExtraPathPrefix").value.trim();
+  const extra = {};
+  if (extraHeader) {
+    extra.header = extraHeader;
+  }
+  if (extraDevice) {
+    extra.deviceId = extraDevice;
+  }
+  if (extraCaptchaToken) {
+    extra.captchaToken = extraCaptchaToken;
+  }
+  if (extraClientId) {
+    extra.clientId = extraClientId;
+  }
+  if (extraDid) {
+    extra.did = extraDid;
+  }
+  if (extraDt) {
+    extra.dt = extraDt;
+  }
+  if (extraParentId) {
+    extra.parentId = extraParentId;
+  }
+  if (extraPageSize) {
+    extra.pageSize = extraPageSize;
+  }
+  if (extraFileId) {
+    extra.fileId = extraFileId;
+  }
+  if (extraDirName) {
+    extra.dirName = extraDirName;
+  }
+  if (extraPwdId) {
+    extra.pwdId = extraPwdId;
+  }
+  if (extraPasscode) {
+    extra.passcode = extraPasscode;
+  }
+  if (extraDomainId) {
+    extra.domainId = extraDomainId;
+  }
+  if (extraDriveId) {
+    extra.driveId = extraDriveId;
+  }
+  if (extraShareCode) {
+    extra.shareCode = extraShareCode;
+  }
+  if (extraAccessCode) {
+    extra.accessCode = extraAccessCode;
+  }
+  if (extraPathPrefix) {
+    extra.pathPrefix = extraPathPrefix;
+  }
+  return { providerKey, authMode, displayName, token, cookie, extra };
+}
+
+function setAuthValidationSummary(data, title = "Latest Auth Result") {
+  const box = document.getElementById("authValidationSummary");
+  const raw = document.getElementById("authCaptureResult");
+  if (!box || !raw) {
+    return;
+  }
+  if (!data) {
+    box.hidden = true;
+    box.innerHTML = "";
+    raw.textContent = "";
+    return;
+  }
+
+  const row = data.validation || data.item || data;
+  const ok = Boolean(row?.ok) || data?.status === "capture_pending";
+  box.hidden = false;
+  box.className = `auth-validation-summary${ok ? " ok" : " fail"}`;
+  box.innerHTML = "";
+
+  const heading = document.createElement("div");
+  heading.className = "auth-validation-title";
+  heading.textContent = `${title}: ${ok ? "ok" : "needs_fix"}`;
+  box.appendChild(heading);
+
+  const summary = document.createElement("div");
+  summary.className = "auth-validation-meta";
+  summary.textContent = row?.summary || row?.message || row?.error || "no details";
+  box.appendChild(summary);
+
+  const meta = document.createElement("div");
+  meta.className = "auth-pill-row";
+  const pills = [
+    `provider=${row?.providerKey || data?.providerKey || "(unknown)"}`,
+    `mode=${row?.mode || data?.status || "(unknown)"}`,
+    `status=${row?.status ?? "(none)"}`,
+  ];
+  if (Array.isArray(row?.requiredFieldHints)) {
+    row.requiredFieldHints.forEach((item) => pills.push(`need=${item}`));
+  } else if (Array.isArray(data?.requiredFieldHints)) {
+    data.requiredFieldHints.forEach((item) => pills.push(`need=${item}`));
+  }
+  pills.forEach((text) => {
+    const pill = document.createElement("span");
+    pill.className = `auth-pill${ok ? " ok" : " fail"}`;
+    pill.textContent = text;
+    meta.appendChild(pill);
+  });
+  box.appendChild(meta);
+
+  raw.textContent = JSON.stringify(data, null, 2);
+}
+
+function setAuthEvidenceSummary(evidence, markdown) {
+  const box = document.getElementById("authValidationSummary");
+  const raw = document.getElementById("authCaptureResult");
+  if (!box || !raw) {
+    return;
+  }
+  const summary = evidence?.summary || {};
+  const profile = evidence?.profile || {};
+  const validation = evidence?.latestValidation || null;
+  const probe = evidence?.latestProbe || null;
+  box.hidden = false;
+  box.className = `auth-validation-summary${summary.validationOk || summary.probeOk ? " ok" : " fail"}`;
+  box.innerHTML = "";
+
+  const heading = document.createElement("div");
+  heading.className = "auth-validation-title";
+  heading.textContent = `Auth Evidence: ${profile.displayName || profile.profileId || "(unknown)"}`;
+  box.appendChild(heading);
+
+  const meta = document.createElement("div");
+  meta.className = "auth-validation-meta";
+  meta.textContent = `profileReady=${Boolean(summary.profileReady)}, writeReady=${Boolean(summary.writeReady)}, validationOk=${Boolean(summary.validationOk)}, probeOk=${Boolean(summary.probeOk)}`;
+  box.appendChild(meta);
+
+  const pills = [
+    `provider=${profile.providerKey || "(unknown)"}`,
+    `resolvedParentId=${summary.resolvedParentId || "(none)"}`,
+    `resolvedFileId=${summary.resolvedFileId || "(none)"}`,
+    `writeReady=${Boolean(summary.writeReady)}`,
+    `validation=${validation ? (validation.ok ? "ok" : "failed") : "none"}`,
+    `probe=${probe ? (probe.ok ? "ok" : "failed") : "none"}`,
+  ];
+  const pillRow = document.createElement("div");
+  pillRow.className = "auth-pill-row";
+  pills.forEach((text) => {
+    const pill = document.createElement("span");
+    pill.className = `auth-pill${text.includes("=ok") ? " ok" : ""}${text.includes("=failed") ? " fail" : ""}`;
+    pill.textContent = text;
+    pillRow.appendChild(pill);
+  });
+  box.appendChild(pillRow);
+  raw.textContent = markdown || JSON.stringify(evidence, null, 2);
+}
+
+function setAuthEvidenceBundleSummary(bundle, markdown) {
+  const box = document.getElementById("authValidationSummary");
+  const raw = document.getElementById("authCaptureResult");
+  if (!box || !raw) {
+    return;
+  }
+  const summary = bundle?.summary || {};
+  box.hidden = false;
+  box.className = `auth-validation-summary${summary.validationOkCount || summary.probeOkCount ? " ok" : " fail"}`;
+  box.innerHTML = "";
+
+  const heading = document.createElement("div");
+  heading.className = "auth-validation-title";
+  heading.textContent = "Auth Evidence Bundle";
+  box.appendChild(heading);
+
+  const meta = document.createElement("div");
+  meta.className = "auth-validation-meta";
+  meta.textContent = `profiles=${summary.profileCount || 0}, ready=${summary.profileReadyCount || 0}, writeReady=${summary.writeReadyCount || 0}, validationOk=${summary.validationOkCount || 0}, probeOk=${summary.probeOkCount || 0}`;
+  box.appendChild(meta);
+
+  const pillRow = document.createElement("div");
+  pillRow.className = "auth-pill-row";
+  [
+    `profileCount=${summary.profileCount || 0}`,
+    `profileReady=${summary.profileReadyCount || 0}`,
+    `writeReady=${summary.writeReadyCount || 0}`,
+    `validationOk=${summary.validationOkCount || 0}`,
+    `probeOk=${summary.probeOkCount || 0}`,
+  ].forEach((text) => {
+    const pill = document.createElement("span");
+    pill.className = "auth-pill";
+    pill.textContent = text;
+    pillRow.appendChild(pill);
+  });
+  box.appendChild(pillRow);
+  raw.textContent = markdown || JSON.stringify(bundle, null, 2);
+}
+
+function setAuthRemediationSummary(bundle, markdown) {
+  const box = document.getElementById("authValidationSummary");
+  const raw = document.getElementById("authCaptureResult");
+  if (!box || !raw) {
+    return;
+  }
+  const summary = bundle?.summary || {};
+  box.hidden = false;
+  box.className = `auth-validation-summary${summary.needsFixCount ? " fail" : " ok"}`;
+  box.innerHTML = "";
+
+  const heading = document.createElement("div");
+  heading.className = "auth-validation-title";
+  heading.textContent = "Auth Remediation Guide";
+  box.appendChild(heading);
+
+  const meta = document.createElement("div");
+  meta.className = "auth-validation-meta";
+  meta.textContent = `profiles=${summary.profileCount || 0}, ready=${summary.readyCount || 0}, needsFix=${summary.needsFixCount || 0}, writeReady=${summary.writeReadyCount || 0}, writeNeedsFix=${summary.writeNeedsFixCount || 0}`;
+  box.appendChild(meta);
+
+  const pillRow = document.createElement("div");
+  pillRow.className = "auth-pill-row";
+  [
+    `profileCount=${summary.profileCount || 0}`,
+    `readyCount=${summary.readyCount || 0}`,
+    `needsFixCount=${summary.needsFixCount || 0}`,
+    `writeReadyCount=${summary.writeReadyCount || 0}`,
+    `writeNeedsFixCount=${summary.writeNeedsFixCount || 0}`,
+  ].forEach((text) => {
+    const pill = document.createElement("span");
+    pill.className = `auth-pill${text.includes("needsFixCount=0") ? " ok" : ""}${text.includes("needsFixCount=") && !text.includes("=0") ? " fail" : ""}`;
+    pill.textContent = text;
+    pillRow.appendChild(pill);
+  });
+  box.appendChild(pillRow);
+  raw.textContent = markdown || JSON.stringify(bundle, null, 2);
+}
 
 function t(key) {
   return state.messages[key] || key;
@@ -43,6 +459,15 @@ async function fetchJson(url, options = {}) {
   return response.json();
 }
 
+function hideAllPanels() {
+  for (const panelId of Object.values(tabPanelIds)) {
+    const node = document.getElementById(panelId);
+    if (node) {
+      node.hidden = true;
+    }
+  }
+}
+
 function render() {
   document.documentElement.lang = state.lang;
   document.getElementById("appTitle").textContent = t("app.title");
@@ -51,6 +476,35 @@ function render() {
   document.getElementById("loginPasswordLabel").textContent = t("login.password");
   document.getElementById("loginBtn").textContent = t("login.submit");
   document.getElementById("lockedText").textContent = t("state.locked");
+  document.getElementById("authTitle").textContent = t("panel.auth.title");
+  document.getElementById("authLiveProbeHint").textContent = t("auth.live_probe_needs");
+  const authModeHint = document.getElementById("authModeHint");
+  if (authModeHint) {
+    const selectedProviderKey = document.getElementById("authProvider")?.value || "";
+    const selectedProvider = state.providers.find((item) => item.providerKey === selectedProviderKey);
+    authModeHint.textContent = `authModes=${(selectedProvider?.authModes || []).join(", ") || "(none)"}`;
+  }
+  document.getElementById("queueTitle").textContent = t("panel.queue.title");
+  document.getElementById("queueSubtitle").textContent = t("panel.queue.subtitle");
+  document.getElementById("pendingTitle").textContent = t("panel.pending.title");
+  document.getElementById("pendingSubtitle").textContent = t("panel.pending.subtitle");
+  document.getElementById("providersTitle").textContent = t("panel.providers.title");
+  document.getElementById("providersSubtitle").textContent = t("panel.providers.subtitle");
+  document.getElementById("settingsTitle").textContent = t("panel.settings.title");
+  document.getElementById("settingsSubtitle").textContent = t("panel.settings.subtitle");
+  document.getElementById("newTaskTitle").textContent = t("panel.new_task.title");
+  document.getElementById("newTaskSubtitle").textContent = t("panel.new_task.subtitle");
+  document.getElementById("wizardSecondaryTitle").textContent = t("panel.new_task.secondary");
+  document.getElementById("wizardSummaryTitle").textContent = t("panel.new_task.summary");
+  document.getElementById("providersMatrixTitle").textContent = t("providers.matrix");
+  document.getElementById("providersResearchTitle").textContent = t("providers.research");
+  document.getElementById("providersLiveProbeHint").textContent = t("providers.live_probe_hint");
+  document.getElementById("settingsSessionTitle").textContent = t("settings.session");
+  document.getElementById("settingsValidationTitle").textContent = t("settings.validation");
+  document.getElementById("settingsProviderProbeTitle").textContent = t("settings.provider_probe");
+  document.getElementById("settingsAuditTitle").textContent = t("settings.audit");
+  document.getElementById("settingsTip").textContent = t("settings.last_tip");
+  updateAuthFormMode();
 
   const tabs = document.getElementById("tabs");
   tabs.innerHTML = "";
@@ -68,25 +522,27 @@ function render() {
   const loginPanel = document.getElementById("loginPanel");
   const appPanel = document.getElementById("appPanel");
   const logoutBtn = document.getElementById("logoutBtn");
-  const generalPanel = document.getElementById("generalPanel");
-  const authPanel = document.getElementById("authPanel");
-  const queuePanel = document.getElementById("queuePanel");
   loginPanel.hidden = state.loggedIn;
   appPanel.hidden = !state.loggedIn;
   logoutBtn.hidden = !state.loggedIn;
+
+  hideAllPanels();
   if (state.loggedIn) {
-    const authTab = state.activeTab === "nav.auth";
-    const queueTab = state.activeTab === "nav.queue";
-    generalPanel.hidden = authTab;
-    authPanel.hidden = !authTab;
-    queuePanel.hidden = !queueTab;
-    if (!authTab && !queueTab) {
-      generalPanel.hidden = false;
+    const activePanelId = tabPanelIds[state.activeTab] || "newTaskPanel";
+    const activePanel = document.getElementById(activePanelId);
+    if (activePanel) {
+      activePanel.hidden = false;
     }
   }
+
+  renderWizardSteps();
+  renderSummaryCards();
   renderAuthList();
   renderTaskList();
-  renderWizardSteps();
+  renderTaskPlanPreview();
+  renderPendingList();
+  renderProviderPanel();
+  renderSettingsPanel();
 }
 
 async function loadI18n(lang) {
@@ -108,34 +564,117 @@ async function loadProviders() {
   state.providers = data.items || [];
   const providerSelect = document.getElementById("authProvider");
   providerSelect.innerHTML = "";
-  for (const p of state.providers) {
+  for (const provider of state.providers) {
     const node = document.createElement("option");
-    node.value = p.providerKey;
-    node.textContent = `${p.displayName} (${p.providerKey})`;
+    node.value = provider.providerKey;
+    node.textContent = `${provider.displayName} (${provider.providerKey})`;
     providerSelect.appendChild(node);
   }
   const modalSelect = document.getElementById("authModalProvider");
-  if (modalSelect) {
-    modalSelect.innerHTML = providerSelect.innerHTML;
+  modalSelect.innerHTML = providerSelect.innerHTML;
+  const taskSourceProvider = document.getElementById("taskSourceProvider");
+  const taskTargetProvider = document.getElementById("taskTargetProvider");
+  taskSourceProvider.innerHTML = providerSelect.innerHTML;
+  taskTargetProvider.innerHTML = providerSelect.innerHTML;
+  if (state.providers.some((provider) => provider.providerKey === "quark")) {
+    taskSourceProvider.value = "quark";
+  }
+  if (state.providers.some((provider) => provider.providerKey === "guangya")) {
+    taskTargetProvider.value = "guangya";
+  }
+  syncAuthModeOptions();
+  renderSummaryCards();
+}
+
+function syncAuthModeOptions() {
+  const providerSelect = document.getElementById("authProvider");
+  const authModeSelect = document.getElementById("authMode");
+  const authModeHint = document.getElementById("authModeHint");
+  if (!providerSelect || !authModeSelect) {
+    return;
+  }
+  const currentValue = authModeSelect.value;
+  const provider = state.providers.find((item) => item.providerKey === providerSelect.value);
+  const allowedModes = provider?.authModes || ["manual_token", "manual_cookie", "web_login_capture"];
+  authModeSelect.innerHTML = "";
+  for (const mode of allowedModes) {
+    const option = document.createElement("option");
+    option.value = mode;
+    option.textContent = mode;
+    authModeSelect.appendChild(option);
+  }
+  authModeSelect.value = allowedModes.includes(currentValue) ? currentValue : (allowedModes[0] || "");
+  if (authModeHint) {
+    authModeHint.textContent = `authModes=${allowedModes.join(", ") || "(none)"}`;
+  }
+}
+
+function renderSummaryCards() {
+  const wrap = document.getElementById("summaryGrid");
+  if (!wrap) {
+    return;
+  }
+  const pendingCount = state.tasks.reduce((sum, task) => {
+    const value = task?.progress?.pendingManual || 0;
+    return sum + value;
+  }, 0);
+  const cards = [
+    { label: t("summary.providers"), value: state.providers.length },
+    { label: t("summary.tasks"), value: state.tasks.length },
+    { label: t("summary.pending"), value: pendingCount },
+    { label: t("summary.auth_profiles"), value: state.authProfiles.length },
+  ];
+  wrap.innerHTML = "";
+  for (const card of cards) {
+    const node = document.createElement("div");
+    node.className = "summary-card";
+    const value = document.createElement("strong");
+    value.textContent = String(card.value);
+    const label = document.createElement("span");
+    label.textContent = card.label;
+    node.appendChild(value);
+    node.appendChild(label);
+    wrap.appendChild(node);
   }
 }
 
 function renderWizardSteps() {
   const wrap = document.getElementById("wizardSteps");
-  if (!wrap) return;
+  const nav = document.getElementById("wizardSecondaryNav");
+  const summaryBody = document.getElementById("wizardSummaryBody");
+  if (!wrap || !nav || !summaryBody) {
+    return;
+  }
   wrap.innerHTML = "";
-  wizardKeys.forEach((label, index) => {
-    const step = document.createElement("div");
-    const active = state.activeTab === "nav.new_task" && index === 0;
-    step.className = `wizard-step${active ? " active" : ""}`;
-    step.textContent = `${index + 1}. ${label}`;
-    wrap.appendChild(step);
+  nav.innerHTML = "";
+  wizardSteps.forEach((step, index) => {
+    const active = state.activeWizardStep === index;
+
+    const stepNode = document.createElement("button");
+    stepNode.type = "button";
+    stepNode.className = `wizard-step${active ? " active" : ""}`;
+    stepNode.textContent = `${index + 1}. ${t(step.title)}`;
+    stepNode.addEventListener("click", () => {
+      state.activeWizardStep = index;
+      renderWizardSteps();
+    });
+    wrap.appendChild(stepNode);
+
+    const navNode = document.createElement("button");
+    navNode.type = "button";
+    navNode.className = `secondary-link${active ? " active" : ""}`;
+    navNode.textContent = t(step.title);
+    navNode.addEventListener("click", () => {
+      state.activeWizardStep = index;
+      renderWizardSteps();
+    });
+    nav.appendChild(navNode);
   });
+  summaryBody.textContent = t(wizardSteps[state.activeWizardStep].description);
 }
 
 function renderAuthList() {
   const list = document.getElementById("authList");
-  if (!list) return;
   list.innerHTML = "";
   for (const item of state.authProfiles) {
     const node = document.createElement("li");
@@ -146,18 +685,86 @@ function renderAuthList() {
     const meta = document.createElement("div");
     meta.className = "auth-item-meta";
     meta.textContent = `mode=${item.authMode}, status=${item.status}, token=${item.token || "(none)"}, cookie=${item.cookie || "(none)"}`;
+    const stack = document.createElement("div");
+    stack.className = "auth-item-stack";
+    stack.appendChild(meta);
+    if (Array.isArray(item.missingFieldHints) && item.missingFieldHints.length) {
+      const readinessNote = document.createElement("div");
+      readinessNote.className = "auth-item-note";
+      readinessNote.textContent = `profile_ready=${item.profileReady}, missing=${item.missingFieldHints.join(" | ")}`;
+      stack.appendChild(readinessNote);
+      const patchHint = buildPatchCommandHint(item);
+      if (patchHint) {
+        const patchNote = document.createElement("div");
+        patchNote.className = "auth-item-note";
+        patchNote.textContent = `patch_hint=${patchHint}`;
+        stack.appendChild(patchNote);
+      }
+    } else if (resolvedParentIdForProfile(item) || resolvedFileIdForProfile(item)) {
+      const resolvedNote = document.createElement("div");
+      resolvedNote.className = "auth-item-note";
+      resolvedNote.textContent = `resolvedParentId=${resolvedParentIdForProfile(item) || "(none)"}, resolvedFileId=${resolvedFileIdForProfile(item) || "(none)"}`;
+      stack.appendChild(resolvedNote);
+    }
+    if (item.writeReady === false) {
+      const writeNote = document.createElement("div");
+      writeNote.className = "auth-item-note";
+      const writeMissing = Array.isArray(item.writeMissingFieldHints) && item.writeMissingFieldHints.length
+        ? item.writeMissingFieldHints.join(" | ")
+        : "(none)";
+      writeNote.textContent = `write_ready=${item.writeReady}, write_missing=${writeMissing}`;
+      stack.appendChild(writeNote);
+      if (item.writeBlockerNote) {
+        const writeBlockerNote = document.createElement("div");
+        writeBlockerNote.className = "auth-item-note";
+        writeBlockerNote.textContent = `write_blocker=${item.writeBlockerNote}`;
+        stack.appendChild(writeBlockerNote);
+      }
+    }
+    const latestValidation = latestValidationByProfile(item.profileId);
+    if (latestValidation) {
+      const validationNote = document.createElement("div");
+      validationNote.className = "auth-item-note";
+      validationNote.textContent = `validation: ok=${latestValidation.ok}, mode=${latestValidation.mode || "(unknown)"}, status=${latestValidation.status || 0}, summary=${latestValidation.summary || latestValidation.error || "(none)"}, risk=${latestValidation.riskHint || "(none)"}`;
+      stack.appendChild(validationNote);
+    }
+    const latestProbe = state.providerLiveProbes[item.profileId];
+    if (latestProbe) {
+      const probeNote = document.createElement("div");
+      probeNote.className = "auth-item-note";
+      probeNote.textContent = `probe: ok=${latestProbe.ok}, mode=${latestProbe.mode || "(unknown)"}, checks=${(latestProbe.checks || []).length}, summary=${latestProbe.summary || "(none)"}`;
+      stack.appendChild(probeNote);
+    }
     left.appendChild(title);
-    left.appendChild(meta);
+    left.appendChild(stack);
 
     const actions = document.createElement("div");
+    actions.className = "row-actions";
     const validateBtn = document.createElement("button");
     validateBtn.className = "ghost";
     validateBtn.textContent = "Validate";
     validateBtn.addEventListener("click", () => validateAuth(item.profileId));
+    const editBtn = document.createElement("button");
+    editBtn.className = "ghost";
+    editBtn.textContent = "Edit";
+    editBtn.addEventListener("click", () => fillAuthForm(item));
+    const evidenceBtn = document.createElement("button");
+    evidenceBtn.className = "ghost";
+    evidenceBtn.textContent = "Refresh Evidence";
+    evidenceBtn.addEventListener("click", () => showAuthEvidence(item));
+    if (liveProbeProviderSet.has(item.providerKey)) {
+      const probeBtn = document.createElement("button");
+      probeBtn.className = "ghost";
+      probeBtn.textContent = t("auth.live_probe");
+      probeBtn.addEventListener("click", () => probeProviderLive(item));
+      actions.appendChild(probeBtn);
+    }
     const deleteBtn = document.createElement("button");
     deleteBtn.className = "ghost";
     deleteBtn.textContent = "Delete";
     deleteBtn.addEventListener("click", () => deleteAuth(item.profileId));
+    actions.appendChild(editBtn);
+    actions.appendChild(evidenceBtn);
     actions.appendChild(validateBtn);
     actions.appendChild(deleteBtn);
 
@@ -168,30 +775,195 @@ function renderAuthList() {
 }
 
 async function loadAuthProfiles() {
-  if (!state.loggedIn) return;
+  if (!state.loggedIn) {
+    return;
+  }
   const data = await fetchJson("/api/auth/profiles");
   state.authProfiles = data.items || [];
-  renderAuthList();
+  renderTaskProfileOptions();
+  render();
+}
+
+function renderTaskProfileOptions() {
+  const select = document.getElementById("taskTargetProfile");
+  const parentInput = document.getElementById("taskTargetParentId");
+  const targetProvider = document.getElementById("taskTargetProvider")?.value || "";
+  if (!select) {
+    return;
+  }
+  const currentValue = select.value;
+  const filteredProfiles = state.authProfiles.filter((profile) => !targetProvider || profile.providerKey === targetProvider);
+  select.innerHTML = "";
+  const empty = document.createElement("option");
+  empty.value = "";
+  empty.textContent = targetProvider ? `(no targetProfileId for ${targetProvider})` : "(no targetProfileId)";
+  select.appendChild(empty);
+  for (const profile of filteredProfiles) {
+    const node = document.createElement("option");
+    node.value = profile.profileId;
+    node.textContent = `${profile.displayName} [${profile.providerKey}]`;
+    select.appendChild(node);
+  }
+  if (currentValue && filteredProfiles.some((profile) => profile.profileId === currentValue)) {
+    select.value = currentValue;
+    syncTaskTargetParentFromProfile();
+    return;
+  }
+  const preferred = filteredProfiles[0] || null;
+  if (preferred) {
+    select.value = preferred.profileId;
+    if (parentInput && !parentInput.value.trim()) {
+      parentInput.value = resolvedParentIdForProfile(preferred);
+    }
+    return;
+  }
+  if (parentInput) {
+    parentInput.value = "";
+  }
+}
+
+function syncTaskTargetParentFromProfile() {
+  const select = document.getElementById("taskTargetProfile");
+  const parentInput = document.getElementById("taskTargetParentId");
+  if (!select || !parentInput) {
+    return;
+  }
+  const profile = state.authProfiles.find((item) => item.profileId === select.value);
+  if (!profile) {
+    return;
+  }
+  parentInput.value = resolvedParentIdForProfile(profile);
+}
+
+function onTaskTargetProviderChange() {
+  state.taskPlanPreview = null;
+  setTaskCreateGuard("");
+  resetTaskPlanAck();
+  renderTaskProfileOptions();
+  renderTaskPlanPreview();
+}
+
+function selectedTaskTargetProfile() {
+  const profileId = document.getElementById("taskTargetProfile")?.value || "";
+  if (!profileId) {
+    return null;
+  }
+  return state.authProfiles.find((item) => item.profileId === profileId) || null;
+}
+
+function setTaskCreateGuard(message) {
+  const box = document.getElementById("taskCreateGuard");
+  if (!box) {
+    return;
+  }
+  if (!message) {
+    box.hidden = true;
+    box.textContent = "";
+    return;
+  }
+  box.hidden = false;
+  box.textContent = message;
+}
+
+function resetTaskPlanAck() {
+  const ack = document.getElementById("taskPlanPreviewAck");
+  if (ack) {
+    ack.checked = false;
+  }
+}
+
+function taskActionsForState(task) {
+  const allowed = task?.summary?.allowedActions;
+  if (Array.isArray(allowed) && allowed.length) {
+    return allowed;
+  }
+  return ["retry"];
+}
+
+function appendTaskStatusPill(container, label, className = "") {
+  const pill = document.createElement("span");
+  pill.className = `task-status-pill${className ? ` ${className}` : ""}`;
+  pill.textContent = label;
+  container.appendChild(pill);
+}
+
+function appendTaskGuardPill(container, label, className = "") {
+  const pill = document.createElement("span");
+  pill.className = `task-guard-pill${className ? ` ${className}` : ""}`;
+  pill.textContent = label;
+  container.appendChild(pill);
+}
+
+async function loadProviderResearch() {
+  if (!state.loggedIn) {
+    return;
+  }
+  const data = await fetchJson("/api/providers/research");
+  state.providerResearch = data.items || [];
+  renderProviderPanel();
+}
+
+async function loadStatusMatrix() {
+  if (!state.loggedIn) {
+    return;
+  }
+  const data = await fetchJson("/api/providers/status_matrix");
+  state.statusMatrix = data;
+  renderProviderPanel();
+}
+
+async function loadAuditSummary() {
+  if (!state.loggedIn) {
+    return;
+  }
+  const data = await fetchJson("/api/plan/audit");
+  state.auditSummary = data.summary || null;
+  renderSettingsPanel();
+}
+
+async function loadLiveValidations() {
+  if (!state.loggedIn) {
+    return;
+  }
+  const data = await fetchJson("/api/auth/live_validations");
+  state.liveValidations = data.latestItems || data.items || [];
+  state.liveValidationMeta = {
+    historyCount: (data.items || []).length,
+    summary: data.summary || null,
+  };
+  renderSettingsPanel();
+}
+
+async function loadProviderLiveProbeResults() {
+  if (!state.loggedIn) {
+    return;
+  }
+  const data = await fetchJson("/api/providers/live_probe_results");
+  const next = {};
+  for (const item of data.latestItems || data.items || []) {
+    if (item && item.profileId) {
+      next[item.profileId] = item;
+    }
+  }
+  state.providerLiveProbes = next;
+  state.providerLiveProbeMeta = {
+    historyCount: (data.items || []).length,
+    summary: data.summary || null,
+  };
+  renderProviderPanel();
+  renderSettingsPanel();
 }
 
 async function saveAuth() {
-  const providerKey = document.getElementById("authProvider").value;
-  const authMode = document.getElementById("authMode").value;
-  const displayName = document.getElementById("authDisplayName").value.trim() || providerKey;
-  const token = document.getElementById("authToken").value.trim();
-  const cookie = document.getElementById("authCookie").value.trim();
-  const extraHeader = document.getElementById("authExtraHeader").value.trim();
-  const extraDevice = document.getElementById("authExtraDevice").value.trim();
-  const extra = {};
-  if (extraHeader) extra.header = extraHeader;
-  if (extraDevice) extra.deviceId = extraDevice;
-  await fetchJson("/api/auth/profiles", {
-    method: "POST",
-    body: JSON.stringify({ providerKey, authMode, displayName, token, cookie, extra }),
+  const payload = collectAuthPayload();
+  const editingId = state.authEditingProfileId;
+  const data = await fetchJson(editingId ? `/api/auth/profiles/${editingId}` : "/api/auth/profiles", {
+    method: editingId ? "PUT" : "POST",
+    body: JSON.stringify(payload),
   });
-  document.getElementById("authToken").value = "";
-  document.getElementById("authCookie").value = "";
-  await loadAuthProfiles();
+  setAuthValidationSummary(data, "Saved Auth Validation");
+  resetAuthForm();
+  await Promise.all([loadAuthProfiles(), loadLiveValidations(), loadStatusMatrix()]);
 }
 
 function openAuthModal() {
@@ -203,42 +975,179 @@ function openAuthModal() {
 
 async function startCaptureGuide() {
   const providerKey = document.getElementById("authModalProvider").value;
-  const resultNode = document.getElementById("authCaptureResult");
   const data = await fetchJson("/api/auth/capture/start", {
     method: "POST",
     body: JSON.stringify({ providerKey }),
   });
-  resultNode.textContent = JSON.stringify(data, null, 2);
+  setAuthValidationSummary(data, "Capture Guide");
 }
 
 async function validateAuth(profileId) {
-  await fetchJson(`/api/auth/profiles/${profileId}/validate`, { method: "POST" });
-  await loadAuthProfiles();
+  const data = await fetchJson(`/api/auth/profiles/${profileId}/validate`, { method: "POST" });
+  setAuthValidationSummary(data, "Manual Validate");
+  await Promise.all([loadAuthProfiles(), loadLiveValidations(), loadStatusMatrix()]);
+}
+
+async function showAuthEvidence(profile) {
+  const extra = profile?.extra || {};
+  const data = await fetchJson(`/api/auth/profiles/${profile.profileId}/refresh_evidence`, {
+    method: "POST",
+    body: JSON.stringify({
+      pageSize: Number(extra.pageSize || 100) || 100,
+      dirName: extra.dirName || "",
+    }),
+  });
+  setAuthEvidenceSummary(data?.evidence || {}, data?.markdown || "");
+  await Promise.all([loadAuthProfiles(), loadLiveValidations(), loadProviderLiveProbeResults(), loadStatusMatrix()]);
+}
+
+async function showAuthEvidenceBundle() {
+  const data = await fetchJson("/api/auth/refresh_evidence_bundle", {
+    method: "POST",
+    body: JSON.stringify({ pageSize: 100, dirName: "" }),
+  });
+  setAuthEvidenceBundleSummary(data?.bundle || {}, data?.markdown || "");
+  await Promise.all([loadAuthProfiles(), loadLiveValidations(), loadProviderLiveProbeResults(), loadStatusMatrix()]);
+}
+
+async function showAuthRemediationGuide() {
+  const [bundleData, markdownData] = await Promise.all([
+    fetchJson("/api/auth/remediation_bundle"),
+    fetchJson("/api/auth/remediation_bundle_markdown"),
+  ]);
+  setAuthRemediationSummary(bundleData || {}, markdownData?.markdown || "");
+  await Promise.all([loadAuthProfiles(), loadLiveValidations(), loadProviderLiveProbeResults(), loadStatusMatrix()]);
 }
 
 async function deleteAuth(profileId) {
   await fetchJson(`/api/auth/profiles/${profileId}`, { method: "DELETE" });
-  await loadAuthProfiles();
+  delete state.providerLiveProbes[profileId];
+  await Promise.all([loadAuthProfiles(), loadLiveValidations(), loadProviderLiveProbeResults(), loadStatusMatrix()]);
+}
+
+function onAuthReset() {
+  resetAuthForm();
+}
+
+async function probeProviderLive(profile) {
+  const extra = profile.extra || {};
+  const payload = {
+    profileId: profile.profileId,
+    parentId: resolvedParentIdForProfile(profile),
+    fileId: resolvedFileIdForProfile(profile),
+    pageSize: Number(extra.pageSize || 100) || 100,
+    dirName: extra.dirName || "",
+  };
+  const data = await fetchJson("/api/providers/live_probe_profile", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  state.providerLiveProbes[profile.profileId] = data.item || null;
+  setAuthValidationSummary(data.item || data, "Live Probe");
+  await Promise.all([loadProviderLiveProbeResults(), loadStatusMatrix()]);
 }
 
 function renderTaskList() {
   const list = document.getElementById("taskList");
-  if (!list) return;
   list.innerHTML = "";
   for (const task of state.tasks) {
+    const summary = task.summary || {};
     const node = document.createElement("li");
     node.className = "auth-item";
     const left = document.createElement("div");
     const title = document.createElement("div");
     title.textContent = `${task.sourceProvider} -> ${task.targetProvider}`;
     const meta = document.createElement("div");
-    meta.className = "auth-item-meta";
-    meta.textContent = `state=${task.state}, done=${task.progress.done}/${task.progress.total}, failed=${task.progress.failed}, pending=${task.progress.pendingManual}`;
+    meta.className = "task-status-row";
+    appendTaskStatusPill(meta, `state=${summary.state || task.state}`, String(summary.state || task.state || ""));
+    appendTaskStatusPill(meta, `done=${task.progress.done}/${task.progress.total}`);
+    appendTaskStatusPill(meta, `failed=${task.progress.failed}`);
+    appendTaskStatusPill(meta, `pending=${task.progress.pendingManual}`);
+    const detail = document.createElement("div");
+    detail.className = "auth-item-meta";
+    detail.textContent = `targetProfileId=${task.targetProfileId || "(none)"}, targetParentId=${task.targetParentId || "(none)"}, conflictPolicy=${task.conflictPolicy || "auto_rename_new"}`;
     left.appendChild(title);
     left.appendChild(meta);
+    left.appendChild(detail);
+    const guard = task.guard || {};
+    const blockingReasons = guard.blockingReasons || [];
+    const warningReasons = guard.warningReasons || [];
+    const guardRow = document.createElement("div");
+    guardRow.className = "task-guard-row";
+    if (summary.hardBlocked || guard.hardBlocked) {
+      appendTaskGuardPill(guardRow, "guard=hard_blocked", "blocking");
+    }
+    if ((summary.blockingCount || blockingReasons.length) > 0) {
+      appendTaskGuardPill(guardRow, `blocking=${summary.blockingCount || blockingReasons.length}`, "blocking");
+    }
+    if ((summary.warningCount || warningReasons.length) > 0) {
+      appendTaskGuardPill(guardRow, `warnings=${summary.warningCount || warningReasons.length}`, "warning");
+    }
+    const requiresAck = summary.requiresAcknowledgement || guard.requiresAcknowledgement || {};
+    const acknowledged = summary.acknowledged || guard.acknowledged || {};
+    if (requiresAck?.pendingManual || requiresAck?.downloadUpload) {
+      const ackFlags = [];
+      if (requiresAck?.pendingManual) {
+        ackFlags.push(`pendingManual:${Boolean(acknowledged?.pendingManual) ? "ok" : "need_ack"}`);
+      }
+      if (requiresAck?.downloadUpload) {
+        ackFlags.push(`downloadUpload:${Boolean(acknowledged?.downloadUpload) ? "ok" : "need_ack"}`);
+      }
+      appendTaskGuardPill(guardRow, `ack=${ackFlags.join(",")}`, "ack");
+    }
+    if (guardRow.childNodes.length) {
+      left.appendChild(guardRow);
+    }
+    if (blockingReasons.length || warningReasons.length) {
+      const guardMeta = document.createElement("div");
+      guardMeta.className = "auth-item-meta";
+      guardMeta.textContent = `blocking=${blockingReasons.join(" | ") || "(none)"}, warnings=${warningReasons.join(" | ") || "(none)"}`;
+      left.appendChild(guardMeta);
+    }
+    const lastActionError = summary.lastActionError || task.lastActionError || {};
+    if (lastActionError.action || lastActionError.reason) {
+      const errorRow = document.createElement("div");
+      errorRow.className = "task-guard-row";
+      appendTaskGuardPill(
+        errorRow,
+        `lastActionError=${lastActionError.action || "(unknown)"}`,
+        "error"
+      );
+      left.appendChild(errorRow);
+      const errorMeta = document.createElement("div");
+      errorMeta.className = "task-action-error";
+      errorMeta.textContent = `${lastActionError.reason || "(no reason)"}${lastActionError.at ? ` @ ${lastActionError.at}` : ""}`;
+      left.appendChild(errorMeta);
+    }
+
+    const resultRows = task.results || [];
+    if (resultRows.length) {
+      const latest = resultRows
+        .slice(0, 3)
+        .map((row) => {
+          const modeText = row.liveAttempt ? ` (${row.liveAttempt.mode})` : "";
+          const riskText = row.liveAttempt?.riskHint ? ` - ${row.liveAttempt.riskHint}` : "";
+          const verifyText = row.liveAttempt?.verifyMode
+            ? `, verify=${row.liveAttempt.verifyOk ? "ok" : "pending"}:${row.liveAttempt.verifyMode}`
+            : "";
+          const conflictText = row.liveAttempt?.conflictAction
+            ? `, conflict=${row.liveAttempt.conflictAction}:${row.liveAttempt.resolvedTargetName || "(same)"}`
+            : "";
+          const conflictSupportText = row.conflictSupportStatus
+            ? `, conflictSupport=${row.conflictSupportStatus}`
+            : "";
+          return `${row.path}: ${row.status}${modeText}${verifyText}${conflictText}${conflictSupportText}${riskText}`;
+        })
+        .join(" | ");
+      const resultMeta = document.createElement("div");
+      resultMeta.className = "auth-item-meta";
+      resultMeta.textContent = latest;
+      left.appendChild(resultMeta);
+    }
 
     const actions = document.createElement("div");
-    for (const action of ["run", "pause", "resume", "retry"]) {
+    actions.className = "row-actions";
+    for (const action of taskActionsForState(task)) {
       const btn = document.createElement("button");
       btn.className = "ghost";
       btn.textContent = action;
@@ -251,18 +1160,175 @@ function renderTaskList() {
   }
 }
 
+function renderPendingList() {
+  const list = document.getElementById("pendingList");
+  list.innerHTML = "";
+  const rows = [];
+  for (const task of state.tasks) {
+    const items = task?.plan?.pendingItems || [];
+    for (const item of items) {
+      rows.push({
+        taskId: task.taskId,
+        targetProvider: task.targetProvider,
+        path: item.path,
+        size: item.size,
+        reason: item.reason,
+        missingFastInputs: item.missingFastInputs || [],
+      });
+    }
+  }
+  if (!rows.length) {
+    const empty = document.createElement("li");
+    empty.className = "empty-card";
+    empty.textContent = t("pending.empty");
+    list.appendChild(empty);
+    return;
+  }
+  for (const row of rows) {
+    const node = document.createElement("li");
+    node.className = "auth-item";
+    const left = document.createElement("div");
+    const title = document.createElement("div");
+    title.textContent = `${row.path} -> ${row.targetProvider}`;
+    const meta = document.createElement("div");
+    meta.className = "auth-item-meta";
+    meta.textContent = `task=${row.taskId}, size=${row.size}, missing=${row.missingFastInputs.join(",") || "(none)"}`;
+    const detail = document.createElement("div");
+    detail.className = "auth-item-meta";
+    const conflictSupportText = row.conflictSupportStatus ? `, conflictSupport=${row.conflictSupportStatus}` : "";
+    const conflictNoteText = row.conflictNote ? `, conflictNote=${row.conflictNote}` : "";
+    detail.textContent = `${row.reason}${conflictSupportText}${conflictNoteText}`;
+    left.appendChild(title);
+    left.appendChild(meta);
+    left.appendChild(detail);
+    node.appendChild(left);
+    list.appendChild(node);
+  }
+}
+
+function renderTaskPlanPreview() {
+  const panel = document.getElementById("taskPlanPreviewPanel");
+  const meta = document.getElementById("taskPlanPreviewMeta");
+  const summaryWrap = document.getElementById("taskPlanPreviewSummary");
+  const risk = document.getElementById("taskPlanPreviewRisk");
+  const ackWrap = document.getElementById("taskPlanPreviewAckWrap");
+  const list = document.getElementById("taskPlanPreviewList");
+  if (!panel || !meta || !summaryWrap || !risk || !ackWrap || !list) {
+    return;
+  }
+  summaryWrap.innerHTML = "";
+  list.innerHTML = "";
+  const plan = state.taskPlanPreview;
+  if (!plan) {
+    panel.hidden = true;
+    meta.textContent = "";
+    risk.hidden = true;
+    risk.textContent = "";
+    ackWrap.hidden = true;
+    return;
+  }
+  panel.hidden = false;
+  const counts = plan?.summary?.strategyCounts || {};
+  const targetProfile = selectedTaskTargetProfile();
+  const targetProfileText = targetProfile
+    ? `, targetProfile=${targetProfile.displayName || targetProfile.profileId}, profileReady=${targetProfile.profileReady !== false}, writeReady=${targetProfile.writeReady !== false}`
+    : ", targetProfile=(none)";
+  meta.textContent = `source=${plan.sourceProvider || "(unknown)"} -> target=${plan.targetProvider || "(unknown)"}, thresholdMB=${plan.thresholdMB || 0}, conflictPolicy=${plan.conflictPolicy || "auto_rename_new"}${targetProfileText}`;
+  [
+    { label: "total", value: plan?.summary?.total || 0 },
+    { label: "fast_upload", value: counts.fast_upload || 0 },
+    { label: "download_upload", value: counts.download_upload || 0 },
+    { label: "pending_manual", value: counts.pending_manual || 0 },
+  ].forEach((card) => {
+    const node = document.createElement("div");
+    node.className = "summary-card compact";
+    const value = document.createElement("strong");
+    value.textContent = String(card.value);
+    const label = document.createElement("span");
+    label.textContent = card.label;
+    node.appendChild(value);
+    node.appendChild(label);
+    summaryWrap.appendChild(node);
+  });
+
+  const riskLines = [];
+  if (!targetProfile) {
+    riskLines.push("targetProfile missing: No saved target auth profile is selected. Create or select a target profile before you expect live write behavior.");
+  } else {
+    if (targetProfile.profileReady === false) {
+      riskLines.push(`targetProfile not ready: ${targetProfile.displayName || targetProfile.profileId} is still missing required auth fields: ${(targetProfile.missingFieldHints || []).join(" | ") || "(unknown)"}`);
+    }
+    if (targetProfile.writeReady === false) {
+      riskLines.push(`targetProfile not write-ready: ${targetProfile.displayName || targetProfile.profileId} cannot safely write yet: ${(targetProfile.writeMissingFieldHints || []).join(" | ") || "(unknown)"}${targetProfile.writeBlockerNote ? ` | ${targetProfile.writeBlockerNote}` : ""}`);
+    }
+  }
+  if ((counts.pending_manual || 0) > 0) {
+    riskLines.push(`pending_manual=${counts.pending_manual}: Some files still need manual confirmation. Usually this means required fast-upload fingerprints are missing and the fallback threshold is too small or disabled.`);
+  }
+  if ((counts.download_upload || 0) > 0) {
+    riskLines.push(`download_upload=${counts.download_upload}: These files will fall back to download-then-upload. If this is not what you want, add more fingerprints or lower the target scope before creating the task.`);
+  }
+  const firstUnsupported = (plan.items || []).find((item) => item.conflictSupportStatus === "unsupported");
+  if (firstUnsupported) {
+    riskLines.push(`conflict unsupported: ${firstUnsupported.path} is using ${plan.conflictPolicy || "auto_rename_new"} on a target path that is not currently guaranteed. Review the provider note before running.`);
+  }
+  risk.hidden = riskLines.length === 0;
+  risk.textContent = riskLines.join("\n");
+  ackWrap.hidden = !((counts.pending_manual || 0) > 0 || (counts.download_upload || 0) > 0);
+
+  for (const item of plan.items || []) {
+    const node = document.createElement("li");
+    node.className = "auth-item";
+    const left = document.createElement("div");
+    left.className = "task-plan-preview-list-meta";
+    const title = document.createElement("div");
+    title.textContent = `${item.path}: ${item.strategy}`;
+    const metaLine = document.createElement("div");
+    metaLine.className = "auth-item-meta";
+    metaLine.textContent = `available=${(item.availableFastInputs || []).join(",") || "(none)"}, missing=${(item.missingFastInputs || []).join(",") || "(none)"}, conflictSupport=${item.conflictSupportStatus || "unknown"}`;
+    const reasonLine = document.createElement("div");
+    reasonLine.className = "auth-item-meta";
+    reasonLine.textContent = `${item.reason || ""}${item.conflictNote ? ` | ${item.conflictNote}` : ""}`;
+    const fingerprint = item.normalizedFingerprints || {};
+    const fingerprintCode = document.createElement("div");
+    fingerprintCode.className = "task-plan-preview-code";
+    fingerprintCode.textContent = [
+      `md5=${fingerprint.md5 || "(none)"}`,
+      `sha1=${fingerprint.sha1 || "(none)"}`,
+      `sha256=${fingerprint.sha256 || "(none)"}`,
+      `crc64=${fingerprint.crc64 || "(none)"}`,
+      `gcid=${fingerprint.gcid || "(none)"}`,
+      `etag=${fingerprint.etag || "(none)"}`,
+      `pickcode=${fingerprint.pickcode || "(none)"}`,
+      `blockListMd5=${(fingerprint.blockListMd5 || []).join(",") || "(none)"}`,
+    ].join("\n");
+    left.appendChild(title);
+    left.appendChild(metaLine);
+    left.appendChild(reasonLine);
+    left.appendChild(fingerprintCode);
+    node.appendChild(left);
+    list.appendChild(node);
+  }
+}
+
 async function loadTasks() {
-  if (!state.loggedIn) return;
+  if (!state.loggedIn) {
+    return;
+  }
   const data = await fetchJson("/api/tasks");
   state.tasks = data.items || [];
-  renderTaskList();
+  render();
 }
 
 async function createDemoTask() {
+  const preferredProfile = state.authProfiles.find((profile) => profile.providerKey === "guangya");
   const body = {
     sourceProvider: "quark",
     targetProvider: "guangya",
+    targetProfileId: preferredProfile?.profileId || "",
+    targetParentId: resolvedParentIdForProfile(preferredProfile),
     thresholdMB: 200,
+    conflictPolicy: "auto_rename_new",
     selectedRoots: ["/1", "/2"],
     entries: [
       { path: "/1/11/111/a.bin", size: 100, md5: "e10adc3949ba59abbe56e057f20f883e" },
@@ -271,6 +1337,94 @@ async function createDemoTask() {
     ],
   };
   await fetchJson("/api/tasks", { method: "POST", body: JSON.stringify(body) });
+  state.taskPlanPreview = null;
+  await loadTasks();
+}
+
+function collectTaskFormPayload() {
+  const sourceProvider = document.getElementById("taskSourceProvider").value;
+  const targetProvider = document.getElementById("taskTargetProvider").value;
+  const targetProfileId = document.getElementById("taskTargetProfile").value;
+  const targetParentId = document.getElementById("taskTargetParentId").value.trim();
+  const sourcePath = document.getElementById("taskSourcePath").value.trim() || "/demo.bin";
+  const localPath = document.getElementById("taskLocalPath").value.trim();
+  const md5 = document.getElementById("taskMd5").value.trim();
+  const sizeRaw = document.getElementById("taskSize").value.trim();
+  const thresholdRaw = document.getElementById("taskThresholdMB").value.trim();
+  const conflictPolicy = document.getElementById("taskConflictPolicy").value;
+  const ackChecked = Boolean(document.getElementById("taskPlanPreviewAck")?.checked);
+  return {
+    sourceProvider,
+    targetProvider,
+    targetProfileId,
+    targetParentId,
+    thresholdMB: Number(thresholdRaw || 0) || 0,
+    conflictPolicy,
+    acknowledgePendingManual: ackChecked,
+    acknowledgeDownloadUpload: ackChecked,
+    selectedRoots: [sourcePath],
+    entries: [
+      {
+        path: sourcePath,
+        size: Number(sizeRaw || 0) || 0,
+        md5,
+        localPath,
+      },
+    ],
+  };
+}
+
+async function previewTaskPlan() {
+  setTaskCreateGuard("");
+  resetTaskPlanAck();
+  const plan = await fetchTaskPlanPreview();
+  state.taskPlanPreview = plan;
+  renderTaskPlanPreview();
+}
+
+async function fetchTaskPlanPreview() {
+  const body = collectTaskFormPayload();
+  return fetchJson("/api/plan/mock", {
+    method: "POST",
+    body: JSON.stringify({
+      sourceProvider: body.sourceProvider,
+      targetProvider: body.targetProvider,
+      thresholdMB: body.thresholdMB,
+      conflictPolicy: body.conflictPolicy,
+      selectedRoots: body.selectedRoots,
+      entries: body.entries,
+    }),
+  });
+}
+
+async function createTaskFromForm() {
+  setTaskCreateGuard("");
+  const plan = await fetchTaskPlanPreview();
+  state.taskPlanPreview = plan;
+  renderTaskPlanPreview();
+  const counts = plan?.summary?.strategyCounts || {};
+  const targetProfile = selectedTaskTargetProfile();
+  if (targetProfile && targetProfile.writeReady === false) {
+    const message = `Task creation blocked: target profile ${targetProfile.displayName || targetProfile.profileId} is not write-ready yet. ${(targetProfile.writeMissingFieldHints || []).join(" | ") || "(unknown)"}${targetProfile.writeBlockerNote ? ` | ${targetProfile.writeBlockerNote}` : ""}`;
+    setTaskCreateGuard(message);
+    return;
+  }
+  const unsupportedItem = (plan.items || []).find((item) => item.conflictSupportStatus === "unsupported");
+  if (unsupportedItem) {
+    const message = `Task creation blocked: ${unsupportedItem.path} is using ${plan.conflictPolicy || "auto_rename_new"} on a target path that is not currently guaranteed. ${unsupportedItem.conflictNote || "Review the provider note before running."}`;
+    setTaskCreateGuard(message);
+    return;
+  }
+  const ack = document.getElementById("taskPlanPreviewAck");
+  if (((counts.pending_manual || 0) > 0 || (counts.download_upload || 0) > 0) && !ack?.checked) {
+    setTaskCreateGuard("Task creation requires confirmation: this plan still contains pending_manual or download_upload items. Review the preview and tick the acknowledgement checkbox before continuing.");
+    return;
+  }
+  const body = collectTaskFormPayload();
+  await fetchJson("/api/tasks", { method: "POST", body: JSON.stringify(body) });
+  state.taskPlanPreview = null;
+  setTaskCreateGuard("");
+  resetTaskPlanAck();
   await loadTasks();
 }
 
@@ -280,6 +1434,166 @@ async function taskAction(taskId, action) {
     body: JSON.stringify({ action }),
   });
   await loadTasks();
+}
+
+function renderProviderPanel() {
+  const summaryWrap = document.getElementById("providerMatrixSummary");
+  const matrixList = document.getElementById("providerMatrixList");
+  const researchList = document.getElementById("providerResearchList");
+  summaryWrap.innerHTML = "";
+  matrixList.innerHTML = "";
+  researchList.innerHTML = "";
+
+  if (state.statusMatrix?.summary) {
+    const cards = [
+      { label: t("summary.providers"), value: state.statusMatrix.summary.providerCount || 0 },
+      { label: "authReady", value: state.statusMatrix.summary.authReadyCount || 0 },
+      { label: "createDir", value: state.statusMatrix.summary.createDirReadyCount || 0 },
+      { label: "fastCheck", value: state.statusMatrix.summary.fastCheckCount || 0 },
+      { label: "conflictAware", value: state.statusMatrix.summary.conflictAwareProviderCount || 0 },
+    ];
+    for (const card of cards) {
+      const node = document.createElement("div");
+      node.className = "summary-card compact";
+      const value = document.createElement("strong");
+      value.textContent = String(card.value);
+      const label = document.createElement("span");
+      label.textContent = card.label;
+      node.appendChild(value);
+      node.appendChild(label);
+      summaryWrap.appendChild(node);
+    }
+  }
+
+  for (const item of state.statusMatrix?.items || []) {
+    const node = document.createElement("li");
+    node.className = "auth-item";
+    const title = document.createElement("div");
+    title.textContent = `${item.displayName} [${item.providerKey}]`;
+    const meta = document.createElement("div");
+    meta.className = "auth-item-meta";
+    meta.textContent = `support=${item.supportStatus}, auth=${item.auth_ready}, list=${item.list_ready}, metadata=${item.metadata_ready}, create_dir=${item.create_dir_ready}, fast_check=${item.fast_check}`;
+    const conflict = document.createElement("div");
+    conflict.className = "auth-item-meta";
+    const policyText = (item.conflictPolicies || []).join(", ") || "(none)";
+    conflict.textContent = `conflictPolicies=${policyText}, overwrite=${item.supportsOverwrite}, autoRename=${item.supportsAutoRename}, overwriteBehavior=${item.overwriteBehavior || "not_implemented"}`;
+    node.appendChild(title);
+    node.appendChild(meta);
+    node.appendChild(conflict);
+    if (item.conflictNotes) {
+      const notes = document.createElement("div");
+      notes.className = "auth-item-meta";
+      notes.textContent = item.conflictNotes;
+      node.appendChild(notes);
+    }
+    matrixList.appendChild(node);
+  }
+
+  for (const item of state.providerResearch) {
+    const node = document.createElement("li");
+    node.className = "auth-item";
+    const title = document.createElement("div");
+    title.textContent = `${item.displayName} [${item.providerKey}]`;
+    const meta = document.createElement("div");
+    meta.className = "auth-item-meta";
+    meta.textContent = `status=${item.status}, authModes=${(item.authModes || []).join(", ") || "(none)"}`;
+    const notes = document.createElement("div");
+    notes.className = "auth-item-meta";
+    notes.textContent = item.notes || "";
+    const matchedProfile = state.authProfiles.find((profile) => profile.providerKey === item.providerKey);
+    if (matchedProfile && state.providerLiveProbes[matchedProfile.profileId]) {
+      const probe = state.providerLiveProbes[matchedProfile.profileId];
+      const probeNode = document.createElement("div");
+      probeNode.className = "auth-item-meta";
+      probeNode.textContent = `live_probe=${probe.mode}, ok=${probe.ok}, checks=${(probe.checks || []).length}`;
+      node.appendChild(title);
+      node.appendChild(meta);
+      node.appendChild(notes);
+      node.appendChild(probeNode);
+      researchList.appendChild(node);
+      continue;
+    }
+    node.appendChild(title);
+    node.appendChild(meta);
+    node.appendChild(notes);
+    researchList.appendChild(node);
+  }
+}
+
+function renderSettingsPanel() {
+  const sessionList = document.getElementById("settingsSessionList");
+  const validationList = document.getElementById("settingsValidationList");
+  const providerProbeList = document.getElementById("settingsProviderProbeList");
+  const auditList = document.getElementById("settingsAuditList");
+  sessionList.innerHTML = "";
+  validationList.innerHTML = "";
+  providerProbeList.innerHTML = "";
+  auditList.innerHTML = "";
+
+  const sessionRows = [
+    `${t("settings.session")}: ${state.loggedIn ? t("settings.logged_in") : t("settings.logged_out")}`,
+    `${t("summary.auth_profiles")}: ${state.authProfiles.length}`,
+    `${t("summary.tasks")}: ${state.tasks.length}`,
+  ];
+  for (const row of sessionRows) {
+    const li = document.createElement("li");
+    li.textContent = row;
+    sessionList.appendChild(li);
+  }
+
+  const latestValidationRows = {};
+  for (const row of state.liveValidations) {
+    if (row && row.profileId) {
+      latestValidationRows[row.profileId] = row;
+    }
+  }
+  const latestValidationList = Object.values(latestValidationRows);
+  const validationSummary = state.liveValidationMeta?.summary || {};
+  const validationRows = [
+    `${t("settings.validation")}: history=${state.liveValidationMeta?.historyCount || 0}, latestProfiles=${validationSummary.profileCount || latestValidationList.length}`,
+    `latestOk=${validationSummary.okCount || 0}, latestFailed=${validationSummary.failedCount || 0}`,
+  ];
+  const latestValidation = latestValidationList[latestValidationList.length - 1];
+  if (latestValidation) {
+    validationRows.push(
+      `latest=${latestValidation.providerKey}, ok=${latestValidation.ok}, status=${latestValidation.status}`
+    );
+  }
+  for (const row of validationRows) {
+    const li = document.createElement("li");
+    li.textContent = row;
+    validationList.appendChild(li);
+  }
+
+  const probeRows = Object.values(state.providerLiveProbes || {});
+  const probeSummary = state.providerLiveProbeMeta?.summary || {};
+  if (!probeRows.length) {
+    const li = document.createElement("li");
+    li.textContent = "none";
+    providerProbeList.appendChild(li);
+  } else {
+    const summaryLi = document.createElement("li");
+    summaryLi.textContent = `history=${state.providerLiveProbeMeta?.historyCount || 0}, latestProfiles=${probeSummary.profileCount || probeRows.length}, latestOk=${probeSummary.okCount || 0}, latestFailed=${probeSummary.failedCount || 0}`;
+    providerProbeList.appendChild(summaryLi);
+    for (const probe of probeRows) {
+      const li = document.createElement("li");
+      li.textContent = `${probe.providerKey || "(unknown)"}: ok=${probe.ok}, mode=${probe.mode}, checks=${(probe.checks || []).length}`;
+      providerProbeList.appendChild(li);
+    }
+  }
+
+  const audit = state.auditSummary || {};
+  const auditRows = [
+    `done=${audit.done || 0}`,
+    `partial=${audit.partial || 0}`,
+    `todo=${audit.todo || 0}`,
+    `providerCount=${audit.providerCount || 0}`,
+  ];
+  for (const row of auditRows) {
+    const li = document.createElement("li");
+    li.textContent = row;
+    auditList.appendChild(li);
+  }
 }
 
 async function onLogin() {
@@ -293,6 +1607,7 @@ async function onLogin() {
     });
     input.value = "";
     await refreshSession();
+    await refreshProtectedData();
   } catch (error) {
     if (error.status === 401) {
       errorNode.hidden = false;
@@ -305,7 +1620,32 @@ async function onLogin() {
 
 async function onLogout() {
   await fetchJson("/api/logout", { method: "POST" });
+  state.authProfiles = [];
+  state.liveValidations = [];
+  state.liveValidationMeta = { historyCount: 0, summary: null };
+  state.providerLiveProbes = {};
+  state.providerLiveProbeMeta = { historyCount: 0, summary: null };
+  state.providerResearch = [];
+  state.statusMatrix = null;
+  state.auditSummary = null;
+  state.tasks = [];
   await refreshSession();
+}
+
+async function refreshProtectedData() {
+  if (!state.loggedIn) {
+    render();
+    return;
+  }
+  await Promise.all([
+    loadAuthProfiles(),
+    loadProviderResearch(),
+    loadStatusMatrix(),
+    loadTasks(),
+    loadLiveValidations(),
+    loadProviderLiveProbeResults(),
+    loadAuditSummary(),
+  ]);
 }
 
 async function bootstrap() {
@@ -316,16 +1656,26 @@ async function bootstrap() {
   document.getElementById("loginBtn").addEventListener("click", onLogin);
   document.getElementById("logoutBtn").addEventListener("click", onLogout);
   document.getElementById("authSaveBtn").addEventListener("click", saveAuth);
+  document.getElementById("authResetBtn").addEventListener("click", onAuthReset);
   document.getElementById("authReloadBtn").addEventListener("click", loadAuthProfiles);
   document.getElementById("authOpenModalBtn").addEventListener("click", openAuthModal);
+  document.getElementById("authBundleBtn").addEventListener("click", showAuthEvidenceBundle);
+  document.getElementById("authRemediationBtn").addEventListener("click", showAuthRemediationGuide);
   document.getElementById("authStartCaptureBtn").addEventListener("click", startCaptureGuide);
+  document.getElementById("authProvider").addEventListener("change", () => {
+    syncAuthModeOptions();
+    render();
+  });
+  document.getElementById("taskTargetProvider").addEventListener("change", onTaskTargetProviderChange);
+  document.getElementById("taskTargetProfile").addEventListener("change", syncTaskTargetParentFromProfile);
+  document.getElementById("taskPreviewBtn").addEventListener("click", previewTaskPlan);
+  document.getElementById("taskCreateBtn").addEventListener("click", createTaskFromForm);
   document.getElementById("taskCreateDemoBtn").addEventListener("click", createDemoTask);
   document.getElementById("taskReloadBtn").addEventListener("click", loadTasks);
   await loadI18n("zh-CN");
   await loadProviders();
   await refreshSession();
-  await loadAuthProfiles();
-  await loadTasks();
+  await refreshProtectedData();
 }
 
 bootstrap().catch((error) => {

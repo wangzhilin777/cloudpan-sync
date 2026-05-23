@@ -33,10 +33,22 @@
 
       <section class="panel app-panel" id="appPanel" hidden>
         <nav class="tabs" id="tabs"></nav>
-        <article class="placeholder" id="generalPanel">
+        <article class="placeholder" id="newTaskPanel">
           <section class="wizard-panel">
-            <h3>New Task Wizard</h3>
+            <h3 id="newTaskTitle">New Task Wizard</h3>
+            <p id="newTaskSubtitle" class="panel-subtitle"></p>
+            <div class="summary-grid" id="summaryGrid"></div>
             <div class="wizard-steps" id="wizardSteps"></div>
+            <div class="wizard-layout">
+              <aside class="wizard-secondary">
+                <h4 id="wizardSecondaryTitle"></h4>
+                <div id="wizardSecondaryNav" class="wizard-secondary-nav"></div>
+              </aside>
+              <section class="wizard-summary-card">
+                <h4 id="wizardSummaryTitle"></h4>
+                <p id="wizardSummaryBody"></p>
+              </section>
+            </div>
             <div class="wizard-tip">
               <span class="tip-icon" title="建议先跑扫描分析，再决定秒传或补传策略。">i</span>
               <span id="lockedText"></span>
@@ -47,12 +59,18 @@
           <h3 id="authTitle">Auth Management</h3>
           <div class="auth-toolbar">
             <button id="authOpenModalBtn" class="ghost">Open Auth Modal</button>
+            <button id="authBundleBtn" class="ghost" type="button">Evidence Bundle</button>
+            <button id="authRemediationBtn" class="ghost" type="button">Remediation Guide</button>
             <span class="tip-icon" title="网页登录抓取建议用于 cookie/token 不稳定的网盘。">?</span>
           </div>
+          <p id="authLiveProbeHint" class="panel-subtitle"></p>
+          <p id="authModeHint" class="panel-subtitle"></p>
+          <div id="authEditHint" class="auth-edit-hint" hidden></div>
           <div class="auth-grid">
             <input id="authDisplayName" type="text" placeholder="display name" />
             <select id="authProvider"></select>
             <select id="authMode">
+              <option value="official_oauth">official_oauth</option>
               <option value="manual_token">manual_token</option>
               <option value="manual_cookie">manual_cookie</option>
               <option value="web_login_capture">web_login_capture</option>
@@ -60,26 +78,119 @@
             <input id="authToken" type="text" placeholder="token (optional)" title="优先使用短期 token，避免长期明文暴露。" />
             <input id="authCookie" type="text" placeholder="cookie (optional)" title="cookie 失效后需重新抓取或登录。" />
             <button id="authSaveBtn">Save Auth</button>
+            <button id="authResetBtn" class="ghost" type="button">Reset Form</button>
           </div>
           <details class="advanced-block">
             <summary>Advanced Fields</summary>
             <div class="advanced-fields">
               <input id="authExtraHeader" type="text" placeholder="header: key=value" />
               <input id="authExtraDevice" type="text" placeholder="deviceId (optional)" />
+              <input id="authExtraCaptchaToken" type="text" placeholder="captchaToken (Xunlei optional)" />
+              <input id="authExtraClientId" type="text" placeholder="clientId (Xunlei optional)" />
+              <input id="authExtraDid" type="text" placeholder="did (Guangya optional)" />
+              <input id="authExtraDt" type="text" placeholder="dt (Guangya optional)" />
+              <input id="authExtraParentId" type="text" placeholder="parentId (Guangya live list)" />
+              <input id="authExtraPageSize" type="number" placeholder="pageSize (default 100)" min="1" />
+              <input id="authExtraFileId" type="text" placeholder="fileId (live metadata probe)" />
+              <input id="authExtraDirName" type="text" placeholder="dirName (live create_dir probe)" />
+              <input id="authExtraPwdId" type="text" placeholder="pwdId / sharePwdId (Quark share)" />
+              <input id="authExtraPasscode" type="text" placeholder="passcode (Quark share optional)" />
+              <input id="authExtraDomainId" type="text" placeholder="domainId (Aliyun Open)" />
+              <input id="authExtraDriveId" type="text" placeholder="driveId (Aliyun Open)" />
+              <input id="authExtraShareCode" type="text" placeholder="shareCode (189Cloud live read)" />
+              <input id="authExtraAccessCode" type="text" placeholder="accessCode (189Cloud optional)" />
+              <input id="authExtraPathPrefix" type="text" placeholder="pathPrefix (189Cloud optional)" />
             </div>
           </details>
+          <div id="authValidationSummary" class="auth-validation-summary" hidden></div>
           <div class="auth-list-wrap">
             <button id="authReloadBtn" class="ghost">Reload</button>
             <ul id="authList" class="auth-list"></ul>
           </div>
         </section>
         <section class="queue-panel" id="queuePanel" hidden>
-          <h3>Transfer Queue</h3>
+          <h3 id="queueTitle">Transfer Queue</h3>
+          <p id="queueSubtitle" class="panel-subtitle"></p>
+          <div class="auth-grid">
+            <select id="taskSourceProvider"></select>
+            <select id="taskTargetProvider"></select>
+            <select id="taskTargetProfile"></select>
+            <input id="taskTargetParentId" type="text" placeholder="targetParentId (optional, Guangya upload)" />
+            <input id="taskSourcePath" type="text" placeholder="/demo.bin" />
+            <input id="taskLocalPath" type="text" placeholder="C:\\path\\to\\local.bin (optional)" />
+            <input id="taskMd5" type="text" placeholder="md5 (optional)" />
+            <input id="taskSize" type="number" placeholder="size bytes" min="0" />
+            <input id="taskThresholdMB" type="number" placeholder="threshold MB" min="0" />
+            <select id="taskConflictPolicy">
+              <option value="auto_rename_new">auto_rename_new</option>
+              <option value="overwrite_existing">overwrite_existing</option>
+            </select>
+          </div>
           <div class="queue-actions">
+            <button id="taskPreviewBtn" class="ghost" type="button">Preview Plan</button>
+            <button id="taskCreateBtn">Create Task</button>
             <button id="taskCreateDemoBtn">Create Demo Task</button>
             <button id="taskReloadBtn" class="ghost">Reload Queue</button>
           </div>
+          <div id="taskCreateGuard" class="auth-validation-summary fail" hidden></div>
+          <section id="taskPlanPreviewPanel" class="task-plan-preview" hidden>
+            <div class="task-plan-preview-head">
+              <h4>Plan Preview</h4>
+              <span id="taskPlanPreviewMeta" class="auth-item-meta"></span>
+            </div>
+            <div id="taskPlanPreviewSummary" class="summary-grid compact"></div>
+            <div id="taskPlanPreviewRisk" class="task-plan-preview-risk" hidden></div>
+            <label id="taskPlanPreviewAckWrap" class="task-plan-preview-ack" hidden>
+              <input id="taskPlanPreviewAck" type="checkbox" />
+              <span>I understand this plan still contains fallback/manual-risk items and I want to continue creating the task.</span>
+            </label>
+            <ul id="taskPlanPreviewList" class="auth-list"></ul>
+          </section>
           <ul id="taskList" class="auth-list"></ul>
+        </section>
+        <section class="pending-panel" id="pendingPanel" hidden>
+          <h3 id="pendingTitle"></h3>
+          <p id="pendingSubtitle" class="panel-subtitle"></p>
+          <ul id="pendingList" class="auth-list"></ul>
+        </section>
+        <section class="providers-panel" id="providersPanel" hidden>
+          <h3 id="providersTitle"></h3>
+          <p id="providersSubtitle" class="panel-subtitle"></p>
+          <div class="providers-layout">
+            <section class="mini-panel">
+              <h4 id="providersMatrixTitle"></h4>
+              <div id="providerMatrixSummary" class="summary-grid compact"></div>
+              <ul id="providerMatrixList" class="auth-list"></ul>
+            </section>
+            <section class="mini-panel">
+              <h4 id="providersResearchTitle"></h4>
+              <p id="providersLiveProbeHint" class="panel-subtitle"></p>
+              <ul id="providerResearchList" class="auth-list"></ul>
+            </section>
+          </div>
+        </section>
+        <section class="settings-panel" id="settingsPanel" hidden>
+          <h3 id="settingsTitle"></h3>
+          <p id="settingsSubtitle" class="panel-subtitle"></p>
+          <div class="providers-layout">
+            <section class="mini-panel">
+              <h4 id="settingsSessionTitle"></h4>
+              <ul id="settingsSessionList" class="plain-list"></ul>
+            </section>
+            <section class="mini-panel">
+              <h4 id="settingsValidationTitle"></h4>
+              <ul id="settingsValidationList" class="plain-list"></ul>
+            </section>
+            <section class="mini-panel">
+              <h4 id="settingsProviderProbeTitle"></h4>
+              <ul id="settingsProviderProbeList" class="plain-list"></ul>
+            </section>
+            <section class="mini-panel">
+              <h4 id="settingsAuditTitle"></h4>
+              <ul id="settingsAuditList" class="plain-list"></ul>
+            </section>
+          </div>
+          <p id="settingsTip" class="settings-tip"></p>
         </section>
       </section>
     </main>

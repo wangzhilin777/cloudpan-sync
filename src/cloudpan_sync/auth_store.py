@@ -43,10 +43,9 @@ def list_profiles() -> list[AuthProfile]:
     return [AuthProfile.model_validate(row) for row in _read_rows()]
 
 
-def save_profile(payload: AuthProfileInput) -> AuthProfile:
-    rows = _read_rows()
+def build_profile(payload: AuthProfileInput) -> AuthProfile:
     now = _now_iso()
-    profile = AuthProfile(
+    return AuthProfile(
         profileId=str(uuid4()),
         providerKey=payload.providerKey,
         authMode=payload.authMode,
@@ -59,6 +58,35 @@ def save_profile(payload: AuthProfileInput) -> AuthProfile:
         createdAt=now,
         updatedAt=now,
     )
+
+
+def build_updated_profile(existing: AuthProfile, payload: AuthProfileInput) -> AuthProfile:
+    now = _now_iso()
+    merged_extra = dict(existing.extra or {})
+    for key, value in payload.extra.items():
+        text = str(value or "").strip()
+        if text:
+            merged_extra[key] = text
+    token = payload.token.strip() or existing.token
+    cookie = payload.cookie.strip() or existing.cookie
+    return AuthProfile(
+        profileId=existing.profileId,
+        providerKey=payload.providerKey,
+        authMode=payload.authMode,
+        displayName=payload.displayName,
+        token=token,
+        cookie=cookie,
+        extra=merged_extra,
+        status=existing.status,
+        lastError=existing.lastError,
+        createdAt=existing.createdAt,
+        updatedAt=now,
+    )
+
+
+def save_profile(payload: AuthProfileInput) -> AuthProfile:
+    rows = _read_rows()
+    profile = build_profile(payload)
     rows.append(profile.model_dump())
     _write_rows(rows)
     return profile

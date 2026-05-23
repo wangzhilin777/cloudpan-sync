@@ -1,21 +1,17 @@
 from __future__ import annotations
 
+from .fingerprints import available_fast_inputs, build_fingerprint_set
 from .models import PlanItem, PlanSummary, SourceEntry, TransferPlan
 from .provider_registry import get_provider_profile
 
 
 def _missing_fast_inputs(entry: SourceEntry, required: list[str]) -> list[str]:
+    fingerprints = build_fingerprint_set(entry)
+    available = set(available_fast_inputs(fingerprints, entry.path, entry.size))
     missing: list[str] = []
     for key in required:
-        if key == "size":
-            if int(entry.size) <= 0:
-                missing.append(key)
-        elif key == "name":
-            if not entry.path.strip():
-                missing.append(key)
-        else:
-            if not getattr(entry, key, ""):
-                missing.append(key)
+        if key not in available:
+            missing.append(key)
     return missing
 
 
@@ -24,6 +20,7 @@ def build_transfer_plan(
     target_provider: str,
     entries: list[SourceEntry],
     threshold_mb: int,
+    conflict_policy: str = "auto_rename_new",
     selected_roots: list[str] | None = None,
 ) -> TransferPlan:
     target_profile = get_provider_profile(target_provider)
@@ -35,6 +32,8 @@ def build_transfer_plan(
     counts: dict[str, int] = {}
 
     for entry in entries:
+        fingerprints = build_fingerprint_set(entry)
+        available_inputs = available_fast_inputs(fingerprints, entry.path, entry.size)
         missing = _missing_fast_inputs(entry, target_profile.fastUploadInputs)
         if not missing:
             strategy = "fast_upload"
@@ -46,12 +45,22 @@ def build_transfer_plan(
             strategy = "pending_manual"
             reason = "Fast-upload inputs are missing and fallback needs manual confirmation."
 
+        conflict_support_status, conflict_note = _resolve_conflict_support(
+            conflict_policy=str(conflict_policy or "auto_rename_new"),
+            provider_key=target_profile.providerKey,
+        )
+
         items.append(
             PlanItem(
                 path=entry.path,
                 size=entry.size,
                 strategy=strategy,
                 reason=reason,
+                conflictPolicy=str(conflict_policy or "auto_rename_new"),
+                conflictSupportStatus=conflict_support_status,
+                conflictNote=conflict_note,
+                normalizedFingerprints=fingerprints,
+                availableFastInputs=available_inputs,
                 missingFastInputs=missing,
             )
         )
@@ -59,12 +68,15 @@ def build_transfer_plan(
 
     execution_groups = _build_execution_groups(items, selected_roots or [])
     pending_items = [
-        {
-            "path": item.path,
-            "size": item.size,
-            "reason": item.reason,
-            "missingFastInputs": item.missingFastInputs,
-        }
+            {
+                "path": item.path,
+                "size": item.size,
+                "reason": item.reason,
+                "conflictPolicy": item.conflictPolicy,
+                "conflictSupportStatus": item.conflictSupportStatus,
+                "conflictNote": item.conflictNote,
+                "missingFastInputs": item.missingFastInputs,
+            }
         for item in items
         if item.strategy == "pending_manual"
     ]
@@ -73,6 +85,7 @@ def build_transfer_plan(
         sourceProvider=source_provider,
         targetProvider=target_provider,
         thresholdMB=max(0, int(threshold_mb)),
+        conflictPolicy=str(conflict_policy or "auto_rename_new"),
         items=items,
         summary=PlanSummary(total=len(items), strategyCounts=counts),
         executionGroups=execution_groups,
@@ -123,9 +136,44 @@ def _build_execution_groups(items: list[PlanItem], selected_roots: list[str]) ->
                         "path": item.path,
                         "size": item.size,
                         "strategy": item.strategy,
+                        "conflictPolicy": item.conflictPolicy,
+                        "conflictSupportStatus": item.conflictSupportStatus,
+                        "conflictNote": item.conflictNote,
                     }
                     for item in scoped_sorted
                 ],
             }
         )
     return groups
+
+
+def _resolve_conflict_support(conflict_policy: str, provider_key: str) -> tuple[str, str]:
+    profile = get_provider_profile(provider_key)
+    if profile is None:
+        return "unknown", "Target provider profile is missing, so conflict handling support could not be resolved."
+
+    normalized_policy = str(conflict_policy or "auto_rename_new")
+    if normalized_policy == "overwrite_existing":
+        if profile.supportsOverwrite:
+            return "supported", ""
+        if profile.supportsAutoRename and profile.overwriteBehavior == "downgrade_to_auto_rename":
+            return (
+                "downgrade_to_auto_rename",
+                "The current target provider path does not guarantee true overwrite, so overwrite_existing will downgrade to auto_rename_new.",
+            )
+        return (
+            "unsupported",
+            profile.conflictNotes
+            or "The current target provider path does not guarantee overwrite_existing, and no safe downgrade is currently declared.",
+        )
+
+    if normalized_policy == "auto_rename_new":
+        if profile.supportsAutoRename:
+            return "supported", ""
+        return (
+            "unsupported",
+            profile.conflictNotes
+            or "The current target provider path does not yet declare safe auto_rename_new handling.",
+        )
+
+    return "unknown", "Unknown conflict policy."

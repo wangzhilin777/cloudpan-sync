@@ -1,0 +1,349 @@
+# 已完成里程碑
+
+> 仅记录已经完成并且当前代码/接口可验证的里程碑。
+>
+> 截至本次核对，`M4 光鸭基础能力`、`M5 首批常用网盘基础接入` 仍存在计划内缺口，因此暂不列入“已完成”。
+
+> 本文件允许记录“未独立成完整里程碑、但已经完成且有当前代码/脚本证据支撑”的补齐项，前提是不把 `partial/todo` 误写成已完成。
+
+## 里程碑清单
+
+### M1 - 独立项目骨架
+
+- 完成日期：`2026-05-23`
+- 提交：`46a20a3`
+- 完成范围：
+  - FastAPI 后端与静态前端骨架
+  - 本地管理员密码登录保护
+  - 中英 i18n 基础接口
+  - Windows 启动脚本（`pwsh` 优先，PowerShell 回退）
+- 当前验证证据：
+  - `GET /api/health` 返回 `{"status":"ok"}`
+  - `POST /api/login` 默认密码 `admin123` 可登录
+  - `GET /api/session` 登录后返回 `{"loggedIn":true}`
+
+### M2 - 适配器与能力模型
+
+- 完成日期：`2026-05-23`
+- 提交：`a456f54`
+- 完成范围：
+  - `ProviderAdapter` 抽象与 `ProviderProfile` 模型
+  - `FingerprintSet` 模型与归一化输出：已统一收口 `md5 / sha1 / sha256 / crc64 / gcid / etag / pickcode / blockListMd5 / raw`
+  - provider registry API
+  - mock 互传规划 API
+- 当前验证证据：
+  - `GET /api/providers` 返回 `providerCount=10`
+  - `POST /api/plan/mock` 返回策略明细、分组与统计
+  - [verify_fingerprint_set_normalization.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_fingerprint_set_normalization.py) 已验证 `POST /api/plan/mock` 会返回标准化 `normalizedFingerprints`，例如把原始 `MD5/etag/pickCode/block_list_md5` 归一化成统一字段，并返回 `availableFastInputs`
+
+### M3 - 授权系统
+
+- 完成日期：`2026-05-23`
+- 提交：`0e0f7ed`
+- 完成范围：
+  - `AuthProfile` 模型与本地授权存储
+  - 授权 API：新增、查询、删除、校验
+  - 网页登录抓取引导 API（`capture_pending`）
+  - 授权信息脱敏显示
+  - 认证校验已升级为 provider-aware 最小 live validation：不再只检查 token/cookie 是否非空，而是优先走对应 provider 的最小 live probe
+  - Guangya 认证校验默认参数已补别名兼容：`parent_id / parentFileId / dirId / pid` 可映射为 `parentId`，`file_id / resId` 可映射为 `fileId`
+  - 授权列表接口现在会直接返回 provider-aware `missingFieldHints / profileReady`，可在未点击 validate 前先暴露档案缺口
+  - 授权列表接口现在还会返回 `resolvedParentId / resolvedFileId`，任务表单与 live probe 可直接复用解析后的默认值，不必依赖录入时使用的具体字段名
+  - 已支持编辑现有 auth profile 并重新校验；补 Guangya `parentId` 这类字段时无需删除重建，`token/cookie` 留空会保留原值
+  - 已新增本地脚本 [patch_auth_profile_extra.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_auth_profile_extra.py)，可按 `profileId / providerKey / displayName` 选择已有档案，安全补写 `extra.parentId / fileId / did / dt` 等字段，并可选立即重验后写回状态
+  - 已新增一键脚本 [patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_and_probe_auth_profile.py)，可在补写现有档案字段后立刻串行执行 provider-aware validation 与 live probe，并在需要时把验证/探测结果一起落盘，方便为真实 Guangya 样例留证据
+  - 已新增单档案证据摘要接口 `GET /api/auth/profiles/{id}/evidence`、Markdown 接口 `GET /api/auth/profiles/{id}/evidence_markdown`、刷新接口 `POST /api/auth/profiles/{id}/refresh_evidence` 与导出脚本 [export_auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_auth_profile_evidence.py)，可把 profile readiness、最新 validation、最新 probe 汇总成单份 Markdown 证据，并在需要时先重跑 validation/probe
+  - [patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_and_probe_auth_profile.py) 现已支持 `--evidence-output`，可在补字段、重验、live probe 后直接输出单档案证据 Markdown 文件
+  - 已新增 auth evidence bundle 接口 `GET /api/auth/evidence_bundle`、Markdown 接口 `GET /api/auth/evidence_bundle_markdown`、刷新接口 `POST /api/auth/refresh_evidence_bundle` 与导出脚本 [export_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_auth_evidence_bundle.py)，可汇总当前全部已保存 auth profile 的 readiness / validation / probe 证据到 [08-AUTH_EVIDENCE_BUNDLE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/08-AUTH_EVIDENCE_BUNDLE.md)，并在需要时先重跑全部 profile 的 validation/probe
+  - 已新增批量脚本 [patch_refresh_export_auth_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_refresh_export_auth_bundle.py)，可按 `profileId/providerKey/displayName` 选择一批已保存档案，统一补字段、刷新 evidence bundle，并直接导出 Markdown，总体上就是把当前 Guangya smoke 档案的“批量补 `parentId/fileId` -> 刷新证据 -> 导出总览”收成一条命令
+  - 已新增 auth remediation bundle 接口 `GET /api/auth/remediation_bundle`、Markdown 接口 `GET /api/auth/remediation_bundle_markdown` 与导出脚本 [export_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_auth_remediation_bundle.py)，可把当前全部 auth profile 的 readiness 缺口和建议补字段命令汇总到 [09-AUTH_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/09-AUTH_REMEDIATION_GUIDE.md)，方便为 Guangya/阿里/夸克等 provider 的真实联调先补齐最关键字段
+  - auth profile 视图、单档案 evidence 与 remediation bundle 现已区分 `profileReady` 与 `writeReady`：像 `189cloud` 这类当前仅具备 shareCode/accessCode 只读链路的档案，会明确返回 `writeReady=false`、`writeMissingFieldHints` 与 `writeBlockerNote`，不再把“能读但不能写”混成一个 readiness 状态
+- 当前验证证据：
+  - `POST /api/auth/profiles` 现会在保存时同步返回结构化 `validation` 结果，并据此写入 profile `status`
+  - `POST /api/auth/profiles/{id}/validate` 现会返回结构化 `validation` 结果，并据此更新 profile `status`
+  - `POST /api/auth/capture/start` 返回 `capture_pending`，并带真实 `loginUrlHint` 与 `requiredFieldHints`
+  - `DELETE /api/auth/profiles/{id}` 返回 `{"ok":true}`
+  - [verify_auth_live_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_live_validation.py) 已覆盖保存时自动校验与单条/批量认证验证
+  - [verify_guangya_validation_hints.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_guangya_validation_hints.py) 已验证 Guangya save-time/provider-aware 校验可识别 `parentFileId/file_id/authorization` 别名输入
+  - [verify_auth_profile_readiness.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_readiness.py) 已验证 `/api/auth/profiles` 会把缺 `parentId` 的 Guangya 档案标记为 `profileReady=false`
+  - [verify_auth_profile_resolved_defaults.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_resolved_defaults.py) 已验证 Guangya 仅填 `parentFileId/file_id` 时，`/api/auth/profiles` 会返回 `resolvedParentId/resolvedFileId`
+  - [verify_auth_profile_update.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_update.py) 已验证 `PUT /api/auth/profiles/{id}` 可保留原 token，仅补 `extra.parentId` 后重新校验成功
+  - [verify_patch_auth_profile_extra.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_auth_profile_extra.py) 已验证本地 patch 脚本只更新命中的目标档案、可写回 `extra.parentId/fileId`、并在 `--revalidate` 时同步写回验证结果
+  - [verify_patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_and_probe_auth_profile.py) 已验证一键脚本会把 `extra.parentId/fileId` 写回目标档案，并在同一流程内产出 validation 记录和 provider live probe 记录
+  - [verify_auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_evidence.py) 已验证单档案 evidence API、`/evidence_markdown` 与 Markdown 导出会同时带出 `profileReady/validationOk/probeOk/resolvedParentId/resolvedFileId`
+  - [verify_refresh_auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_refresh_auth_profile_evidence.py) 已验证 `/refresh_evidence` 会返回刷新后的 evidence 与 Markdown
+  - [verify_patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_and_probe_auth_profile.py) 现还额外验证了 `--evidence-output` 会真实落出证据 Markdown 文件
+  - [verify_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_evidence_bundle.py) 已验证 bundle API、`/evidence_bundle_markdown` 与多档案 Markdown 汇总会返回正确的 profile 数量与总览内容
+  - [verify_refresh_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_refresh_auth_evidence_bundle.py) 已验证 `/refresh_evidence_bundle` 会返回刷新后的 bundle 与 Markdown
+  - [verify_patch_refresh_export_auth_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_refresh_export_auth_bundle.py) 已验证批量脚本可同时命中 `2` 个 Guangya smoke 档案，统一写回 `parentId/fileId`，并落出 bundle Markdown 文件
+  - [verify_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_remediation_bundle.py) 已验证 remediation bundle API、`/remediation_bundle_markdown` 与 Markdown 导出会同时带出 `profileCount/readyCount/needsFixCount` 和建议补字段命令
+  - [verify_auth_profile_write_readiness.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_write_readiness.py) 已验证 `189cloud` share-only 档案在 `/api/auth/profiles`、单档案 evidence API 与 Markdown 导出里都会暴露 `writeReady=false`、`writeMissingFieldHints` 与 `writeBlockerNote`
+  - 当前本地两个 Guangya smoke 档案已可通过 `POST /api/auth/profiles/{id}/validate` 被判定为 `status=invalid`、`lastError=missing_parent_id`
+  - 当前本地 `2` 个 Guangya smoke 档案也已可通过 `patch_auth_profile_extra.py --provider-key guangya --display-name-contains smoke --set parentId=...` 被 dry-run 命中，后续拿到真实 `parentId` 后可直接批量回填
+
+### M6 - 互传任务规划
+
+- 完成日期：`2026-05-23`
+- 提交：`6f6a9ff`
+- 完成范围：
+  - 秒传优先与 fallback 阈值策略
+  - `selectedRoots` 输入
+  - `executionGroups` 与 `pendingItems` 输出
+  - “顶层顺序 + 最底层优先”执行分组
+  - 任务级同名文件冲突策略 `conflictPolicy`：当前已支持 `overwrite_existing / auto_rename_new`，并会随 mock plan 与任务创建结果一起保存和返回
+  - `conflictPolicy` 当前已收成受控枚举，非法值不会被静默接受
+  - mock plan 现在还会在每个 `items / executionGroups / pendingItems` 行里显式返回 `conflictSupportStatus / conflictNote`，用于提前说明目标 provider 上该冲突策略是“已支持 / 会诚实降级 / 当前未承诺”
+  - mock plan 现在还会在每个 `items` 行里返回 `normalizedFingerprints / availableFastInputs / missingFastInputs`，用于直接解释秒传判断为什么命中或缺失
+  - 队列页现在已支持先预览 plan：可在真正创建任务前直接查看 `strategyCounts`、每条 `normalizedFingerprints`、`availableFastInputs/missingFastInputs` 与 `conflictSupportStatus/conflictNote`
+- 当前验证证据：
+  - `POST /api/plan/mock` 传入 `selectedRoots=["/1","/2","/3"]` 后，返回根顺序 `/1,/2,/3`
+  - 结果同时包含 `fast_upload`、`download_upload`、`pending_manual`
+  - 返回 `pendingItems` 数量为 `1`
+  - [verify_fingerprint_set_normalization.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_fingerprint_set_normalization.py) 已验证 `POST /api/plan/mock` 在 `115_open` 目标下会把输入里的 `md5/sha1/etag/pickCode/block_list_md5` 归一化，并据此返回 `availableFastInputs=["size","name","md5","sha1","etag","pickcode","blockListMd5"]`
+  - [verify_task_conflict_policy.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_policy.py) 已验证 `/api/plan/mock` 与任务创建结果会保留 `conflictPolicy=overwrite_existing`
+  - [verify_plan_conflict_support.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_plan_conflict_support.py) 已验证 `POST /api/plan/mock` 在 `guangya + overwrite_existing` 时会返回 `conflictSupportStatus=downgrade_to_auto_rename`，在 `189cloud + auto_rename_new` 时会返回 `conflictSupportStatus=unsupported`
+  - [verify_task_conflict_policy_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_policy_api.py) 已验证 `POST /api/tasks` 创建任务与 `POST /api/tasks/{id}/action` 运行任务时，HTTP 返回会保留 `conflictPolicy`，并把 `conflictAction/resolvedTargetName` 回写到结果
+  - [verify_task_conflict_support.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_support.py) 已验证 `POST /api/tasks` 创建任务后，`plan.items[].conflictSupportStatus` 会继续透传到运行结果 `results[].conflictSupportStatus`，例如当前 `guangya + overwrite_existing` 会稳定回显 `downgrade_to_auto_rename`
+  - [verify_task_conflict_policy_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_policy_validation.py) 已验证 `/api/plan/mock` 与 `/api/tasks` 会拒绝非法 `conflictPolicy`
+
+### M7 - 受控执行与 UI
+
+- 完成日期：`2026-05-23`
+- 提交：`db82978`
+- 当前补齐：`working tree`
+- 完成范围：
+  - 任务状态机：创建、查询、`run`、`pause`、`resume`、`retry`
+  - 风控暂停与 pending 汇总
+  - 主页面六个页签全部有实际面板：新建任务、授权管理、传输队列、待处理、网盘能力、设置
+  - 授权弹窗、tip、折叠区、步骤二级导航与中英文页面文案
+  - 授权页现在会直接显示保存结果、手动验证结果、capture guide 与 live probe 摘要，并在列表里显示每个档案最近一次 validation/probe 结论
+  - 授权表单会根据当前 provider 自动切换 `authMode` 选项并显示 `authModes` 提示；授权列表中的 live probe 按钮已放开到当前 10 个已接 provider
+  - 队列页轻量任务表单：`targetProfileId`、`localPath`、阈值输入与结果风险提示展示
+  - 队列页现已支持选择同名文件冲突策略 `overwrite_existing / auto_rename_new`
+  - 队列页任务结果和待处理列表现在会回显 `conflictSupportStatus`，可直接看到当前策略在目标 provider 上是已支持、诚实降级，还是当前未承诺
+  - 队列页现已新增 `Preview Plan` 按钮与预览面板；创建任务前可先看到 `strategyCounts`、每条 `normalizedFingerprints`、`availableFastInputs/missingFastInputs` 与 `conflictSupportStatus/conflictNote`
+  - 队列页 `targetProfileId` 现会按当前 `targetProvider` 自动过滤，只保留同 provider 的授权档案；切换目标 provider 时会同时清空旧预览，避免错把上一个目标的档案/预览继续带到新目标
+  - plan 预览面板现已新增风险提示区：当存在 `pending_manual`、`download_upload` 或冲突策略 `unsupported` 时，会直接给出更直白的原因和操作提示
+  - plan 预览面板现在还会直接显示当前 `targetProfile` 的 `profileReady/writeReady`；当目标档案缺字段或当前不可写时，会在预览风险区提前给出 `missingFieldHints / writeMissingFieldHints / writeBlockerNote`
+  - `Create Task` 现在会在前端自动重跑一次最新 plan 校验；如果当前 `targetProfile.writeReady === false`，或 plan 中存在 `conflictSupportStatus=unsupported`，会先阻断创建并把原因显示在页面提示框里
+  - 对于 `pending_manual`、`download_upload` 这类“可继续但有明显风险”的情况，队列页现在还要求用户先勾选确认框再允许创建任务，不再只是提示文字
+  - 服务端任务创建现在也会统一产出 `guard` 结果，并把前端同类规则下沉为后端权威判断：当前已覆盖 `targetProfile.writeReady`、`conflictSupportStatus=unsupported`、以及 `pending_manual/download_upload` 的确认需求；命中硬阻断时，任务状态会直接落成 `blocked`
+  - soft-risk 现在还被收成显式服务端状态流：未确认时任务状态会落成 `awaiting_ack`，`run` 不会越过它继续执行；调用 `acknowledge_risk` 后才会转回 `ready/risk_paused`
+  - 任务列表动作现已按 `state` 收紧：`awaiting_ack` 优先显示 `acknowledge_risk/retry`，`blocked` 仅保留 `retry`，`running/paused/ready/completed_with_errors` 等状态也只显示各自合理动作，不再所有按钮一股脑同时出现
+  - 任务列表现在还会把状态和 guard 摘要做成更直观的 pill：`awaiting_ack / blocked / risk_paused / running / completed_with_errors` 更容易一眼识别，`guard=hard_blocked / blocking / warnings / ack=...` 也不再只是一整行长文本
+  - `/api/tasks/{id}/action` 现在也已具备服务端状态机约束：后端会按当前任务 `state` 校验 `run/pause/resume/retry/acknowledge_risk` 是否允许，非法动作不会被静默接受，而是会把 `lastActionError.action/reason/at` 写回任务
+  - 任务列表现在还会直接展示 `lastActionError`：被服务端拒绝的动作会显示成单独错误 pill 和时间戳说明，不必再靠猜测按钮为什么没生效
+  - 任务对象现在还会统一带 `summary`：已收口 `state / allowedActions / hardBlocked / blockingCount / warningCount / requiresAcknowledgement / acknowledged / awaitingAcknowledgement / riskPaused / riskReason / hasLastActionError / lastActionError`，前端任务列表也已优先消费这个摘要而不是继续散读原始对象
+  - `/api/tasks/{id}/action` 现在会明确返回 `action / actionApplied / actionError / allowedActions`，前端任务按钮也已切到服务端 `summary.allowedActions`，不再自己再维护一套并行动作白名单
+  - 任务 API 现在已开始分离“原始对象 / 列表视图 / 详情视图”合同：`GET /api/tasks` 会同时返回 `items + listItems`，`POST /api/tasks`、`GET /api/tasks/{id}`、`POST /api/tasks/{id}/action` 会同时返回 `item + listView + detailView`，方便前端列表与详情直接消费稳定结构
+  - 设置页认证验证 / provider probe 统计已改为直接读取后端 `items/latestItems/summary` 返回，不再把 `latestItems` 误当成 history 数量
+  - 授权列表现会直接显示 `profileReady/missingFieldHints` 与最近一次 validation `riskHint`，方便在真正联调前先补档案缺口
+  - 任务表单和授权列表现会优先使用档案返回的 `resolvedParentId/resolvedFileId`，降低别名字段场景下的手工映射成本
+  - 授权列表现已支持直接进入编辑态；更新现有档案后会自动重新校验并刷新 readiness/validation 摘要
+  - 编辑态现会明确提示当前正在编辑的档案，以及 `token/cookie` 留空时会保留原值，降低补字段时误清空密钥的风险
+  - 授权列表在缺字段档案上现会直接显示本地 `patch_auth_profile_extra.py` 命令提示，方便按 `profileId` 回填真实 `parentId/domainId/pwdId` 等缺失字段
+  - 授权列表现会额外显示 `write_ready / write_missing / write_blocker`，可直接区分“当前读链路可用”与“当前写链路仍受限”的档案，尤其是 `189cloud` share-only 场景
+  - 授权列表现已支持直接查看单档案 `Refresh Evidence`，会调用 `/api/auth/profiles/{id}/refresh_evidence` 并在现有结果区显示刷新后的摘要和 Markdown
+  - 授权页工具栏现已支持直接查看 `Evidence Bundle`，会调用 `/api/auth/refresh_evidence_bundle` 并在现有结果区显示当前全部 auth profile 的刷新后证据总览
+  - 授权页工具栏现已支持直接查看 `Remediation Guide`，会调用 `/api/auth/remediation_bundle` 与 `/api/auth/remediation_bundle_markdown` 并在现有结果区显示当前全部 auth profile 的补字段建议总览
+  - Guangya 任务运行阶段已接入真实 fallback 上传链路入口：库存 miss 后可继续尝试本地文件二进制上传
+  - Guangya fallback 真上传成功后，现会继续做 post-upload verify：优先使用返回 `fileId` 做 live metadata 确认，拿不到 `fileId` 时退回 `parentId + 文件名` 的 live list 确认
+  - Guangya fallback 真上传前现在会先检查目标目录同名文件；若用户选择 `auto_rename_new` 则自动改名上传，若用户选择 `overwrite_existing` 但当前链路不支持真覆盖，则会诚实降级为自动改名，并把降级动作写回任务结果
+- 当前验证证据：
+  - 任务动作流 `resume -> run -> retry -> pause` 返回状态依次可用
+  - [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 包含 `pendingPanel`、`providersPanel`、`settingsPanel`
+  - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 已接入 `loadProviderResearch`、`loadStatusMatrix`、`loadLiveValidations`、`renderPendingList`、`renderSettingsPanel`
+  - 授权页已新增 `authValidationSummary` 摘要区，保存/验证/probe 后会展示结构化结论；授权列表也会显示最近一次 validation/probe 摘要
+  - 授权页已新增 `authModeHint`，并会按当前 provider 的 `authModes` 自动刷新 `authMode` 下拉；`official_oauth` 已可在支持的 provider 上直接选择
+  - 队列页已包含 `taskTargetProfile`、`taskLocalPath`、`taskCreateBtn`，且任务结果可回显 `liveAttempt.riskHint`
+  - [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 与 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 已新增 `taskConflictPolicy` 选择与任务列表冲突策略回显
+  - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 已验证首页 HTML 已带 `taskPreviewBtn/taskPlanPreviewPanel/taskPlanPreviewSummary`，静态脚本已带 `previewTaskPlan/renderTaskPlanPreview` 并完成按钮绑定
+  - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了 `taskPlanPreviewRisk`、`taskTargetProvider -> onTaskTargetProviderChange` 绑定、按 `providerKey === targetProvider` 过滤档案，以及 `pending_manual/download_upload/conflict unsupported` 风险提示文本
+  - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了预览区已包含 `targetProfile not ready` / `targetProfile not write-ready` 风险提示逻辑，以及 `profileReady/writeReady` 元信息展示
+  - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了 `taskCreateGuard`、`fetchTaskPlanPreview()`、以及 `Create Task` 对 `targetProfile.writeReady === false` 和 `conflictSupportStatus=unsupported` 的前端阻断逻辑
+  - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了 `taskPlanPreviewAck/taskPlanPreviewAckWrap`、`resetTaskPlanAck()`，以及 `pending_manual/download_upload` 场景下“未勾选确认框则不允许创建任务”的前端确认逻辑
+  - [verify_task_server_guard.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_server_guard.py) 已验证服务端在 `189cloud` share-only 目标档案 + `auto_rename_new` 冲突策略场景下会把任务创建成 `state=blocked`、`risk.reason=guard_blocked`，并把 `hardBlocked/blockingReasons/targetProfile.writeReady=false` 写入任务 `guard`
+  - 同一脚本也已验证普通 `guangya` fallback 任务在服务端会留下 `guard.requiresAcknowledgement.downloadUpload=true` 与 `warningReasons=["download_upload requires explicit confirmation"]`，说明 soft-risk 也已下沉成服务端权威结果
+  - 同一脚本现还额外验证了普通 `guangya` fallback 任务在服务端创建后会先进入 `state=awaiting_ack`、`risk.reason=awaiting_acknowledgement`，调用 `acknowledge_task_risk()` 后会转成 `state=ready`
+  - `node --check src/cloudpan_sync/web/assets/app.js` 已通过，当前前端脚本语法有效
+  - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了前端已接入 `acknowledge_risk` 动作按钮逻辑，能承接服务端 `awaiting_ack` 状态
+  - 同一脚本现还额外验证了前端已收成 `taskActionsForState(task)` 动作规则 helper，并覆盖 `awaiting_ack/blocked/running/paused` 等状态分支
+  - 同一脚本现还额外验证了前端已接入 `appendTaskStatusPill()/appendTaskGuardPill()` helper，以及 `guard=hard_blocked / warnings= / downloadUpload:` 这类 guard 摘要 pill 逻辑
+  - [verify_task_action_guards.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_action_guards.py) 已验证 `blocked` 任务执行 `resume` 时会保留 `state=blocked` 并写回 `lastActionError.reason=resume_not_allowed_from_blocked`；`awaiting_ack` 任务执行 `run` 时会保留 `state=awaiting_ack` 并写回 `lastActionError.reason=run_not_allowed_until_acknowledge_risk`
+  - 同一脚本也已验证 `awaiting_ack` 任务执行 `acknowledge_risk` 后会转成 `state=ready`，且可用动作重新回到 `run/pause/retry`
+  - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了前端已接入 `lastActionError=` pill 和 `task-action-error` 文本展示逻辑
+  - [verify_task_summary_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_summary_api.py) 已验证 `blocked / awaiting_ack / acknowledge_risk 后 ready` 三种任务状态都会返回同步更新的 `summary`，其中 `allowedActions / awaitingAcknowledgement / riskReason` 等关键字段会随状态转换正确变化
+  - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了前端已开始优先读取 `task.summary`，包括 `summary.state` 与 `summary.lastActionError`
+  - [verify_task_action_guards.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_action_guards.py) 现还额外验证了 `POST /api/tasks/{id}/action` 在 `awaiting_ack` 任务上返回 `actionApplied=false`、结构化 `actionError`，并同步返回当前 `allowedActions=["acknowledge_risk","retry"]`
+  - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了前端任务按钮来源已切到 `task.summary.allowedActions`
+  - [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 已验证 `POST /api/tasks` 会返回 `item + listView + detailView`，`GET /api/tasks` 会返回 `items + listItems`，`GET /api/tasks/{id}` 与 `POST /api/tasks/{id}/action` 会继续返回 `listView/detailView`，且 `detailView` 已稳定带出 `planSummary / executionGroups / pendingItems / results / sourceEntries`
+  - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的任务结果摘要与待处理列表现会额外显示 `conflictSupportStatus/conflictNote`
+  - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的设置页统计现已读取后端返回的 `summary/historyCount`，不会再把最新结果集误显示为历史总量
+  - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的授权列表现会显示 `profileReady=false` 和缺失字段提示，例如 Guangya smoke 档案会直接提示缺 `extra.parentId`
+  - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的任务表单预填、live probe 请求与 demo task 现会优先使用 `resolvedParentId/resolvedFileId`
+  - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 已新增 auth profile 编辑/取消编辑流程，保存时会按新增或更新自动切换
+  - [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 与 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 已接入 `authEditHint`，编辑态会提示“留空保留原 token/cookie”
+  - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 已新增 `patch_hint` 摘要，缺字段时会显示可直接执行的本地补字段命令模板
+  - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的授权列表、evidence 摘要与 remediation 摘要现会显示 `writeReady/writeNeedsFixCount` 等写链路状态，方便直接识别 `189cloud` 这种“可读不可写”档案
+  - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 已新增 `Refresh Evidence` 按钮与 evidence 摘要展示逻辑，可直接刷新并查看单档案 Markdown 证据
+  - [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 与 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 已新增 `Evidence Bundle` 按钮与 bundle 摘要展示逻辑，可直接刷新并查看全部 auth profile 的 Markdown 证据总览
+  - [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 与 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 已新增 `Remediation Guide` 按钮与摘要展示逻辑，可直接查看全部 auth profile 的建议补字段命令总览
+  - 运行时已验证 `download_upload` 项在 mocked live fast-check miss 后，可进入 `binary_upload_multipart` 成功分支
+  - [verify_guangya_upload_post_verify.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_guangya_upload_post_verify.py) 已验证 Guangya 直传成功后可走 `metadata_by_file_id`，multipart fallback 成功后可走 `list_by_parent_name`，并会把同名冲突处理动作回写成 `conflictAction/resolvedTargetName`
+  - [verify_task_runtime_guangya_verify_fields.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_guangya_verify_fields.py) 已验证任务运行在 Guangya `binary_upload_multipart` 成功分支下会把 `verifyOk/verifyMode/verifyNote` 透传到 `results[].liveAttempt`
+  - [verify_task_conflict_policy.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_policy.py) 已验证 `overwrite_existing` 会从 plan/task 透传到 runtime，并在当前 Guangya fallback 链路不支持真覆盖时诚实降级为 `overwrite_downgraded_to_auto_rename`，同时回显 `resolvedTargetName`
+
+### M8 - 首批 Provider 清单补全（骨架级）
+
+- 完成日期：`2026-05-23`
+- 提交：`6fc85ba`
+- 完成范围：
+  - provider registry 补齐首批 `10` 个 provider
+  - provider 研究索引补齐到 `10` 条
+  - 为新增 provider 接入通用 `list/metadata` mock 能力
+- 当前验证证据：
+  - `GET /api/providers` 返回 `providerCount=10`
+  - `GET /api/providers/research` 返回 `researchCount=10`
+  - `POST /api/providers/189cloud/list` 返回 `mode=mock`
+  - `POST /api/providers/115_open/metadata` 返回非空 `md5`
+
+### M9 - 计划完成度审计与报告导出
+
+- 完成日期：`2026-05-23`
+- 提交：`339b17e`
+- 完成范围：
+  - `plan_audit.py` 结构化审计模块
+  - 审计 API：
+    - `GET /api/plan/audit`
+    - `GET /api/plan/audit_markdown`
+  - 报告导出脚本 `scripts/export_plan_audit.py`
+  - 审计文档 `docs/04-PLAN_AUDIT_REPORT.md`
+- 当前验证证据：
+  - `GET /api/plan/audit` 返回 `done=5, partial=2, todo=1`
+  - `GET /api/plan/audit_markdown` 返回非空 Markdown
+  - [04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md) 已存在
+
+### M10 - UI 交互补齐（向导/弹窗/tip/折叠）
+
+- 完成日期：`2026-05-23`
+- 提交：`df4b2f7`
+- 完成范围：
+  - 新建任务步骤条
+  - 授权弹窗（Web Login Capture）
+  - tip 提示与高级字段折叠区
+- 当前验证证据：
+  - `POST /api/auth/capture/start` 返回 `capture_pending`
+  - [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 包含 `wizard-steps`
+  - 同文件包含 `authModal` 与 `<details class="advanced-block">`
+
+### M11 - 首批 Provider 在线探测验证层
+
+- 完成日期：`2026-05-23`
+- 提交：`5450476`
+- 当前补齐：`working tree`
+- 完成范围：
+  - `live_probe` 模块
+  - 探测 API：
+    - `GET /api/providers/live_probe`
+    - `GET /api/providers/live_probe_markdown`
+  - 报告导出脚本 `scripts/export_live_probe_report.py`
+  - 本地可控验证导出脚本 `scripts/export_local_live_adapter_verification.py`
+  - 探测报告文档 `docs/05-PROVIDER_LIVE_PROBE_REPORT.md`
+  - 本地可控验证文档 `docs/07-LOCAL_LIVE_ADAPTER_VERIFICATION.md`
+  - `guangya`、`aliyundrive_open`、`189cloud`、`baidu_netdisk`、`123_open`、`115_open`、`xunlei`、`pikpak`、`quark`、`uc` 都已接入 profile 级 live probe；其中 Guangya、阿里云盘 Open、百度、迅雷、PikPak、123、115、Quark、UC 当前覆盖到 `list / metadata / create_dir`，`189cloud` 当前仍是 `list / metadata`，并会在 `create_dir` 探测里明确返回“当前 shareCode/accessCode 链路只读”
+  - 已新增 `POST /api/providers/189cloud/create_dir`，当前会诚实返回 `unsupported_readonly_share_auth`，并附带 `AccessToken/Signature/Date` 这类账号级写接口所需鉴权提示，而不是伪装成已支持写目录
+  - 已新增 `POST /api/providers/quark/create_dir` 与 `POST /api/providers/uc/create_dir`，可基于已保存 cookie 直接尝试 live 建目录，并把结果返回给前端或脚本侧调用方
+- 当前验证证据：
+  - `GET /api/providers/live_probe` 返回 `providerCount=10, totalChecks=12, failedChecks=0`
+  - `GET /api/providers/live_probe_markdown` 返回非空 Markdown
+  - `GET /api/providers/live_probe_results` 现会返回 `items/latestItems/summary`
+  - [verify_live_result_list_apis.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_live_result_list_apis.py) 已单独回归验证 `GET /api/providers/live_probe_results` 的 `items/latestItems/summary` 结构
+  - [05-PROVIDER_LIVE_PROBE_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/05-PROVIDER_LIVE_PROBE_REPORT.md) 已存在
+  - 当前报告 summary 已记录 `profileProbeProviderCount=2`、`profileProbeOkCount=0`、`profileProbeFailedCount=2`
+  - 当前本地两个 Guangya smoke 档案已留下 profile probe 记录，失败原因均为 `missing_parent_id`
+  - [verify_provider_live_adapters.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_live_adapters.py) 可重复输出当前本地可控验证结果
+  - [07-LOCAL_LIVE_ADAPTER_VERIFICATION.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/07-LOCAL_LIVE_ADAPTER_VERIFICATION.md) 可落盘保存当前本地可控验证快照
+  - 本地可控验证已覆盖 `guangya` 的 `3` 个 probe checks 并返回 `probe_ok=True`
+  - 本地可控验证已覆盖 `aliyundrive_open` 的 `3` 个 probe checks 并返回 `probe_ok=True`
+  - 本地可控验证已覆盖 `189cloud` 的 `3` 个 probe checks，其中 `list/metadata` 返回成功，`create_dir` 会明确返回 `unsupported_readonly_share_auth`
+  - 本地可控验证已覆盖 `baidu_netdisk` 的 `3` 个 probe checks 并返回 `probe_ok=True`
+  - 本地可控验证已覆盖 `123_open` 的 `3` 个 probe checks 并返回 `probe_ok=True`
+  - 本地可控验证已覆盖 `115_open` 的 `3` 个 probe checks 并返回 `probe_ok=True`
+  - 本地可控验证已覆盖 `xunlei` 的 `3` 个 probe checks 并返回 `probe_ok=True`
+  - 本地可控验证已覆盖 `pikpak` 的 `3` 个 probe checks 并返回 `probe_ok=True`
+  - 本地可控验证已覆盖 `quark` 的 `3` 个 probe checks 并返回 `probe_ok=True`，对应 `create_ok=True`
+  - 本地可控验证已覆盖 `uc` 的 `3` 个 probe checks 并返回 `probe_ok=True`，对应 `create_ok=True`
+  - [verify_provider_create_dir_apis.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_create_dir_apis.py) 已验证 Quark / UC 的 `create_dir` HTTP API 会返回 `mode=live` 与新目录 `fileId`
+
+### M12 - 基于授权档案的真实认证验证流程
+
+- 完成日期：`2026-05-23`
+- 提交：`d1c944d`
+- 完成范围：
+  - `auth_live_validate` 模块
+  - API：
+    - `POST /api/auth/live_validate`
+    - `GET /api/auth/live_validations`
+  - 验证记录持久化
+  - 报告导出脚本与文档
+  - provider-aware 最小 live validation 默认复用已接入的 provider live probe，而不是仅请求 provider 首页
+  - 对缺字段的校验结果已补充 `requiredFieldHints / riskHint`，前端可直接显示下一步该补哪些字段
+- 当前验证证据：
+  - [verify_auth_live_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_live_validation.py) 可重复验证 `POST /api/auth/live_validate` 的 provider-aware 结构化结果
+  - `GET /api/auth/live_validations` 现会返回 `items/latestItems/summary`
+  - [verify_live_result_list_apis.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_live_result_list_apis.py) 已单独回归验证 `GET /api/auth/live_validations` 的 `items/latestItems/summary` 结构
+  - [verify_guangya_validation_hints.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_guangya_validation_hints.py) 已验证 Guangya 缺 `parentId` 时会返回 `requiredFieldHints`，并保留 `riskHint`
+  - [03-AUTH_LIVE_VALIDATION_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/03-AUTH_LIVE_VALIDATION_REPORT.md) 已存在
+  - 当前报告已记录 `4` 条 Guangya 实际验证结果，失败原因为 `missing_parent_id`
+  - 当前报告已额外汇总 `latestProfileCount=2`、`latestOkCount=0`、`latestFailedCount=2`，并把每个 profile 的最新结果与历史记录分开展示
+
+### M13 - 批量认证验证与结果汇总
+
+- 完成日期：`2026-05-23`
+- 提交：`0dbe40a`
+- 完成范围：
+  - 批量认证验证 API：`POST /api/auth/live_validate_all`
+  - 遍历全部已保存 `AuthProfile` 并汇总结果
+  - 持续写入认证验证记录
+- 当前验证证据：
+  - `POST /api/auth/live_validate_all` 可按已保存档案返回 `totalProfiles / okProfiles / failedProfiles`
+  - [verify_auth_live_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_live_validation.py) 已覆盖批量汇总返回 `totalProfiles / okProfiles / failedProfiles`
+  - 验证结果会持续写入 `GET /api/auth/live_validations` 对应的数据文件，并可通过 `latestItems/summary` 直接读取当前最新状态
+  - 以当前本地 `2` 个 Guangya 档案实际执行批量认证验证时，返回 `totalProfiles=2`、`okProfiles=0`、`failedProfiles=2`
+
+### M14 - Provider 状态矩阵与进度量化
+
+- 完成日期：`2026-05-23`
+- 提交：`3e6ec79`
+- 当前补齐：`working tree`
+- 完成范围：
+  - `provider_status_matrix` 聚合模块
+  - API：
+  - `GET /api/providers/status_matrix`
+  - `GET /api/providers/status_matrix_markdown`
+  - 导出脚本 `scripts/export_provider_status_matrix.py`
+  - 状态矩阵文档 `docs/06-PROVIDER_STATUS_MATRIX.md`
+  - live ready 集合已补进 `guangya`、`aliyundrive_open`、`189cloud`、`baidu_netdisk`、`123_open`、`115_open`、`xunlei`、`pikpak`、`quark`、`uc`，状态矩阵现可同时反映其 `list_ready / metadata_ready / create_dir_ready`
+  - provider registry、状态矩阵 API、状态矩阵 Markdown 与“网盘能力”面板现都会显式暴露同名冲突处理能力：`conflictPolicies / supportsOverwrite / supportsAutoRename / overwriteBehavior / conflictNotes`
+  - 当前 `guangya` 已诚实标注为“接受 `overwrite_existing / auto_rename_new`，但现阶段 `overwrite_existing` 会降级成 `auto_rename_new`”；当前 `189cloud` 已诚实标注为“当前 shareCode/accessCode 链路只读，不能承诺覆盖或自动重命名”
+- 当前验证证据：
+  - `GET /api/providers/status_matrix` 返回结构化 summary 与 provider 明细，并区分真实 `list / metadata / create_dir` 绑定状态
+  - `GET /api/providers/status_matrix_markdown` 返回非空 Markdown
+  - [06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 已存在
+  - [verify_provider_conflict_capabilities.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_conflict_capabilities.py) 已验证 `GET /api/providers` 与 `GET /api/providers/status_matrix` 会同时暴露 `guangya` 的 `overwriteBehavior=downgrade_to_auto_rename`、`supportsAutoRename=true`，以及 `189cloud` 的 `overwriteBehavior=readonly_auth_blocked`
+  - [verify_provider_live_adapters.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_live_adapters.py) 会同步输出这些 provider 的 `list_ready / metadata_ready / create_dir_ready / live_probe_ok`
+  - 当前导出矩阵 summary 已记录 `createDirReadyCount=9`
+  - 当前导出矩阵 summary 已记录 `conflictAwareProviderCount=1`、`overwriteReadyCount=0`、`autoRenameReadyCount=1`
+  - 本地可控验证显示 `guangya` 行的 `list_ready=True`、`metadata_ready=True`、`create_dir_ready=True`
+  - 本地可控验证显示 `guangya` 行的 `conflictPolicies=overwrite_existing,auto_rename_new`、`supportsOverwrite=False`、`supportsAutoRename=True`、`overwriteBehavior=downgrade_to_auto_rename`
+  - 本地可控验证显示 `aliyundrive_open` 行的 `list_ready=True`、`metadata_ready=True`、`create_dir_ready=True`
+  - 本地可控验证显示 `189cloud` 行的 `list_ready=True`、`metadata_ready=True`、`create_dir_ready=False`
+  - 本地可控验证显示 `189cloud` 行的 `conflictPolicies=[]`、`supportsOverwrite=False`、`supportsAutoRename=False`、`overwriteBehavior=readonly_auth_blocked`
+  - 本地可控验证显示 `baidu_netdisk` 行的 `list_ready=True`、`metadata_ready=True`、`create_dir_ready=True`
+  - 本地可控验证显示 `123_open` 行的 `list_ready=True`、`metadata_ready=True`、`create_dir_ready=True`
+  - 本地可控验证显示 `115_open` 行的 `list_ready=True`、`metadata_ready=True`、`create_dir_ready=True`
+  - 本地可控验证显示 `xunlei` 行的 `list_ready=True`、`metadata_ready=True`、`create_dir_ready=True`
+  - 本地可控验证显示 `pikpak` 行的 `list_ready=True`、`metadata_ready=True`、`create_dir_ready=True`
+  - 本地可控验证显示 `quark` 行的 `list_ready=True`、`metadata_ready=True`、`create_dir_ready=True`
+  - 本地可控验证显示 `uc` 行的 `list_ready=True`、`metadata_ready=True`、`create_dir_ready=True`
+  - [verify_189cloud_create_dir_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_create_dir_api.py) 已验证 `POST /api/providers/189cloud/create_dir` 会返回 `mode=unsupported_readonly_share_auth`、`fallbackReason=share_auth_readonly` 和所需 `requiredAuth`

@@ -179,3 +179,24 @@
     - `failedChecks=0`
   - `GET /api/providers/live_probe_markdown` 返回非空 Markdown
   - 导出脚本成功生成 `docs/PROVIDER_LIVE_PROBE_REPORT.md`
+
+### M12 - 基于授权档案的真实认证验证流程
+
+- 完成日期：`2026-05-23`
+- 完成范围：
+  - 新增 `auth_live_validate` 模块：
+    - 读取 `AuthProfile`
+    - 携带 cookie/token/extra header 发起真实请求
+    - 记录状态码、错误信息、最终 URL
+    - 持久化到 `.cloudpan_sync_data/auth_live_validations.json`
+  - 新增 API：
+    - `POST /api/auth/live_validate`
+    - `GET /api/auth/live_validations`
+  - 新增报告导出脚本与文档：
+    - `scripts/export_auth_live_validation_report.py`
+    - `docs/AUTH_LIVE_VALIDATION_REPORT.md`
+- 验证证据：
+  - 使用 `baidu_netdisk` 测试授权档案触发真实认证验证：
+    - `POST /api/auth/live_validate` 返回 `ok=true`, `status=200`
+  - `GET /api/auth/live_validations` 返回记录条数 `records=1`
+  - 导出脚本成功生成 `docs/AUTH_LIVE_VALIDATION_REPORT.md`

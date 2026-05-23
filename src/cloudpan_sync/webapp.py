@@ -16,10 +16,11 @@ from .auth_store import (
     save_profile,
     update_profile,
 )
+from .auth_live_validate import list_live_validations, run_profile_live_validation
 from .auth import build_session_token, verify_session_token
 from .config import ADMIN_PASSWORD, SESSION_COOKIE
 from .i18n import MESSAGES, messages_for
-from .models import AuthProfileInput, SourceEntry
+from .models import AuthLiveValidateRequest, AuthProfileInput, SourceEntry
 from .models import TaskActionRequest, TaskCreateRequest
 from .guangya import guangya_fast_check, guangya_mock_list
 from .planner import build_transfer_plan
@@ -173,6 +174,19 @@ def create_app() -> FastAPI:
         profile.updatedAt = datetime.now(timezone.utc).isoformat()
         update_profile(profile)
         return {"item": masked_profile(profile)}
+
+    @app.get("/api/auth/live_validations")
+    def auth_live_validations(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        return {"items": list_live_validations()}
+
+    @app.post("/api/auth/live_validate")
+    def auth_live_validate(payload: AuthLiveValidateRequest, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        row = run_profile_live_validation(payload.profileId)
+        return {"item": row}
 
     @app.get("/api/session")
     def session(request: Request) -> dict[str, bool]:

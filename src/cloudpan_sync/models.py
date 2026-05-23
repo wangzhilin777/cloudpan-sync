@@ -79,3 +79,7 @@ class TaskCreateRequest(BaseModel):
 
 class TaskActionRequest(BaseModel):
     action: str
+
+
+class AuthLiveValidateRequest(BaseModel):
+    profileId: str

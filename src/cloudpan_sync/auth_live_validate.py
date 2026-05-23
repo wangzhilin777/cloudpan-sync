@@ -8,6 +8,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from .auth_store import DATA_DIR, get_profile
+from .auth_store import list_profiles
 
 
 VALIDATION_FILE = DATA_DIR / "auth_live_validations.json"
@@ -135,3 +136,20 @@ def run_profile_live_validation(profile_id: str) -> dict[str, object]:
     rows.append(row)
     _write_rows(rows)
     return row
+
+
+def run_all_profile_live_validations() -> dict[str, object]:
+    profiles = list_profiles()
+    results: list[dict[str, object]] = []
+    ok_count = 0
+    for profile in profiles:
+        row = run_profile_live_validation(profile.profileId)
+        results.append(row)
+        if bool(row.get("ok")):
+            ok_count += 1
+    return {
+        "totalProfiles": len(profiles),
+        "okProfiles": ok_count,
+        "failedProfiles": max(0, len(profiles) - ok_count),
+        "results": results,
+    }

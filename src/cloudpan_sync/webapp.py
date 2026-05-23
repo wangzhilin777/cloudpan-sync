@@ -16,7 +16,7 @@ from .auth_store import (
     save_profile,
     update_profile,
 )
-from .auth_live_validate import list_live_validations, run_profile_live_validation
+from .auth_live_validate import list_live_validations, run_all_profile_live_validations, run_profile_live_validation
 from .auth import build_session_token, verify_session_token
 from .config import ADMIN_PASSWORD, SESSION_COOKIE
 from .i18n import MESSAGES, messages_for
@@ -187,6 +187,12 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=401, detail="please_login_first")
         row = run_profile_live_validation(payload.profileId)
         return {"item": row}
+
+    @app.post("/api/auth/live_validate_all")
+    def auth_live_validate_all(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        return run_all_profile_live_validations()
 
     @app.get("/api/session")
     def session(request: Request) -> dict[str, bool]:

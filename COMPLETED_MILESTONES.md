@@ -200,3 +200,19 @@
     - `POST /api/auth/live_validate` 返回 `ok=true`, `status=200`
   - `GET /api/auth/live_validations` 返回记录条数 `records=1`
   - 导出脚本成功生成 `docs/AUTH_LIVE_VALIDATION_REPORT.md`
+
+### M13 - 批量认证验证与结果汇总
+
+- 完成日期：`2026-05-23`
+- 完成范围：
+  - 新增批量认证验证能力：
+    - `POST /api/auth/live_validate_all`
+  - 批量遍历所有已保存 `AuthProfile`，逐条执行真实请求验证并汇总结果
+  - 验证结果持续写入 `.cloudpan_sync_data/auth_live_validations.json`，用于后续审计追踪
+- 验证证据：
+  - 批量创建并验证多 provider 测试档案后返回：
+    - `totalProfiles=4`
+    - `okProfiles=4`
+    - `failedProfiles=0`
+  - `GET /api/auth/live_validations` 返回累计记录 `validationRecords=5`
+  - 导出脚本持续可用并已更新 `docs/AUTH_LIVE_VALIDATION_REPORT.md`

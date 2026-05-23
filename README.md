@@ -1,6 +1,60 @@
 # CloudPan Sync
 
-CloudPan Sync is a transfer console between mainstream cloud providers.
+CloudPan Sync is a cross-provider cloud transfer console.
+
+CloudPan Sync 是一个面向常用网盘之间互传的控制台，当前重点是把“授权、目录读取、元数据/Fingerprint 获取、互传规划、受控 fallback、风险阻断、证据导出”先做扎实，而不是过早宣称所有 provider 都已经稳定可用。
+
+## Overview
+
+- `Goal / 目标`
+  Build a practical console for transfers between mainstream cloud providers, not a single-target uploader.
+- `Current focus / 当前重点`
+  Fast-upload planning first, guarded fallback second, evidence-first validation throughout.
+- `Current status / 当前状态`
+  Core project skeleton, auth system, planner, guarded task flow, and multi-provider live-attempt adapters are in place.
+- `Current boundary / 当前边界`
+  Some providers already have live attempt paths, but real stable end-to-end success evidence is still incomplete; the repo does not overclaim `P-REAL`.
+
+## Progress Snapshot
+
+- Plan audit status: `done=5` `partial=2` `todo=1`
+- Strict completion ratio: about `62.5%`
+- Weighted progress if `partial` counts as half: about `75%`
+- Current incomplete high-value gaps:
+  - `M4` Guangya still lacks stable real online success samples
+  - `M5` first-batch providers still lack enough real success evidence
+  - `P-REAL` real cross-provider validation is not complete yet
+
+See:
+
+- [Plan Audit Report](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md)
+- [Completed Milestones](E:/Workspace/VSCode/CloudPan%20Sync/docs/02-COMPLETED_MILESTONES.md)
+- [Merged Project Plan](E:/Workspace/VSCode/CloudPan%20Sync/docs/01-PROJECT_PLAN_MERGED_RAW.md)
+
+## What Works Now
+
+- Provider registry and capability model for current `10` providers
+- Fingerprint normalization: `md5 / sha1 / sha256 / crc64 / gcid / etag / pickcode / blockListMd5 / raw`
+- Provider-aware auth validation and readiness hints
+- Mock transfer planning with:
+  - `selectedRoots`
+  - `executionGroups`
+  - `pendingItems`
+  - conflict policy preview
+  - fast-upload input explanation
+- Task conflict policy:
+  - `overwrite_existing`
+  - `auto_rename_new`
+- Honest downgrade when a target path cannot guarantee true overwrite
+- Frontend queue preview, task guard, acknowledgement flow, and task action state machine
+- Evidence export and remediation docs for saved auth profiles
+
+## Honest Boundaries
+
+- `189cloud` current share-based path is still read-only for write operations
+- Guangya current overwrite path is still an honest downgrade to auto rename, not verified in-place overwrite
+- Real provider success is not claimed unless there is current code or script evidence
+- This repo currently prefers controlled fallback and explicit warning states over silent “best effort”
 
 ## Run
 
@@ -12,6 +66,15 @@ cloudpan-sync
 ```
 
 Open `http://127.0.0.1:8765`.
+
+Recommended local verification order:
+
+```powershell
+.venv\Scripts\python.exe scripts\verify_auth_live_validation.py
+.venv\Scripts\python.exe scripts\verify_queue_plan_preview_ui.py
+.venv\Scripts\python.exe scripts\verify_task_action_guards.py
+.venv\Scripts\python.exe scripts\verify_task_views_api.py
+```
 
 ## Default Admin Password
 

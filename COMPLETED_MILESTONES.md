@@ -131,3 +131,18 @@
   - 对新增 `189cloud/baidu_netdisk/uc/xunlei/pikpak/123_open` 逐个验证：
     - `POST /api/providers/{key}/list` 返回非空
     - `POST /api/providers/{key}/metadata` 返回非空 `md5`
+
+### M9 - 计划完成度审计与报告导出
+
+- 完成日期：`2026-05-23`
+- 完成范围：
+  - 新增计划审计模块 `plan_audit.py`，输出结构化完成度结果
+  - 新增审计 API：
+    - `GET /api/plan/audit`
+    - `GET /api/plan/audit_markdown`
+  - 新增报告导出脚本 `scripts/export_plan_audit.py`
+  - 生成仓库审计文档：`docs/PLAN_AUDIT_REPORT.md`
+- 验证证据：
+  - `GET /api/plan/audit` 返回汇总结果：`done=4, partial=3, todo=1`
+  - `GET /api/plan/audit_markdown` 返回非空 Markdown
+  - 执行导出脚本后生成 `docs/PLAN_AUDIT_REPORT.md`

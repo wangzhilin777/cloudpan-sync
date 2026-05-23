@@ -216,3 +216,25 @@
     - `failedProfiles=0`
   - `GET /api/auth/live_validations` 返回累计记录 `validationRecords=5`
   - 导出脚本持续可用并已更新 `docs/AUTH_LIVE_VALIDATION_REPORT.md`
+
+### M14 - Provider 状态矩阵与进度量化
+
+- 完成日期：`2026-05-23`
+- 完成范围：
+  - 新增 `provider_status_matrix` 模块，聚合：
+    - provider registry
+    - provider research
+    - auth live validation 结果
+  - 新增状态矩阵 API：
+    - `GET /api/providers/status_matrix`
+    - `GET /api/providers/status_matrix_markdown`
+  - 新增导出脚本和文档：
+    - `scripts/export_provider_status_matrix.py`
+    - `docs/PROVIDER_STATUS_MATRIX.md`
+- 验证证据：
+  - `GET /api/providers/status_matrix` 返回：
+    - `providerCount=10`
+    - `authReadyCount=3`
+    - `fastCheckCount=5`
+  - `GET /api/providers/status_matrix_markdown` 返回非空 Markdown
+  - 导出脚本成功生成 `docs/PROVIDER_STATUS_MATRIX.md`

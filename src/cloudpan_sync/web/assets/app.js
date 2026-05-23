@@ -6,6 +6,14 @@ const tabKeys = [
   "nav.providers",
   "nav.settings",
 ];
+const wizardKeys = [
+  "选择来源网盘",
+  "选择目标网盘",
+  "选择来源文件夹",
+  "扫描分析",
+  "确认策略",
+  "执行任务",
+];
 
 const state = {
   lang: "zh-CN",
@@ -78,6 +86,7 @@ function render() {
   }
   renderAuthList();
   renderTaskList();
+  renderWizardSteps();
 }
 
 async function loadI18n(lang) {
@@ -105,6 +114,23 @@ async function loadProviders() {
     node.textContent = `${p.displayName} (${p.providerKey})`;
     providerSelect.appendChild(node);
   }
+  const modalSelect = document.getElementById("authModalProvider");
+  if (modalSelect) {
+    modalSelect.innerHTML = providerSelect.innerHTML;
+  }
+}
+
+function renderWizardSteps() {
+  const wrap = document.getElementById("wizardSteps");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  wizardKeys.forEach((label, index) => {
+    const step = document.createElement("div");
+    const active = state.activeTab === "nav.new_task" && index === 0;
+    step.className = `wizard-step${active ? " active" : ""}`;
+    step.textContent = `${index + 1}. ${label}`;
+    wrap.appendChild(step);
+  });
 }
 
 function renderAuthList() {
@@ -154,13 +180,35 @@ async function saveAuth() {
   const displayName = document.getElementById("authDisplayName").value.trim() || providerKey;
   const token = document.getElementById("authToken").value.trim();
   const cookie = document.getElementById("authCookie").value.trim();
+  const extraHeader = document.getElementById("authExtraHeader").value.trim();
+  const extraDevice = document.getElementById("authExtraDevice").value.trim();
+  const extra = {};
+  if (extraHeader) extra.header = extraHeader;
+  if (extraDevice) extra.deviceId = extraDevice;
   await fetchJson("/api/auth/profiles", {
     method: "POST",
-    body: JSON.stringify({ providerKey, authMode, displayName, token, cookie, extra: {} }),
+    body: JSON.stringify({ providerKey, authMode, displayName, token, cookie, extra }),
   });
   document.getElementById("authToken").value = "";
   document.getElementById("authCookie").value = "";
   await loadAuthProfiles();
+}
+
+function openAuthModal() {
+  const modal = document.getElementById("authModal");
+  if (modal && typeof modal.showModal === "function") {
+    modal.showModal();
+  }
+}
+
+async function startCaptureGuide() {
+  const providerKey = document.getElementById("authModalProvider").value;
+  const resultNode = document.getElementById("authCaptureResult");
+  const data = await fetchJson("/api/auth/capture/start", {
+    method: "POST",
+    body: JSON.stringify({ providerKey }),
+  });
+  resultNode.textContent = JSON.stringify(data, null, 2);
 }
 
 async function validateAuth(profileId) {
@@ -269,6 +317,8 @@ async function bootstrap() {
   document.getElementById("logoutBtn").addEventListener("click", onLogout);
   document.getElementById("authSaveBtn").addEventListener("click", saveAuth);
   document.getElementById("authReloadBtn").addEventListener("click", loadAuthProfiles);
+  document.getElementById("authOpenModalBtn").addEventListener("click", openAuthModal);
+  document.getElementById("authStartCaptureBtn").addEventListener("click", startCaptureGuide);
   document.getElementById("taskCreateDemoBtn").addEventListener("click", createDemoTask);
   document.getElementById("taskReloadBtn").addEventListener("click", loadTasks);
   await loadI18n("zh-CN");

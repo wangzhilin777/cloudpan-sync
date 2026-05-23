@@ -34,10 +34,21 @@
       <section class="panel app-panel" id="appPanel" hidden>
         <nav class="tabs" id="tabs"></nav>
         <article class="placeholder" id="generalPanel">
-          <p id="lockedText"></p>
+          <section class="wizard-panel">
+            <h3>New Task Wizard</h3>
+            <div class="wizard-steps" id="wizardSteps"></div>
+            <div class="wizard-tip">
+              <span class="tip-icon" title="建议先跑扫描分析，再决定秒传或补传策略。">i</span>
+              <span id="lockedText"></span>
+            </div>
+          </section>
         </article>
         <section class="auth-panel" id="authPanel" hidden>
           <h3 id="authTitle">Auth Management</h3>
+          <div class="auth-toolbar">
+            <button id="authOpenModalBtn" class="ghost">Open Auth Modal</button>
+            <span class="tip-icon" title="网页登录抓取建议用于 cookie/token 不稳定的网盘。">?</span>
+          </div>
           <div class="auth-grid">
             <input id="authDisplayName" type="text" placeholder="display name" />
             <select id="authProvider"></select>
@@ -46,10 +57,17 @@
               <option value="manual_cookie">manual_cookie</option>
               <option value="web_login_capture">web_login_capture</option>
             </select>
-            <input id="authToken" type="text" placeholder="token (optional)" />
-            <input id="authCookie" type="text" placeholder="cookie (optional)" />
+            <input id="authToken" type="text" placeholder="token (optional)" title="优先使用短期 token，避免长期明文暴露。" />
+            <input id="authCookie" type="text" placeholder="cookie (optional)" title="cookie 失效后需重新抓取或登录。" />
             <button id="authSaveBtn">Save Auth</button>
           </div>
+          <details class="advanced-block">
+            <summary>Advanced Fields</summary>
+            <div class="advanced-fields">
+              <input id="authExtraHeader" type="text" placeholder="header: key=value" />
+              <input id="authExtraDevice" type="text" placeholder="deviceId (optional)" />
+            </div>
+          </details>
           <div class="auth-list-wrap">
             <button id="authReloadBtn" class="ghost">Reload</button>
             <ul id="authList" class="auth-list"></ul>
@@ -66,6 +84,18 @@
       </section>
     </main>
   </div>
+  <dialog id="authModal" class="auth-modal">
+    <form method="dialog" class="auth-modal-body">
+      <h3>Web Login Capture</h3>
+      <p id="authModalHint">Select provider and start capture guidance.</p>
+      <div class="auth-grid one-col">
+        <select id="authModalProvider"></select>
+        <button id="authStartCaptureBtn" type="button">Start Capture Guide</button>
+      </div>
+      <pre id="authCaptureResult" class="capture-result"></pre>
+      <button class="ghost" value="cancel">Close</button>
+    </form>
+  </dialog>
 
   <script src="/assets/app.js"></script>
 </body>

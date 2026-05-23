@@ -146,3 +146,16 @@
   - `GET /api/plan/audit` 返回汇总结果：`done=4, partial=3, todo=1`
   - `GET /api/plan/audit_markdown` 返回非空 Markdown
   - 执行导出脚本后生成 `docs/PLAN_AUDIT_REPORT.md`
+
+### M10 - UI 交互补齐（向导/弹窗/tip/折叠）
+
+- 完成日期：`2026-05-23`
+- 完成范围：
+  - 新增“新建任务”二级步骤条（6 步流程可视）
+  - 新增授权弹窗（Web Login Capture）并接入 `capture/start` 指引
+  - 授权页新增 tip 提示与高级字段折叠区（`details/summary`）
+  - 保持队列页可用，未破坏 `tasks` 相关接口联动
+- 验证证据：
+  - `POST /api/auth/capture/start` 返回 `capture_pending`
+  - 首页 HTML 包含 `wizard-steps` 与 `authModal` 结构
+  - `GET /api/tasks` 正常返回（`hasItemsField=true`）

@@ -45,7 +45,7 @@ def build_provider_research_index() -> list[dict[str, object]]:
             "authModes": ["official_oauth", "manual_cookie"],
             "status": "researching",
             "lastVerifiedAt": today,
-            "notes": "cookie driven live list/metadata(create via webapi.115.com files/get_info/files/add) attempts are online; stable real samples and official open-platform refresh-token binding are still pending.",
+            "notes": "cookie driven live list/metadata(create via webapi.115.com files/get_info/files/add) attempts are online, and task runtime can now also attempt live rapid upload through proapi.115.com/open/upload/init plus sign_check follow-up when a usable local file plus sha1 is available; stable real success samples, full binary upload fallback, and long-term official open-platform token refresh handling are still pending.",
         },
         {
             "providerKey": "quark",

@@ -1,12 +1,12 @@
 # CloudPan Sync Provider Status Matrix
 
-- GeneratedAt: `2026-05-24T21:55:20.881776+00:00`
+- GeneratedAt: `2026-05-24T22:09:32.848172+00:00`
 - Summary: providerCount=10, authReadyCount=0, createDirReadyCount=10, fastCheckCount=10, liveProbeOkCount=0, conflictAwareProviderCount=4, overwriteReadyCount=1, autoRenameReadyCount=4, overwriteDowngradeCount=3, overwriteSupportedCount=1, autoRenameSupportedCount=4, autoRenameProbeOnlyCount=5, conflictUnsupportedProviderCount=1, taskRuntimeEvidenceProviderCount=6, taskRuntimeFailedProviderCount=0, taskRuntimeCandidateEvidenceProviderCount=0, taskRuntimeProbeEvidenceProviderCount=0, taskRuntimeSampleCount=6, taskRuntimeSuccessCount=6, taskRuntimeFailedCount=0, taskRuntimeCandidateEvidenceCount=0, taskRuntimeProbeEvidenceCount=0, taskRuntimeBlockedProviderCount=0, taskRuntimeBlockedEvidenceCount=0, taskRuntimeConflictHandledProviderCount=4, taskRuntimeConflictHandledCount=4, taskRuntimeActiveCount=9, taskRuntimeCandidateCount=1, taskRuntimeBlockedCount=0
 
 | providerKey | supportStatus | auth_ready | list_ready | metadata_ready | create_dir_ready | fast_check | live_probe_ok | task_runtime_track | task_runtime_samples | task_runtime_success | task_runtime_failed | task_runtime_candidate | task_runtime_probe | task_runtime_blocked | task_runtime_conflict_handled | supports_overwrite | supports_auto_rename | overwrite_behavior | overwrite_support_status | auto_rename_support_status | conflict_policies | fallback_ready |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 115_open | list_ready | False | True | True | True | True | False | runtime_active | 0 | 0 | 0 | 0 | 0 | 0 | 0 | False | False | not_implemented | unsupported | probe_only_runtime_write_check | (none) | True |
-|  | runtime_note |  |  |  |  |  |  | Current task runtime now drives a 115 Open live create_dir write probe for download_upload items and a probe-only sha1 fast-upload candidate check for fast_upload items; real rapid-upload API execution is still not wired yet. |  |  |  |  |  |  |  |  |  |  |  |
+|  | runtime_note |  |  |  |  |  |  | Current task runtime now drives a 115 Open live create_dir write probe for download_upload items, and can also attempt 115 Open upload/init plus sign_check based rapid upload for fast_upload items when a usable local file plus sha1 is available; full binary upload fallback is still not wired yet. |  |  |  |  |  |  |  |  |  |  |  |
 |  | overwrite_note |  |  |  |  |  |  |  |  |  |  |  |  |  |  | 当前 115 Open 已接入任务运行阶段的 create_dir 写探针，但真实文件上传场景下的同名文件冲突处理仍未声明为已支持。 |  |  |  |
 |  | auto_rename_note |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | 115 Open task runtime can now perform a live create_dir write probe, but same-name file handling for real file upload is not declared yet. |  |  |
 |  | note |  |  |  |  |  |  |  |  |  |  |  |  | 当前 115 Open 已接入任务运行阶段的 create_dir 写探针，但真实文件上传场景下的同名文件冲突处理仍未声明为已支持。 |  |  |  |  |  |

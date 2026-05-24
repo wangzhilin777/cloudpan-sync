@@ -84,7 +84,7 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
     if provider_key == "115_open":
         return (
             "runtime_active",
-            "Current task runtime now drives a 115 Open live create_dir write probe for download_upload items and a probe-only sha1 fast-upload candidate check for fast_upload items; real rapid-upload API execution is still not wired yet.",
+            "Current task runtime now drives a 115 Open live create_dir write probe for download_upload items, and can also attempt 115 Open upload/init plus sign_check based rapid upload for fast_upload items when a usable local file plus sha1 is available; full binary upload fallback is still not wired yet.",
         )
     if provider_key == "xunlei":
         return (

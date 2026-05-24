@@ -15,6 +15,7 @@ from .baidu_netdisk_upload_live import upload_baidu_local_file
 from .guangya_live import fetch_guangya_live_fast_check
 from .guangya_upload_live import upload_guangya_local_file
 from .models import SourceEntry, TaskCreateRequest
+from .pan115_fast_upload_live import upload_115_open_fast_file
 from .pan115_open_live import fetch_115_open_create_folder
 from .pan123_open_live import fetch_123_open_create_folder
 from .pan123_open_upload_live import upload_123_open_local_file
@@ -994,13 +995,56 @@ def run_task(task_id: str) -> dict[str, object]:
                 source_entry.get("sha1"),
                 normalized.get("sha1"),
             ).lower()
-            row_result["executionMode"] = "probe"
-            if sha1_value:
+            local_entry = _materialize_local_source_entry(source_entry, path, int(item.get("size", 0) or 0))
+            if local_entry is not None and sha1_value:
+                row_result["executionMode"] = "live"
+                upload_result = upload_115_open_fast_file(
+                    profile_id=target_profile_id,
+                    local_path=local_entry.localPath,
+                    target_name=PurePosixPath(path or "/").name or Path(local_entry.localPath).name,
+                    parent_id=target_parent_id or "0",
+                    expected_sha1=sha1_value or local_entry.sha1,
+                )
+                if upload_result.ok:
+                    done += 1
+                    row_result["status"] = "done"
+                    row_result["note"] = upload_result.note
+                    row_result["liveAttempt"] = {
+                        "mode": upload_result.mode,
+                        "parentId": upload_result.parentId,
+                        "riskHint": upload_result.riskHint,
+                        "payload": upload_result.payload or {},
+                        "verifyOk": upload_result.verifyOk,
+                        "verifyMode": upload_result.verifyMode,
+                        "verifyNote": upload_result.verifyNote,
+                        "verifyPayload": upload_result.verifyPayload or {},
+                        "resolvedTargetName": (upload_result.payload or {}).get("resolvedTargetName", ""),
+                        "conflictAction": (upload_result.payload or {}).get("conflictAction", ""),
+                    }
+                else:
+                    failed += 1
+                    row_result["status"] = "failed"
+                    row_result["note"] = upload_result.note or "115 Open fast upload failed."
+                    row_result["liveAttempt"] = {
+                        "mode": upload_result.mode or "115_open_fast_upload",
+                        "parentId": upload_result.parentId or (target_parent_id or "0"),
+                        "error": upload_result.error,
+                        "riskHint": upload_result.riskHint,
+                        "payload": upload_result.payload or {},
+                        "verifyOk": upload_result.verifyOk,
+                        "verifyMode": upload_result.verifyMode,
+                        "verifyNote": upload_result.verifyNote,
+                        "verifyPayload": upload_result.verifyPayload or {},
+                        "resolvedTargetName": (upload_result.payload or {}).get("resolvedTargetName", ""),
+                        "conflictAction": (upload_result.payload or {}).get("conflictAction", ""),
+                    }
+            elif sha1_value:
+                row_result["executionMode"] = "probe"
                 done += 1
                 row_result["status"] = "done"
                 row_result["note"] = (
                     "115 Open fast-upload candidate confirmed from current sha1/size fingerprints. "
-                    "The current runtime only records candidate evidence and does not call a live rapid-upload API yet."
+                    "The current runtime only records candidate evidence because there is no usable local file for a live rapid-upload attempt."
                 )
                 row_result["liveAttempt"] = {
                     "mode": "115_open_fast_upload_candidate",
@@ -1008,10 +1052,10 @@ def run_task(task_id: str) -> dict[str, object]:
                     "candidate": True,
                     "requiredInputs": ["sha1", "size"],
                     "hashValue": sha1_value,
-                    "riskHint": "",
+                    "riskHint": "A live rapid-upload attempt still requires a usable local file with sha1 context.",
                     "verifyOk": True,
                     "verifyMode": "fingerprint_candidate",
-                    "verifyNote": "Current sha1/size fingerprints satisfy 115 Open fast-upload precheck, but runtime remains probe-only.",
+                    "verifyNote": "Current sha1/size fingerprints satisfy 115 Open fast-upload precheck, but runtime remains probe-only without a local file.",
                     "verifyPayload": {
                         "sha1": sha1_value,
                         "size": int(item.get("size", 0) or 0),
@@ -1020,6 +1064,7 @@ def run_task(task_id: str) -> dict[str, object]:
                     "conflictAction": "",
                 }
             else:
+                row_result["executionMode"] = "probe"
                 failed += 1
                 row_result["status"] = "failed"
                 row_result["note"] = "115 Open fast-upload candidate probe failed because sha1 fingerprint is missing."

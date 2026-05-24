@@ -1,6 +1,6 @@
 # CloudPan Sync 真实证据状态报告
 
-- 生成时间：`2026-05-24T21:55:20.891059+00:00`
+- 生成时间：`2026-05-24T22:09:32.782731+00:00`
 - 汇总： `providerCount=10` `profilesSaved=3` `latestValidationProfileCount=2` `latestProbeProfileCount=3`
 - 真实证据覆盖： `auth=0` `list=0` `metadata=0` `create_dir=0` `fully_verified=0` `task_runtime=6` `task_runtime_failed=0` `task_runtime_candidate=0` `task_runtime_probe=0` `runtime_samples=6` `runtime_success=6` `runtime_failed=0` `runtime_candidate=0` `runtime_probe=0` `runtime_blocked_providers=0` `runtime_blocked=0` `runtime_conflict_handled=4`
 
@@ -34,7 +34,7 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `False` samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0 note=当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
-- notes: cookie driven live list/metadata(create via webapi.115.com files/get_info/files/add) attempts are online; stable real samples and official open-platform refresh-token binding are still pending.
+- notes: cookie driven live list/metadata(create via webapi.115.com files/get_info/files/add) attempts are online, and task runtime can now also attempt live rapid upload through proapi.115.com/open/upload/init plus sign_check follow-up when a usable local file plus sha1 is available; stable real success samples, full binary upload fallback, and long-term official open-platform token refresh handling are still pending.
 
 ## quark - Quark
 - fullyVerified: `False`

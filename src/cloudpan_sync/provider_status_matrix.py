@@ -104,7 +104,7 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
     if provider_key == "quark":
         return (
             "runtime_active",
-            "Current task runtime now drives a live Quark create_dir write probe for download_upload items, and for fast_upload items it can first attempt upload/pre + update/hash rapid upload and then continue into upload/auth + multipart PUT + commit + upload/finish when hash miss occurs and a usable local file plus md5/sha1 context is available; the download_upload strategy still has not been upgraded into a direct local-file upload path.",
+            "Current task runtime now drives Quark real local-file upload for download_upload items by reusing the upload/pre plus update/hash plus multipart binary fallback path, with auto_rename_new support and overwrite_existing downgraded to auto rename when a same-name file already exists; for fast_upload items it can first attempt upload/pre + update/hash rapid upload and then continue into upload/auth + multipart PUT + commit + upload/finish when hash miss occurs and a usable local file plus md5/sha1 context is available.",
         )
     if provider_key == "uc":
         return (

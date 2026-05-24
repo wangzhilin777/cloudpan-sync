@@ -5,7 +5,7 @@ import json
 import mimetypes
 from dataclasses import dataclass
 from hashlib import md5, sha1
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from email.utils import formatdate
 from time import time
 from urllib.parse import urlencode, urlparse
@@ -13,7 +13,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from .auth_store import get_profile
-from .quark_live import _build_drive_file_url, _headers, _is_success, _request_json, _text
+from .quark_live import _build_drive_file_url, _headers, _is_success, _request_json, _text, fetch_quark_live_list
 
 
 @dataclass
@@ -136,6 +136,51 @@ def _pick_int(data: dict[str, object], *keys: str) -> int:
         if resolved > 0:
             return resolved
     return 0
+
+
+def _split_name(name: str) -> tuple[str, str]:
+    pure = PurePosixPath(_text(name) or "file")
+    suffix = pure.suffix
+    stem = pure.name[: -len(suffix)] if suffix else pure.name
+    return stem or "file", suffix
+
+
+def _build_renamed_candidate(name: str, index: int) -> str:
+    stem, suffix = _split_name(name)
+    return f"{stem} ({index}){suffix}"
+
+
+def _resolve_upload_target_name(
+    *,
+    profile_id: str,
+    parent_id: str,
+    target_name: str,
+    conflict_policy: str,
+) -> tuple[str, str, str]:
+    list_result = fetch_quark_live_list(profile_id=profile_id, parent_id=parent_id or "0", page_size=200)
+    if not list_result.ok:
+        return target_name, "conflict_check_unavailable", "Could not verify same-name conflicts before Quark upload, so the original file name was kept."
+
+    existing_names = {
+        _text(item.get("name"))
+        for item in list((list_result.payload or {}).get("items") or [])
+        if isinstance(item, dict) and _text(item.get("name"))
+    }
+    if target_name not in existing_names:
+        return target_name, "no_conflict", ""
+
+    index = 1
+    candidate = _build_renamed_candidate(target_name, index)
+    while candidate in existing_names:
+        index += 1
+        candidate = _build_renamed_candidate(target_name, index)
+    if conflict_policy == "auto_rename_new":
+        return candidate, "auto_rename_new", "A same-name file already exists under the target path, so Quark auto-renamed the new file."
+    return (
+        candidate,
+        "overwrite_downgraded_to_auto_rename",
+        "The requested overwrite policy was downgraded because the current Quark upload path does not support verified in-place overwrite.",
+    )
 
 
 def _guess_content_type(file_path: Path) -> str:
@@ -419,6 +464,7 @@ def upload_quark_fast_file(
     parent_id: str = "0",
     expected_md5: str = "",
     expected_sha1: str = "",
+    conflict_policy: str = "auto_rename_new",
 ) -> QuarkFastUploadResult:
     profile, cookie = _load_profile_requirements(profile_id)
     resolved_parent_id = _text(parent_id or "0") or "0"
@@ -452,10 +498,17 @@ def upload_quark_fast_file(
         )
 
     now = int(time())
+    resolved_target_name, conflict_action, conflict_note = _resolve_upload_target_name(
+        profile_id=profile.profileId,
+        parent_id=resolved_parent_id,
+        target_name=_text(target_name or file_path.name) or file_path.name,
+        conflict_policy=conflict_policy,
+    )
+
     pre_body = {
         "ccp_hash_update": True,
         "dir_path": "",
-        "file_name": _text(target_name or file_path.name) or file_path.name,
+        "file_name": resolved_target_name,
         "format_type": _format_type(file_path),
         "l_created_at": now,
         "l_updated_at": now,
@@ -608,7 +661,7 @@ def upload_quark_fast_file(
             "taskId": task_id,
             "objKey": obj_key,
             "resolvedTargetName": resolved_name,
-            "conflictAction": "",
+            "conflictAction": conflict_action,
             "preUploadResponse": pre_payload,
             "hashResponse": hash_payload,
             "finishResponse": finish_payload,
@@ -623,9 +676,12 @@ def upload_quark_fast_file(
             resolved_parent_id,
             finish_status,
             "",
-            "Quark fast upload completed through upload/pre + update/hash + binary multipart upload + upload/finish."
-            if used_binary_fallback
-            else "Quark fast upload completed through upload/pre + update/hash + upload/finish.",
+            (
+                "Quark fast upload completed through upload/pre + update/hash + binary multipart upload + upload/finish."
+                if used_binary_fallback
+                else "Quark fast upload completed through upload/pre + update/hash + upload/finish."
+            )
+            + (f" {conflict_note}" if conflict_note else ""),
             payload=payload,
             verifyOk=True,
             verifyMode="finish_response_after_binary_upload" if used_binary_fallback else "finish_response",

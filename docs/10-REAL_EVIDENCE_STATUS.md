@@ -1,6 +1,6 @@
 # CloudPan Sync 真实证据状态报告
 
-- 生成时间：`2026-05-24T22:57:56.226921+00:00`
+- 生成时间：`2026-05-24T23:04:32.523613+00:00`
 - 汇总： `providerCount=10` `profilesSaved=3` `latestValidationProfileCount=2` `latestProbeProfileCount=3`
 - 真实证据覆盖： `auth=0` `list=0` `metadata=0` `create_dir=0` `fully_verified=0` `task_runtime=6` `task_runtime_failed=0` `task_runtime_candidate=0` `task_runtime_probe=0` `runtime_samples=6` `runtime_success=6` `runtime_failed=0` `runtime_candidate=0` `runtime_probe=0` `runtime_blocked_providers=0` `runtime_blocked=0` `runtime_conflict_handled=4`
 
@@ -44,7 +44,7 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `True` samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0 note=当前已记录到任务运行阶段真实成功样本。
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
-- notes: share-based live list/metadata(MD5 via file/download) attempts are online from pc-api.uc.cn evidence, cookie-based create_dir attempts are now wired on the Quark PC drive API path, and task runtime can now also attempt upload/pre + update/hash rapid upload first and continue into upload/auth + multipart PUT + commit + upload/finish when hash miss occurs and a usable local file plus md5/sha1 context is available; stable real online samples are still pending, and the download_upload strategy still has not been upgraded into a direct local-file upload path.
+- notes: share-based live list/metadata(MD5 via file/download) attempts are online from pc-api.uc.cn evidence, cookie-based create_dir attempts are now wired on the Quark PC drive API path, and task runtime can now also drive direct local-file upload by starting with upload/pre + update/hash and continuing into upload/auth + multipart PUT + commit + upload/finish when hash miss occurs; same-name conflicts now support auto_rename_new with overwrite_existing downgraded to auto rename, while stable real online samples are still pending.
 
 ## 189cloud - Tianyi 189Cloud
 - fullyVerified: `False`

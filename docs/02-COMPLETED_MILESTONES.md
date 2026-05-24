@@ -516,3 +516,5 @@
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` detail 行已显示 `targetProfile` 名称与 readiness 摘要
   - 待处理页 meta 行现也已补上 `conflictPolicy`，用户查看待处理项时可直接知道当前是按 `overwrite_existing` 还是 `auto_rename_new` 在评估，不必再回任务表单反查
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了待处理页 `renderPendingList()` 已携带并显示 `conflictPolicy`
+  - 队列页任务 detail 行现对 `profileReady / writeReady` 改成诚实显示：只有 `guard.targetProfile` 真返回这两个状态位时才显示 `true/false`，否则显示 `(unknown)`，不再把“没有目标档案信息”误渲染成 `true`
+  - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` detail 行已改为通过 `profileReadyText / writeReadyText` 诚实渲染 readiness 摘要

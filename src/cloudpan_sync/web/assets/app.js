@@ -1125,7 +1125,13 @@ function renderTaskList() {
     const guard = task.guard || {};
     const targetProfile = guard.targetProfile || {};
     const targetProfileText = targetProfile.displayName || task.targetProfileId || "(none)";
-    detail.textContent = `targetProfile=${targetProfileText}, targetProfileId=${task.targetProfileId || "(none)"}, targetParentId=${task.targetParentId || "(none)"}, conflictPolicy=${task.conflictPolicy || "auto_rename_new"}, profileReady=${targetProfile.profileReady !== false}, writeReady=${targetProfile.writeReady !== false}`;
+    const profileReadyText = Object.prototype.hasOwnProperty.call(targetProfile, "profileReady")
+      ? String(targetProfile.profileReady !== false)
+      : "(unknown)";
+    const writeReadyText = Object.prototype.hasOwnProperty.call(targetProfile, "writeReady")
+      ? String(targetProfile.writeReady !== false)
+      : "(unknown)";
+    detail.textContent = `targetProfile=${targetProfileText}, targetProfileId=${task.targetProfileId || "(none)"}, targetParentId=${task.targetParentId || "(none)"}, conflictPolicy=${task.conflictPolicy || "auto_rename_new"}, profileReady=${profileReadyText}, writeReady=${writeReadyText}`;
     left.appendChild(title);
     left.appendChild(meta);
     left.appendChild(detail);

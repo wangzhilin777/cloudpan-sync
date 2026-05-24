@@ -83,13 +83,17 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
             "runtime_active",
             "Current task runtime now drives a live PikPak create_dir write probe before mock/download fallback completion.",
         )
+    if provider_key == "baidu_netdisk":
+        return (
+            "runtime_active",
+            "Current task runtime now drives a live Baidu Netdisk create_dir write probe before mock/download fallback completion.",
+        )
     if provider_key == "189cloud":
         return (
             "runtime_blocked",
             "Current 189Cloud path is still shareCode/accessCode read-only, so task runtime write attempts cannot start yet.",
         )
     if provider_key in {
-        "baidu_netdisk",
         "quark",
         "uc",
     }:

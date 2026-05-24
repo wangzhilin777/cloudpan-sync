@@ -62,7 +62,7 @@ def build_provider_registry() -> list[ProviderAdapter]:
             authModes=["official_oauth", "manual_cookie"],
             fastUploadInputs=["md5", "size"],
             fallbackModes=["download_upload"],
-            conflictNotes="当前任务运行时尚未暴露该 provider 的同名冲突处理链路。",
+            conflictNotes="当前 Baidu Netdisk 已接入任务运行阶段的 create_dir 写探针，但真实文件上传场景下的同名文件冲突处理仍未声明为已支持。",
             status="researching",
         ),
         ProviderProfile(

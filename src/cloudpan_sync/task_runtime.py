@@ -8,6 +8,7 @@ import re
 from uuid import uuid4
 
 from .aliyun_open_live import fetch_aliyun_open_create_folder
+from .baidu_netdisk_live import fetch_baidu_create_dir
 from .guangya_live import fetch_guangya_live_fast_check
 from .guangya_upload_live import upload_guangya_local_file
 from .models import SourceEntry, TaskCreateRequest
@@ -733,6 +734,57 @@ def run_task(task_id: str) -> dict[str, object]:
                 row_result["liveAttempt"] = {
                     "mode": "pikpak_create_dir_probe",
                     "parentId": target_parent_id,
+                    "error": probe_result.error,
+                    "riskHint": probe_result.note,
+                    "payload": probe_result.payload or {},
+                    "verifyOk": False,
+                    "verifyMode": "",
+                    "verifyNote": "",
+                    "verifyPayload": {},
+                    "resolvedTargetName": probe_name,
+                    "conflictAction": "",
+                }
+                results.append(row_result)
+                continue
+
+        if strategy == "download_upload" and target_provider == "baidu_netdisk" and target_profile_id:
+            source_entry = source_entries_by_path.get(path, {})
+            local_entry = _materialize_local_source_entry(source_entry, path, int(item.get("size", 0) or 0))
+            if local_entry is not None:
+                probe_name = _probe_dir_name(str(task.get("taskId") or ""), path)
+                probe_result = fetch_baidu_create_dir(
+                    profile_id=target_profile_id,
+                    parent_dir=target_parent_id or "/",
+                    dir_name=probe_name,
+                )
+                row_result["executionMode"] = "probe"
+                if probe_result.ok:
+                    done += 1
+                    row_result["status"] = "done"
+                    row_result["note"] = (
+                        "Baidu Netdisk runtime write probe succeeded through live create_dir. "
+                        "The current file transfer still completes with mock/download fallback flow."
+                    )
+                    row_result["liveAttempt"] = {
+                        "mode": "baidu_netdisk_create_dir_probe",
+                        "parentId": target_parent_id or "/",
+                        "riskHint": "",
+                        "payload": probe_result.payload or {},
+                        "verifyOk": True,
+                        "verifyMode": "create_dir_response",
+                        "verifyNote": probe_result.note,
+                        "verifyPayload": probe_result.payload or {},
+                        "resolvedTargetName": probe_name,
+                        "conflictAction": "auto_rename_new",
+                    }
+                    results.append(row_result)
+                    continue
+                failed += 1
+                row_result["status"] = "failed"
+                row_result["note"] = probe_result.note or "Baidu Netdisk runtime write probe failed."
+                row_result["liveAttempt"] = {
+                    "mode": "baidu_netdisk_create_dir_probe",
+                    "parentId": target_parent_id or "/",
                     "error": probe_result.error,
                     "riskHint": probe_result.note,
                     "payload": probe_result.payload or {},

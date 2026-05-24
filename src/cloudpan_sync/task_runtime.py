@@ -147,6 +147,55 @@ def _clear_action_error(task: dict[str, object]) -> None:
     task["lastActionError"] = {}
 
 
+def _result_runtime_summary(results: list[dict[str, object]]) -> dict[str, int | str | bool]:
+    counted = [
+        dict(row or {})
+        for row in results
+        if str((row or {}).get("status") or "") in {"done", "failed"}
+    ]
+    probe_only = [
+        row
+        for row in counted
+        if str(row.get("executionMode") or "") == "probe" and not bool(dict(row.get("liveAttempt") or {}).get("candidate"))
+    ]
+    candidate_only = [
+        row
+        for row in counted
+        if bool(dict(row.get("liveAttempt") or {}).get("candidate"))
+    ]
+    live_success = [
+        row
+        for row in counted
+        if str(row.get("executionMode") or "") == "live" and str(row.get("status") or "") == "done"
+    ]
+    live_failed = [
+        row
+        for row in counted
+        if str(row.get("executionMode") or "") == "live" and str(row.get("status") or "") == "failed"
+    ]
+    completion_kind = ""
+    if counted:
+        if len(probe_only) == len(counted):
+            completion_kind = "probe_only"
+        elif len(candidate_only) == len(counted):
+            completion_kind = "candidate_only"
+        elif live_success:
+            completion_kind = "real_transfer"
+        elif live_failed:
+            completion_kind = "live_failed"
+        else:
+            completion_kind = "mixed_non_live"
+    return {
+        "countedResultCount": len(counted),
+        "probeOnlyCount": len(probe_only),
+        "candidateOnlyCount": len(candidate_only),
+        "liveSuccessCount": len(live_success),
+        "liveFailedCount": len(live_failed),
+        "completionKind": completion_kind,
+        "hasRealTransferSuccess": bool(live_success),
+    }
+
+
 def allowed_task_actions(task: dict[str, object]) -> list[str]:
     state = str(task.get("state") or "")
     if state == "awaiting_ack":
@@ -171,6 +220,7 @@ def build_task_summary(task: dict[str, object]) -> dict[str, object]:
     requires_ack = dict(guard.get("requiresAcknowledgement") or {})
     acknowledged = dict(guard.get("acknowledged") or {})
     last_action_error = dict(task.get("lastActionError") or {})
+    runtime_summary = _result_runtime_summary(list(task.get("results") or []))
     return {
         "state": str(task.get("state") or ""),
         "allowedActions": allowed_task_actions(task),
@@ -184,6 +234,13 @@ def build_task_summary(task: dict[str, object]) -> dict[str, object]:
         "riskReason": str((task.get("risk") or {}).get("reason") or ""),
         "hasLastActionError": bool(last_action_error.get("action") or last_action_error.get("reason")),
         "lastActionError": last_action_error,
+        "countedResultCount": int(runtime_summary.get("countedResultCount", 0) or 0),
+        "probeOnlyCount": int(runtime_summary.get("probeOnlyCount", 0) or 0),
+        "candidateOnlyCount": int(runtime_summary.get("candidateOnlyCount", 0) or 0),
+        "liveSuccessCount": int(runtime_summary.get("liveSuccessCount", 0) or 0),
+        "liveFailedCount": int(runtime_summary.get("liveFailedCount", 0) or 0),
+        "completionKind": str(runtime_summary.get("completionKind") or ""),
+        "hasRealTransferSuccess": bool(runtime_summary.get("hasRealTransferSuccess")),
     }
 
 
@@ -1538,8 +1595,13 @@ def run_task(task_id: str) -> dict[str, object]:
         row_result["status"] = "done"
         row_result["note"] = "Task runtime completed the item with the current mock/download fallback flow."
         results.append(row_result)
+    runtime_summary = _result_runtime_summary(results)
     task["progress"]["done"] = done
     task["progress"]["failed"] = failed
+    task["progress"]["probeOnly"] = int(runtime_summary.get("probeOnlyCount", 0) or 0)
+    task["progress"]["candidateOnly"] = int(runtime_summary.get("candidateOnlyCount", 0) or 0)
+    task["progress"]["liveSuccess"] = int(runtime_summary.get("liveSuccessCount", 0) or 0)
+    task["progress"]["liveFailed"] = int(runtime_summary.get("liveFailedCount", 0) or 0)
     task["results"] = results
     task["state"] = "completed" if failed == 0 else "completed_with_errors"
     task["updatedAt"] = _now()

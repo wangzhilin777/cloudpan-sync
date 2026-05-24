@@ -53,6 +53,17 @@
   - [verify_189cloud_fast_upload_live.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_fast_upload_live.py) 已验证 `fileDataExists=1` 时会走 `rapid_upload_by_hash`，并以 `commit_response_xml` 作为成功校验
   - [verify_189cloud_fast_upload_binary_fallback.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_fast_upload_binary_fallback.py) 已验证 `fileDataExists=0` 时会继续执行 `fileUploadUrl PUT -> getUploadFileStatus -> fileCommitUrl`，并返回 `mode=binary_upload_put_then_commit`、`verifyMode=commit_response_xml_after_binary_put`
 
+### 已完成补齐项 - `2026-05-25`（115 Open）
+
+- 提交：`本次提交`
+- 完成范围：
+  - `115_open` 的 `fast_upload` 已从“只尝试 `open/upload/init + sign_check` 秒传命中”升级为完整本地文件上传链路：当秒传未命中时，会继续执行 `upload/get_token + OSS binary upload`
+  - 当前 fallback 已同时覆盖单分片与 multipart 两种 OSS 上传路径，并把 `uploadTokenResponse / uploadSession / binaryUpload` 写入 payload，运行期可区分“命中秒传”和“hash miss 后已完成二进制上传”
+  - 当前成功校验口径仍保持诚实：本轮是依据上传后的 `metadata_by_file_id / list_by_parent_name` 回查结果确认成功，不伪装成已有真实在线样本
+- 当前验证证据：
+  - [verify_115_fast_upload_live.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_115_fast_upload_live.py) 已验证 `status=7 -> sign_check -> status=2` 的秒传命中路径仍然成立，并返回 `mode=rapid_upload_by_hash`
+  - [verify_115_fast_upload_binary_fallback.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_115_fast_upload_binary_fallback.py) 已验证 hash miss 时会继续请求 `upload/get_token` 并执行 OSS 上传，返回 `mode=binary_upload_after_hash_miss`、`verifyMode=list_by_parent_name`
+
 ### M1 - 独立项目骨架
 
 - 完成日期：`2026-05-23`

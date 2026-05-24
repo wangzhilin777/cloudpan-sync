@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import base64
 import json
 from dataclasses import dataclass
 from hashlib import sha1
+from importlib import import_module
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
@@ -13,6 +15,7 @@ from .pan115_open_live import _cookie_header, _text, fetch_115_open_live_list, f
 
 
 PAN115_OPEN_UPLOAD_INIT_URL = "https://proapi.115.com/open/upload/init"
+PAN115_OPEN_UPLOAD_GET_TOKEN_URL = "https://proapi.115.com/open/upload/get_token"
 
 
 @dataclass
@@ -198,6 +201,14 @@ def _classify_issue(status: int, error: str) -> tuple[str, str]:
         return ("provider", "115 Open 已到达 upload/init，但当前没有命中秒传，后续仍需真实二进制上传 fallback。")
     if error == "missing_sign_check":
         return ("provider", "115 Open 返回了 sign_check 状态，但响应缺少可继续计算的字段。")
+    if error == "missing_upload_token":
+        return ("provider", "115 Open 未返回可用的 OSS 上传 token，当前无法继续二进制上传。")
+    if error == "missing_upload_session":
+        return ("provider", "115 Open upload/init 已返回 hash miss，但缺少完整 OSS 上传会话字段。")
+    if error == "missing_oss2_dependency":
+        return ("environment", "当前环境缺少 oss2，无法继续 115 Open 的 OSS 二进制上传。")
+    if error == "binary_upload_failed":
+        return ("provider", "115 Open OSS 二进制上传已开始，但上传过程中失败。")
     if error.startswith("http_error:401"):
         return ("auth", "115 Open 秒传请求被 401 拒绝，授权很可能已失效。")
     if error.startswith("http_error:403"):
@@ -211,6 +222,157 @@ def _classify_issue(status: int, error: str) -> tuple[str, str]:
     if error.startswith("unexpected:"):
         return ("unexpected", "115 Open 秒传过程异常中断，建议保留错误文本继续排查。")
     return ("", "")
+
+
+def _request_upload_token(access_token: str, cookie: str) -> tuple[int, dict[str, object]]:
+    request = Request(
+        url=PAN115_OPEN_UPLOAD_GET_TOKEN_URL,
+        headers=_headers(access_token, cookie),
+        method="GET",
+    )
+    with urlopen(request, timeout=20) as response:
+        status = int(getattr(response, "status", 0) or 0)
+        text = response.read().decode("utf-8", errors="replace")
+    payload = json.loads(text) if text else {}
+    return status, payload if isinstance(payload, dict) else {}
+
+
+def _normalize_endpoint(endpoint: str) -> str:
+    resolved = _text(endpoint)
+    if not resolved:
+        return ""
+    if resolved.startswith("http://") or resolved.startswith("https://"):
+        return resolved
+    return f"https://{resolved}"
+
+
+def _extract_callback_payload(data: dict[str, object]) -> tuple[str, str]:
+    callback = data.get("callback")
+    if isinstance(callback, dict):
+        value = callback.get("value") if isinstance(callback.get("value"), dict) else callback
+        return (
+            _text(value.get("callback")),
+            _text(value.get("callback_var") or value.get("callbackVar")),
+        )
+    return "", ""
+
+
+def _extract_upload_session(data: dict[str, object], token_payload: dict[str, object]) -> dict[str, object]:
+    token_data = token_payload.get("data") if isinstance(token_payload.get("data"), dict) else token_payload
+    if not isinstance(token_data, dict):
+        token_data = {}
+    callback_text, callback_var_text = _extract_callback_payload(data)
+    return {
+        "bucket": _pick_text(data, "bucket", "Bucket"),
+        "object": _pick_text(data, "object", "Object"),
+        "callback": callback_text,
+        "callbackVar": callback_var_text,
+        "endpoint": _normalize_endpoint(_pick_text(token_data, "endpoint", "Endpoint")),
+        "accessKeyId": _pick_text(token_data, "access_key_id", "accessKeyId", "AccessKeyId"),
+        "accessKeySecret": _pick_text(token_data, "access_key_secret", "accessKeySecret", "AccessKeySecret"),
+        "securityToken": _pick_text(token_data, "security_token", "securityToken", "SecurityToken"),
+    }
+
+
+def _multipart_part_size(file_size: int) -> int:
+    part_size = 20 * 1024 * 1024
+    if file_size > part_size:
+        if file_size > 1024**4:
+            part_size = 5 * 1024**3
+        elif file_size > 768 * 1024**3:
+            part_size = 109951163
+        elif file_size > 512 * 1024**3:
+            part_size = 82463373
+        elif file_size > 384 * 1024**3:
+            part_size = 54975582
+        elif file_size > 256 * 1024**3:
+            part_size = 41231687
+        elif file_size > 128 * 1024**3:
+            part_size = 27487791
+    return part_size
+
+
+def _callback_headers(session: dict[str, object]) -> dict[str, str]:
+    headers: dict[str, str] = {}
+    callback_text = _text(session.get("callback"))
+    callback_var_text = _text(session.get("callbackVar"))
+    if callback_text:
+        headers["x-oss-callback"] = base64.b64encode(callback_text.encode("utf-8")).decode("ascii")
+    if callback_var_text:
+        headers["x-oss-callback-var"] = base64.b64encode(callback_var_text.encode("utf-8")).decode("ascii")
+    return headers
+
+
+def _upload_binary_to_115_oss(file_path: Path, session: dict[str, object]) -> tuple[str, str, dict[str, object]]:
+    bucket_name = _text(session.get("bucket"))
+    object_key = _text(session.get("object"))
+    endpoint = _text(session.get("endpoint"))
+    access_key_id = _text(session.get("accessKeyId"))
+    access_key_secret = _text(session.get("accessKeySecret"))
+    security_token = _text(session.get("securityToken"))
+    if not bucket_name or not object_key or not endpoint or not access_key_id or not access_key_secret or not security_token:
+        return (
+            "missing_upload_session",
+            "115 Open hash-miss response did not include a complete OSS upload session.",
+            {"session": session},
+        )
+
+    try:
+        oss2 = import_module("oss2")
+    except Exception as exc:  # pragma: no cover
+        return (
+            "missing_oss2_dependency",
+            f"115 Open binary upload requires oss2 in the runtime environment: {exc}",
+            {"session": session},
+        )
+
+    auth = oss2.StsAuth(access_key_id, access_key_secret, security_token)
+    bucket = oss2.Bucket(auth, endpoint, bucket_name)
+    callback_headers = _callback_headers(session)
+    file_size = int(file_path.stat().st_size)
+    part_size = _multipart_part_size(file_size)
+
+    if file_size <= part_size:
+        with file_path.open("rb") as handle:
+            result = bucket.put_object(object_key, handle, headers=callback_headers or None)
+        return (
+            "",
+            "",
+            {
+                "uploadKind": "single_part",
+                "bucket": bucket_name,
+                "object": object_key,
+                "endpoint": endpoint,
+                "status": int(getattr(result, "status", 0) or 0),
+            },
+        )
+
+    upload = bucket.init_multipart_upload(object_key, headers=callback_headers or None)
+    upload_id = _text(getattr(upload, "upload_id", ""))
+    parts: list[object] = []
+    part_number = 1
+    with file_path.open("rb") as handle:
+        while True:
+            chunk = handle.read(part_size)
+            if not chunk:
+                break
+            part = bucket.upload_part(object_key, upload_id, part_number, chunk)
+            parts.append(oss2.models.PartInfo(part_number, getattr(part, "etag", ""), size=len(chunk)))
+            part_number += 1
+    result = bucket.complete_multipart_upload(object_key, upload_id, parts)
+    return (
+        "",
+        "",
+        {
+            "uploadKind": "multipart",
+            "bucket": bucket_name,
+            "object": object_key,
+            "endpoint": endpoint,
+            "uploadId": upload_id,
+            "partCount": len(parts),
+            "status": int(getattr(result, "status", 0) or 0),
+        },
+    )
 
 
 def _verify_uploaded_file(
@@ -456,23 +618,80 @@ def upload_115_open_fast_file(
                 verifyPayload=verify_payload,
             )
 
-        risk_level, risk_hint = _classify_issue(status, "rapid_upload_not_hit")
+        token_status, token_payload = _request_upload_token(access_token, cookie)
+        token_state, token_data, _, _ = _unwrap_response(token_payload)
+        if not token_state:
+            risk_level, risk_hint = _classify_issue(token_status, "missing_upload_token")
+            return Pan115FastUploadResult(
+                False,
+                "rapid_upload_not_hit",
+                True,
+                profile.profileId,
+                resolved_parent_id,
+                token_status or status,
+                "missing_upload_token",
+                "115 Open upload/init reached the live API, but OSS upload token retrieval did not succeed.",
+                risk_level,
+                risk_hint,
+                payload={
+                    **common_payload,
+                    "uploadTokenResponse": token_payload,
+                },
+                verifyOk=False,
+                verifyMode="create_response_status",
+                verifyNote="The live upload/init request reached 115 Open, but the follow-up OSS upload token was unavailable.",
+                verifyPayload={"status": response_status, "signCheck": second_sign_check},
+            )
+
+        upload_session = _extract_upload_session(final_data, token_data)
+        binary_error, binary_note, binary_payload = _upload_binary_to_115_oss(file_path, upload_session)
+        payload = {
+            **common_payload,
+            "uploadTokenResponse": token_payload,
+            "uploadSession": upload_session,
+            "binaryUpload": binary_payload,
+        }
+        if binary_error:
+            risk_level, risk_hint = _classify_issue(token_status or status, binary_error)
+            return Pan115FastUploadResult(
+                False,
+                "binary_upload_failed",
+                True,
+                profile.profileId,
+                resolved_parent_id,
+                token_status or status,
+                binary_error,
+                binary_note or "115 Open OSS binary upload failed.",
+                risk_level,
+                risk_hint,
+                payload=payload,
+                verifyOk=False,
+                verifyMode="oss_upload_session",
+                verifyNote="The live upload/init request reached 115 Open, but the OSS binary upload fallback did not complete.",
+                verifyPayload={"status": response_status, "signCheck": second_sign_check},
+            )
+
+        verify_ok, verify_mode, verify_note, verify_payload = _verify_uploaded_file(
+            profile_id=profile.profileId,
+            parent_id=resolved_parent_id,
+            target_name=resolved_name,
+            file_id="",
+            expected_sha1=actual_sha1,
+        )
         return Pan115FastUploadResult(
-            False,
-            "rapid_upload_not_hit",
+            True,
+            "binary_upload_after_hash_miss",
             True,
             profile.profileId,
             resolved_parent_id,
-            status,
-            "rapid_upload_not_hit",
-            "115 Open upload/init reached the live API, but the response still indicates that follow-up binary upload work is required.",
-            risk_level,
-            risk_hint,
-            payload=common_payload,
-            verifyOk=False,
-            verifyMode="create_response_status",
-            verifyNote="The live upload/init request reached 115 Open, but the returned status did not confirm an instant reuse hit.",
-            verifyPayload={"status": response_status, "signCheck": second_sign_check},
+            token_status or status,
+            "",
+            "115 Open upload/init hash miss fell back to OSS binary upload and the uploaded file was verified afterwards.",
+            payload=payload,
+            verifyOk=verify_ok,
+            verifyMode=verify_mode,
+            verifyNote=verify_note,
+            verifyPayload=verify_payload,
         )
     except HTTPError as exc:
         status, error_payload = _extract_http_error_payload(exc)

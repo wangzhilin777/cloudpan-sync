@@ -129,6 +129,17 @@
 - 当前验证证据：
   - [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已验证 API summary / item / markdown 三条出口都会带 `recommendedRuntimeSuccessCommand` 相关字段
 
+### 已完成补齐项 - `2026-05-25`（Live Helper 证据包验证补强）
+
+- 提交：`本次提交`
+- 完成范围：
+  - 已补强 [verify_create_live_upload_task_xunlei_pikpak.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task_xunlei_pikpak.py) 与 [verify_create_live_upload_task_quark_uc.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task_quark_uc.py)
+  - 这两组 grouped verifier 现在不再只盯 `task.json / task.md / runtime_evidence.md`，而是和 Guangya 那条 helper 验证对齐，明确要求 `auth_evidence.md / real_evidence.md / remediation.md` 也同时产出并具备正确标题
+  - `xunlei / pikpak / quark / uc` 这四个 provider 的统一 live helper 现在都已有“6 份固定文件名证据包”级别的回归保护
+- 当前验证证据：
+  - [verify_create_live_upload_task_xunlei_pikpak.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task_xunlei_pikpak.py) 已验证 `xunlei / pikpak` 的 helper 证据包同时包含 `task.json / task.md / auth_evidence.md / runtime_evidence.md / real_evidence.md / remediation.md`
+  - [verify_create_live_upload_task_quark_uc.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task_quark_uc.py) 已验证 `quark / uc` 的 helper 证据包也同样满足 6 份固定文件名与标题校验
+
 ### M1 - 独立项目骨架
 
 - 完成日期：`2026-05-23`

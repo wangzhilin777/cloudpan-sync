@@ -187,7 +187,21 @@ def _run_case(
     output = json.loads(stdout_buffer.getvalue())
     task_payload = json.loads((evidence_dir / "task.json").read_text(encoding="utf-8"))
     markdown = (evidence_dir / "task.md").read_text(encoding="utf-8")
+    auth_evidence_markdown = (evidence_dir / "auth_evidence.md").read_text(encoding="utf-8")
     runtime_evidence_markdown = (evidence_dir / "runtime_evidence.md").read_text(encoding="utf-8")
+    real_evidence_markdown = (evidence_dir / "real_evidence.md").read_text(encoding="utf-8")
+    remediation_markdown = (evidence_dir / "remediation.md").read_text(encoding="utf-8")
+    bundle_uses_fixed_filenames = all(
+        (evidence_dir / name).exists()
+        for name in (
+            "task.json",
+            "task.md",
+            "auth_evidence.md",
+            "runtime_evidence.md",
+            "real_evidence.md",
+            "remediation.md",
+        )
+    )
     _cleanup_dir(evidence_dir)
 
     return {
@@ -202,7 +216,11 @@ def _run_case(
         "jsonSavedVerifyMode": (((((task_payload.get("results") or [None])[0]) or {}).get("liveAttempt") or {}).get("verifyMode")) == verify_mode,
         "markdownHasConflictAction": "conflictAction=`overwrite_downgraded_to_auto_rename`" in markdown,
         "markdownHasResolvedTargetName": "resolvedTargetName=`cloudpan-sync-live-upload (1).bin`" in markdown,
+        "authEvidenceHasTitle": "# Auth Profile Evidence" in auth_evidence_markdown,
         "runtimeEvidenceHasTitle": "# CloudPan Sync 任务运行真实样本报告" in runtime_evidence_markdown,
+        "realEvidenceHasTitle": "# CloudPan Sync 真实证据状态报告" in real_evidence_markdown,
+        "remediationHasTitle": "# CloudPan Sync 真实联调补救指南" in remediation_markdown,
+        "bundleUsesFixedFilenames": bundle_uses_fixed_filenames,
     }
 
 

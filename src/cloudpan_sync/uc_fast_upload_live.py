@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+import base64
 import json
+import mimetypes
 from dataclasses import dataclass
+from email.utils import formatdate
 from hashlib import md5, sha1
 from pathlib import Path
 from time import time
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode, urlparse
+from urllib.request import Request, urlopen
 
 from .auth_store import get_profile
 from .uc_live import _build_drive_file_url, _headers, _is_success, _request_json, _text
@@ -59,6 +64,10 @@ def _upload_hash_url() -> str:
 
 def _upload_finish_url() -> str:
     return _build_drive_file_url().replace("/file?", "/file/upload/finish?")
+
+
+def _upload_auth_url() -> str:
+    return _build_drive_file_url().replace("/file?", "/file/upload/auth?")
 
 
 def _format_type(file_path: Path) -> str:
@@ -117,6 +126,255 @@ def _pick_text(data: dict[str, object], *keys: str) -> str:
     return ""
 
 
+def _pick_int(data: dict[str, object], *keys: str) -> int:
+    for key in keys:
+        value = data.get(key)
+        try:
+            resolved = int(value or 0)
+        except Exception:
+            continue
+        if resolved > 0:
+            return resolved
+    return 0
+
+
+def _guess_content_type(file_path: Path) -> str:
+    mime, _ = mimetypes.guess_type(str(file_path))
+    return _text(mime) or "application/octet-stream"
+
+
+def _normalize_upload_host(upload_url: str, bucket: str) -> str:
+    parsed = urlparse(_text(upload_url))
+    host = parsed.netloc or _text(upload_url).replace("https://", "").replace("http://", "").strip("/")
+    if host.startswith(f"{bucket}."):
+        return host
+    return f"{bucket}.{host}"
+
+
+def _extract_upload_session(pre_data: dict[str, object]) -> dict[str, object]:
+    metadata = pre_data.get("metadata")
+    meta = metadata if isinstance(metadata, dict) else {}
+    return {
+        "authInfo": pre_data.get("auth_info") if isinstance(pre_data.get("auth_info"), dict) else meta.get("auth_info") if isinstance(meta.get("auth_info"), dict) else {},
+        "bucket": _pick_text(pre_data, "bucket") or _pick_text(meta, "bucket"),
+        "objKey": _pick_text(pre_data, "obj_key", "objKey") or _pick_text(meta, "obj_key", "objKey"),
+        "uploadId": _pick_text(pre_data, "upload_id", "uploadId") or _pick_text(meta, "upload_id", "uploadId"),
+        "uploadUrl": _pick_text(pre_data, "upload_url", "uploadUrl") or _pick_text(meta, "upload_url", "uploadUrl"),
+        "callback": pre_data.get("callback") if isinstance(pre_data.get("callback"), dict) else meta.get("callback") if isinstance(meta.get("callback"), dict) else {},
+        "partSize": _pick_int(pre_data, "part_size", "partSize") or _pick_int(meta, "part_size", "partSize"),
+    }
+
+
+def _build_part_auth_meta(content_type: str, oss_date: str, bucket: str, obj_key: str, part_number: int, upload_id: str) -> str:
+    return (
+        "PUT\n\n"
+        f"{content_type}\n"
+        f"{oss_date}\n"
+        f"x-oss-date:{oss_date}\n"
+        "x-oss-user-agent:aliyun-sdk-js/6.6.1 Chrome 98.0.4758.80 on Windows 10 64-bit\n"
+        f"/{bucket}/{obj_key}?partNumber={part_number}&uploadId={upload_id}"
+    )
+
+
+def _build_commit_xml(part_etags: list[str]) -> str:
+    body = ['<?xml version="1.0" encoding="UTF-8"?>', "<CompleteMultipartUpload>"]
+    for index, etag in enumerate(part_etags, start=1):
+        body.extend(
+            [
+                "<Part>",
+                f"<PartNumber>{index}</PartNumber>",
+                f"<ETag>{etag}</ETag>",
+                "</Part>",
+            ]
+        )
+    body.append("</CompleteMultipartUpload>")
+    return "\n".join(body)
+
+
+def _build_commit_auth_meta(content_md5: str, callback_b64: str, oss_date: str, bucket: str, obj_key: str, upload_id: str) -> str:
+    return (
+        "POST\n"
+        f"{content_md5}\n"
+        "application/xml\n"
+        f"{oss_date}\n"
+        f"x-oss-callback:{callback_b64}\n"
+        f"x-oss-date:{oss_date}\n"
+        "x-oss-user-agent:aliyun-sdk-js/6.6.1 Chrome 98.0.4758.80 on Windows 10 64-bit\n"
+        f"/{bucket}/{obj_key}?uploadId={upload_id}"
+    )
+
+
+def _request_upload_auth(
+    cookie: str,
+    auth_info: dict[str, object],
+    auth_meta: str,
+    task_id: str,
+) -> tuple[int, dict[str, object]]:
+    return _request_json(
+        _upload_auth_url(),
+        "POST",
+        _headers(cookie),
+        {
+            "auth_info": auth_info,
+            "auth_meta": auth_meta,
+            "task_id": task_id,
+        },
+    )
+
+
+def _put_oss_part(
+    upload_host: str,
+    obj_key: str,
+    upload_id: str,
+    part_number: int,
+    authorization: str,
+    content_type: str,
+    oss_date: str,
+    part_bytes: bytes,
+) -> str:
+    request = Request(
+        url=f"https://{upload_host}/{obj_key.lstrip('/')}?{urlencode({'partNumber': part_number, 'uploadId': upload_id})}",
+        data=part_bytes,
+        headers={
+            "Authorization": authorization,
+            "Content-Type": content_type,
+            "Referer": "https://drive.uc.cn/",
+            "x-oss-date": oss_date,
+            "x-oss-user-agent": "aliyun-sdk-js/6.6.1 Chrome 98.0.4758.80 on Windows 10 64-bit",
+        },
+        method="PUT",
+    )
+    with urlopen(request, timeout=30) as response:
+        etag = _text(response.headers.get("Etag") or response.headers.get("ETag"))
+        response.read()
+        return etag
+
+
+def _post_oss_commit(
+    upload_host: str,
+    obj_key: str,
+    upload_id: str,
+    authorization: str,
+    content_md5: str,
+    callback_b64: str,
+    oss_date: str,
+    body: str,
+) -> int:
+    request = Request(
+        url=f"https://{upload_host}/{obj_key.lstrip('/')}?{urlencode({'uploadId': upload_id})}",
+        data=body.encode("utf-8"),
+        headers={
+            "Authorization": authorization,
+            "Content-MD5": content_md5,
+            "Content-Type": "application/xml",
+            "Referer": "https://drive.uc.cn/",
+            "x-oss-callback": callback_b64,
+            "x-oss-date": oss_date,
+            "x-oss-user-agent": "aliyun-sdk-js/6.6.1 Chrome 98.0.4758.80 on Windows 10 64-bit",
+        },
+        method="POST",
+    )
+    with urlopen(request, timeout=30) as response:
+        status = int(getattr(response, "status", 0) or 0)
+        response.read()
+        return status
+
+
+def _complete_binary_upload(
+    *,
+    cookie: str,
+    file_path: Path,
+    pre_data: dict[str, object],
+    task_id: str,
+) -> tuple[int, str, dict[str, object]]:
+    session = _extract_upload_session(pre_data)
+    auth_info = session.get("authInfo")
+    bucket = _text(session.get("bucket"))
+    obj_key = _text(session.get("objKey"))
+    upload_id = _text(session.get("uploadId"))
+    upload_url = _text(session.get("uploadUrl"))
+    callback = session.get("callback")
+    part_size = int(session.get("partSize") or 0)
+    if not isinstance(auth_info, dict) or not auth_info or not bucket or not obj_key or not upload_id or not upload_url or not isinstance(callback, dict) or not callback:
+        return 0, "missing_upload_session", {"uploadSession": session}
+
+    upload_host = _normalize_upload_host(upload_url, bucket)
+    content_type = _guess_content_type(file_path)
+    file_size = int(file_path.stat().st_size)
+    resolved_part_size = part_size if part_size > 0 else file_size
+    etags: list[str] = []
+    with file_path.open("rb") as handle:
+        part_number = 1
+        while True:
+            part_bytes = handle.read(resolved_part_size)
+            if not part_bytes:
+                break
+            oss_date = formatdate(usegmt=True)
+            auth_status, auth_payload = _request_upload_auth(
+                cookie,
+                auth_info,
+                _build_part_auth_meta(content_type, oss_date, bucket, obj_key, part_number, upload_id),
+                task_id,
+            )
+            if not _is_success(auth_payload):
+                return auth_status, f"part_upload_failed:auth:{part_number}", {"uploadSession": session, "authResponse": auth_payload, "partNumber": part_number}
+            auth_data = _extract_data(auth_payload)
+            authorization = _pick_text(auth_data, "auth_key", "authKey")
+            if not authorization:
+                return auth_status, f"part_upload_failed:missing_auth_key:{part_number}", {"uploadSession": session, "authResponse": auth_payload, "partNumber": part_number}
+            etag = _put_oss_part(
+                upload_host,
+                obj_key,
+                upload_id,
+                part_number,
+                authorization,
+                content_type,
+                oss_date,
+                part_bytes,
+            )
+            if not etag:
+                return 200, "missing_part_etag", {"uploadSession": session, "partNumber": part_number}
+            etags.append(etag)
+            part_number += 1
+
+    commit_xml = _build_commit_xml(etags)
+    content_md5 = base64.b64encode(md5(commit_xml.encode("utf-8")).digest()).decode("ascii")
+    callback_b64 = base64.b64encode(json.dumps(callback, ensure_ascii=False, separators=(",", ":")).encode("utf-8")).decode("ascii")
+    commit_date = formatdate(usegmt=True)
+    commit_auth_status, commit_auth_payload = _request_upload_auth(
+        cookie,
+        auth_info,
+        _build_commit_auth_meta(content_md5, callback_b64, commit_date, bucket, obj_key, upload_id),
+        task_id,
+    )
+    if not _is_success(commit_auth_payload):
+        return commit_auth_status, "commit_failed:auth", {"uploadSession": session, "commitAuthResponse": commit_auth_payload}
+    commit_auth_data = _extract_data(commit_auth_payload)
+    commit_authorization = _pick_text(commit_auth_data, "auth_key", "authKey")
+    if not commit_authorization:
+        return commit_auth_status, "commit_failed:missing_auth_key", {"uploadSession": session, "commitAuthResponse": commit_auth_payload}
+    commit_status = _post_oss_commit(
+        upload_host,
+        obj_key,
+        upload_id,
+        commit_authorization,
+        content_md5,
+        callback_b64,
+        commit_date,
+        commit_xml,
+    )
+    payload = {
+        "uploadSession": session,
+        "partCount": len(etags),
+        "partEtags": etags,
+        "commitAuthResponse": commit_auth_payload,
+        "commitStatus": commit_status,
+    }
+    if commit_status < 200 or commit_status >= 300:
+        return commit_status, "commit_failed:oss_post", payload
+    return commit_status, "", payload
+
+
 def _classify_issue(status: int, error: str) -> tuple[str, str]:
     if error == "profile_not_found":
         return ("input", "targetProfileId 对应的 UC Drive 授权档案不存在。")
@@ -132,6 +390,14 @@ def _classify_issue(status: int, error: str) -> tuple[str, str]:
         return ("provider", "UC upload/pre 未返回 obj_key，当前无法继续 finish。")
     if error == "hash_not_accepted":
         return ("provider", "UC update/hash 未确认秒传完成，当前仍缺可复用的 rapid-upload 成功响应。")
+    if error == "missing_upload_session":
+        return ("provider", "UC upload/pre 未返回完整上传会话，当前无法继续走二进制上传兜底。")
+    if error == "missing_part_etag":
+        return ("provider", "UC 分片上传未返回 ETag，当前无法继续 commit。")
+    if error.startswith("part_upload_failed"):
+        return ("provider", "UC 分片上传被拒绝，当前二进制上传兜底未完成。")
+    if error.startswith("commit_failed"):
+        return ("provider", "UC multipart commit 被拒绝，当前无法完成文件落盘。")
     if error.startswith("http_error:401"):
         return ("auth", "秒传请求被 401 拒绝，授权很可能已失效。")
     if error.startswith("http_error:403"):
@@ -203,6 +469,7 @@ def upload_uc_fast_file(
     hash_payload: dict[str, object] = {}
     finish_status = 0
     finish_payload: dict[str, object] = {}
+    upload_payload: dict[str, object] = {}
 
     try:
         pre_status, pre_payload = _request_json(_upload_pre_url(), "POST", _headers(cookie), pre_body)
@@ -268,25 +535,33 @@ def upload_uc_fast_file(
         upload_finished = bool(hash_data.get("finish"))
         file_id = _pick_text(hash_data, "fid", "file_id", "fileId") or file_id
         if not upload_finished:
-            risk_level, risk_hint = _classify_issue(hash_status, "hash_not_accepted")
-            return UcFastUploadResult(
-                False,
-                "rapid_upload_hash_incomplete",
-                True,
-                profile.profileId,
-                resolved_parent_id,
-                hash_status,
-                "hash_not_accepted",
-                "UC update/hash completed but did not confirm rapid-upload success.",
-                risk_level,
-                risk_hint,
-                payload={
-                    "preUploadResponse": pre_payload,
-                    "hashResponse": hash_payload,
-                    "taskId": task_id,
-                    "objKey": obj_key,
-                },
+            upload_status, upload_error, upload_payload = _complete_binary_upload(
+                cookie=cookie,
+                file_path=file_path,
+                pre_data=pre_data,
+                task_id=task_id,
             )
+            if upload_error:
+                risk_level, risk_hint = _classify_issue(upload_status, upload_error)
+                return UcFastUploadResult(
+                    False,
+                    "binary_upload_fallback_failed",
+                    True,
+                    profile.profileId,
+                    resolved_parent_id,
+                    upload_status or hash_status,
+                    upload_error,
+                    "UC update/hash did not hit rapid upload, and the binary upload fallback did not complete.",
+                    risk_level,
+                    risk_hint,
+                    payload={
+                        "preUploadResponse": pre_payload,
+                        "hashResponse": hash_payload,
+                        "uploadFallback": upload_payload,
+                        "taskId": task_id,
+                        "objKey": obj_key,
+                    },
+                )
 
         finish_status, finish_payload = _request_json(
             _upload_finish_url(),
@@ -322,6 +597,7 @@ def upload_uc_fast_file(
         finish_data = _extract_data(finish_payload)
         file_id = _pick_text(finish_data, "fid", "file_id", "fileId") or file_id
         resolved_name = _pick_text(finish_data, "file_name", "fileName", "name") or pre_body["file_name"]
+        used_binary_fallback = not upload_finished
         payload = {
             "fileId": file_id,
             "taskId": task_id,
@@ -332,23 +608,30 @@ def upload_uc_fast_file(
             "hashResponse": hash_payload,
             "finishResponse": finish_payload,
         }
+        if used_binary_fallback:
+            payload["uploadFallback"] = upload_payload
         return UcFastUploadResult(
             True,
-            "rapid_upload_by_hash",
+            "binary_upload_after_hash_miss" if used_binary_fallback else "rapid_upload_by_hash",
             True,
             profile.profileId,
             resolved_parent_id,
             finish_status,
             "",
-            "UC fast upload completed through upload/pre + update/hash + upload/finish.",
+            "UC fast upload completed through upload/pre + update/hash + binary multipart upload + upload/finish."
+            if used_binary_fallback
+            else "UC fast upload completed through upload/pre + update/hash + upload/finish.",
             payload=payload,
             verifyOk=True,
-            verifyMode="finish_response",
-            verifyNote="UC rapid-upload success was confirmed by the provider finish response.",
+            verifyMode="finish_response_after_binary_upload" if used_binary_fallback else "finish_response",
+            verifyNote="UC binary upload fallback was confirmed by the provider finish response."
+            if used_binary_fallback
+            else "UC rapid-upload success was confirmed by the provider finish response.",
             verifyPayload={
                 "fileId": file_id,
                 "taskId": task_id,
                 "objKey": obj_key,
+                "usedBinaryFallback": used_binary_fallback,
             },
         )
     except HTTPError as exc:

@@ -72,7 +72,7 @@ def build_provider_research_index() -> list[dict[str, object]]:
             "authModes": ["web_login_capture", "manual_cookie"],
             "status": "researching",
             "lastVerifiedAt": today,
-            "notes": "shareCode/accessCode based live list/metadata attempts are online, createFolder.action is now wired for account-level OAuth headers such as AccessToken/Signature/Date, and task runtime can now also attempt rapid upload through createUploadFile plus fileCommitUrl when a usable local file plus md5 is available; share-only profiles still remain read-only, and stable real success samples plus full binary upload fallback are still pending.",
+            "notes": "shareCode/accessCode based live list/metadata attempts are online, createFolder.action is now wired for account-level OAuth headers such as AccessToken/Signature/Date, and task runtime can now drive the full createUploadFile -> fileUploadUrl PUT -> getUploadFileStatus -> fileCommitUrl chain when a usable local file plus md5 is available; share-only profiles still remain read-only, while stable real success samples are still pending.",
         },
         {
             "providerKey": "baidu_netdisk",
@@ -114,7 +114,7 @@ def build_provider_research_index() -> list[dict[str, object]]:
             "authModes": ["web_login_capture", "manual_token"],
             "status": "researching",
             "lastVerifiedAt": today,
-            "notes": "token + x-device-id style live list/metadata(parentId-scoped lookup)/create_dir attempts are online from api-pan.xunlei.com evidence, and task runtime can now first attempt create-by-hash through the live /drive/v1/files call and then continue into the returned S3-compatible resumable binary upload session when hash miss occurs and a usable local file plus gcid is available; stable real samples are still pending, and the download_upload strategy still has not been upgraded into a direct local-file upload path.",
+            "notes": "token + x-device-id style live list/metadata(parentId-scoped lookup)/create_dir attempts are online from api-pan.xunlei.com evidence, and task runtime can now reuse the same create-by-hash plus resumable binary path for both fast_upload and download_upload items when a usable local file plus gcid is available; same-name conflicts now support auto_rename_new with overwrite_existing downgraded to auto rename, while stable real samples are still pending.",
         },
         {
             "providerKey": "pikpak",
@@ -127,7 +127,7 @@ def build_provider_research_index() -> list[dict[str, object]]:
             "authModes": ["manual_token"],
             "status": "researching",
             "lastVerifiedAt": today,
-            "notes": "token + optional device headers can now drive live list/metadata/create_dir attempts on api-drive.mypikpak.com, and task runtime can now first attempt create-by-hash through the live /drive/v1/files call and then continue into the returned S3-compatible resumable binary upload session when hash miss occurs and a usable local file plus gcid is available; stable real samples are still pending, and the download_upload strategy still has not been upgraded into a direct local-file upload path.",
+            "notes": "token + optional device headers can now drive live list/metadata/create_dir attempts on api-drive.mypikpak.com, and task runtime can now reuse the same create-by-hash plus resumable binary path for both fast_upload and download_upload items when a usable local file plus gcid is available; same-name conflicts now support auto_rename_new with overwrite_existing downgraded to auto rename, while stable real samples are still pending.",
         },
         {
             "providerKey": "123_open",

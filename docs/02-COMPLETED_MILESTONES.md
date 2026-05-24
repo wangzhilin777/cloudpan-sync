@@ -42,6 +42,17 @@
   - [verify_uc_fast_upload_conflict_policy.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_uc_fast_upload_conflict_policy.py) 已验证 UC 在目标目录已有同名文件时，会把请求名改成 `demo (1).bin`，并返回 `conflictAction=overwrite_downgraded_to_auto_rename`
   - [verify_uc_download_upload_runtime.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_uc_download_upload_runtime.py) 已验证 `download_upload` 任务运行会产出 `executionMode=live`、`completionKind=real_transfer`、`liveAttempt.mode=binary_upload_after_hash_miss`，并把 `resolvedTargetName / conflictAction / verifyMode` 写入运行期证据
 
+### 已完成补齐项 - `2026-05-25`（189Cloud）
+
+- 提交：`本次提交`
+- 完成范围：
+  - `189cloud` 的 `fast_upload` 已从“只尝试 `createUploadFile -> fileCommitUrl` 秒传命中”升级为完整本地文件上传链路：当 `fileDataExists != 1` 时，会继续走 `fileUploadUrl PUT -> getUploadFileStatus -> fileCommitUrl`
+  - 该链路现在会把 `binaryUploadResponse / statusResponse / statusView / commitResponse` 写入 payload，运行期可区分“命中秒传”和“hash miss 后已完成二进制上传”
+  - 当前成功校验口径仍保持诚实：本轮是依据 provider 的最终 commit XML 回包确认上传成功，不伪装成目录回查或已有真实在线样本
+- 当前验证证据：
+  - [verify_189cloud_fast_upload_live.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_fast_upload_live.py) 已验证 `fileDataExists=1` 时会走 `rapid_upload_by_hash`，并以 `commit_response_xml` 作为成功校验
+  - [verify_189cloud_fast_upload_binary_fallback.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_fast_upload_binary_fallback.py) 已验证 `fileDataExists=0` 时会继续执行 `fileUploadUrl PUT -> getUploadFileStatus -> fileCommitUrl`，并返回 `mode=binary_upload_put_then_commit`、`verifyMode=commit_response_xml_after_binary_put`
+
 ### M1 - 独立项目骨架
 
 - 完成日期：`2026-05-23`

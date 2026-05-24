@@ -114,7 +114,7 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
     if provider_key == "189cloud":
         return (
             "runtime_active",
-            "Current task runtime can now attempt 189Cloud create_dir with account-level OAuth headers, and can also attempt 189Cloud rapid upload through createUploadFile plus fileCommitUrl when a usable local file plus md5 and account-level write auth are available; shareCode/accessCode-only profiles still remain read-only and full binary upload fallback is still not wired yet.",
+            "Current task runtime can now attempt 189Cloud create_dir with account-level OAuth headers, and can also drive the full createUploadFile plus fileUploadUrl PUT plus getUploadFileStatus plus fileCommitUrl chain when a usable local file plus md5 and account-level write auth are available; shareCode/accessCode-only profiles still remain read-only, and stable real success samples are still pending.",
         )
     return (
         "runtime_planned",

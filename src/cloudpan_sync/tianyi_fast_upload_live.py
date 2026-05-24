@@ -18,6 +18,7 @@ from .tianyi_live import _text
 
 TIANYI_AUTH_API_URL = "https://api.cloud.189.cn/getSessionForPC.action"
 TIANYI_CREATE_UPLOAD_URL = "https://api.cloud.189.cn/createUploadFile.action"
+TIANYI_UPLOAD_STATUS_URL = "https://api.cloud.189.cn/getUploadFileStatus.action"
 TIANYI_APP_ID = "8025431004"
 TIANYI_PC_CLIENT_TYPE = "TELEPC"
 TIANYI_PC_VERSION = "6.2"
@@ -188,6 +189,15 @@ def _request_signed_json(url: str, *, form: dict[str, object], session_key: str,
     )
 
 
+def _request_signed_json_get(url: str, *, query: dict[str, str], session_key: str, session_secret: str) -> tuple[int, dict[str, object]]:
+    return _request_json(
+        url,
+        method="GET",
+        query={**query, **_client_suffix()},
+        headers=_signed_headers(session_key, session_secret, "GET", url),
+    )
+
+
 def _request_signed_xml(url: str, *, form: dict[str, object], session_key: str, session_secret: str) -> tuple[int, str]:
     return _request_xml(
         url,
@@ -250,6 +260,47 @@ def _parse_commit_xml(text: str) -> dict[str, object]:
         "md5": _text(root.findtext("md5")).lower(),
         "createDate": _text(root.findtext("createDate")),
         "rawXml": text,
+    }
+
+
+def _upload_binary_to_file_upload_url(file_path: Path, file_upload_url: str, upload_file_id: int) -> tuple[int, dict[str, object]]:
+    request = Request(
+        file_upload_url,
+        data=file_path.read_bytes(),
+        headers={
+            "ResumePolicy": "1",
+            "Expect": "100-continue",
+            "Edrive-UploadFileId": str(upload_file_id),
+            "User-Agent": "CloudPanSync/0.1",
+        },
+        method="PUT",
+    )
+    with urlopen(request, timeout=60) as response:
+        return int(getattr(response, "status", 0) or 0), {
+            "status": int(getattr(response, "status", 0) or 0),
+            "headers": dict(getattr(response, "headers", {}) or {}),
+        }
+
+
+def _extract_status_view(payload: dict[str, object], upload_file_id: int, fallback_upload_url: str, fallback_commit_url: str) -> dict[str, object]:
+    data = payload.get("data") if isinstance(payload.get("data"), dict) else payload
+    if not isinstance(data, dict):
+        data = {}
+    data_size = int(data.get("dataSize", data.get("data_size", 0)) or 0)
+    size = int(data.get("size", 0) or 0)
+    file_data_exists = int(data.get("fileDataExists", payload.get("fileDataExists", 0)) or 0)
+    resolved_upload_file_id = int(data.get("uploadFileId", payload.get("uploadFileId", upload_file_id)) or upload_file_id or 0)
+    file_upload_url = _text(data.get("fileUploadUrl") or payload.get("fileUploadUrl") or fallback_upload_url)
+    file_commit_url = _text(data.get("fileCommitUrl") or payload.get("fileCommitUrl") or fallback_commit_url)
+    return {
+        "uploadFileId": resolved_upload_file_id,
+        "fileUploadUrl": file_upload_url,
+        "fileCommitUrl": file_commit_url,
+        "fileDataExists": file_data_exists,
+        "dataSize": data_size,
+        "size": size,
+        "uploadedBytes": data_size + size,
+        "raw": payload,
     }
 
 
@@ -332,12 +383,14 @@ def upload_tianyi_fast_file(
             session_secret=session_secret,
         )
         upload_file_id = int(create_payload.get("uploadFileId", 0) or 0)
+        file_upload_url = _text(create_payload.get("fileUploadUrl"))
         commit_url = _text(create_payload.get("fileCommitUrl"))
         file_data_exists = int(create_payload.get("fileDataExists", 0) or 0)
         common_payload = {
             "sessionResponse": session_payload,
             "createResponse": create_payload,
             "uploadFileId": upload_file_id,
+            "fileUploadUrl": file_upload_url,
             "fileCommitUrl": commit_url,
             "fileDataExists": file_data_exists,
             "resolvedTargetName": _text(target_name or file_path.name) or file_path.name,
@@ -347,23 +400,72 @@ def upload_tianyi_fast_file(
         }
 
         if file_data_exists != 1:
-            risk_level, risk_hint = _classify_issue(create_status, "rapid_upload_not_hit")
+            if not file_upload_url or upload_file_id <= 0 or not commit_url:
+                risk_level, risk_hint = _classify_issue(create_status, "rapid_upload_not_hit")
+                return TianyiFastUploadResult(
+                    False,
+                    "rapid_upload_not_hit",
+                    True,
+                    profile.profileId,
+                    resolved_parent_id,
+                    create_status,
+                    "rapid_upload_not_hit",
+                    "189Cloud createUploadFile reached the live API, but the provider did not confirm a direct file reuse hit.",
+                    risk_level,
+                    risk_hint,
+                    payload=common_payload,
+                    verifyOk=False,
+                    verifyMode="create_upload_response",
+                    verifyNote="The live createUploadFile request reached 189Cloud, but fileDataExists did not indicate a rapid-upload hit.",
+                    verifyPayload={"fileDataExists": file_data_exists},
+                )
+
+            put_status, put_payload = _upload_binary_to_file_upload_url(file_path, file_upload_url, upload_file_id)
+            status_status, status_payload = _request_signed_json_get(
+                TIANYI_UPLOAD_STATUS_URL,
+                query={
+                    "uploadFileId": str(upload_file_id),
+                    "resumePolicy": "1",
+                },
+                session_key=session_key,
+                session_secret=session_secret,
+            )
+            status_view = _extract_status_view(status_payload, upload_file_id, file_upload_url, commit_url)
+            common_payload["binaryUploadResponse"] = put_payload
+            common_payload["statusResponse"] = status_payload
+            common_payload["statusView"] = status_view
+            common_payload["uploadPutStatus"] = put_status
+            commit_status, commit_text = _request_signed_xml(
+                status_view["fileCommitUrl"] or commit_url,
+                form={
+                    "opertype": "3",
+                    "resumePolicy": "1",
+                    "uploadFileId": str(status_view["uploadFileId"] or upload_file_id),
+                    "isLog": "0",
+                },
+                session_key=session_key,
+                session_secret=session_secret,
+            )
+            commit_payload = _parse_commit_xml(commit_text)
+            common_payload["commitResponse"] = commit_payload
+            verify_ok = _text(commit_payload.get("md5")).lower() in {"", actual_md5}
             return TianyiFastUploadResult(
-                False,
-                "rapid_upload_not_hit",
+                True,
+                "binary_upload_put_then_commit",
                 True,
                 profile.profileId,
                 resolved_parent_id,
-                create_status,
-                "rapid_upload_not_hit",
-                "189Cloud createUploadFile reached the live API, but the provider did not confirm a direct file reuse hit.",
-                risk_level,
-                risk_hint,
+                commit_status or status_status or put_status or create_status,
+                "",
+                "189Cloud createUploadFile hash miss fell back to binary upload, and the provider commit response confirmed the file.",
                 payload=common_payload,
-                verifyOk=False,
-                verifyMode="create_upload_response",
-                verifyNote="The live createUploadFile request reached 189Cloud, but fileDataExists did not indicate a rapid-upload hit.",
-                verifyPayload={"fileDataExists": file_data_exists},
+                verifyOk=verify_ok,
+                verifyMode="commit_response_xml_after_binary_put",
+                verifyNote="189Cloud hash miss fallback was verified by fileUploadUrl PUT, status polling, and the final commit response XML.",
+                verifyPayload={
+                    **commit_payload,
+                    "statusView": status_view,
+                },
             )
 
         if not commit_url or upload_file_id <= 0:

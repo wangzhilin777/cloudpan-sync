@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from importlib import import_module
 from dataclasses import dataclass
 from hashlib import sha1
 from pathlib import Path
@@ -120,6 +121,66 @@ def _pick_text(data: dict[str, object], *keys: str) -> str:
     return ""
 
 
+def _trim_bucket_from_endpoint(endpoint: str, bucket: str) -> str:
+    resolved = _text(endpoint).replace("https://", "").replace("http://", "").strip()
+    prefix = f"{bucket}."
+    if resolved.startswith(prefix):
+        return resolved[len(prefix) :]
+    return resolved
+
+
+def _upload_resumable_binary(file_path: Path, resumable: dict[str, object]) -> tuple[str, str, dict[str, object]]:
+    params = resumable.get("params") if isinstance(resumable.get("params"), dict) else {}
+    if not isinstance(params, dict):
+        return "missing_resumable_params", "Xunlei resumable payload did not include params.", {"resumable": resumable}
+
+    access_key_id = _pick_text(params, "access_key_id", "accessKeyId")
+    access_key_secret = _pick_text(params, "access_key_secret", "accessKeySecret")
+    security_token = _pick_text(params, "security_token", "securityToken")
+    bucket = _pick_text(params, "bucket")
+    endpoint = _pick_text(params, "endpoint")
+    key = _pick_text(params, "key")
+    if not access_key_id or not access_key_secret or not security_token or not bucket or not endpoint or not key:
+        return (
+            "missing_resumable_params",
+            "Xunlei resumable payload did not include a complete S3-compatible session.",
+            {"resumable": resumable},
+        )
+
+    try:
+        boto3 = import_module("boto3")
+        botocore_config = import_module("botocore.config")
+    except Exception as exc:  # pragma: no cover
+        return (
+            "missing_boto3_dependency",
+            f"Xunlei resumable upload requires boto3/botocore in the runtime environment: {exc}",
+            {"resumable": resumable},
+        )
+
+    endpoint_host = _trim_bucket_from_endpoint(endpoint, bucket)
+    client = boto3.client(
+        "s3",
+        region_name="xunlei",
+        endpoint_url=f"https://{endpoint_host}",
+        aws_access_key_id=access_key_id,
+        aws_secret_access_key=access_key_secret,
+        aws_session_token=security_token,
+        config=botocore_config.Config(signature_version="s3v4"),
+    )
+    with file_path.open("rb") as handle:
+        client.upload_fileobj(handle, bucket, key)
+    return (
+        "",
+        "",
+        {
+            "provider": _pick_text(resumable, "provider"),
+            "bucket": bucket,
+            "endpoint": endpoint_host,
+            "key": key,
+        },
+    )
+
+
 def _classify_issue(status: int, error: str) -> tuple[str, str]:
     if error == "profile_not_found":
         return ("input", "targetProfileId 对应的迅雷授权档案不存在。")
@@ -131,6 +192,12 @@ def _classify_issue(status: int, error: str) -> tuple[str, str]:
         return ("input", "本地文件计算出的 gcid 与任务条目不一致，先校验来源文件。")
     if error == "rapid_upload_not_hit":
         return ("provider", "迅雷已接受建上传任务请求，但没有命中秒传，当前仍需后续真实上传链路。")
+    if error == "missing_boto3_dependency":
+        return ("environment", "当前环境缺少 boto3/botocore，无法继续走迅雷 resumable 二进制上传。")
+    if error == "missing_resumable_params":
+        return ("provider", "迅雷返回了 resumable 会话，但缺少完整上传参数，当前无法继续。")
+    if error == "resumable_upload_failed":
+        return ("provider", "迅雷 resumable 二进制上传已开始，但上传过程中失败。")
     if error.startswith("http_error:401"):
         return ("auth", "迅雷秒传请求被 401 拒绝，授权很可能已失效。")
     if error.startswith("http_error:403"):
@@ -279,25 +346,29 @@ def upload_xunlei_fast_file(
         }
 
         if resumable:
-            risk_level, risk_hint = _classify_issue(status, "rapid_upload_not_hit")
             common_payload["resumable"] = resumable
-            return XunleiFastUploadResult(
-                False,
-                "rapid_upload_not_hit",
-                True,
-                profile.profileId,
-                resolved_parent_id,
-                status,
-                "rapid_upload_not_hit",
-                "Xunlei accepted the upload task creation request, but returned a resumable upload session instead of an instant rapid-upload hit.",
-                risk_level,
-                risk_hint,
-                payload=common_payload,
-                verifyOk=False,
-                verifyMode="create_response_resumable",
-                verifyNote="The live create call reached Xunlei, but the response still requires a follow-up binary upload session.",
-                verifyPayload={"uploadType": upload_type},
-            )
+            upload_error, upload_note, upload_payload = _upload_resumable_binary(file_path, resumable)
+            if upload_error:
+                risk_level, risk_hint = _classify_issue(status, upload_error)
+                common_payload["resumableUpload"] = upload_payload
+                return XunleiFastUploadResult(
+                    False,
+                    "resumable_upload_failed",
+                    True,
+                    profile.profileId,
+                    resolved_parent_id,
+                    status,
+                    upload_error,
+                    upload_note or "Xunlei resumable upload fallback failed.",
+                    risk_level,
+                    risk_hint,
+                    payload=common_payload,
+                    verifyOk=False,
+                    verifyMode="create_response_resumable",
+                    verifyNote="The live create call reached Xunlei, but the resumable upload fallback did not complete.",
+                    verifyPayload={"uploadType": upload_type},
+                )
+            common_payload["resumableUpload"] = upload_payload
 
         verify_ok, verify_mode, verify_note, verify_payload = _verify_uploaded_file(
             profile_id=profile.profileId,
@@ -308,18 +379,20 @@ def upload_xunlei_fast_file(
         )
         return XunleiFastUploadResult(
             True,
-            "rapid_upload_by_hash",
+            "binary_upload_after_hash_miss" if resumable else "rapid_upload_by_hash",
             True,
             profile.profileId,
             resolved_parent_id,
             status,
             "",
-            "Xunlei rapid-upload request succeeded and did not require a follow-up resumable upload session.",
+            "Xunlei resumed to binary upload fallback after hash miss and completed successfully."
+            if resumable
+            else "Xunlei rapid-upload request succeeded and did not require a follow-up resumable upload session.",
             payload=common_payload,
             verifyOk=verify_ok,
-            verifyMode=verify_mode,
+            verifyMode="metadata_after_resumable_upload" if resumable and verify_mode == "metadata_by_file_id" else "list_after_resumable_upload" if resumable and verify_mode == "list_by_parent_name" else verify_mode,
             verifyNote=verify_note,
-            verifyPayload=verify_payload,
+            verifyPayload={**verify_payload, "usedBinaryFallback": bool(resumable)} if isinstance(verify_payload, dict) else {"usedBinaryFallback": bool(resumable)},
         )
     except HTTPError as exc:
         status, error_payload = _extract_http_error_payload(exc)

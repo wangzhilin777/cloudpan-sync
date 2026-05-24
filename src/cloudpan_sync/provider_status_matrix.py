@@ -89,7 +89,7 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
     if provider_key == "xunlei":
         return (
             "runtime_active",
-            "Current task runtime now drives a live Xunlei create_dir write probe for download_upload items, and can also attempt Xunlei rapid upload through the live /drive/v1/files create-by-hash call for fast_upload items when a usable local file plus gcid is available; full resumable binary upload fallback is still not wired yet.",
+            "Current task runtime now drives a live Xunlei create_dir write probe for download_upload items, and for fast_upload items it can first attempt the live /drive/v1/files create-by-hash call and then continue into the returned S3-compatible resumable binary upload session when hash miss occurs and a usable local file plus gcid is available; the download_upload strategy still has not been upgraded into a direct local-file upload path.",
         )
     if provider_key == "pikpak":
         return (

@@ -9,6 +9,7 @@ description = "CloudPan Sync: transfer console between mainstream cloud provider
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+  "boto3>=1.39.0",
   "fastapi>=0.115.0",
   "guangyaclient>=0.0.2",
   "httpx>=0.28.0",

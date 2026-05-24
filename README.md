@@ -49,6 +49,7 @@ See:
 - Frontend queue preview, task guard, acknowledgement flow, and task action state machine
 - Evidence export and remediation docs for saved auth profiles
 - Task detail Markdown export via `GET /api/tasks/{id}/markdown` or `scripts/export_task_markdown.py --task-json <task-snapshot.json>`
+- Guangya live upload helper via `scripts/create_live_upload_task.py` for producing real transfer task snapshots
 
 ## Honest Boundaries
 
@@ -76,6 +77,7 @@ Recommended local verification order:
 .venv\Scripts\python.exe scripts\verify_task_action_guards.py
 .venv\Scripts\python.exe scripts\verify_task_views_api.py
 .venv\Scripts\python.exe scripts\verify_export_task_markdown.py
+.venv\Scripts\python.exe scripts\verify_create_live_upload_task.py
 ```
 
 ## Default Admin Password

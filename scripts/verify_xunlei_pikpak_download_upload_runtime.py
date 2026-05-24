@@ -1,0 +1,127 @@
+from __future__ import annotations
+
+import copy
+import json
+import sys
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from cloudpan_sync import task_guard, task_runtime, task_runtime_evidence_store
+from cloudpan_sync.models import TaskCreateRequest, SourceEntry
+
+
+def _build_local_file(name: str, content: bytes) -> str:
+    temp_dir = TemporaryDirectory()
+    file_path = Path(temp_dir.name) / name
+    file_path.write_bytes(content)
+    return temp_dir, str(file_path)
+
+
+def _run_provider_case(provider_key: str) -> dict[str, object]:
+    original_tasks = dict(task_runtime._TASKS)
+    original_runtime_file = task_runtime_evidence_store.RUNTIME_EVIDENCE_FILE
+    original_xunlei = task_runtime.upload_xunlei_fast_file
+    original_pikpak = task_runtime.upload_pikpak_fast_file
+    original_guard_get_profile = task_guard.get_profile
+    original_guard_auth_view = task_guard.auth_profile_view
+
+    temp_dir, local_path = _build_local_file(f"{provider_key}.bin", f"{provider_key}-payload".encode("utf-8"))
+    runtime_tmp = TemporaryDirectory()
+    task_runtime._TASKS.clear()
+    task_runtime_evidence_store.RUNTIME_EVIDENCE_FILE = Path(runtime_tmp.name) / "task_runtime_evidence.json"
+
+    calls: list[dict[str, object]] = []
+
+    def fake_upload(*, profile_id: str, local_path: str, target_name: str, parent_id: str = "", expected_gcid: str = "", conflict_policy: str = "auto_rename_new"):
+        calls.append(
+            {
+                "profileId": profile_id,
+                "localPath": local_path,
+                "targetName": target_name,
+                "parentId": parent_id,
+                "expectedGcid": expected_gcid,
+                "conflictPolicy": conflict_policy,
+            }
+        )
+        return type(
+            "UploadResult",
+            (),
+            {
+                "ok": True,
+                "mode": "binary_upload_after_hash_miss",
+                "parentId": parent_id,
+                "riskHint": "",
+                "payload": {
+                    "resolvedTargetName": f"{Path(target_name).stem} (1){Path(target_name).suffix}",
+                    "conflictAction": "overwrite_downgraded_to_auto_rename",
+                    "fileId": f"{provider_key}-file-1",
+                },
+                "verifyOk": True,
+                "verifyMode": "metadata_after_resumable_upload",
+                "verifyNote": f"{provider_key} verified",
+                "verifyPayload": {"usedBinaryFallback": True},
+                "note": f"{provider_key} direct local upload completed.",
+                "error": "",
+            },
+        )()
+
+    if provider_key == "xunlei":
+        task_runtime.upload_xunlei_fast_file = fake_upload
+    else:
+        task_runtime.upload_pikpak_fast_file = fake_upload
+    task_guard.get_profile = lambda profile_id: object() if profile_id == f"{provider_key}-profile-1" else None
+    task_guard.auth_profile_view = lambda profile: {"profileReady": True, "writeReady": True}
+
+    try:
+        task = task_runtime.create_task(
+            TaskCreateRequest(
+                sourceProvider="quark",
+                targetProvider=provider_key,
+                targetProfileId=f"{provider_key}-profile-1",
+                targetParentId=f"{provider_key}-root",
+                thresholdMB=200,
+                conflictPolicy="overwrite_existing",
+                selectedRoots=["/demo.bin"],
+                entries=[SourceEntry(path="/demo.bin", size=16, md5="abc", gcid="", localPath=local_path)],
+            )
+        )
+        task = task_runtime.acknowledge_task_risk(str(task.get("taskId") or ""))
+        run_result = task_runtime.run_task(str(task.get("taskId") or ""))
+        detail = task_runtime.get_task(str(task.get("taskId") or "")) or {}
+        runtime_payload = task_runtime_evidence_store.build_task_runtime_evidence_payload()
+        return {
+            "providerKey": provider_key,
+            "taskState": run_result.get("state"),
+            "summary": copy.deepcopy((detail.get("summary") or {})),
+            "result": copy.deepcopy(((detail.get("results") or [None])[0] or {})),
+            "uploadCalls": calls,
+            "runtimeSummary": runtime_payload.get("summary"),
+            "latestRuntimeItem": copy.deepcopy(((runtime_payload.get("latestItems") or [None])[0] or {})),
+        }
+    finally:
+        task_runtime.upload_xunlei_fast_file = original_xunlei
+        task_runtime.upload_pikpak_fast_file = original_pikpak
+        task_guard.get_profile = original_guard_get_profile
+        task_guard.auth_profile_view = original_guard_auth_view
+        task_runtime._TASKS.clear()
+        task_runtime._TASKS.update(original_tasks)
+        task_runtime_evidence_store.RUNTIME_EVIDENCE_FILE = original_runtime_file
+        temp_dir.cleanup()
+        runtime_tmp.cleanup()
+
+
+def main() -> None:
+    output = {
+        "xunlei": _run_provider_case("xunlei"),
+        "pikpak": _run_provider_case("pikpak"),
+    }
+    print(json.dumps(output, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    main()

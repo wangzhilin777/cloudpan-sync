@@ -1,6 +1,6 @@
 # CloudPan Sync 真实证据状态报告
 
-- 生成时间：`2026-05-24T22:46:55.211791+00:00`
+- 生成时间：`2026-05-24T22:57:56.226921+00:00`
 - 汇总： `providerCount=10` `profilesSaved=3` `latestValidationProfileCount=2` `latestProbeProfileCount=3`
 - 真实证据覆盖： `auth=0` `list=0` `metadata=0` `create_dir=0` `fully_verified=0` `task_runtime=6` `task_runtime_failed=0` `task_runtime_candidate=0` `task_runtime_probe=0` `runtime_samples=6` `runtime_success=6` `runtime_failed=0` `runtime_candidate=0` `runtime_probe=0` `runtime_blocked_providers=0` `runtime_blocked=0` `runtime_conflict_handled=4`
 

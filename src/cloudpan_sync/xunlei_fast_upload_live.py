@@ -4,7 +4,7 @@ import json
 from importlib import import_module
 from dataclasses import dataclass
 from hashlib import sha1
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -119,6 +119,51 @@ def _pick_text(data: dict[str, object], *keys: str) -> str:
         if value:
             return value
     return ""
+
+
+def _split_name(name: str) -> tuple[str, str]:
+    pure = PurePosixPath(_text(name) or "file")
+    suffix = pure.suffix
+    stem = pure.name[: -len(suffix)] if suffix else pure.name
+    return stem or "file", suffix
+
+
+def _build_renamed_candidate(name: str, index: int) -> str:
+    stem, suffix = _split_name(name)
+    return f"{stem} ({index}){suffix}"
+
+
+def _resolve_upload_target_name(
+    *,
+    profile_id: str,
+    parent_id: str,
+    target_name: str,
+    conflict_policy: str,
+) -> tuple[str, str, str]:
+    list_result = fetch_xunlei_live_list(profile_id=profile_id, parent_id=parent_id, limit=200)
+    if not list_result.ok:
+        return target_name, "conflict_check_unavailable", "Could not verify same-name conflicts before Xunlei upload, so the original file name was kept."
+
+    existing_names = {
+        _text(item.get("name"))
+        for item in list((list_result.payload or {}).get("items") or [])
+        if isinstance(item, dict) and _text(item.get("name"))
+    }
+    if target_name not in existing_names:
+        return target_name, "no_conflict", ""
+
+    index = 1
+    candidate = _build_renamed_candidate(target_name, index)
+    while candidate in existing_names:
+        index += 1
+        candidate = _build_renamed_candidate(target_name, index)
+    if conflict_policy == "auto_rename_new":
+        return candidate, "auto_rename_new", "A same-name file already exists under the target path, so Xunlei auto-renamed the new file."
+    return (
+        candidate,
+        "overwrite_downgraded_to_auto_rename",
+        "The requested overwrite policy was downgraded because the current Xunlei upload path does not support verified in-place overwrite.",
+    )
 
 
 def _trim_bucket_from_endpoint(endpoint: str, bucket: str) -> str:
@@ -287,6 +332,7 @@ def upload_xunlei_fast_file(
     target_name: str,
     parent_id: str = "",
     expected_gcid: str = "",
+    conflict_policy: str = "auto_rename_new",
 ) -> XunleiFastUploadResult:
     profile, auth_headers = _load_profile_requirements(profile_id)
     resolved_parent_id = _text(parent_id)
@@ -319,9 +365,16 @@ def upload_xunlei_fast_file(
             payload={"actualGcid": actual_gcid},
         )
 
+    resolved_target_name, conflict_action, conflict_note = _resolve_upload_target_name(
+        profile_id=profile.profileId,
+        parent_id=resolved_parent_id,
+        target_name=_text(target_name or file_path.name) or file_path.name,
+        conflict_policy=conflict_policy,
+    )
+
     request_body = {
         "kind": "drive#file",
-        "name": _text(target_name or file_path.name) or file_path.name,
+        "name": resolved_target_name,
         "size": int(file_path.stat().st_size),
         "hash": actual_gcid,
         "upload_type": "UPLOAD_TYPE_RESUMABLE",
@@ -340,7 +393,7 @@ def upload_xunlei_fast_file(
             "createResponse": payload,
             "fileId": file_id,
             "resolvedTargetName": resolved_name,
-            "conflictAction": "",
+            "conflictAction": conflict_action,
             "uploadType": upload_type,
             "gcid": actual_gcid,
         }
@@ -385,9 +438,12 @@ def upload_xunlei_fast_file(
             resolved_parent_id,
             status,
             "",
-            "Xunlei resumed to binary upload fallback after hash miss and completed successfully."
-            if resumable
-            else "Xunlei rapid-upload request succeeded and did not require a follow-up resumable upload session.",
+            (
+                "Xunlei resumed to binary upload fallback after hash miss and completed successfully."
+                if resumable
+                else "Xunlei rapid-upload request succeeded and did not require a follow-up resumable upload session."
+            )
+            + (f" {conflict_note}" if conflict_note else ""),
             payload=common_payload,
             verifyOk=verify_ok,
             verifyMode="metadata_after_resumable_upload" if resumable and verify_mode == "metadata_by_file_id" else "list_after_resumable_upload" if resumable and verify_mode == "list_by_parent_name" else verify_mode,

@@ -8,6 +8,18 @@
 
 ## 里程碑清单
 
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
+  - `xunlei` 的 `download_upload` 已从 `create_dir` 写探针升级为真实本地文件上传：运行期会复用现有 `create-by-hash -> resumable binary fallback` 链路，命中 hash miss 时继续完成二进制上传，而不是再退回 mock/download fallback
+  - `pikpak` 的 `download_upload` 也已同样升级为真实本地文件上传：运行期会复用现有 `create-by-hash -> resumable binary fallback` 链路，命中 hash miss 时继续完成二进制上传
+  - 两条链路现在都已补上同名文件冲突策略：`auto_rename_new` 可直接支持，`overwrite_existing` 会诚实降级为自动改名，并把 `resolvedTargetName / conflictAction` 写入任务结果与 `task_runtime_evidence`
+  - provider registry / planner / runtime 口径已同步对齐：`xunlei`、`pikpak` 现在都声明支持 `overwrite_existing / auto_rename_new`，其中 overwrite 会落成 `downgrade_to_auto_rename`
+- 当前验证证据：
+  - [verify_xunlei_pikpak_fast_upload_conflict_policy.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_xunlei_pikpak_fast_upload_conflict_policy.py) 已验证 `xunlei / pikpak` 在目标目录已有同名文件时，会把请求名改成 `demo (1).bin`，并返回 `conflictAction=overwrite_downgraded_to_auto_rename`
+  - [verify_xunlei_pikpak_download_upload_runtime.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_xunlei_pikpak_download_upload_runtime.py) 已验证 `download_upload` 任务运行会产出 `executionMode=live`、`completionKind=real_transfer`、`liveAttempt.mode=binary_upload_after_hash_miss`，并把 `resolvedTargetName / conflictAction / verifyMode` 写入运行期证据
+
 ### M1 - 独立项目骨架
 
 - 完成日期：`2026-05-23`

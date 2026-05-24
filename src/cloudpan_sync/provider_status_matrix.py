@@ -89,12 +89,12 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
     if provider_key == "xunlei":
         return (
             "runtime_active",
-            "Current task runtime now drives a live Xunlei create_dir write probe for download_upload items, and for fast_upload items it can first attempt the live /drive/v1/files create-by-hash call and then continue into the returned S3-compatible resumable binary upload session when hash miss occurs and a usable local file plus gcid is available; the download_upload strategy still has not been upgraded into a direct local-file upload path.",
+            "Current task runtime now drives Xunlei real local-file upload for download_upload items by reusing the create-by-hash plus resumable binary fallback path, with auto_rename_new support and overwrite_existing downgraded to auto rename when a same-name file already exists; for fast_upload items it can first attempt the live /drive/v1/files create-by-hash call and then continue into the returned S3-compatible resumable binary upload session when hash miss occurs and a usable local file plus gcid is available.",
         )
     if provider_key == "pikpak":
         return (
             "runtime_active",
-            "Current task runtime now drives a live PikPak create_dir write probe for download_upload items, and for fast_upload items it can first attempt the live /drive/v1/files create-by-hash call and then continue into the returned S3-compatible resumable binary upload session when hash miss occurs and a usable local file plus gcid is available; the download_upload strategy still has not been upgraded into a direct local-file upload path.",
+            "Current task runtime now drives PikPak real local-file upload for download_upload items by reusing the create-by-hash plus resumable binary fallback path, with auto_rename_new support and overwrite_existing downgraded to auto rename when a same-name file already exists; for fast_upload items it can first attempt the live /drive/v1/files create-by-hash call and then continue into the returned S3-compatible resumable binary upload session when hash miss occurs and a usable local file plus gcid is available.",
         )
     if provider_key == "baidu_netdisk":
         return (

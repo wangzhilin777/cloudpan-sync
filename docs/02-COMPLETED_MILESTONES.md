@@ -482,3 +482,5 @@
   - [verify_provider_status_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_status_settings_ui.py) 现还额外验证了设置页状态矩阵摘要已显示 `overwriteReady / autoRenameReady`
   - 设置页 `Provider Status Matrix` 面板现还额外补上 `runtimeSuccess / runtimeFailed`，与状态矩阵 summary 中已有的真实运行样本成功/失败总数保持一致
   - [verify_provider_status_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_status_settings_ui.py) 现还额外验证了设置页状态矩阵摘要已显示 `runtimeSuccess / runtimeFailed`
+  - 设置页 `Provider Status Matrix` 面板现还额外补上 `runtimeConflictHandledProviders`，可以直接看出当前有多少 provider 已经产出真实运行期冲突处理样本
+  - [verify_provider_status_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_status_settings_ui.py) 现还额外验证了设置页状态矩阵摘要已显示 `runtimeConflictHandledProviders`

@@ -210,6 +210,7 @@ def build_real_evidence_remediation_bundle(
             "needsCreateDirEvidence": not bool(create_dir_evidence.get("ok")),
             "needsRuntimeSuccess": not bool(runtime_evidence.get("ok")),
             "runtimeBlockedOnly": runtime_blocked_only,
+            "runtimeCandidateOnly": runtime_candidate_only,
             "gaps": list(row.get("gaps") or []),
             "recommendedPatchCommand": _patch_command_for_profile(profile_needing_patch or {}),
             "recommendedPatchProbeCommand": _patch_probe_command_for_profile(profile_needing_patch or {}),
@@ -217,7 +218,7 @@ def build_real_evidence_remediation_bundle(
             if provider_profiles and profile_ready and write_ready and (not bool(auth_evidence.get("ok")) or not bool(list_evidence.get("ok")) or not bool(metadata_evidence.get("ok")) or not bool(create_dir_evidence.get("ok")))
             else "",
             "recommendedRuntimeProbeCommand": _runtime_probe_command_for_profile(provider_profiles[0] if provider_profiles else {})
-            if provider_profiles and write_ready and bool(auth_evidence.get("ok")) and bool(list_evidence.get("ok")) and bool(metadata_evidence.get("ok")) and bool(create_dir_evidence.get("ok")) and not bool(runtime_evidence.get("ok"))
+            if provider_profiles and write_ready and bool(auth_evidence.get("ok")) and bool(list_evidence.get("ok")) and bool(metadata_evidence.get("ok")) and (bool(create_dir_evidence.get("ok")) or runtime_candidate_only or runtime_blocked_only) and not bool(runtime_evidence.get("ok"))
             else "",
             "recommendedFastCandidateCommand": _fast_candidate_command_for_profile(provider_profiles[0] if provider_profiles else {})
             if provider_profiles and profile_ready and write_ready and bool(auth_evidence.get("ok")) and bool(list_evidence.get("ok")) and bool(metadata_evidence.get("ok")) and not bool(runtime_evidence.get("ok"))
@@ -267,6 +268,7 @@ def build_real_evidence_remediation_bundle(
             "providersWithCreateCommand": sum(1 for item in items if str(item.get("recommendedCreateCommand") or "")),
             "providersWithBootstrapCommand": sum(1 for item in items if str(item.get("recommendedBootstrapCommand") or "")),
             "providersBlockedOnly": sum(1 for item in items if bool(item.get("runtimeBlockedOnly"))),
+            "providersCandidateOnly": sum(1 for item in items if bool(item.get("runtimeCandidateOnly"))),
         },
         "items": items,
     }
@@ -292,6 +294,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersWithCreateCommand: `{summary.get('providersWithCreateCommand', 0)}`")
     lines.append(f"- providersWithBootstrapCommand: `{summary.get('providersWithBootstrapCommand', 0)}`")
     lines.append(f"- providersBlockedOnly: `{summary.get('providersBlockedOnly', 0)}`")
+    lines.append(f"- providersCandidateOnly: `{summary.get('providersCandidateOnly', 0)}`")
     lines.append("")
     lines.append("## Provider 清单")
     lines.append("")
@@ -312,7 +315,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
         lines.append(
             f"- needs: `auth={row.get('needsAuthEvidence', False)}` `list={row.get('needsListEvidence', False)}` "
             f"`metadata={row.get('needsMetadataEvidence', False)}` `create_dir={row.get('needsCreateDirEvidence', False)}` "
-            f"`runtime={row.get('needsRuntimeSuccess', False)}` `runtimeBlockedOnly={row.get('runtimeBlockedOnly', False)}`"
+            f"`runtime={row.get('needsRuntimeSuccess', False)}` `runtimeBlockedOnly={row.get('runtimeBlockedOnly', False)}` `runtimeCandidateOnly={row.get('runtimeCandidateOnly', False)}`"
         )
         if row.get("gaps"):
             lines.append(f"- gaps: {', '.join(row.get('gaps') or [])}")

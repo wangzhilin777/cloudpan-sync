@@ -225,7 +225,14 @@ def _capture_field_hints(provider_key: str) -> list[str]:
     mapping = {
         "guangya": ["token or extra.authorization", "extra.parentId", "optional extra.did", "optional extra.dt"],
         "aliyundrive_open": ["token or extra.authorization", "extra.domainId", "extra.driveId"],
-        "189cloud": ["extra.shareCode", "optional extra.accessCode", "optional extra.fileId"],
+        "189cloud": [
+            "share-read probe: extra.shareCode",
+            "optional extra.accessCode",
+            "account write auth: token or extra.accessToken",
+            "account write auth: extra.signature",
+            "account write auth: extra.date",
+            "optional extra.fileId",
+        ],
         "baidu_netdisk": ["token or extra.authorization, or cookie", "optional extra.fileId", "optional extra.path"],
         "123_open": ["token or extra.authorization", "optional extra.parentFileId", "optional extra.fileId"],
         "115_open": ["cookie or extra.cookie_header", "optional extra.parentId or extra.cid", "optional extra.fileId"],

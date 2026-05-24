@@ -91,7 +91,9 @@ function resolvedFileIdForProfile(profile) {
 }
 
 function buildPatchCommandHint(profile) {
-  if (!profile || !Array.isArray(profile.missingFieldHints) || !profile.missingFieldHints.length) {
+  const hasProfileMissing = Array.isArray(profile?.missingFieldHints) && profile.missingFieldHints.length;
+  const hasWriteMissing = profile?.writeReady === false;
+  if (!profile || (!hasProfileMissing && !hasWriteMissing)) {
     return "";
   }
   const base = `.\\.venv\\Scripts\\python.exe scripts\\patch_auth_profile_extra.py --profile-id ${profile.profileId}`;
@@ -100,6 +102,9 @@ function buildPatchCommandHint(profile) {
   }
   if (profile.providerKey === "aliyundrive_open") {
     return `${base} --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write --revalidate`;
+  }
+  if (profile.providerKey === "189cloud") {
+    return `${base} --set shareCode=YOUR_SHARE_CODE --set accessToken=YOUR_ACCESS_TOKEN --set signature=YOUR_SIGNATURE --set date=YOUR_GMT_DATE --write --revalidate`;
   }
   if (profile.providerKey === "xunlei") {
     return `${base} --set deviceId=YOUR_DEVICE_ID --write --revalidate`;
@@ -161,6 +166,9 @@ function resetAuthForm() {
   document.getElementById("authExtraDriveId").value = "";
   document.getElementById("authExtraShareCode").value = "";
   document.getElementById("authExtraAccessCode").value = "";
+  document.getElementById("authExtraAccessToken").value = "";
+  document.getElementById("authExtraSignature").value = "";
+  document.getElementById("authExtraDate").value = "";
   document.getElementById("authExtraPathPrefix").value = "";
   updateAuthFormMode();
 }
@@ -193,6 +201,9 @@ function fillAuthForm(profile) {
   document.getElementById("authExtraDriveId").value = profile.extra?.driveId || "";
   document.getElementById("authExtraShareCode").value = profile.extra?.shareCode || "";
   document.getElementById("authExtraAccessCode").value = profile.extra?.accessCode || "";
+  document.getElementById("authExtraAccessToken").value = profile.extra?.accessToken || profile.extra?.access_token || "";
+  document.getElementById("authExtraSignature").value = profile.extra?.signature || profile.extra?.Signature || "";
+  document.getElementById("authExtraDate").value = profile.extra?.date || profile.extra?.Date || "";
   document.getElementById("authExtraPathPrefix").value = profile.extra?.pathPrefix || "";
   updateAuthFormMode();
 }
@@ -219,6 +230,9 @@ function collectAuthPayload() {
   const extraDriveId = document.getElementById("authExtraDriveId").value.trim();
   const extraShareCode = document.getElementById("authExtraShareCode").value.trim();
   const extraAccessCode = document.getElementById("authExtraAccessCode").value.trim();
+  const extraAccessToken = document.getElementById("authExtraAccessToken").value.trim();
+  const extraSignature = document.getElementById("authExtraSignature").value.trim();
+  const extraDate = document.getElementById("authExtraDate").value.trim();
   const extraPathPrefix = document.getElementById("authExtraPathPrefix").value.trim();
   const extra = {};
   if (extraHeader) {
@@ -268,6 +282,15 @@ function collectAuthPayload() {
   }
   if (extraAccessCode) {
     extra.accessCode = extraAccessCode;
+  }
+  if (extraAccessToken) {
+    extra.accessToken = extraAccessToken;
+  }
+  if (extraSignature) {
+    extra.signature = extraSignature;
+  }
+  if (extraDate) {
+    extra.date = extraDate;
   }
   if (extraPathPrefix) {
     extra.pathPrefix = extraPathPrefix;

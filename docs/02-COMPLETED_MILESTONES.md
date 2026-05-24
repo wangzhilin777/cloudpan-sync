@@ -58,6 +58,7 @@
   - 已新增批量脚本 [patch_refresh_export_auth_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_refresh_export_auth_bundle.py)，可按 `profileId/providerKey/displayName` 选择一批已保存档案，统一补字段、刷新 evidence bundle，并直接导出 Markdown，总体上就是把当前 Guangya smoke 档案的“批量补 `parentId/fileId` -> 刷新证据 -> 导出总览”收成一条命令
   - 已新增 auth remediation bundle 接口 `GET /api/auth/remediation_bundle`、Markdown 接口 `GET /api/auth/remediation_bundle_markdown` 与导出脚本 [export_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_auth_remediation_bundle.py)，可把当前全部 auth profile 的 readiness 缺口和建议补字段命令汇总到 [09-AUTH_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/09-AUTH_REMEDIATION_GUIDE.md)，方便为 Guangya/阿里/夸克等 provider 的真实联调先补齐最关键字段
   - auth profile 视图、单档案 evidence 与 remediation bundle 现已区分 `profileReady` 与 `writeReady`：像 `189cloud` 这类当前仅具备 shareCode/accessCode 只读链路的档案，会明确返回 `writeReady=false`、`writeMissingFieldHints` 与 `writeBlockerNote`，不再把“能读但不能写”混成一个 readiness 状态
+  - `189cloud` 当前已把“只读 share 链路”和“账号级写鉴权”拆开提示：capture hints、remediation patch 命令与前端本地 patch hint 都会明确写出 `shareCode` 只覆盖读探测，而写目录仍需 `token/accessToken + signature + date`
 - 当前验证证据：
   - `POST /api/auth/profiles` 现会在保存时同步返回结构化 `validation` 结果，并据此写入 profile `status`
   - `POST /api/auth/profiles/{id}/validate` 现会返回结构化 `validation` 结果，并据此更新 profile `status`
@@ -78,6 +79,7 @@
   - [verify_patch_refresh_export_auth_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_refresh_export_auth_bundle.py) 已验证批量脚本可同时命中 `2` 个 Guangya smoke 档案，统一写回 `parentId/fileId`，并落出 bundle Markdown 文件
   - [verify_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_remediation_bundle.py) 已验证 remediation bundle API、`/remediation_bundle_markdown` 与 Markdown 导出会同时带出 `profileCount/readyCount/needsFixCount` 和建议补字段命令
   - [verify_auth_profile_write_readiness.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_write_readiness.py) 已验证 `189cloud` share-only 档案在 `/api/auth/profiles`、单档案 evidence API 与 Markdown 导出里都会暴露 `writeReady=false`、`writeMissingFieldHints` 与 `writeBlockerNote`
+  - [verify_189cloud_write_auth_ui_hints.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_write_auth_ui_hints.py) 已验证 189Cloud 授权表单已暴露 `accessToken/signature/date` 字段，capture hints 与 remediation patch 命令也会明确提示账号级写鉴权所需字段
   - 当前本地两个 Guangya smoke 档案已可通过 `POST /api/auth/profiles/{id}/validate` 被判定为 `status=invalid`、`lastError=missing_parent_id`
   - 当前本地 `2` 个 Guangya smoke 档案也已可通过 `patch_auth_profile_extra.py --provider-key guangya --display-name-contains smoke --set parentId=...` 被 dry-run 命中，后续拿到真实 `parentId` 后可直接批量回填
 
@@ -144,6 +146,7 @@
   - 编辑态现会明确提示当前正在编辑的档案，以及 `token/cookie` 留空时会保留原值，降低补字段时误清空密钥的风险
   - 授权列表在缺字段档案上现会直接显示本地 `patch_auth_profile_extra.py` 命令提示，方便按 `profileId` 回填真实 `parentId/domainId/pwdId` 等缺失字段
   - 授权列表现会额外显示 `write_ready / write_missing / write_blocker`，可直接区分“当前读链路可用”与“当前写链路仍受限”的档案，尤其是 `189cloud` share-only 场景
+  - 授权高级字段现已直接暴露 `189cloud` 的 `accessToken / signature / date` 输入框；编辑已有档案时也会自动回填这些字段，前端本地 patch hint 也不再把 189Cloud 误导成只补 `shareCode` 就能写
   - 授权列表现已支持直接查看单档案 `Refresh Evidence`，会调用 `/api/auth/profiles/{id}/refresh_evidence` 并在现有结果区显示刷新后的摘要和 Markdown
   - 授权页工具栏现已支持直接查看 `Evidence Bundle`，会调用 `/api/auth/refresh_evidence_bundle` 并在现有结果区显示当前全部 auth profile 的刷新后证据总览
   - 授权页工具栏现已支持直接查看 `Remediation Guide`，会调用 `/api/auth/remediation_bundle` 与 `/api/auth/remediation_bundle_markdown` 并在现有结果区显示当前全部 auth profile 的补字段建议总览

@@ -10,7 +10,7 @@ def _patch_command_for_profile(profile: dict[str, object]) -> str:
     if provider_key == "aliyundrive_open":
         return f"{base} --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write --revalidate"
     if provider_key == "189cloud":
-        return f"{base} --set shareCode=YOUR_SHARE_CODE --write --revalidate"
+        return f"{base} --set shareCode=YOUR_SHARE_CODE --set accessToken=YOUR_ACCESS_TOKEN --set signature=YOUR_SIGNATURE --set date=YOUR_GMT_DATE --write --revalidate"
     if provider_key == "xunlei":
         return f"{base} --set deviceId=YOUR_DEVICE_ID --write --revalidate"
     if provider_key in {"quark", "uc"}:

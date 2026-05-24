@@ -190,6 +190,11 @@ def _resolve_conflict_support(conflict_policy: str, provider_key: str) -> tuple[
                 "probe_only_runtime_write_check",
                 "Xunlei task runtime can now perform a live create_dir write probe, but same-name file handling for real file upload is not declared yet.",
             )
+        if provider_key == "pikpak":
+            return (
+                "probe_only_runtime_write_check",
+                "PikPak task runtime can now perform a live create_dir write probe, but same-name file handling for real file upload is not declared yet.",
+            )
         return (
             "unsupported",
             profile.conflictNotes

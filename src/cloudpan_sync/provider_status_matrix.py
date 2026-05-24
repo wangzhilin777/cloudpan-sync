@@ -78,6 +78,11 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
             "runtime_active",
             "Current task runtime now drives a live Xunlei create_dir write probe before mock/download fallback completion.",
         )
+    if provider_key == "pikpak":
+        return (
+            "runtime_active",
+            "Current task runtime now drives a live PikPak create_dir write probe before mock/download fallback completion.",
+        )
     if provider_key == "189cloud":
         return (
             "runtime_blocked",
@@ -85,7 +90,6 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
         )
     if provider_key in {
         "baidu_netdisk",
-        "pikpak",
         "quark",
         "uc",
     }:

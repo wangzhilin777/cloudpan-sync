@@ -1705,7 +1705,7 @@ function renderSettingsPanel() {
   const runtimeEvidenceSummary = state.taskRuntimeEvidenceMeta?.summary || {};
   const runtimeEvidenceRows = [
     `history=${state.taskRuntimeEvidenceMeta?.historyCount || 0}, latestSamples=${runtimeEvidenceSummary.sampleCount || 0}`,
-    `providers=${runtimeEvidenceSummary.providerCount || 0}, profiles=${runtimeEvidenceSummary.profileCount || 0}, verifyOk=${runtimeEvidenceSummary.verifyOkCount || 0}`,
+    `providers=${runtimeEvidenceSummary.providerCount || 0}, profiles=${runtimeEvidenceSummary.profileCount || 0}, success=${runtimeEvidenceSummary.successCount || 0}, failed=${runtimeEvidenceSummary.failedCount || 0}, verifyOk=${runtimeEvidenceSummary.verifyOkCount || 0}`,
     `conflictHandled=${runtimeEvidenceSummary.conflictHandledCount || 0}`,
   ];
   for (const row of runtimeEvidenceRows) {

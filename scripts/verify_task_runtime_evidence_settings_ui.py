@@ -20,7 +20,7 @@ def main() -> None:
                 "jsHasTaskRuntimeEvidenceState": 'taskRuntimeEvidence: []' in app_js and 'taskRuntimeEvidenceMeta: { historyCount: 0, summary: null }' in app_js,
                 "jsHasTaskRuntimeEvidenceLoader": 'async function loadTaskRuntimeEvidence()' in app_js and 'fetchJson("/api/task_runtime_evidence")' in app_js,
                 "jsRefreshProtectedDataLoadsTaskRuntimeEvidence": 'loadTaskRuntimeEvidence(),' in app_js,
-                "jsRenderSettingsUsesTaskRuntimeEvidence": 'const runtimeEvidenceSummary = state.taskRuntimeEvidenceMeta?.summary || {};' in app_js and 'latestSamples=' in app_js and 'conflictHandled=' in app_js,
+                "jsRenderSettingsUsesTaskRuntimeEvidence": 'const runtimeEvidenceSummary = state.taskRuntimeEvidenceMeta?.summary || {};' in app_js and 'latestSamples=' in app_js and 'success=' in app_js and 'failed=' in app_js and 'conflictHandled=' in app_js,
                 "jsLogoutClearsTaskRuntimeEvidence": 'state.taskRuntimeEvidence = [];' in app_js and 'state.taskRuntimeEvidenceMeta = { historyCount: 0, summary: null };' in app_js,
             },
             ensure_ascii=False,

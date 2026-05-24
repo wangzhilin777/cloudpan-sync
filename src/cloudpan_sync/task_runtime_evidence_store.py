@@ -49,7 +49,8 @@ def task_runtime_evidence_summary() -> dict[str, object]:
     latest = latest_task_runtime_evidence()
     blocked_rows = [row for row in latest if str(row.get("executionMode") or "") == "blocked"]
     candidate_rows = [row for row in latest if bool(row.get("candidateOnly"))]
-    effective_rows = [row for row in latest if not bool(row.get("candidateOnly"))]
+    probe_rows = [row for row in latest if bool(row.get("probeOnly")) and not bool(row.get("candidateOnly"))]
+    effective_rows = [row for row in latest if not bool(row.get("candidateOnly")) and not bool(row.get("probeOnly"))]
     return {
         "sampleCount": len(latest),
         "providerCount": len({str(row.get("providerKey") or "") for row in latest if str(row.get("providerKey") or "")}),
@@ -78,6 +79,14 @@ def task_runtime_evidence_summary() -> dict[str, object]:
             }
         ),
         "candidateCount": len(candidate_rows),
+        "probeProviderCount": len(
+            {
+                str(row.get("providerKey") or "")
+                for row in probe_rows
+                if str(row.get("providerKey") or "")
+            }
+        ),
+        "probeCount": len(probe_rows),
         "blockedProviderCount": len(
             {
                 str(row.get("providerKey") or "")
@@ -125,6 +134,8 @@ def task_runtime_evidence_to_markdown(payload: dict[str, object]) -> str:
         f" `failedCount={summary.get('failedCount', 0)}`"
         f" `candidateProviderCount={summary.get('candidateProviderCount', 0)}`"
         f" `candidateCount={summary.get('candidateCount', 0)}`"
+        f" `probeProviderCount={summary.get('probeProviderCount', 0)}`"
+        f" `probeCount={summary.get('probeCount', 0)}`"
         f" `blockedProviderCount={summary.get('blockedProviderCount', 0)}`"
         f" `blockedCount={summary.get('blockedCount', 0)}`"
         f" `verifyOkCount={summary.get('verifyOkCount', 0)}`"
@@ -137,7 +148,7 @@ def task_runtime_evidence_to_markdown(payload: dict[str, object]) -> str:
         lines.append(
             f"- {item.get('providerKey', '')} profile={item.get('profileId', '')} path={item.get('path', '')} "
             f"mode={item.get('mode', '')} executionMode={item.get('executionMode', '')} "
-            f"success={item.get('success', False)} candidateOnly={item.get('candidateOnly', False)} verifyOk={item.get('verifyOk', False)} "
+            f"success={item.get('success', False)} candidateOnly={item.get('candidateOnly', False)} probeOnly={item.get('probeOnly', False)} verifyOk={item.get('verifyOk', False)} "
             f"verifyMode={item.get('verifyMode', '')} conflictAction={item.get('conflictAction', '')} "
             f"resolvedTargetName={item.get('resolvedTargetName', '')} riskHint={item.get('riskHint', '')} "
             f"verifyNote={item.get('verifyNote', '')} requiredAuth={','.join(item.get('requiredAuth', []) or [])} "

@@ -219,6 +219,7 @@ def _persist_task_runtime_evidence(task: dict[str, object], results: list[dict[s
                 "mode": mode,
                 "executionMode": str(result.get("executionMode") or ""),
                 "candidateOnly": bool(live_attempt.get("candidate")),
+                "probeOnly": str(result.get("executionMode") or "") == "probe",
                 "success": status == "done",
                 "status": status,
                 "verifyOk": bool(live_attempt.get("verifyOk")),

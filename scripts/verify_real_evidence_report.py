@@ -58,6 +58,7 @@ def main() -> None:
             {"providerKey": "guangya", "profileId": "gy-1", "path": "/demo.bin", "mode": "binary_upload_multipart", "executionMode": "live", "success": True, "conflictAction": "overwrite_downgraded_to_auto_rename"},
             {"providerKey": "189cloud", "profileId": "189-1", "path": "/demo.bin", "mode": "download_upload_blocked_by_size_limit", "executionMode": "blocked", "success": False, "error": "readonly"},
             {"providerKey": "189cloud", "profileId": "189-1", "path": "/movie.mkv", "mode": "189cloud_fast_upload_candidate", "executionMode": "probe", "success": True, "candidateOnly": True},
+            {"providerKey": "189cloud", "profileId": "189-1", "path": "/folder-probe", "mode": "189cloud_create_dir_probe", "executionMode": "probe", "success": True, "probeOnly": True},
         ]
         real_evidence_report.build_provider_registry = lambda: [
             SimpleNamespace(profile=SimpleNamespace(providerKey="guangya", displayName="光鸭网盘")),
@@ -85,10 +86,11 @@ def main() -> None:
                     "guangya": next((item for item in payload.get("items", []) if item.get("providerKey") == "guangya"), {}),
                     "tianyi": next((item for item in payload.get("items", []) if item.get("providerKey") == "189cloud"), {}),
                     "markdownHasTitle": "# CloudPan Sync 真实证据状态报告" in markdown,
-                    "markdownHasRuntimeFailedSummary": "task_runtime_failed=1" in markdown and "task_runtime_candidate=1" in markdown,
-                    "markdownHasRuntimeSampleSummary": "runtime_samples=3" in markdown and "runtime_success=1" in markdown and "runtime_failed=1" in markdown and "runtime_candidate=1" in markdown and "runtime_blocked_providers=1" in markdown and "runtime_blocked=1" in markdown and "runtime_conflict_handled=1" in markdown,
+                    "markdownHasRuntimeFailedSummary": "task_runtime_failed=1" in markdown and "task_runtime_candidate=1" in markdown and "task_runtime_probe=1" in markdown,
+                    "markdownHasRuntimeSampleSummary": "runtime_samples=4" in markdown and "runtime_success=1" in markdown and "runtime_failed=1" in markdown and "runtime_candidate=1" in markdown and "runtime_probe=1" in markdown and "runtime_blocked_providers=1" in markdown and "runtime_blocked=1" in markdown and "runtime_conflict_handled=1" in markdown,
                     "markdownHasBlockedItem": "blocked=1" in markdown,
                     "markdownHasCandidateItem": "candidate=1" in markdown and "fast-upload candidate" in markdown,
+                    "markdownHasProbeOnlyItem": "probe=1" in markdown and "probe-only" in markdown,
                     "markdownHasGuangya": "## guangya - 光鸭网盘" in markdown,
                     "apiSummary": api_payload.get("summary"),
                     "apiMarkdownHasTitle": "# CloudPan Sync 真实证据状态报告" in str(api_markdown.get("markdown") or ""),

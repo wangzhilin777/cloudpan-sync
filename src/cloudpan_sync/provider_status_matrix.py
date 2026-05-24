@@ -61,12 +61,12 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
     if provider_key == "aliyundrive_open":
         return (
             "runtime_active",
-            "Current task runtime now drives an Aliyun Drive Open live create_dir write probe before mock/download fallback completion.",
+            "Current task runtime now drives an Aliyun Drive Open live create_dir write probe for download_upload items and a probe-only md5 fast-upload candidate check for fast_upload items; real rapid-upload API execution is still not wired yet.",
         )
     if provider_key == "123_open":
         return (
             "runtime_active",
-            "Current task runtime now drives a 123Pan Open live create_dir write probe before mock/download fallback completion.",
+            "Current task runtime now drives a 123Pan Open live create_dir write probe for download_upload items and a probe-only md5 fast-upload candidate check for fast_upload items; real rapid-upload API execution is still not wired yet.",
         )
     if provider_key == "115_open":
         return (

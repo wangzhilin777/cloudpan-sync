@@ -767,6 +767,116 @@ def run_task(task_id: str) -> dict[str, object]:
             results.append(row_result)
             continue
 
+        if strategy == "fast_upload" and target_provider == "aliyundrive_open" and target_profile_id:
+            source_entry = _source_entry_for_item(source_entries_by_path, item)
+            normalized = _normalized_fingerprints_for_item(item)
+            md5_value = _first_text(
+                source_entry.get("md5"),
+                normalized.get("md5"),
+                source_entry.get("etag"),
+                normalized.get("etag"),
+            ).lower()
+            row_result["executionMode"] = "probe"
+            if md5_value:
+                done += 1
+                row_result["status"] = "done"
+                row_result["note"] = (
+                    "Aliyun Drive Open fast-upload candidate confirmed from current md5/size fingerprints. "
+                    "The current runtime only records candidate evidence and does not call a live rapid-upload API yet."
+                )
+                row_result["liveAttempt"] = {
+                    "mode": "aliyundrive_open_fast_upload_candidate",
+                    "hashKind": "md5",
+                    "candidate": True,
+                    "requiredInputs": ["md5", "size"],
+                    "hashValue": md5_value,
+                    "riskHint": "",
+                    "verifyOk": True,
+                    "verifyMode": "fingerprint_candidate",
+                    "verifyNote": "Current md5/size fingerprints satisfy Aliyun Drive Open fast-upload precheck, but runtime remains probe-only.",
+                    "verifyPayload": {
+                        "md5": md5_value,
+                        "size": int(item.get("size", 0) or 0),
+                    },
+                    "resolvedTargetName": PurePosixPath(path or "/").name or path,
+                    "conflictAction": "",
+                }
+            else:
+                failed += 1
+                row_result["status"] = "failed"
+                row_result["note"] = "Aliyun Drive Open fast-upload candidate probe failed because md5 fingerprint is missing."
+                row_result["liveAttempt"] = {
+                    "mode": "aliyundrive_open_fast_upload_candidate",
+                    "hashKind": "md5",
+                    "candidate": False,
+                    "requiredInputs": ["md5", "size"],
+                    "error": "missing_md5",
+                    "riskHint": "Fast-upload candidate probe requires md5 fingerprint.",
+                    "verifyOk": False,
+                    "verifyMode": "",
+                    "verifyNote": "",
+                    "verifyPayload": {},
+                    "resolvedTargetName": PurePosixPath(path or "/").name or path,
+                    "conflictAction": "",
+                }
+            results.append(row_result)
+            continue
+
+        if strategy == "fast_upload" and target_provider == "123_open" and target_profile_id:
+            source_entry = _source_entry_for_item(source_entries_by_path, item)
+            normalized = _normalized_fingerprints_for_item(item)
+            md5_value = _first_text(
+                source_entry.get("md5"),
+                normalized.get("md5"),
+                source_entry.get("etag"),
+                normalized.get("etag"),
+            ).lower()
+            row_result["executionMode"] = "probe"
+            if md5_value:
+                done += 1
+                row_result["status"] = "done"
+                row_result["note"] = (
+                    "123Pan Open fast-upload candidate confirmed from current md5/size fingerprints. "
+                    "The current runtime only records candidate evidence and does not call a live rapid-upload API yet."
+                )
+                row_result["liveAttempt"] = {
+                    "mode": "123_open_fast_upload_candidate",
+                    "hashKind": "md5",
+                    "candidate": True,
+                    "requiredInputs": ["md5", "size"],
+                    "hashValue": md5_value,
+                    "riskHint": "",
+                    "verifyOk": True,
+                    "verifyMode": "fingerprint_candidate",
+                    "verifyNote": "Current md5/size fingerprints satisfy 123Pan Open fast-upload precheck, but runtime remains probe-only.",
+                    "verifyPayload": {
+                        "md5": md5_value,
+                        "size": int(item.get("size", 0) or 0),
+                    },
+                    "resolvedTargetName": PurePosixPath(path or "/").name or path,
+                    "conflictAction": "",
+                }
+            else:
+                failed += 1
+                row_result["status"] = "failed"
+                row_result["note"] = "123Pan Open fast-upload candidate probe failed because md5 fingerprint is missing."
+                row_result["liveAttempt"] = {
+                    "mode": "123_open_fast_upload_candidate",
+                    "hashKind": "md5",
+                    "candidate": False,
+                    "requiredInputs": ["md5", "size"],
+                    "error": "missing_md5",
+                    "riskHint": "Fast-upload candidate probe requires md5 fingerprint.",
+                    "verifyOk": False,
+                    "verifyMode": "",
+                    "verifyNote": "",
+                    "verifyPayload": {},
+                    "resolvedTargetName": PurePosixPath(path or "/").name or path,
+                    "conflictAction": "",
+                }
+            results.append(row_result)
+            continue
+
         if strategy == "download_upload" and target_provider == "guangya" and target_profile_id:
             row_result["executionMode"] = "live"
             source_entry = source_entries_by_path.get(path, {})

@@ -150,6 +150,16 @@
 - 当前验证证据：
   - [verify_export_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_report.py) 已验证导出文件包含运行期 summary 统计、provider 级 runtime 明细和 gap 文案
 
+### 已完成补齐项 - `2026-05-25`（Task Runtime Evidence 导出链验证补齐）
+
+- 提交：`本次提交`
+- 完成范围：
+  - 已新增 [verify_export_task_runtime_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_runtime_evidence_report.py)，补齐 `export_task_runtime_evidence_report.py` 的落盘导出验证
+  - 该验证会直接跑导出脚本，把 `11-TASK_RUNTIME_EVIDENCE.md` 写到临时目录，并确认最终 Markdown 里真实保留 `blocked / candidateOnly / probeOnly / conflictHandled` 等关键 runtime 样本与汇总统计
+  - 这样 `task_runtime_evidence` 这条链路现在也已经覆盖到 API 与 Markdown export 两个出口，不再只验证在线接口
+- 当前验证证据：
+  - [verify_export_task_runtime_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_runtime_evidence_report.py) 已验证导出文件包含 summary 统计、blocked 行、candidate 行、probe 行和 conflictHandled 行
+
 ### M1 - 独立项目骨架
 
 - 完成日期：`2026-05-23`

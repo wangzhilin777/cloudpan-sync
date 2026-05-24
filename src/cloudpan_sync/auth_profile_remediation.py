@@ -10,7 +10,7 @@ def _patch_command_for_profile(profile: dict[str, object]) -> str:
     if provider_key == "aliyundrive_open":
         return f"{base} --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write --revalidate"
     if provider_key == "189cloud":
-        return f"{base} --set shareCode=YOUR_SHARE_CODE --set accessToken=YOUR_ACCESS_TOKEN --set signature=YOUR_SIGNATURE --set date=YOUR_GMT_DATE --write --revalidate"
+        return f".\\.venv\\Scripts\\python.exe scripts\\patch_189cloud_account_auth.py --profile-id {profile_id} --raw-file captured_189_headers.txt --write --revalidate"
     if provider_key == "xunlei":
         return f"{base} --set deviceId=YOUR_DEVICE_ID --write --revalidate"
     if provider_key in {"quark", "uc"}:
@@ -23,19 +23,21 @@ def build_auth_remediation_bundle(*, profile_views: list[dict[str, object]]) -> 
     for profile in profile_views:
         missing = list(profile.get("missingFieldHints") or [])
         profile_ready = bool(profile.get("profileReady"))
+        write_ready = bool(profile.get("writeReady", True))
+        needs_patch = (not profile_ready) or (not write_ready)
         items.append(
             {
                 "profileId": str(profile.get("profileId") or ""),
                 "providerKey": str(profile.get("providerKey") or ""),
                 "displayName": str(profile.get("displayName") or ""),
                 "profileReady": profile_ready,
-                "writeReady": bool(profile.get("writeReady", True)),
+                "writeReady": write_ready,
                 "missingFieldHints": missing,
                 "writeMissingFieldHints": list(profile.get("writeMissingFieldHints") or []),
                 "writeBlockerNote": str(profile.get("writeBlockerNote") or ""),
                 "resolvedParentId": str(profile.get("resolvedParentId") or ""),
                 "resolvedFileId": str(profile.get("resolvedFileId") or ""),
-                "recommendedPatchCommand": "" if profile_ready else _patch_command_for_profile(profile),
+                "recommendedPatchCommand": _patch_command_for_profile(profile) if needs_patch else "",
             }
         )
     return {

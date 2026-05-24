@@ -104,7 +104,7 @@ function buildPatchCommandHint(profile) {
     return `${base} --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write --revalidate`;
   }
   if (profile.providerKey === "189cloud") {
-    return `${base} --set shareCode=YOUR_SHARE_CODE --set accessToken=YOUR_ACCESS_TOKEN --set signature=YOUR_SIGNATURE --set date=YOUR_GMT_DATE --write --revalidate`;
+    return `.\\.venv\\Scripts\\python.exe scripts\\patch_189cloud_account_auth.py --profile-id ${profile.profileId} --raw-file captured_189_headers.txt --write --revalidate`;
   }
   if (profile.providerKey === "xunlei") {
     return `${base} --set deviceId=YOUR_DEVICE_ID --write --revalidate`;

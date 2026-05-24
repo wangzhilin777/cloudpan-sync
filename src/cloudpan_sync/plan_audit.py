@@ -48,7 +48,7 @@ def run_plan_audit() -> dict[str, object]:
             key="M3",
             title="授权系统",
             status="done",
-            evidence="授权存储、脱敏展示、校验与网页登录引导 API 已实现；授权列表接口现会返回 provider-aware 的 `missingFieldHints / profileReady`，并补充 `resolvedParentId / resolvedFileId`，可在点击 validate 前先暴露档案缺口并直接复用解析后的默认值；现也支持直接编辑已有 auth profile 并重新校验，补字段时无需删除重建。",
+            evidence="授权存储、脱敏展示、校验与网页登录引导 API 已实现；授权列表接口现会返回 provider-aware 的 `missingFieldHints / profileReady`，并补充 `resolvedParentId / resolvedFileId`，可在点击 validate 前先暴露档案缺口并直接复用解析后的默认值；现也支持直接编辑已有 auth profile 并重新校验，补字段时无需删除重建；其中 189Cloud 账号级写鉴权现已额外支持从 captured headers/curl 文本提取 `accessToken/signature/date` 后回填现有档案。",
             gaps="真实网页登录抓取自动化尚未实现。",
         ),
         AuditItem(
@@ -63,7 +63,7 @@ def run_plan_audit() -> dict[str, object]:
             title="首批常用网盘接入",
             status="partial",
             evidence=f"首批 provider 已补齐到 {provider_count} 个，研究索引 {research_count} 条；其中 aliyundrive_open 已支持基于已保存 access token + domainId/driveId 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；123_open 已支持基于已保存 token 的真实 list/metadata(parentFileId scoped)/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；115_open 已支持基于已保存 cookie 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；xunlei 已支持基于 token + device headers 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；pikpak 已支持基于 token 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；baidu_netdisk 已支持基于 access token 或 cookie 的保守 live list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；quark 与 uc 已支持基于 cookie + pwdId 的分享链路 live list/metadata(MD5 via file/download) 与 create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；189cloud 已支持基于分享参数的真实 list/metadata 尝试，且 `createFolder.action` 现已接入账号级 `AccessToken/Signature/Date` 写目录尝试，share-only 场景仍会诚实返回只读阻断；状态矩阵现已额外显式量化 create_dir 能力以及 task runtime 轨道，当前可区分 `runtime_active / runtime_candidate / runtime_blocked`。",
-            gaps="189Cloud 目前仍缺真实在线成功样本与稳定的账号级签名来源；shareCode/accessCode-only 档案依旧不可写。Quark/UC 的 upload 链路还未接入；百度与 PikPak 现已补到 runtime fast-upload 候选探针证据，但真实秒传 API 成功样本仍缺。",
+            gaps="189Cloud 目前仍缺真实在线成功样本；账号级写鉴权虽已补到 captured headers/curl 提取与回填脚本，但稳定可复用的真实来源样本仍缺，shareCode/accessCode-only 档案依旧不可写。Quark/UC 的 upload 链路还未接入；百度与 PikPak 现已补到 runtime fast-upload 候选探针证据，但真实秒传 API 成功样本仍缺。",
         ),
         AuditItem(
             key="M6",

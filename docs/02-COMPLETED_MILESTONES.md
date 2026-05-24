@@ -59,6 +59,8 @@
   - 已新增 auth remediation bundle 接口 `GET /api/auth/remediation_bundle`、Markdown 接口 `GET /api/auth/remediation_bundle_markdown` 与导出脚本 [export_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_auth_remediation_bundle.py)，可把当前全部 auth profile 的 readiness 缺口和建议补字段命令汇总到 [09-AUTH_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/09-AUTH_REMEDIATION_GUIDE.md)，方便为 Guangya/阿里/夸克等 provider 的真实联调先补齐最关键字段
   - auth profile 视图、单档案 evidence 与 remediation bundle 现已区分 `profileReady` 与 `writeReady`：像 `189cloud` 这类当前仅具备 shareCode/accessCode 只读链路的档案，会明确返回 `writeReady=false`、`writeMissingFieldHints` 与 `writeBlockerNote`，不再把“能读但不能写”混成一个 readiness 状态
   - `189cloud` 当前已把“只读 share 链路”和“账号级写鉴权”拆开提示：capture hints、remediation patch 命令与前端本地 patch hint 都会明确写出 `shareCode` 只覆盖读探测，而写目录仍需 `token/accessToken + signature + date`
+  - 已新增本地脚本 [patch_189cloud_account_auth.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_189cloud_account_auth.py)，可直接从抓包 header / curl / JSON 文本里提取 `accessToken / signature / date`，并按已有 `profileId` 回填 189Cloud 档案，不必再手工逐项抄写账号级写鉴权字段
+  - `189cloud` remediation bundle 与前端本地 patch hint 现已切到专用 helper：即使档案已经 `profileReady=true` 但仍 `writeReady=false`，也会继续显示 `patch_189cloud_account_auth.py` 推荐命令，不会再因为“读 ready”而把写鉴权补救命令隐藏掉
   - `189cloud` 当前已接入账号级 `createFolder.action` 写目录尝试：当档案具备 `token/accessToken + signature + date` 时，会走账号级 headers 发起真实 create_dir 请求；若仍是 shareCode/accessCode-only 档案，则继续诚实返回只读阻断
 - 当前验证证据：
   - `POST /api/auth/profiles` 现会在保存时同步返回结构化 `validation` 结果，并据此写入 profile `status`
@@ -81,6 +83,7 @@
   - [verify_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_remediation_bundle.py) 已验证 remediation bundle API、`/remediation_bundle_markdown` 与 Markdown 导出会同时带出 `profileCount/readyCount/needsFixCount` 和建议补字段命令
   - [verify_auth_profile_write_readiness.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_write_readiness.py) 已验证 `189cloud` share-only 档案在 `/api/auth/profiles`、单档案 evidence API 与 Markdown 导出里都会暴露 `writeReady=false`、`writeMissingFieldHints` 与 `writeBlockerNote`
   - [verify_189cloud_write_auth_ui_hints.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_write_auth_ui_hints.py) 已验证 189Cloud 授权表单已暴露 `accessToken/signature/date` 字段，capture hints 与 remediation patch 命令也会明确提示账号级写鉴权所需字段
+  - [verify_patch_189cloud_account_auth.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_189cloud_account_auth.py) 已验证 `patch_189cloud_account_auth.py` 可从原始 header 文本提取 `accessToken/signature/date`，并按 `profileId` 真实写回 189Cloud 档案的 `extra`
   - [verify_189cloud_account_auth_create_dir.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_account_auth_create_dir.py) 已验证 `tianyi_live.fetch_tianyi_create_folder()` 会按 `POST https://cloud.189.cn/api/open/file/createFolder.action` 发起请求，并带上 `AccessToken/Accesstoken/Signature/Date` 头与 `parentFolderId/folderName` 表单体
   - 当前本地两个 Guangya smoke 档案已可通过 `POST /api/auth/profiles/{id}/validate` 被判定为 `status=invalid`、`lastError=missing_parent_id`
   - 当前本地 `2` 个 Guangya smoke 档案也已可通过 `patch_auth_profile_extra.py --provider-key guangya --display-name-contains smoke --set parentId=...` 被 dry-run 命中，后续拿到真实 `parentId` 后可直接批量回填

@@ -231,6 +231,7 @@ def _capture_field_hints(provider_key: str) -> list[str]:
             "account write auth: token or extra.accessToken",
             "account write auth: extra.signature",
             "account write auth: extra.date",
+            "optional helper: patch_189cloud_account_auth.py from captured headers/curl",
             "optional extra.fileId",
         ],
         "baidu_netdisk": ["token or extra.authorization, or cookie", "optional extra.fileId", "optional extra.path"],

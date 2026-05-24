@@ -53,16 +53,13 @@ def main() -> None:
                         "extra.date = extraDate;",
                     )
                 ),
-                "jsPatchHintMentionsWriteAuth": "YOUR_ACCESS_TOKEN" in app_js and "YOUR_SIGNATURE" in app_js and "YOUR_GMT_DATE" in app_js,
+                "jsPatchHintMentionsWriteAuth": "patch_189cloud_account_auth.py" in app_js and "captured_189_headers.txt" in app_js,
                 "captureHints": capture_hints,
                 "captureHintsMentionWriteAuth": any("accessToken" in item or "token" in item for item in capture_hints)
                 and any("signature" in item for item in capture_hints)
                 and any("date" in item for item in capture_hints),
                 "remediationCommand": patch_command,
-                "remediationMentionsWriteAuth": all(
-                    token in patch_command
-                    for token in ("shareCode", "accessToken", "signature", "date")
-                ),
+                "remediationMentionsWriteAuth": "patch_189cloud_account_auth.py" in patch_command and "captured_189_headers.txt" in patch_command,
             },
             ensure_ascii=False,
             indent=2,

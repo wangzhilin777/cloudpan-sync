@@ -92,6 +92,7 @@ def main() -> None:
                     "needsFixCount": ((bundle.get("summary") or {}).get("needsFixCount")),
                     "writeNeedsFixCount": ((bundle.get("summary") or {}).get("writeNeedsFixCount")),
                     "markdownHasCommand": "patch_auth_profile_extra.py" in markdown,
+                    "markdownHas189Helper": "patch_189cloud_account_auth.py" in markdown,
                     "markdownHasWriteBlocker": "writeBlockerNote" in markdown,
                     "apiReadyCount": ((api_bundle.get("summary") or {}).get("readyCount")),
                     "apiWriteReadyCount": ((api_bundle.get("summary") or {}).get("writeReadyCount")),

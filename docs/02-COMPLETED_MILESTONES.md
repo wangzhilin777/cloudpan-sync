@@ -531,6 +531,8 @@
   - [verify_aliyun_runtime_probe_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_aliyun_runtime_probe_evidence.py) 现还额外验证了真实 `detailView.summary` 已带 `probeOnlyCount=1` 与 `completionKind=probe_only`
   - 任务终态现也已按完成口径拆开：全量 `probe-only` 结果会落成 `completed_probe_only`，全量 `candidate-only` 结果会落成 `completed_candidate_only`，而真实传输成功仍保持 `completed`；这样脚本输出、API 明细和队列页状态不会再把“只留到探针/候选证据”的任务混成真正传输完成
   - [verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py) 现已验证 `create_runtime_probe_task.py` 输出会带 `state=completed_probe_only` 与 `summary.completionKind=probe_only`；[verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py) 也同步验证了 `state=completed_candidate_only` 与 `summary.completionKind=candidate_only`
+  - `listView / detailView` 现也已把 `completionKind / hasRealTransferSuccess` 直接抬到顶层，`detailView` 还额外补回顶层 `state`；脚本或前端如果只想看“当前是什么完成口径”，不必每次再深入 `summary`
+  - [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 现还额外验证了 `detailView.state`、`detailView.completionKind` 已返回，且顶层 `state` 会和 `summary.state` 保持一致
   - 设置页 `Task Runtime Evidence` 最近样本简讯现还额外补上 `verifyMode`，可直接看出真实运行样本是靠哪条 verify 路径落证据
   - [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py) 现还额外验证了设置页 runtime 简讯已显示 `verifyMode`
   - 设置页 `Task Runtime Evidence` 最近样本简讯现还额外补上 `path / resolvedTargetName`，排查同名冲突改名或目标落点时不必再只靠 `conflictAction` 猜文件最终写到哪里

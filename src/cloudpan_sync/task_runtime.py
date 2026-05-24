@@ -313,6 +313,8 @@ def build_task_list_view(task: dict[str, object]) -> dict[str, object]:
         "updatedAt": str(task.get("updatedAt") or ""),
         "progress": progress,
         "summary": summary,
+        "completionKind": str(summary.get("completionKind") or ""),
+        "hasRealTransferSuccess": bool(summary.get("hasRealTransferSuccess")),
         "guard": guard,
         "lastActionError": last_action_error,
         "pendingItems": list(plan.get("pendingItems") or []),
@@ -326,6 +328,7 @@ def build_task_detail_view(task: dict[str, object]) -> dict[str, object]:
     results = list(task.get("results") or [])
     return {
         "taskId": str(task.get("taskId") or ""),
+        "state": str(summary.get("state") or task.get("state") or ""),
         "sourceProvider": str(task.get("sourceProvider") or ""),
         "targetProvider": str(task.get("targetProvider") or ""),
         "targetProfileId": str(task.get("targetProfileId") or ""),
@@ -335,6 +338,8 @@ def build_task_detail_view(task: dict[str, object]) -> dict[str, object]:
         "updatedAt": str(task.get("updatedAt") or ""),
         "progress": dict(task.get("progress") or {}),
         "summary": summary,
+        "completionKind": str(summary.get("completionKind") or ""),
+        "hasRealTransferSuccess": bool(summary.get("hasRealTransferSuccess")),
         "guard": dict(task.get("guard") or {}),
         "risk": dict(task.get("risk") or {}),
         "lastActionError": dict(task.get("lastActionError") or {}),

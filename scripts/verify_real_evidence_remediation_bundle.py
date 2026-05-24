@@ -64,6 +64,16 @@ def main() -> None:
                 "taskRuntimeEvidence": {"ok": False, "blockedCount": 0, "candidateCount": 1},
                 "gaps": ["已有 fast-upload candidate 样本，但尚未记录到真实 runtime 成功样本"],
             },
+            {
+                "providerKey": "123_open",
+                "displayName": "123Pan Open",
+                "authEvidence": {"ok": True},
+                "listEvidence": {"ok": True},
+                "metadataEvidence": {"ok": True},
+                "createDirEvidence": {"ok": True},
+                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0, "probeCount": 1},
+                "gaps": ["已有 probe-only 样本，但尚未记录到真实传输成功样本"],
+            },
         ]
     }
     synthetic_profiles = [
@@ -81,6 +91,14 @@ def main() -> None:
             "profileReady": True,
             "writeReady": True,
             "resolvedParentId": "115-root-1",
+        },
+        {
+            "profileId": "123-rem-1",
+            "providerKey": "123_open",
+            "displayName": "123-ready",
+            "profileReady": True,
+            "writeReady": True,
+            "resolvedParentId": "0",
         },
         {
             "profileId": "189-rem-1",
@@ -151,6 +169,7 @@ def main() -> None:
                 "providersWithFastCandidateCommand": ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")),
                 "providersBlockedOnly": ((bundle.get("summary") or {}).get("providersBlockedOnly")),
                 "providersCandidateOnly": ((bundle.get("summary") or {}).get("providersCandidateOnly")),
+                "providersProbeOnly": ((bundle.get("summary") or {}).get("providersProbeOnly")),
                 "markdownHasCreateCommand": "create_auth_profile_stub.py" in markdown,
                 "markdownHasBootstrapCommand": "recommendedBootstrapCommand" in markdown and "--probe" in markdown,
                 "guangyaHasPatchCommand": "patch_auth_profile_extra.py" in markdown,
@@ -161,6 +180,8 @@ def main() -> None:
                 "markdownHasFastCandidateCommand": "recommendedFastCandidateCommand" in markdown and "create_fast_upload_candidate_task.py" in markdown,
                 "fastCandidateCommandCarriesResolvedParent": "--target-parent-id 115-root-1" in markdown,
                 "markdownHasCandidateOnlyFlag": "runtimeCandidateOnly=True" in markdown,
+                "markdownHasProbeOnlyFlag": "runtimeProbeOnly=True" in markdown,
+                "probeOnlyKeepsRuntimeCommand": "123_open" in markdown and "create_runtime_probe_task.py" in markdown,
                 "quarkPrefersManualCookie": "--provider-key quark --auth-mode manual_cookie" in quark_create and "--cookie YOUR_COOKIE" in quark_create,
                 "quarkSkipsCookieHeaderExtra": "--set cookie_header=YOUR_VALUE" not in quark_create,
                 "115PrefersManualCookie": "--provider-key 115_open --auth-mode manual_cookie" in pan115_create and "--cookie YOUR_COOKIE" in pan115_create,

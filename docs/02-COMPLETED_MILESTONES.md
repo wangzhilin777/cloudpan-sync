@@ -489,6 +489,7 @@
   - `Real Evidence Next Steps` 现在也会继续为“基础 auth/list/metadata 已齐、但还缺 task runtime 成功样本”的非 Guangya provider 生成 `recommendedFastCandidateCommand`；像 `115_open` 会直接给出 `--sha1 auto`，`xunlei/pikpak` 会明确提示补 `--gcid YOUR_GCID`，已有 `resolvedParentId` 时也会一并带上 `--target-parent-id`
   - `fast_upload candidate` 样本现在已从“真实 runtime 成功样本”里正式拆口径：运行期证据会单独落 `candidateOnly=true`，`real_evidence_report / task_runtime_evidence / provider_status_matrix / 设置页摘要` 也会独立统计 `task_runtime_candidate / runtime_candidate / candidateCount`，不再把“仅候选命中、未真实 rapid-upload 成功”的 probe-only 样本误算成 `taskRuntimeEvidence.ok=true` 或 `runtime_success`
   - `Real Evidence Next Steps` 现在还会把 `candidate-only` 状态单独抬出来：摘要新增 `providersCandidateOnly`，单 provider 行会显式带 `runtimeCandidateOnly=true/false`；对于“已有 fast-upload candidate 样本但还没真实 runtime 成功样本”的 provider，即使 `create_dir` 证据尚未齐，也会继续给出 `recommendedRuntimeProbeCommand`，让下一步从“看懂缺口”变成“直接有一条能继续落真实样本的命令”
+  - `Real Evidence Next Steps` 现在也会把 `probe-only` 状态单独抬出来：摘要新增 `providersProbeOnly`，单 provider 行会显式带 `runtimeProbeOnly=true/false`；对于“已有 create_dir probe 样本但还没真实传输成功样本”的 provider，会明确提示“写探针已跑通但尚未形成真实传输成功证据”，并继续保留 `recommendedRuntimeProbeCommand`
   - `recommendedCreateCommand / recommendedBootstrapCommand` 现在会按 provider 的真实写鉴权特征优先选更贴近“可直接手填”的 authMode：`115_open / quark / uc / 189cloud / baidu_netdisk` 会优先生成 `manual_cookie`，`guangya / 123_open / xunlei / pikpak` 会优先生成 `manual_token`；同时还会跳过和主鉴权重复的 `cookie_header / authorization / accessToken` 这类 extra，避免产出“看起来能跑、实际上重复或不贴手”的建档案命令
   - [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已验证 remediation bundle 会为 `guangya` / `189cloud` 这类 provider 生成 `nextStep / recommendedPatchCommand`，并且 API / Markdown 端点已可用
   - 同一脚本现还额外验证了 remediation Markdown 已带 `recommendedAuthModes / webLoginUrl / requiredFieldHints`
@@ -497,6 +498,7 @@
   - 同一脚本现还额外验证了 remediation Markdown 已带 `recommendedPatchProbeCommand`，并会显式包含 `patch_and_probe_auth_profile.py`
   - 同一脚本现还额外验证了 remediation Markdown 已带 `recommendedRefreshEvidenceCommand`
   - 同一脚本现还额外验证了 remediation Markdown 已带 `recommendedRuntimeProbeCommand`，并会显式包含 `create_runtime_probe_task.py`
+  - 同一脚本现还额外验证了 remediation summary / Markdown 已带 `providersProbeOnly / runtimeProbeOnly`，并且 `probe-only` provider 仍会继续保留 `recommendedRuntimeProbeCommand`
   - [verify_create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_auth_profile_stub.py) 已验证 `create_auth_profile_stub.py` 可真实写入 `aliyundrive_open` auth profile，并保留 `domainId / driveId`
   - [verify_patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_and_probe_auth_profile.py) 现还额外验证了 `patch_and_probe_auth_profile.py` 在不传 `--set` 时也可直接刷新已有档案的 validation / probe 证据
   - [verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py) 已验证 `create_runtime_probe_task.py` 支持 `--target-profile-id / --auto-temp-file / --threshold-mb`，并会真实输出任务结果 JSON

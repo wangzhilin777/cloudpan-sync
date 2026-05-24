@@ -171,6 +171,7 @@ def _next_step(
     runtime_ok: bool,
     runtime_blocked_only: bool,
     runtime_candidate_only: bool,
+    runtime_probe_only: bool,
 ) -> str:
     if not provider_profiles:
         return f"先创建 `{provider_key}` 的 auth profile，再执行最小 validation 和 live probe。"
@@ -181,6 +182,8 @@ def _next_step(
     if not auth_ok or not list_ok or not metadata_ok or not create_dir_ok:
         return "对现有档案重跑 provider live probe，优先补齐 auth/list/metadata/create_dir 成功证据。"
     if not runtime_ok:
+        if runtime_probe_only:
+            return "当前只有 probe-only 样本，说明写探针已跑通但尚未形成真实传输成功证据；请在保留探针样本的基础上继续跑小文件真实任务。"
         if runtime_candidate_only:
             return "当前只有 fast-upload candidate 样本，尚未形成真实 rapid-upload/runtime 成功证据；请在保留候选样本的基础上继续跑真实任务。"
         if runtime_blocked_only:
@@ -219,6 +222,7 @@ def build_real_evidence_remediation_bundle(
         )
         runtime_blocked_only = bool(runtime_evidence.get("blockedCount")) and not bool(runtime_evidence.get("ok"))
         runtime_candidate_only = bool(runtime_evidence.get("candidateCount")) and not bool(runtime_evidence.get("ok"))
+        runtime_probe_only = bool(runtime_evidence.get("probeCount")) and not bool(runtime_evidence.get("ok"))
         item_payload = {
             "providerKey": provider_key,
             "displayName": str(row.get("displayName") or provider_key),
@@ -237,6 +241,7 @@ def build_real_evidence_remediation_bundle(
             "needsRuntimeSuccess": not bool(runtime_evidence.get("ok")),
             "runtimeBlockedOnly": runtime_blocked_only,
             "runtimeCandidateOnly": runtime_candidate_only,
+            "runtimeProbeOnly": runtime_probe_only,
             "gaps": list(row.get("gaps") or []),
             "recommendedPatchCommand": _patch_command_for_profile(profile_needing_patch or {}),
             "recommendedPatchProbeCommand": _patch_probe_command_for_profile(profile_needing_patch or {}),
@@ -244,7 +249,7 @@ def build_real_evidence_remediation_bundle(
             if provider_profiles and profile_ready and write_ready and (not bool(auth_evidence.get("ok")) or not bool(list_evidence.get("ok")) or not bool(metadata_evidence.get("ok")) or not bool(create_dir_evidence.get("ok")))
             else "",
             "recommendedRuntimeProbeCommand": _runtime_probe_command_for_profile(provider_profiles[0] if provider_profiles else {})
-            if provider_profiles and write_ready and bool(auth_evidence.get("ok")) and bool(list_evidence.get("ok")) and bool(metadata_evidence.get("ok")) and (bool(create_dir_evidence.get("ok")) or runtime_candidate_only or runtime_blocked_only) and not bool(runtime_evidence.get("ok"))
+            if provider_profiles and write_ready and bool(auth_evidence.get("ok")) and bool(list_evidence.get("ok")) and bool(metadata_evidence.get("ok")) and (bool(create_dir_evidence.get("ok")) or runtime_candidate_only or runtime_blocked_only or runtime_probe_only) and not bool(runtime_evidence.get("ok"))
             else "",
             "recommendedFastCandidateCommand": _fast_candidate_command_for_profile(provider_profiles[0] if provider_profiles else {})
             if provider_profiles and profile_ready and write_ready and bool(auth_evidence.get("ok")) and bool(list_evidence.get("ok")) and bool(metadata_evidence.get("ok")) and not bool(runtime_evidence.get("ok"))
@@ -273,6 +278,7 @@ def build_real_evidence_remediation_bundle(
                 runtime_ok=bool(runtime_evidence.get("ok")),
                 runtime_blocked_only=runtime_blocked_only,
                 runtime_candidate_only=runtime_candidate_only,
+                runtime_probe_only=runtime_probe_only,
             ),
         }
         items.append(item_payload)
@@ -295,6 +301,7 @@ def build_real_evidence_remediation_bundle(
             "providersWithBootstrapCommand": sum(1 for item in items if str(item.get("recommendedBootstrapCommand") or "")),
             "providersBlockedOnly": sum(1 for item in items if bool(item.get("runtimeBlockedOnly"))),
             "providersCandidateOnly": sum(1 for item in items if bool(item.get("runtimeCandidateOnly"))),
+            "providersProbeOnly": sum(1 for item in items if bool(item.get("runtimeProbeOnly"))),
         },
         "items": items,
     }
@@ -321,6 +328,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersWithBootstrapCommand: `{summary.get('providersWithBootstrapCommand', 0)}`")
     lines.append(f"- providersBlockedOnly: `{summary.get('providersBlockedOnly', 0)}`")
     lines.append(f"- providersCandidateOnly: `{summary.get('providersCandidateOnly', 0)}`")
+    lines.append(f"- providersProbeOnly: `{summary.get('providersProbeOnly', 0)}`")
     lines.append("")
     lines.append("## Provider 清单")
     lines.append("")
@@ -341,7 +349,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
         lines.append(
             f"- needs: `auth={row.get('needsAuthEvidence', False)}` `list={row.get('needsListEvidence', False)}` "
             f"`metadata={row.get('needsMetadataEvidence', False)}` `create_dir={row.get('needsCreateDirEvidence', False)}` "
-            f"`runtime={row.get('needsRuntimeSuccess', False)}` `runtimeBlockedOnly={row.get('runtimeBlockedOnly', False)}` `runtimeCandidateOnly={row.get('runtimeCandidateOnly', False)}`"
+            f"`runtime={row.get('needsRuntimeSuccess', False)}` `runtimeBlockedOnly={row.get('runtimeBlockedOnly', False)}` `runtimeCandidateOnly={row.get('runtimeCandidateOnly', False)}` `runtimeProbeOnly={row.get('runtimeProbeOnly', False)}`"
         )
         if row.get("gaps"):
             lines.append(f"- gaps: {', '.join(row.get('gaps') or [])}")

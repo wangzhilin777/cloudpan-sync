@@ -470,3 +470,5 @@
   - 设置页现也已新增 `Provider Status Matrix` 面板，会直接读取当前 `statusMatrix.summary`，展示 `providers / authReady / createDir / fastCheck`、`runtimeBlockedProviders / runtimeBlocked / runtimeConflictHandled`、以及 `runtimeActive / runtimeCandidate / runtimeTrackBlocked / conflictUnsupported`
   - `loadStatusMatrix()` 现会在刷新 provider 面板的同时同步重绘设置页，因此状态矩阵相关摘要不需要切换页签或重新登录才更新
   - [verify_provider_status_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_status_settings_ui.py) 已验证设置页已接入 `Provider Status Matrix` 面板、`loadStatusMatrix()` 会触发 `renderSettingsPanel()`，并且摘要中已包含 blocked/runtime track 相关字段
+  - 设置页 `Provider Status Matrix` 面板现还额外补上同名冲突能力摘要：会直接显示 `conflictAware / overwriteDowngrade / overwriteSupported / autoRenameSupported / autoRenameProbeOnly / conflictUnsupported`
+  - [verify_provider_status_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_status_settings_ui.py) 现还额外验证了设置页状态矩阵摘要已包含上述冲突能力统计字段

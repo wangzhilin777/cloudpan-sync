@@ -1697,8 +1697,10 @@ function renderSettingsPanel() {
   const providerStatusSummary = state.statusMatrix?.summary || {};
   const providerStatusRows = [
     `providers=${providerStatusSummary.providerCount || 0}, authReady=${providerStatusSummary.authReadyCount || 0}, createDir=${providerStatusSummary.createDirReadyCount || 0}, fastCheck=${providerStatusSummary.fastCheckCount || 0}`,
+    `conflictAware=${providerStatusSummary.conflictAwareProviderCount || 0}, overwriteDowngrade=${providerStatusSummary.overwriteDowngradeCount || 0}, overwriteSupported=${providerStatusSummary.overwriteSupportedCount || 0}, autoRenameSupported=${providerStatusSummary.autoRenameSupportedCount || 0}`,
+    `autoRenameProbeOnly=${providerStatusSummary.autoRenameProbeOnlyCount || 0}, conflictUnsupported=${providerStatusSummary.conflictUnsupportedProviderCount || 0}`,
     `runtime=${providerStatusSummary.taskRuntimeSampleCount || 0}, runtimeBlockedProviders=${providerStatusSummary.taskRuntimeBlockedProviderCount || 0}, runtimeBlocked=${providerStatusSummary.taskRuntimeBlockedEvidenceCount || 0}, runtimeConflictHandled=${providerStatusSummary.taskRuntimeConflictHandledCount || 0}`,
-    `runtimeActive=${providerStatusSummary.taskRuntimeActiveCount || 0}, runtimeCandidate=${providerStatusSummary.taskRuntimeCandidateCount || 0}, runtimeTrackBlocked=${providerStatusSummary.taskRuntimeBlockedCount || 0}, conflictUnsupported=${providerStatusSummary.conflictUnsupportedProviderCount || 0}`,
+    `runtimeActive=${providerStatusSummary.taskRuntimeActiveCount || 0}, runtimeCandidate=${providerStatusSummary.taskRuntimeCandidateCount || 0}, runtimeTrackBlocked=${providerStatusSummary.taskRuntimeBlockedCount || 0}`,
   ];
   for (const row of providerStatusRows) {
     const li = document.createElement("li");

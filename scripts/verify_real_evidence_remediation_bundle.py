@@ -165,8 +165,12 @@ def main() -> None:
     with TemporaryDirectory() as tmp_dir:
         configure_data_dir(Path(tmp_dir))
         original_password = webapp.ADMIN_PASSWORD
+        original_webapp_builder = webapp.build_real_evidence_remediation_bundle
+        original_webapp_renderer = webapp.real_evidence_remediation_to_markdown
         webapp.ADMIN_PASSWORD = "admin123"
         try:
+            webapp.build_real_evidence_remediation_bundle = lambda: bundle
+            webapp.real_evidence_remediation_to_markdown = real_evidence_remediation_to_markdown
             app = webapp.create_app()
             client = TestClient(app)
             client.post("/api/login", json={"password": "admin123"})
@@ -174,6 +178,8 @@ def main() -> None:
             api_markdown = client.get("/api/real_evidence_remediation_markdown").json()
         finally:
             webapp.ADMIN_PASSWORD = original_password
+            webapp.build_real_evidence_remediation_bundle = original_webapp_builder
+            webapp.real_evidence_remediation_to_markdown = original_webapp_renderer
 
     print(
         json.dumps(
@@ -220,7 +226,31 @@ def main() -> None:
                 "markdownHasFieldHints": "requiredFieldHints" in markdown,
                 "markdownHasNextStep": "nextStep:" in markdown,
                 "apiHasSummary": bool((api_bundle.get("summary") or {}).get("providerCount", 0) >= 0),
+                "apiHasRuntimeSuccessSummary": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")),
+                "apiHasGuangyaRuntimeSuccessCommand": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "guangya"
+                            and "create_live_upload_task.py" in str((row or {}).get("recommendedRuntimeSuccessCommand") or "")
+                        ),
+                        None,
+                    )
+                ),
+                "apiHas115RuntimeSuccessCommand": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "115_open"
+                            and "create_fast_upload_candidate_task.py" in str((row or {}).get("recommendedRuntimeSuccessCommand") or "")
+                        ),
+                        None,
+                    )
+                ),
                 "apiMarkdownHasTitle": "# CloudPan Sync 真实联调补救指南" in str(api_markdown.get("markdown", "")),
+                "apiMarkdownHasRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in str(api_markdown.get("markdown", "")),
             },
             ensure_ascii=False,
             indent=2,

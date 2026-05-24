@@ -119,6 +119,16 @@
 - 当前验证证据：
   - [verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py) 已验证导出文件包含 `providersWithRuntimeSuccessCommand` 汇总、`guangya` 的 live helper 型 `recommendedRuntimeSuccessCommand`、`115_open` 的 fast helper 型 `recommendedRuntimeSuccessCommand`，并保留 `runtimeCandidateOnly=True` 标记
 
+### 已完成补齐项 - `2026-05-25`（Runtime Success API 验证补强）
+
+- 提交：`本次提交`
+- 完成范围：
+  - 已补强 [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py)，不再只校验 remediation bundle 的内存结果和 Markdown 标题
+  - 该脚本现在会把 synthetic remediation bundle 直接挂到 `webapp` 的 `GET /api/real_evidence_remediation_bundle` 与 `GET /api/real_evidence_remediation_markdown` 路径上，明确验证 API summary 里也带 `providersWithRuntimeSuccessCommand`
+  - 同一验证还会继续检查 provider 级 API item：`guangya` 会暴露 live helper 型 `recommendedRuntimeSuccessCommand`，`115_open` 会暴露 fast helper 型 `recommendedRuntimeSuccessCommand`，并确认 Markdown API 端也保留该字段
+- 当前验证证据：
+  - [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已验证 API summary / item / markdown 三条出口都会带 `recommendedRuntimeSuccessCommand` 相关字段
+
 ### M1 - 独立项目骨架
 
 - 完成日期：`2026-05-23`

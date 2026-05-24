@@ -506,3 +506,5 @@
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了待处理页 `renderPendingList()` 已携带并显示 `conflictSupportStatus / conflictNote`
   - `pendingItems` 现还额外补回 `availableFastInputs`，待处理页可直接同时看到“当前已有指纹”和“仍缺哪些 fast-upload 输入”，不再只剩一侧 `missing`
   - [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 现还额外验证了真实 `pending_manual` 任务的 `listItems[].pendingItems[].availableFastInputs` 已返回；[verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 也同步验证了待处理页已显示 `available / missing`
+  - 队列页任务守卫行现也已直接显示 `riskReason`，可一眼看出当前是 `guard_blocked`、`awaiting_acknowledgement` 还是 `too_many_pending_manual_items`，不必再只靠 state / warning 猜测
+  - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` 已显示 `riskReason`

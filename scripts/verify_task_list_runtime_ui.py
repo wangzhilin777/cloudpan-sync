@@ -17,6 +17,7 @@ def main() -> None:
             {
                 "jsRenderTaskListHasLatestResultRows": "function renderTaskList()" in app_js and ".slice(0, 3)" in app_js,
                 "jsRenderTaskListPrefersLatestResults": "const resultRows = task.latestResults || task.results || [];" in app_js,
+                "jsRenderTaskListShowsRiskReason": "summary.riskReason" in app_js and 'appendTaskGuardPill(guardRow, `risk=${summary.riskReason}`, "warning");' in app_js,
                 "jsRenderTaskListShowsRiskHint": 'row.liveAttempt?.riskHint ? ` - ${row.liveAttempt.riskHint}` : ""' in app_js,
                 "jsRenderTaskListShowsVerifyMode": 'row.liveAttempt?.verifyMode' in app_js and 'verify=${row.liveAttempt.verifyOk ? "ok" : "pending"}:${row.liveAttempt.verifyMode}' in app_js,
                 "jsRenderTaskListShowsVerifyNote": 'row.liveAttempt?.verifyNote' in app_js and 'verifyNote=${row.liveAttempt.verifyNote}' in app_js,

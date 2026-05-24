@@ -1140,6 +1140,9 @@ function renderTaskList() {
     if ((summary.warningCount || warningReasons.length) > 0) {
       appendTaskGuardPill(guardRow, `warnings=${summary.warningCount || warningReasons.length}`, "warning");
     }
+    if (summary.riskReason) {
+      appendTaskGuardPill(guardRow, `risk=${summary.riskReason}`, "warning");
+    }
     const requiresAck = summary.requiresAcknowledgement || guard.requiresAcknowledgement || {};
     const acknowledged = summary.acknowledged || guard.acknowledged || {};
     if (requiresAck?.pendingManual || requiresAck?.downloadUpload) {

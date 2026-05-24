@@ -13,6 +13,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from cloudpan_sync.auth_profile_patch import configure_data_dir
+from cloudpan_sync.auth_profile_evidence import auth_profile_evidence_to_markdown
 from cloudpan_sync.auth_profile_view import auth_profile_view
 from cloudpan_sync.auth_store import get_profile
 from cloudpan_sync.real_evidence_remediation import build_real_evidence_remediation_bundle, real_evidence_remediation_to_markdown
@@ -20,6 +21,7 @@ from cloudpan_sync.real_evidence_report import build_real_evidence_report, real_
 from cloudpan_sync.task_runtime_evidence_store import build_task_runtime_evidence_payload, task_runtime_evidence_to_markdown
 from cloudpan_sync import task_runtime
 from cloudpan_sync.models import SourceEntry, TaskCreateRequest
+from cloudpan_sync.webapp import _auth_profile_evidence
 
 
 def _ensure_local_file(local_file: str, auto_temp_file: bool) -> tuple[Path, bool]:
@@ -87,6 +89,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--no-acknowledge-download-upload", action="store_true", help="Do not auto-acknowledge download_upload fallback risk.")
     parser.add_argument("--task-json-output", default="", help="Optional output path for the task JSON snapshot.")
     parser.add_argument("--markdown-output", default="", help="Optional output path for the task markdown snapshot.")
+    parser.add_argument("--auth-evidence-output", default="", help="Optional output path for auth profile evidence markdown.")
     parser.add_argument("--runtime-evidence-output", default="", help="Optional output path for runtime evidence markdown.")
     parser.add_argument("--real-evidence-output", default="", help="Optional output path for real evidence markdown.")
     parser.add_argument("--remediation-output", default="", help="Optional output path for remediation markdown.")
@@ -127,6 +130,11 @@ def main(argv: list[str] | None = None) -> int:
         output_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
 
     markdown_output = _write_optional_text(str(args.markdown_output or "").strip(), task_runtime.task_to_markdown(result))
+    auth_profile = get_profile(target_profile_id)
+    auth_evidence_output = _write_optional_text(
+        str(args.auth_evidence_output or "").strip(),
+        auth_profile_evidence_to_markdown(_auth_profile_evidence(auth_profile)) if auth_profile is not None else "",
+    ) if str(args.auth_evidence_output or "").strip() else ""
     runtime_evidence_output = _write_optional_text(
         str(args.runtime_evidence_output or "").strip(),
         task_runtime_evidence_to_markdown(build_task_runtime_evidence_payload()),
@@ -154,6 +162,7 @@ def main(argv: list[str] | None = None) -> int:
         "acknowledgedDownloadUpload": acknowledge_download_upload,
         "taskJsonOutput": task_json_output,
         "markdownOutput": markdown_output,
+        "authEvidenceOutput": auth_evidence_output,
         "runtimeEvidenceOutput": runtime_evidence_output,
         "realEvidenceOutput": real_evidence_output,
         "remediationOutput": remediation_output,

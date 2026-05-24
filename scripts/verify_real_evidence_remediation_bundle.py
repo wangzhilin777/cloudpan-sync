@@ -180,7 +180,7 @@ def main() -> None:
                 "markdownHasRuntimeProbeCommand": "recommendedRuntimeProbeCommand" in markdown and "create_runtime_probe_task.py" in markdown,
                 "runtimeProbeCommandCarriesResolvedParent": "--target-parent-id 115-root-1" in markdown,
                 "markdownHasLiveUploadCommand": "recommendedLiveUploadCommand" in markdown and "create_live_upload_task.py" in markdown,
-                "liveUploadCommandCarriesResolvedParent": "--target-parent-id gy-parent-1" in markdown and "--markdown-output tmp\\guangya-live-upload-task.md" in markdown,
+                "liveUploadCommandCarriesResolvedParent": "--target-parent-id gy-parent-1" in markdown and "--markdown-output tmp\\guangya-live-upload-task.md" in markdown and "--auth-evidence-output tmp\\guangya-live-auth-evidence.md" in markdown,
                 "markdownHasFastCandidateCommand": "recommendedFastCandidateCommand" in markdown and "create_fast_upload_candidate_task.py" in markdown,
                 "fastCandidateCommandCarriesResolvedParent": "--target-parent-id 115-root-1" in markdown,
                 "markdownHasCandidateOnlyFlag": "runtimeCandidateOnly=True" in markdown,

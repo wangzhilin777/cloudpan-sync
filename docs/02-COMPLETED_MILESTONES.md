@@ -488,3 +488,5 @@
   - [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py) 现还额外验证了设置页 runtime 简讯已显示 `requiredAuth / error`
   - 设置页 `Task Runtime Evidence` 最近样本简讯现还额外补上 `verifyMode`，可直接看出真实运行样本是靠哪条 verify 路径落证据
   - [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py) 现还额外验证了设置页 runtime 简讯已显示 `verifyMode`
+  - 设置页 `Task Runtime Evidence` 最近样本简讯现还额外补上 `path / resolvedTargetName`，排查同名冲突改名或目标落点时不必再只靠 `conflictAction` 猜文件最终写到哪里
+  - [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py) 现还额外验证了设置页 runtime 简讯已显示 `path / resolvedTargetName`

@@ -1710,7 +1710,7 @@ function renderSettingsPanel() {
 
   const realEvidence = state.realEvidenceSummary || {};
   const realEvidenceRows = [
-    `providers=${realEvidence.providerCount || 0}, profilesSaved=${realEvidence.profilesSaved || 0}`,
+    `providers=${realEvidence.providerCount || 0}, profilesSaved=${realEvidence.profilesSaved || 0}, latestValidationProfiles=${realEvidence.latestValidationProfileCount || 0}, latestProbeProfiles=${realEvidence.latestProbeProfileCount || 0}`,
     `auth=${realEvidence.authEvidenceProviderCount || 0}, list=${realEvidence.listEvidenceProviderCount || 0}, metadata=${realEvidence.metadataEvidenceProviderCount || 0}`,
     `create_dir=${realEvidence.createDirEvidenceProviderCount || 0}, task_runtime=${realEvidence.taskRuntimeEvidenceProviderCount || 0}, task_runtime_failed=${realEvidence.taskRuntimeFailedProviderCount || 0}, fully_verified=${realEvidence.fullyVerifiedProviderCount || 0}`,
     `runtime_samples=${realEvidence.taskRuntimeSampleCount || 0}, runtime_success=${realEvidence.taskRuntimeSuccessCount || 0}, runtime_failed=${realEvidence.taskRuntimeFailedCount || 0}, runtime_blocked_providers=${realEvidence.taskRuntimeBlockedProviderCount || 0}, runtime_blocked=${realEvidence.taskRuntimeBlockedCount || 0}, runtime_conflict_handled=${realEvidence.taskRuntimeConflictHandledCount || 0}`,

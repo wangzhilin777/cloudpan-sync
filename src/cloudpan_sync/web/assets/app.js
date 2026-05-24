@@ -1794,7 +1794,10 @@ function renderSettingsPanel() {
   }
   for (const item of remediationItems.filter((row) => row.nextStep).slice(0, 3)) {
     const li = document.createElement("li");
-    li.textContent = `${item.providerKey || "(unknown)"}: profiles=${item.profileCount || 0}, nextStep=${item.nextStep}${item.recommendedPatchCommand ? `, patch=${item.recommendedPatchCommand}` : ""}`;
+    const authModes = (item.recommendedAuthModes || []).join("/") || "(none)";
+    const loginUrl = item.webLoginUrl || item.officialDocsUrl || "";
+    const fieldHints = (item.requiredFieldHints || []).slice(0, 2).join(" | ");
+    li.textContent = `${item.providerKey || "(unknown)"}: profiles=${item.profileCount || 0}, authModes=${authModes}, nextStep=${item.nextStep}${loginUrl ? `, login=${loginUrl}` : ""}${fieldHints ? `, hints=${fieldHints}` : ""}${item.recommendedPatchCommand ? `, patch=${item.recommendedPatchCommand}` : ""}`;
     realEvidenceRemediationList.appendChild(li);
   }
 

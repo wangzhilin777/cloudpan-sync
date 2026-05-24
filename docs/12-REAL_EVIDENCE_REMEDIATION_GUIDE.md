@@ -16,6 +16,9 @@
 - profileCount: `2`
 - authReadyProfiles: `0`
 - writeReadyProfiles: `2`
+- recommendedAuthModes: `web_login_capture, manual_token`
+- webLoginUrl: https://guangyapan.com/
+- requiredFieldHints: `token or extra.authorization, extra.parentId, optional extra.did, optional extra.dt`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先补齐档案缺字段并重跑 validation / live probe，拿到 auth/list/metadata 最小成功证据。
@@ -25,6 +28,9 @@
 - profileCount: `0`
 - authReadyProfiles: `0`
 - writeReadyProfiles: `0`
+- recommendedAuthModes: `official_oauth`
+- officialDocsUrl: https://www.alipan.com/
+- requiredFieldHints: `token or extra.authorization, extra.domainId, extra.driveId`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `aliyundrive_open` 的 auth profile，再执行最小 validation 和 live probe。
@@ -33,6 +39,8 @@
 - profileCount: `0`
 - authReadyProfiles: `0`
 - writeReadyProfiles: `0`
+- recommendedAuthModes: `official_oauth, manual_cookie`
+- requiredFieldHints: `cookie or extra.cookie_header, optional extra.parentId or extra.cid, optional extra.fileId`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `115_open` 的 auth profile，再执行最小 validation 和 live probe。
@@ -41,6 +49,9 @@
 - profileCount: `0`
 - authReadyProfiles: `0`
 - writeReadyProfiles: `0`
+- recommendedAuthModes: `web_login_capture, manual_cookie`
+- webLoginUrl: https://pan.quark.cn/
+- requiredFieldHints: `cookie or extra.cookie_header, extra.pwdId or extra.sharePwdId, optional extra.passcode, optional extra.fileId`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `quark` 的 auth profile，再执行最小 validation 和 live probe。
@@ -49,6 +60,9 @@
 - profileCount: `0`
 - authReadyProfiles: `0`
 - writeReadyProfiles: `0`
+- recommendedAuthModes: `web_login_capture, manual_cookie`
+- webLoginUrl: https://cloud.189.cn/
+- requiredFieldHints: `share-read probe: extra.shareCode, optional extra.accessCode, account write auth: token or extra.accessToken, account write auth: extra.signature, account write auth: extra.date, optional helper: patch_189cloud_account_auth.py from captured headers/curl, optional extra.fileId`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `189cloud` 的 auth profile，再执行最小 validation 和 live probe。
@@ -57,6 +71,10 @@
 - profileCount: `0`
 - authReadyProfiles: `0`
 - writeReadyProfiles: `0`
+- recommendedAuthModes: `official_oauth, manual_cookie`
+- webLoginUrl: https://pan.baidu.com/
+- officialDocsUrl: https://pan.baidu.com/
+- requiredFieldHints: `token or extra.authorization, or cookie, optional extra.fileId, optional extra.path`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `baidu_netdisk` 的 auth profile，再执行最小 validation 和 live probe。
@@ -65,6 +83,9 @@
 - profileCount: `0`
 - authReadyProfiles: `0`
 - writeReadyProfiles: `0`
+- recommendedAuthModes: `web_login_capture, manual_cookie`
+- webLoginUrl: https://drive.uc.cn/
+- requiredFieldHints: `cookie or extra.cookie_header, extra.pwdId or extra.sharePwdId, optional extra.passcode, optional extra.fileId`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `uc` 的 auth profile，再执行最小 validation 和 live probe。
@@ -73,6 +94,9 @@
 - profileCount: `0`
 - authReadyProfiles: `0`
 - writeReadyProfiles: `0`
+- recommendedAuthModes: `web_login_capture, manual_cookie`
+- webLoginUrl: https://pan.xunlei.com/
+- requiredFieldHints: `token or extra.authorization, extra.deviceId or extra.x-device-id, optional extra.fileId`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `xunlei` 的 auth profile，再执行最小 validation 和 live probe。
@@ -81,6 +105,10 @@
 - profileCount: `0`
 - authReadyProfiles: `0`
 - writeReadyProfiles: `0`
+- recommendedAuthModes: `manual_token, manual_cookie`
+- webLoginUrl: https://mypikpak.com/
+- officialDocsUrl: https://mypikpak.com/
+- requiredFieldHints: `token or extra.authorization, optional extra.deviceId, optional extra.fileId`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `pikpak` 的 auth profile，再执行最小 validation 和 live probe。
@@ -89,6 +117,10 @@
 - profileCount: `0`
 - authReadyProfiles: `0`
 - writeReadyProfiles: `0`
+- recommendedAuthModes: `official_oauth, manual_token`
+- webLoginUrl: https://www.123pan.com/
+- officialDocsUrl: https://www.123pan.com/
+- requiredFieldHints: `token or extra.authorization, optional extra.parentFileId, optional extra.fileId`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `123_open` 的 auth profile，再执行最小 validation 和 live probe。

@@ -478,8 +478,11 @@
   - [verify_audit_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_audit_settings_ui.py) 现还额外验证了设置页审计摘要已显示 `featureCompletionPercent / strictCompletionPercent`
   - 已新增真实联调补救指南模块 `real_evidence_remediation`、API `GET /api/real_evidence_remediation_bundle` / `GET /api/real_evidence_remediation_markdown`、导出脚本 [export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_real_evidence_remediation.py) 与文档 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md)，可按 provider 汇总当前 `P-REAL` 还缺哪类证据、是否缺档案、是否仅剩 blocked runtime 样本，以及下一步建议动作
   - 设置页现已新增 `Real Evidence Next Steps` 摘要区，会直接读取 `GET /api/real_evidence_remediation_bundle` 的 summary，并展示 `noProfiles / needAuth / needList / needMetadata / needCreateDir / needRuntime / blockedOnly`，不必再人工对着多份 report 自己归纳下一步
+  - `Real Evidence Next Steps` 现还会继续带出每个 provider 的 `recommendedAuthModes / webLoginUrl(or officialDocsUrl) / requiredFieldHints`，即使当前还没有建档案，也能直接看到建议授权方式、登录入口和最小字段提示，不必再来回翻研究索引和 capture guide
   - [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已验证 remediation bundle 会为 `guangya` / `189cloud` 这类 provider 生成 `nextStep / recommendedPatchCommand`，并且 API / Markdown 端点已可用
+  - 同一脚本现还额外验证了 remediation Markdown 已带 `recommendedAuthModes / webLoginUrl / requiredFieldHints`
   - [verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py) 已验证设置页已接入 `Real Evidence Next Steps` 面板、`loadRealEvidenceRemediationSummary()`、登录刷新和登出清理逻辑
+  - 同一脚本现还额外验证了设置页摘要已消费 `recommendedAuthModes / webLoginUrl / requiredFieldHints`
   - 设置页 `Real Evidence` 摘要现也已补上 `latestValidationProfiles / latestProbeProfiles`，可直接看出当前真实证据汇总是基于多少个最新 validation / probe 档案样本得出的
   - [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py) 现还额外验证了设置页 `Real Evidence` 摘要已显示 `latestValidationProfiles / latestProbeProfiles`
   - 设置页 `Provider Status Matrix` 面板现还额外补上 `liveProbeOk / runtimeEvidenceProviders / runtimeFailedProviders`，可以直接看出当前有多少 provider 已经跑出 live probe 成功样本、真实 runtime 成功样本与失败样本

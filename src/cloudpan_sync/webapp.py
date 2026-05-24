@@ -53,6 +53,7 @@ from .guangya import guangya_fast_check, guangya_mock_list
 from .guangya_live import fetch_guangya_live_list, fetch_guangya_live_metadata, fetch_guangya_create_dir, fetch_guangya_live_fast_check
 from .planner import build_transfer_plan
 from .provider_mock import provider_mock_list, provider_mock_metadata
+from .provider_auth_hints import capture_field_hints, capture_login_url
 from .provider_research import build_provider_research_index
 from .provider_registry import build_provider_registry
 from .plan_audit import run_plan_audit, to_markdown
@@ -211,39 +212,6 @@ class TianyiCreateDirRequest(BaseModel):
     profileId: str
     parentId: str = ""
     dirName: str
-
-
-def _capture_login_url(provider_key: str) -> str:
-    for item in build_provider_research_index():
-        if str(item.get("providerKey") or "") == provider_key:
-            url = str(item.get("webLoginUrl") or "").strip()
-            if url:
-                return url
-    return ""
-
-
-def _capture_field_hints(provider_key: str) -> list[str]:
-    mapping = {
-        "guangya": ["token or extra.authorization", "extra.parentId", "optional extra.did", "optional extra.dt"],
-        "aliyundrive_open": ["token or extra.authorization", "extra.domainId", "extra.driveId"],
-        "189cloud": [
-            "share-read probe: extra.shareCode",
-            "optional extra.accessCode",
-            "account write auth: token or extra.accessToken",
-            "account write auth: extra.signature",
-            "account write auth: extra.date",
-            "optional helper: patch_189cloud_account_auth.py from captured headers/curl",
-            "optional extra.fileId",
-        ],
-        "baidu_netdisk": ["token or extra.authorization, or cookie", "optional extra.fileId", "optional extra.path"],
-        "123_open": ["token or extra.authorization", "optional extra.parentFileId", "optional extra.fileId"],
-        "115_open": ["cookie or extra.cookie_header", "optional extra.parentId or extra.cid", "optional extra.fileId"],
-        "xunlei": ["token or extra.authorization", "extra.deviceId or extra.x-device-id", "optional extra.fileId"],
-        "pikpak": ["token or extra.authorization", "optional extra.deviceId", "optional extra.fileId"],
-        "quark": ["cookie or extra.cookie_header", "extra.pwdId or extra.sharePwdId", "optional extra.passcode", "optional extra.fileId"],
-        "uc": ["cookie or extra.cookie_header", "extra.pwdId or extra.sharePwdId", "optional extra.passcode", "optional extra.fileId"],
-    }
-    return mapping.get(provider_key, [])
 
 
 def _auth_profile_view(profile: object) -> dict[str, object]:
@@ -529,8 +497,8 @@ def create_app() -> FastAPI:
     def auth_capture_start(payload: CaptureStartRequest, request: Request) -> dict[str, object]:
         if not _is_logged_in(request):
             raise HTTPException(status_code=401, detail="please_login_first")
-        login_url = _capture_login_url(payload.providerKey)
-        field_hints = _capture_field_hints(payload.providerKey)
+        login_url = capture_login_url(payload.providerKey)
+        field_hints = capture_field_hints(payload.providerKey)
         return {
             "providerKey": payload.providerKey,
             "status": "capture_pending",

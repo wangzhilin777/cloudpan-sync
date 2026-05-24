@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from .auth_profile_view import auth_profile_view
 from .auth_store import list_profiles
+from .provider_auth_hints import capture_field_hints, capture_login_url, official_docs_url, provider_auth_modes
 from .real_evidence_report import build_real_evidence_report
 
 
@@ -88,6 +89,10 @@ def build_real_evidence_remediation_bundle(
             "profileIds": [str(profile.get("profileId") or "") for profile in provider_profiles if str(profile.get("profileId") or "")],
             "authReadyProfiles": sum(1 for profile in provider_profiles if bool(profile.get("profileReady"))),
             "writeReadyProfiles": sum(1 for profile in provider_profiles if bool(profile.get("writeReady", True))),
+            "recommendedAuthModes": provider_auth_modes(provider_key),
+            "webLoginUrl": capture_login_url(provider_key),
+            "officialDocsUrl": official_docs_url(provider_key),
+            "requiredFieldHints": capture_field_hints(provider_key),
             "needsAuthEvidence": not bool(auth_evidence.get("ok")),
             "needsListEvidence": not bool(list_evidence.get("ok")),
             "needsMetadataEvidence": not bool(metadata_evidence.get("ok")),
@@ -148,6 +153,14 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
         lines.append(f"- profileCount: `{row.get('profileCount', 0)}`")
         lines.append(f"- authReadyProfiles: `{row.get('authReadyProfiles', 0)}`")
         lines.append(f"- writeReadyProfiles: `{row.get('writeReadyProfiles', 0)}`")
+        if row.get("recommendedAuthModes"):
+            lines.append(f"- recommendedAuthModes: `{', '.join(row.get('recommendedAuthModes') or [])}`")
+        if row.get("webLoginUrl"):
+            lines.append(f"- webLoginUrl: {row.get('webLoginUrl', '')}")
+        if row.get("officialDocsUrl"):
+            lines.append(f"- officialDocsUrl: {row.get('officialDocsUrl', '')}")
+        if row.get("requiredFieldHints"):
+            lines.append(f"- requiredFieldHints: `{', '.join(row.get('requiredFieldHints') or [])}`")
         lines.append(
             f"- needs: `auth={row.get('needsAuthEvidence', False)}` `list={row.get('needsListEvidence', False)}` "
             f"`metadata={row.get('needsMetadataEvidence', False)}` `create_dir={row.get('needsCreateDirEvidence', False)}` "

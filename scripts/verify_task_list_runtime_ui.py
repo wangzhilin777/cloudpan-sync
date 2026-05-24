@@ -24,6 +24,8 @@ def main() -> None:
                 "jsRenderTaskListShowsRequiredAuth": 'row.liveAttempt?.requiredAuth?.length' in app_js and 'requiredAuth=${row.liveAttempt.requiredAuth.join("/")}' in app_js,
                 "jsRenderTaskListShowsError": 'row.liveAttempt?.error' in app_js and 'error=${row.liveAttempt.error}' in app_js,
                 "jsLoadTasksUsesListItems": 'state.tasks = data.listItems || data.items || [];' in app_js,
+                "jsRenderPendingListCarriesConflictFields": 'conflictSupportStatus: item.conflictSupportStatus || ""' in app_js and 'conflictNote: item.conflictNote || ""' in app_js,
+                "jsRenderPendingListShowsConflictFields": 'const conflictSupportText = row.conflictSupportStatus ? `, conflictSupport=${row.conflictSupportStatus}` : "";' in app_js and 'const conflictNoteText = row.conflictNote ? `, conflictNote=${row.conflictNote}` : "";' in app_js,
             },
             ensure_ascii=False,
             indent=2,

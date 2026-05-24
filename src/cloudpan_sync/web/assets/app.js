@@ -1241,6 +1241,8 @@ function renderPendingList() {
         size: item.size,
         reason: item.reason,
         missingFastInputs: item.missingFastInputs || [],
+        conflictSupportStatus: item.conflictSupportStatus || "",
+        conflictNote: item.conflictNote || "",
       });
     }
   }

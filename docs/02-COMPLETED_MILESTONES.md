@@ -502,3 +502,5 @@
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了 `loadTasks()` 已优先读取 `listItems`，且 `renderTaskList()` 已优先显示 `latestResults`
   - 列表视图 `build_task_list_view()` 现也已补回 `pendingItems`，待处理页在切到轻量 `listItems` 后不再因为缺少 `plan.pendingItems` 而丢失待处理条目
   - [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 现还额外验证了 `/api/tasks` 的 `listItems[].pendingItems` 已返回，且列表视图仍保留 `latestResults`
+  - 待处理页现也已把 `pendingItems` 里的 `conflictSupportStatus / conflictNote` 真正透传到渲染层，不再只在代码里准备显示文案却因为 `rows` 丢字段而始终空白
+  - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了待处理页 `renderPendingList()` 已携带并显示 `conflictSupportStatus / conflictNote`

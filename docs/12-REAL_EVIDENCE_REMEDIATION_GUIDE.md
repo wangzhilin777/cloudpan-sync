@@ -6,11 +6,12 @@
 - providersNeedingListEvidence: `10`
 - providersNeedingMetadataEvidence: `10`
 - providersNeedingCreateDirEvidence: `10`
-- providersNeedingRuntimeSuccess: `10`
+- providersNeedingRuntimeSuccess: `9`
 - providersWithPatchCommand: `1`
 - providersWithPatchProbeCommand: `1`
 - providersWithRefreshEvidenceCommand: `1`
 - providersWithRuntimeProbeCommand: `0`
+- providersWithLiveUploadCommand: `0`
 - providersWithFastCandidateCommand: `0`
 - providersWithCreateCommand: `8`
 - providersWithBootstrapCommand: `8`
@@ -27,7 +28,7 @@
 - recommendedAuthModes: `web_login_capture, manual_token`
 - webLoginUrl: https://guangyapan.com/
 - requiredFieldHints: `token or extra.authorization, extra.parentId, optional extra.did, optional extra.dt`
-- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False`
+- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=False` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先补齐档案缺字段并重跑 validation / live probe，拿到 auth/list/metadata 最小成功证据。
 - recommendedPatchCommand: `.\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id 0318479d-4669-415f-9083-7aecc102bf90 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate`

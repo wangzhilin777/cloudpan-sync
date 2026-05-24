@@ -27,12 +27,12 @@ def main() -> None:
             {
                 "providerKey": "guangya",
                 "displayName": "Guangya",
-                "authEvidence": {"ok": False},
-                "listEvidence": {"ok": False},
-                "metadataEvidence": {"ok": False},
-                "createDirEvidence": {"ok": False},
+                "authEvidence": {"ok": True},
+                "listEvidence": {"ok": True},
+                "metadataEvidence": {"ok": True},
+                "createDirEvidence": {"ok": True},
                 "taskRuntimeEvidence": {"ok": False, "blockedCount": 0},
-                "gaps": ["缺少通过的 auth validation 证据"],
+                "gaps": ["基础证据已齐，但尚未记录到真实 runtime 成功样本"],
             },
             {
                 "providerKey": "189cloud",
@@ -77,13 +77,14 @@ def main() -> None:
         ]
     }
     synthetic_profiles = [
-        {
-            "profileId": "gy-rem-1",
-            "providerKey": "guangya",
-            "displayName": "smoke-guangya",
-            "profileReady": False,
-            "writeReady": True,
-        },
+            {
+                "profileId": "gy-rem-1",
+                "providerKey": "guangya",
+                "displayName": "smoke-guangya",
+                "profileReady": True,
+                "writeReady": True,
+                "resolvedParentId": "gy-parent-1",
+            },
         {
             "profileId": "115-rem-1",
             "providerKey": "115_open",
@@ -166,6 +167,7 @@ def main() -> None:
                 "providersWithPatchProbeCommand": ((bundle.get("summary") or {}).get("providersWithPatchProbeCommand")),
                 "providersWithRefreshEvidenceCommand": ((bundle.get("summary") or {}).get("providersWithRefreshEvidenceCommand")),
                 "providersWithRuntimeProbeCommand": ((bundle.get("summary") or {}).get("providersWithRuntimeProbeCommand")),
+                "providersWithLiveUploadCommand": ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")),
                 "providersWithFastCandidateCommand": ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")),
                 "providersBlockedOnly": ((bundle.get("summary") or {}).get("providersBlockedOnly")),
                 "providersCandidateOnly": ((bundle.get("summary") or {}).get("providersCandidateOnly")),
@@ -177,6 +179,8 @@ def main() -> None:
                 "markdownHasRefreshEvidenceCommand": "recommendedRefreshEvidenceCommand" in markdown and "--profile-id" in markdown,
                 "markdownHasRuntimeProbeCommand": "recommendedRuntimeProbeCommand" in markdown and "create_runtime_probe_task.py" in markdown,
                 "runtimeProbeCommandCarriesResolvedParent": "--target-parent-id 115-root-1" in markdown,
+                "markdownHasLiveUploadCommand": "recommendedLiveUploadCommand" in markdown and "create_live_upload_task.py" in markdown,
+                "liveUploadCommandCarriesResolvedParent": "--target-parent-id gy-parent-1" in markdown and "--markdown-output tmp\\guangya-live-upload-task.md" in markdown,
                 "markdownHasFastCandidateCommand": "recommendedFastCandidateCommand" in markdown and "create_fast_upload_candidate_task.py" in markdown,
                 "fastCandidateCommandCarriesResolvedParent": "--target-parent-id 115-root-1" in markdown,
                 "markdownHasCandidateOnlyFlag": "runtimeCandidateOnly=True" in markdown,

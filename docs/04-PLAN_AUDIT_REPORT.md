@@ -1,6 +1,6 @@
 # CloudPan Sync 计划完成度审计报告
 
-- 生成时间：`2026-05-24T10:57:24.335350+00:00`
+- 生成时间：`2026-05-24T11:01:38.493894+00:00`
 - 汇总：`done=5` `partial=2` `todo=1`
 - Provider覆盖：`providerCount=10` `researchCount=10`
 
@@ -29,7 +29,7 @@
 ### M5 - 首批常用网盘接入
 - 状态：`partial`
 - 证据：首批 provider 已补齐到 10 个，研究索引 10 条；其中 aliyundrive_open 已支持基于已保存 access token + domainId/driveId 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；123_open 已支持基于已保存 token 的真实 list/metadata(parentFileId scoped)/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；115_open 已支持基于已保存 cookie 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；xunlei 已支持基于 token + device headers 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；pikpak 已支持基于 token 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；baidu_netdisk 已支持基于 access token 或 cookie 的保守 live list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；quark 与 uc 已支持基于 cookie + pwdId 的分享链路 live list/metadata(MD5 via file/download) 与 create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；189cloud 已支持基于分享参数的真实 list/metadata 尝试，且 `createFolder.action` 现已接入账号级 `AccessToken/Signature/Date` 写目录尝试，share-only 场景仍会诚实返回只读阻断；状态矩阵现已额外显式量化 create_dir 能力以及 task runtime 轨道，当前可区分 `runtime_active / runtime_candidate / runtime_blocked`。
-- 缺口：189Cloud 目前仍缺真实在线成功样本；账号级写鉴权虽已补到 captured headers/curl 提取与回填脚本，但稳定可复用的真实来源样本仍缺，shareCode/accessCode-only 档案依旧不可写。Quark/UC 的真实 upload 链路还未接入，但现在也已补到 runtime fast-upload 候选探针证据；百度、PikPak、Quark、UC 的真实秒传 API 成功样本仍缺。
+- 缺口：189Cloud 目前仍缺真实在线成功样本；账号级写鉴权虽已补到 captured headers/curl 提取与回填脚本，但稳定可复用的真实来源样本仍缺，shareCode/accessCode-only 档案依旧不可写。115 Open、Xunlei、Quark、UC 的真实 upload 链路还未接入，但现在都已补到 runtime fast-upload 候选探针证据；百度、PikPak、115 Open、Xunlei、Quark、UC 的真实秒传 API 成功样本仍缺。
 
 ### M6 - 互传任务规划
 - 状态：`done`

@@ -659,6 +659,114 @@ def run_task(task_id: str) -> dict[str, object]:
             results.append(row_result)
             continue
 
+        if strategy == "fast_upload" and target_provider == "115_open" and target_profile_id:
+            source_entry = _source_entry_for_item(source_entries_by_path, item)
+            normalized = _normalized_fingerprints_for_item(item)
+            sha1_value = _first_text(
+                source_entry.get("sha1"),
+                normalized.get("sha1"),
+            ).lower()
+            row_result["executionMode"] = "probe"
+            if sha1_value:
+                done += 1
+                row_result["status"] = "done"
+                row_result["note"] = (
+                    "115 Open fast-upload candidate confirmed from current sha1/size fingerprints. "
+                    "The current runtime only records candidate evidence and does not call a live rapid-upload API yet."
+                )
+                row_result["liveAttempt"] = {
+                    "mode": "115_open_fast_upload_candidate",
+                    "hashKind": "sha1",
+                    "candidate": True,
+                    "requiredInputs": ["sha1", "size"],
+                    "hashValue": sha1_value,
+                    "riskHint": "",
+                    "verifyOk": True,
+                    "verifyMode": "fingerprint_candidate",
+                    "verifyNote": "Current sha1/size fingerprints satisfy 115 Open fast-upload precheck, but runtime remains probe-only.",
+                    "verifyPayload": {
+                        "sha1": sha1_value,
+                        "size": int(item.get("size", 0) or 0),
+                    },
+                    "resolvedTargetName": PurePosixPath(path or "/").name or path,
+                    "conflictAction": "",
+                }
+            else:
+                failed += 1
+                row_result["status"] = "failed"
+                row_result["note"] = "115 Open fast-upload candidate probe failed because sha1 fingerprint is missing."
+                row_result["liveAttempt"] = {
+                    "mode": "115_open_fast_upload_candidate",
+                    "hashKind": "sha1",
+                    "candidate": False,
+                    "requiredInputs": ["sha1", "size"],
+                    "error": "missing_sha1",
+                    "riskHint": "Fast-upload candidate probe requires sha1 fingerprint.",
+                    "verifyOk": False,
+                    "verifyMode": "",
+                    "verifyNote": "",
+                    "verifyPayload": {},
+                    "resolvedTargetName": PurePosixPath(path or "/").name or path,
+                    "conflictAction": "",
+                }
+            results.append(row_result)
+            continue
+
+        if strategy == "fast_upload" and target_provider == "xunlei" and target_profile_id:
+            source_entry = _source_entry_for_item(source_entries_by_path, item)
+            normalized = _normalized_fingerprints_for_item(item)
+            gcid_value = _first_text(
+                source_entry.get("gcid"),
+                normalized.get("gcid"),
+                source_entry.get("raw", {}).get("hash") if isinstance(source_entry.get("raw"), dict) else "",
+                normalized.get("raw", {}).get("hash") if isinstance(normalized.get("raw"), dict) else "",
+            ).lower()
+            row_result["executionMode"] = "probe"
+            if gcid_value:
+                done += 1
+                row_result["status"] = "done"
+                row_result["note"] = (
+                    "Xunlei fast-upload candidate confirmed from current gcid/size fingerprints. "
+                    "The current runtime only records candidate evidence and does not call a live rapid-upload API yet."
+                )
+                row_result["liveAttempt"] = {
+                    "mode": "xunlei_fast_upload_candidate",
+                    "hashKind": "gcid",
+                    "candidate": True,
+                    "requiredInputs": ["gcid", "size"],
+                    "hashValue": gcid_value,
+                    "riskHint": "",
+                    "verifyOk": True,
+                    "verifyMode": "fingerprint_candidate",
+                    "verifyNote": "Current gcid/size fingerprints satisfy Xunlei fast-upload precheck, but runtime remains probe-only.",
+                    "verifyPayload": {
+                        "gcid": gcid_value,
+                        "size": int(item.get("size", 0) or 0),
+                    },
+                    "resolvedTargetName": PurePosixPath(path or "/").name or path,
+                    "conflictAction": "",
+                }
+            else:
+                failed += 1
+                row_result["status"] = "failed"
+                row_result["note"] = "Xunlei fast-upload candidate probe failed because gcid fingerprint is missing."
+                row_result["liveAttempt"] = {
+                    "mode": "xunlei_fast_upload_candidate",
+                    "hashKind": "gcid",
+                    "candidate": False,
+                    "requiredInputs": ["gcid", "size"],
+                    "error": "missing_gcid",
+                    "riskHint": "Fast-upload candidate probe requires gcid fingerprint.",
+                    "verifyOk": False,
+                    "verifyMode": "",
+                    "verifyNote": "",
+                    "verifyPayload": {},
+                    "resolvedTargetName": PurePosixPath(path or "/").name or path,
+                    "conflictAction": "",
+                }
+            results.append(row_result)
+            continue
+
         if strategy == "download_upload" and target_provider == "guangya" and target_profile_id:
             row_result["executionMode"] = "live"
             source_entry = source_entries_by_path.get(path, {})

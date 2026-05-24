@@ -64,7 +64,7 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `False` samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0 note=当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
-- notes: access token or cookie can now drive conservative live list/metadata/create_dir attempts on the xpan file API; this provider remains high risk-control and still lacks stable real samples plus fast-transfer evidence.
+- notes: access token or cookie can now drive conservative live list/metadata/create_dir attempts on the xpan file API, and the task runtime has also wired a real local-file upload path through precreate -> superfile2 -> create with post-upload metadata verification; this provider still lacks stable real online success samples and fast-transfer evidence.
 
 ## uc - UC Drive
 - fullyVerified: `False`

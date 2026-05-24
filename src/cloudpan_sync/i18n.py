@@ -78,7 +78,7 @@ MESSAGES = {
         "panel.new_task.summary": "Current Wizard Summary",
         "panel.auth.title": "Auth Management",
         "panel.queue.title": "Transfer Queue",
-        "panel.queue.subtitle": "Create lightweight tasks here. When a Guangya, Aliyun Drive Open, or 123Pan Open task includes targetProfileId and localPath, runtime can attempt real live transfer checks.",
+        "panel.queue.subtitle": "Create lightweight tasks here. When a Guangya, Aliyun Drive Open, 123Pan Open, or Baidu Netdisk task includes targetProfileId and localPath, runtime can attempt real live transfer checks.",
         "panel.pending.title": "Pending Review",
         "panel.pending.subtitle": "Collect large files or entries missing required fingerprints for manual confirmation.",
         "panel.providers.title": "Provider Capability",

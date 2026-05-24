@@ -45,6 +45,7 @@ def main() -> None:
     guangya_provider = _find_row(provider_items, "guangya")
     guangya_matrix = _find_row(matrix_items, "guangya")
     pan123_matrix = _find_row(matrix_items, "123_open")
+    baidu_matrix = _find_row(matrix_items, "baidu_netdisk")
     tianyi_matrix = _find_row(matrix_items, "189cloud")
 
     print(
@@ -84,6 +85,20 @@ def main() -> None:
                     "task_runtime_failed": pan123_matrix.get("task_runtime_failed"),
                     "task_runtime_blocked": pan123_matrix.get("task_runtime_blocked"),
                     "task_runtime_conflict_handled": pan123_matrix.get("task_runtime_conflict_handled"),
+                },
+                "baiduMatrix": {
+                    "conflictPolicies": baidu_matrix.get("conflictPolicies"),
+                    "supportsOverwrite": baidu_matrix.get("supportsOverwrite"),
+                    "supportsAutoRename": baidu_matrix.get("supportsAutoRename"),
+                    "overwriteBehavior": baidu_matrix.get("overwriteBehavior"),
+                    "overwrite_support_status": baidu_matrix.get("overwrite_support_status"),
+                    "auto_rename_support_status": baidu_matrix.get("auto_rename_support_status"),
+                    "task_runtime_track": baidu_matrix.get("task_runtime_track"),
+                    "task_runtime_samples": baidu_matrix.get("task_runtime_samples"),
+                    "task_runtime_success": baidu_matrix.get("task_runtime_success"),
+                    "task_runtime_failed": baidu_matrix.get("task_runtime_failed"),
+                    "task_runtime_blocked": baidu_matrix.get("task_runtime_blocked"),
+                    "task_runtime_conflict_handled": baidu_matrix.get("task_runtime_conflict_handled"),
                 },
                 "tianyiMatrix": {
                     "create_dir_ready": tianyi_matrix.get("create_dir_ready"),

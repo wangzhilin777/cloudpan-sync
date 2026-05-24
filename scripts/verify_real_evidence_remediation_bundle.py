@@ -74,6 +74,16 @@ def main() -> None:
                 "taskRuntimeEvidence": {"ok": False, "blockedCount": 0, "probeCount": 1},
                 "gaps": ["已有 probe-only 样本，但尚未记录到真实传输成功样本"],
             },
+            {
+                "providerKey": "baidu_netdisk",
+                "displayName": "Baidu Netdisk",
+                "authEvidence": {"ok": True},
+                "listEvidence": {"ok": True},
+                "metadataEvidence": {"ok": True},
+                "createDirEvidence": {"ok": True},
+                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0},
+                "gaps": ["基础证据已齐，但尚未记录到真实 runtime 成功样本"],
+            },
         ]
     }
     synthetic_profiles = [
@@ -100,6 +110,14 @@ def main() -> None:
             "profileReady": True,
             "writeReady": True,
             "resolvedParentId": "0",
+        },
+        {
+            "profileId": "bd-rem-1",
+            "providerKey": "baidu_netdisk",
+            "displayName": "baidu-ready",
+            "profileReady": True,
+            "writeReady": True,
+            "resolvedParentId": "/",
         },
         {
             "profileId": "189-rem-1",

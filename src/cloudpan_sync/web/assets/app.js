@@ -1548,7 +1548,7 @@ function renderProviderPanel() {
     if (realEvidence) {
       const evidenceMeta = document.createElement("div");
       evidenceMeta.className = "auth-item-meta";
-      evidenceMeta.textContent = `real_evidence auth=${Boolean(realEvidence.authEvidence?.ok)}, list=${Boolean(realEvidence.listEvidence?.ok)}, metadata=${Boolean(realEvidence.metadataEvidence?.ok)}, create_dir=${Boolean(realEvidence.createDirEvidence?.ok)}, task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}, conflict=${realEvidence.taskRuntimeEvidence?.conflictHandledCount || 0}), fully_verified=${Boolean(realEvidence.fullyVerified)}`;
+      evidenceMeta.textContent = `real_evidence auth=${Boolean(realEvidence.authEvidence?.ok)}, list=${Boolean(realEvidence.listEvidence?.ok)}, metadata=${Boolean(realEvidence.metadataEvidence?.ok)}, create_dir=${Boolean(realEvidence.createDirEvidence?.ok)}, task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}, blocked=${realEvidence.taskRuntimeEvidence?.blockedCount || 0}, conflict=${realEvidence.taskRuntimeEvidence?.conflictHandledCount || 0}), fully_verified=${Boolean(realEvidence.fullyVerified)}`;
       node.appendChild(evidenceMeta);
       if ((realEvidence.gaps || []).length) {
         const evidenceGaps = document.createElement("div");
@@ -1581,7 +1581,7 @@ function renderProviderPanel() {
     if (realEvidence) {
       const evidenceMeta = document.createElement("div");
       evidenceMeta.className = "auth-item-meta";
-      evidenceMeta.textContent = `real_evidence auth=${Boolean(realEvidence.authEvidence?.ok)}, list=${Boolean(realEvidence.listEvidence?.ok)}, metadata=${Boolean(realEvidence.metadataEvidence?.ok)}, create_dir=${Boolean(realEvidence.createDirEvidence?.ok)}, task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}, conflict=${realEvidence.taskRuntimeEvidence?.conflictHandledCount || 0}), fully_verified=${Boolean(realEvidence.fullyVerified)}`;
+      evidenceMeta.textContent = `real_evidence auth=${Boolean(realEvidence.authEvidence?.ok)}, list=${Boolean(realEvidence.listEvidence?.ok)}, metadata=${Boolean(realEvidence.metadataEvidence?.ok)}, create_dir=${Boolean(realEvidence.createDirEvidence?.ok)}, task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}, blocked=${realEvidence.taskRuntimeEvidence?.blockedCount || 0}, conflict=${realEvidence.taskRuntimeEvidence?.conflictHandledCount || 0}), fully_verified=${Boolean(realEvidence.fullyVerified)}`;
       node.appendChild(title);
       node.appendChild(meta);
       node.appendChild(notes);
@@ -1694,7 +1694,7 @@ function renderSettingsPanel() {
     `providers=${realEvidence.providerCount || 0}, profilesSaved=${realEvidence.profilesSaved || 0}`,
     `auth=${realEvidence.authEvidenceProviderCount || 0}, list=${realEvidence.listEvidenceProviderCount || 0}, metadata=${realEvidence.metadataEvidenceProviderCount || 0}`,
     `create_dir=${realEvidence.createDirEvidenceProviderCount || 0}, task_runtime=${realEvidence.taskRuntimeEvidenceProviderCount || 0}, task_runtime_failed=${realEvidence.taskRuntimeFailedProviderCount || 0}, fully_verified=${realEvidence.fullyVerifiedProviderCount || 0}`,
-    `runtime_samples=${realEvidence.taskRuntimeSampleCount || 0}, runtime_success=${realEvidence.taskRuntimeSuccessCount || 0}, runtime_failed=${realEvidence.taskRuntimeFailedCount || 0}, runtime_conflict_handled=${realEvidence.taskRuntimeConflictHandledCount || 0}`,
+    `runtime_samples=${realEvidence.taskRuntimeSampleCount || 0}, runtime_success=${realEvidence.taskRuntimeSuccessCount || 0}, runtime_failed=${realEvidence.taskRuntimeFailedCount || 0}, runtime_blocked_providers=${realEvidence.taskRuntimeBlockedProviderCount || 0}, runtime_blocked=${realEvidence.taskRuntimeBlockedCount || 0}, runtime_conflict_handled=${realEvidence.taskRuntimeConflictHandledCount || 0}`,
   ];
   for (const row of realEvidenceRows) {
     const li = document.createElement("li");
@@ -1705,7 +1705,7 @@ function renderSettingsPanel() {
   const runtimeEvidenceSummary = state.taskRuntimeEvidenceMeta?.summary || {};
   const runtimeEvidenceRows = [
     `history=${state.taskRuntimeEvidenceMeta?.historyCount || 0}, latestSamples=${runtimeEvidenceSummary.sampleCount || 0}`,
-    `providers=${runtimeEvidenceSummary.providerCount || 0}, profiles=${runtimeEvidenceSummary.profileCount || 0}, successProviders=${runtimeEvidenceSummary.successProviderCount || 0}, failedProviders=${runtimeEvidenceSummary.failedProviderCount || 0}, success=${runtimeEvidenceSummary.successCount || 0}, failed=${runtimeEvidenceSummary.failedCount || 0}, verifyOk=${runtimeEvidenceSummary.verifyOkCount || 0}`,
+    `providers=${runtimeEvidenceSummary.providerCount || 0}, profiles=${runtimeEvidenceSummary.profileCount || 0}, successProviders=${runtimeEvidenceSummary.successProviderCount || 0}, failedProviders=${runtimeEvidenceSummary.failedProviderCount || 0}, blockedProviders=${runtimeEvidenceSummary.blockedProviderCount || 0}, success=${runtimeEvidenceSummary.successCount || 0}, failed=${runtimeEvidenceSummary.failedCount || 0}, blocked=${runtimeEvidenceSummary.blockedCount || 0}, verifyOk=${runtimeEvidenceSummary.verifyOkCount || 0}`,
     `conflictHandledProviders=${runtimeEvidenceSummary.conflictHandledProviderCount || 0}, conflictHandled=${runtimeEvidenceSummary.conflictHandledCount || 0}`,
   ];
   for (const row of runtimeEvidenceRows) {
@@ -1715,7 +1715,7 @@ function renderSettingsPanel() {
   }
   for (const item of (state.taskRuntimeEvidence || []).slice(0, 3)) {
     const li = document.createElement("li");
-    li.textContent = `${item.providerKey || "(unknown)"}: mode=${item.mode || ""}, success=${Boolean(item.success)}, verifyOk=${Boolean(item.verifyOk)}, conflict=${item.conflictAction || "(none)"}`;
+    li.textContent = `${item.providerKey || "(unknown)"}: mode=${item.mode || ""}, executionMode=${item.executionMode || ""}, success=${Boolean(item.success)}, verifyOk=${Boolean(item.verifyOk)}, conflict=${item.conflictAction || "(none)"}`;
     taskRuntimeEvidenceList.appendChild(li);
   }
 

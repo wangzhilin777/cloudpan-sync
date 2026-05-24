@@ -28,6 +28,7 @@ def main() -> None:
                     "profileId": "gy-1",
                     "path": "/demo.bin",
                     "mode": "binary_upload_multipart",
+                    "executionMode": "live",
                     "success": True,
                     "verifyOk": True,
                     "verifyMode": "list_by_parent_name",
@@ -36,6 +37,25 @@ def main() -> None:
                     "conflictAction": "overwrite_downgraded_to_auto_rename",
                     "resolvedTargetName": "demo (1).bin",
                     "savedAt": "2026-05-24T00:00:00+00:00",
+                }
+            )
+            task_runtime_evidence_store.save_task_runtime_evidence(
+                {
+                    "taskId": "task-2",
+                    "providerKey": "189cloud",
+                    "profileId": "189-1",
+                    "path": "/large.iso",
+                    "mode": "download_upload_blocked_by_size_limit",
+                    "executionMode": "blocked",
+                    "success": False,
+                    "verifyOk": False,
+                    "verifyMode": "",
+                    "verifyNote": "",
+                    "conflictPolicy": "auto_rename_new",
+                    "conflictAction": "",
+                    "resolvedTargetName": "large.iso",
+                    "error": "download_upload_blocked_by_size_limit",
+                    "savedAt": "2026-05-25T00:00:00+00:00",
                 }
             )
             payload = task_runtime_evidence_store.build_task_runtime_evidence_payload()
@@ -56,7 +76,9 @@ def main() -> None:
                         "firstLatestItem": ((payload.get("latestItems") or [None])[0]),
                         "markdownHasTitle": "# CloudPan Sync 任务运行真实样本报告" in markdown,
                         "markdownHasConflictHandledProviderCount": "conflictHandledProviderCount=1" in markdown,
-                        "markdownHasSuccessFailedProviderCount": "successProviderCount=1" in markdown and "failedProviderCount=0" in markdown,
+                        "markdownHasSuccessFailedProviderCount": "successProviderCount=1" in markdown and "failedProviderCount=1" in markdown,
+                        "markdownHasBlockedCounts": "blockedProviderCount=1" in markdown and "blockedCount=1" in markdown,
+                        "markdownHasExecutionMode": "executionMode=blocked" in markdown and "executionMode=live" in markdown,
                         "apiSummary": api_payload.get("summary"),
                         "apiMarkdownHasTitle": "# CloudPan Sync 任务运行真实样本报告" in str(api_markdown.get("markdown") or ""),
                     },

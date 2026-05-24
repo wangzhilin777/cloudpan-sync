@@ -17,7 +17,7 @@ def main() -> None:
             {
                 "jsHasRealEvidenceReportState": 'realEvidenceReport: null' in app_js,
                 "jsHasRealEvidenceByProviderHelper": 'function realEvidenceByProvider(providerKey)' in app_js,
-                "jsProviderPanelUsesRealEvidence": 'real_evidence auth=' in app_js and 'real_evidence_gaps=' in app_js and 'task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}, conflict=${realEvidence.taskRuntimeEvidence?.conflictHandledCount || 0})' in app_js,
+                "jsProviderPanelUsesRealEvidence": 'real_evidence auth=' in app_js and 'real_evidence_gaps=' in app_js and 'task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}, blocked=${realEvidence.taskRuntimeEvidence?.blockedCount || 0}, conflict=${realEvidence.taskRuntimeEvidence?.conflictHandledCount || 0})' in app_js,
                 "jsProviderPanelShowsRuntimeTrack": 'task_runtime_track=${item.task_runtime_track || "runtime_planned"}, conflictHandled=${item.task_runtime_conflict_handled || 0}' in app_js,
                 "jsProviderPanelSummaryShowsConflictCounts": 'label: "autoRenameProbeOnly"' in app_js and 'label: "conflictUnsupported"' in app_js and 'label: "runtimeConflictHandled"' in app_js,
                 "jsLoadRealEvidenceTriggersProviderRender": 'state.realEvidenceReport = data;' in app_js and 'renderProviderPanel();' in app_js,

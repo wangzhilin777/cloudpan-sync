@@ -20,7 +20,7 @@ def main() -> None:
                 "jsHasRealEvidenceState": 'realEvidenceSummary: null' in app_js,
                 "jsHasRealEvidenceLoader": 'async function loadRealEvidenceSummary()' in app_js and 'fetchJson("/api/real_evidence")' in app_js,
                 "jsRefreshProtectedDataLoadsRealEvidence": 'loadRealEvidenceSummary(),' in app_js,
-                "jsRenderSettingsUsesRealEvidence": 'const realEvidence = state.realEvidenceSummary || {};' in app_js and 'task_runtime=' in app_js and 'task_runtime_failed=' in app_js and 'runtime_samples=' in app_js and 'runtime_success=' in app_js and 'runtime_failed=' in app_js and 'runtime_conflict_handled=' in app_js and 'fully_verified=' in app_js,
+                "jsRenderSettingsUsesRealEvidence": 'const realEvidence = state.realEvidenceSummary || {};' in app_js and 'task_runtime=' in app_js and 'task_runtime_failed=' in app_js and 'runtime_samples=' in app_js and 'runtime_success=' in app_js and 'runtime_failed=' in app_js and 'runtime_blocked_providers=' in app_js and 'runtime_blocked=' in app_js and 'runtime_conflict_handled=' in app_js and 'fully_verified=' in app_js,
                 "jsLogoutClearsRealEvidence": 'state.realEvidenceSummary = null;' in app_js,
             },
             ensure_ascii=False,

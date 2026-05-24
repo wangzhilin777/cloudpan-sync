@@ -217,6 +217,7 @@ def _persist_task_runtime_evidence(task: dict[str, object], results: list[dict[s
                 "profileId": profile_id,
                 "path": str(result.get("path") or ""),
                 "mode": mode,
+                "executionMode": str(result.get("executionMode") or ""),
                 "success": status == "done",
                 "status": status,
                 "verifyOk": bool(live_attempt.get("verifyOk")),
@@ -1509,6 +1510,23 @@ def run_task(task_id: str) -> dict[str, object]:
             failed += 1
             row_result["status"] = "failed"
             row_result["note"] = "Download-upload fallback is blocked for files larger than 512MB in the current runtime."
+            row_result["liveAttempt"] = {
+                "mode": "download_upload_blocked_by_size_limit",
+                "riskHint": "download_upload_size_limit_exceeded",
+                "verifyOk": False,
+                "verifyMode": "",
+                "verifyNote": "",
+                "verifyPayload": {},
+                "resolvedTargetName": str(item.get("targetName") or ""),
+                "conflictAction": "",
+                "error": "download_upload_blocked_by_size_limit",
+                "requiredAuth": [],
+                "payload": {
+                    "size": int(item.get("size", 0) or 0),
+                    "limitBytes": 512 * 1024 * 1024,
+                    "strategy": strategy,
+                },
+            }
             results.append(row_result)
             continue
         row_result["executionMode"] = "mock"

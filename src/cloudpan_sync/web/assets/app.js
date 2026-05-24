@@ -1507,6 +1507,8 @@ function renderProviderPanel() {
       { label: "createDir", value: state.statusMatrix.summary.createDirReadyCount || 0 },
       { label: "fastCheck", value: state.statusMatrix.summary.fastCheckCount || 0 },
       { label: "conflictAware", value: state.statusMatrix.summary.conflictAwareProviderCount || 0 },
+      { label: "autoRenameProbeOnly", value: state.statusMatrix.summary.autoRenameProbeOnlyCount || 0 },
+      { label: "conflictUnsupported", value: state.statusMatrix.summary.conflictUnsupportedProviderCount || 0 },
       { label: "runtime", value: state.statusMatrix.summary.taskRuntimeSampleCount || 0 },
     ];
     for (const card of cards) {

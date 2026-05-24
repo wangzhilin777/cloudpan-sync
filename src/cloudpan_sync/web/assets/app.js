@@ -533,6 +533,7 @@ function render() {
   document.getElementById("settingsSessionTitle").textContent = t("settings.session");
   document.getElementById("settingsValidationTitle").textContent = t("settings.validation");
   document.getElementById("settingsProviderProbeTitle").textContent = t("settings.provider_probe");
+  document.getElementById("settingsProviderStatusTitle").textContent = "Provider Status Matrix";
   document.getElementById("settingsAuditTitle").textContent = t("settings.audit");
   document.getElementById("settingsTip").textContent = t("settings.last_tip");
   updateAuthFormMode();
@@ -941,6 +942,7 @@ async function loadStatusMatrix() {
   const data = await fetchJson("/api/providers/status_matrix");
   state.statusMatrix = data;
   renderProviderPanel();
+  renderSettingsPanel();
 }
 
 async function loadAuditSummary() {
@@ -1628,12 +1630,14 @@ function renderSettingsPanel() {
   const sessionList = document.getElementById("settingsSessionList");
   const validationList = document.getElementById("settingsValidationList");
   const providerProbeList = document.getElementById("settingsProviderProbeList");
+  const providerStatusList = document.getElementById("settingsProviderStatusList");
   const realEvidenceList = document.getElementById("settingsRealEvidenceList");
   const taskRuntimeEvidenceList = document.getElementById("settingsTaskRuntimeEvidenceList");
   const auditList = document.getElementById("settingsAuditList");
   sessionList.innerHTML = "";
   validationList.innerHTML = "";
   providerProbeList.innerHTML = "";
+  providerStatusList.innerHTML = "";
   realEvidenceList.innerHTML = "";
   taskRuntimeEvidenceList.innerHTML = "";
   auditList.innerHTML = "";
@@ -1688,6 +1692,18 @@ function renderSettingsPanel() {
       li.textContent = `${probe.providerKey || "(unknown)"}: ok=${probe.ok}, mode=${probe.mode}, checks=${(probe.checks || []).length}`;
       providerProbeList.appendChild(li);
     }
+  }
+
+  const providerStatusSummary = state.statusMatrix?.summary || {};
+  const providerStatusRows = [
+    `providers=${providerStatusSummary.providerCount || 0}, authReady=${providerStatusSummary.authReadyCount || 0}, createDir=${providerStatusSummary.createDirReadyCount || 0}, fastCheck=${providerStatusSummary.fastCheckCount || 0}`,
+    `runtime=${providerStatusSummary.taskRuntimeSampleCount || 0}, runtimeBlockedProviders=${providerStatusSummary.taskRuntimeBlockedProviderCount || 0}, runtimeBlocked=${providerStatusSummary.taskRuntimeBlockedEvidenceCount || 0}, runtimeConflictHandled=${providerStatusSummary.taskRuntimeConflictHandledCount || 0}`,
+    `runtimeActive=${providerStatusSummary.taskRuntimeActiveCount || 0}, runtimeCandidate=${providerStatusSummary.taskRuntimeCandidateCount || 0}, runtimeTrackBlocked=${providerStatusSummary.taskRuntimeBlockedCount || 0}, conflictUnsupported=${providerStatusSummary.conflictUnsupportedProviderCount || 0}`,
+  ];
+  for (const row of providerStatusRows) {
+    const li = document.createElement("li");
+    li.textContent = row;
+    providerStatusList.appendChild(li);
   }
 
   const realEvidence = state.realEvidenceSummary || {};

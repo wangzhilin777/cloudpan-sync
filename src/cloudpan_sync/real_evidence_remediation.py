@@ -25,6 +25,34 @@ def _patch_command_for_profile(profile: dict[str, object]) -> str:
     return f"{base} --set key=value --write --revalidate"
 
 
+def _create_command_for_provider(
+    *,
+    provider_key: str,
+    auth_modes: list[str],
+    field_hints: list[str],
+) -> str:
+    auth_mode = str(auth_modes[0] if auth_modes else "manual_token")
+    cmd = [
+        ".\\.venv\\Scripts\\python.exe",
+        "scripts\\create_auth_profile_stub.py",
+        f"--provider-key {provider_key}",
+        f"--auth-mode {auth_mode}",
+        f"--display-name {provider_key}-{auth_mode}",
+    ]
+    if auth_mode == "manual_cookie":
+        cmd.append("--cookie YOUR_COOKIE")
+    else:
+        cmd.append("--token YOUR_TOKEN")
+    for hint in field_hints[:2]:
+        text = str(hint or "")
+        if "extra." not in text:
+            continue
+        key = text.split("extra.", 1)[1].split()[0].split(",")[0].strip()
+        if key:
+            cmd.append(f"--set {key}=YOUR_VALUE")
+    return " ".join(cmd)
+
+
 def _profile_views() -> list[dict[str, object]]:
     return [auth_profile_view(profile) for profile in list_profiles()]
 
@@ -101,6 +129,13 @@ def build_real_evidence_remediation_bundle(
             "runtimeBlockedOnly": runtime_blocked_only,
             "gaps": list(row.get("gaps") or []),
             "recommendedPatchCommand": _patch_command_for_profile(profile_needing_patch or {}),
+            "recommendedCreateCommand": _create_command_for_provider(
+                provider_key=provider_key,
+                auth_modes=provider_auth_modes(provider_key),
+                field_hints=capture_field_hints(provider_key),
+            )
+            if not provider_profiles
+            else "",
             "nextStep": _next_step(
                 provider_key=provider_key,
                 provider_profiles=provider_profiles,
@@ -124,6 +159,7 @@ def build_real_evidence_remediation_bundle(
             "providersNeedingCreateDirEvidence": sum(1 for item in items if bool(item.get("needsCreateDirEvidence"))),
             "providersNeedingRuntimeSuccess": sum(1 for item in items if bool(item.get("needsRuntimeSuccess"))),
             "providersWithPatchCommand": sum(1 for item in items if str(item.get("recommendedPatchCommand") or "")),
+            "providersWithCreateCommand": sum(1 for item in items if str(item.get("recommendedCreateCommand") or "")),
             "providersBlockedOnly": sum(1 for item in items if bool(item.get("runtimeBlockedOnly"))),
         },
         "items": items,
@@ -143,6 +179,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersNeedingCreateDirEvidence: `{summary.get('providersNeedingCreateDirEvidence', 0)}`")
     lines.append(f"- providersNeedingRuntimeSuccess: `{summary.get('providersNeedingRuntimeSuccess', 0)}`")
     lines.append(f"- providersWithPatchCommand: `{summary.get('providersWithPatchCommand', 0)}`")
+    lines.append(f"- providersWithCreateCommand: `{summary.get('providersWithCreateCommand', 0)}`")
     lines.append(f"- providersBlockedOnly: `{summary.get('providersBlockedOnly', 0)}`")
     lines.append("")
     lines.append("## Provider 清单")
@@ -169,6 +206,8 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
         if row.get("gaps"):
             lines.append(f"- gaps: {', '.join(row.get('gaps') or [])}")
         lines.append(f"- nextStep: {row.get('nextStep', '')}")
+        if row.get("recommendedCreateCommand"):
+            lines.append(f"- recommendedCreateCommand: `{row.get('recommendedCreateCommand', '')}`")
         if row.get("recommendedPatchCommand"):
             lines.append(f"- recommendedPatchCommand: `{row.get('recommendedPatchCommand', '')}`")
         lines.append("")

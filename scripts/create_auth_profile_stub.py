@@ -1,0 +1,71 @@
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from cloudpan_sync.auth_profile_patch import configure_data_dir
+from cloudpan_sync.auth_live_validate import run_profile_live_validation
+from cloudpan_sync.auth_store import save_profile
+from cloudpan_sync.models import AuthProfileInput
+
+
+def _parse_extra(values: list[str]) -> dict[str, str]:
+    extra: dict[str, str] = {}
+    for value in values:
+        text = str(value or "").strip()
+        if not text or "=" not in text:
+            continue
+        key, raw = text.split("=", 1)
+        key = key.strip()
+        raw = raw.strip()
+        if key and raw:
+            extra[key] = raw
+    return extra
+
+
+def main() -> None:
+    custom_data_dir = str(os.environ.get("CLOUDPAN_SYNC_DATA_DIR") or "").strip()
+    if custom_data_dir:
+        configure_data_dir(custom_data_dir)
+    parser = argparse.ArgumentParser(description="Create a local auth profile stub for CloudPan Sync.")
+    parser.add_argument("--provider-key", required=True, help="Provider key, such as guangya or aliyundrive_open.")
+    parser.add_argument("--auth-mode", required=True, help="Auth mode, such as manual_token or manual_cookie.")
+    parser.add_argument("--display-name", default="", help="Display name. Defaults to providerKey-authMode.")
+    parser.add_argument("--token", default="", help="Optional token value.")
+    parser.add_argument("--cookie", default="", help="Optional cookie value.")
+    parser.add_argument("--set", dest="extra", action="append", default=[], help="Extra field in key=value form.")
+    parser.add_argument("--validate", action="store_true", help="Run provider-aware live validation after saving.")
+    args = parser.parse_args()
+
+    payload = AuthProfileInput(
+        providerKey=str(args.provider_key).strip(),
+        authMode=str(args.auth_mode).strip(),
+        displayName=str(args.display_name).strip() or f"{str(args.provider_key).strip()}-{str(args.auth_mode).strip()}",
+        token=str(args.token or "").strip(),
+        cookie=str(args.cookie or "").strip(),
+        extra=_parse_extra(list(args.extra or [])),
+    )
+    profile = save_profile(payload)
+    result: dict[str, object] = {
+        "profileId": profile.profileId,
+        "providerKey": profile.providerKey,
+        "authMode": profile.authMode,
+        "displayName": profile.displayName,
+        "extra": dict(profile.extra or {}),
+        "written": True,
+    }
+    if args.validate:
+        result["validation"] = run_profile_live_validation(profile.profileId)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    main()

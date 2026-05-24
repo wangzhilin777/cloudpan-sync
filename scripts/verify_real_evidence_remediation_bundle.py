@@ -42,6 +42,16 @@ def main() -> None:
                 "taskRuntimeEvidence": {"ok": False, "blockedCount": 1},
                 "gaps": ["已有 task runtime 失败样本，但尚无成功样本"],
             },
+            {
+                "providerKey": "aliyundrive_open",
+                "displayName": "Aliyun Drive Open",
+                "authEvidence": {"ok": False},
+                "listEvidence": {"ok": False},
+                "metadataEvidence": {"ok": False},
+                "createDirEvidence": {"ok": False},
+                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0},
+                "gaps": ["缺少通过的 auth validation 证据"],
+            },
         ]
     }
     synthetic_profiles = [
@@ -80,8 +90,10 @@ def main() -> None:
         json.dumps(
             {
                 "providerCount": ((bundle.get("summary") or {}).get("providerCount")),
+                "providersWithCreateCommand": ((bundle.get("summary") or {}).get("providersWithCreateCommand")),
                 "providersWithPatchCommand": ((bundle.get("summary") or {}).get("providersWithPatchCommand")),
                 "providersBlockedOnly": ((bundle.get("summary") or {}).get("providersBlockedOnly")),
+                "markdownHasCreateCommand": "create_auth_profile_stub.py" in markdown,
                 "guangyaHasPatchCommand": "patch_auth_profile_extra.py" in markdown,
                 "cloud189HasHelper": "patch_189cloud_account_auth.py" in markdown,
                 "markdownHasAuthModes": "recommendedAuthModes" in markdown,

@@ -127,7 +127,7 @@ def build_provider_research_index() -> list[dict[str, object]]:
             "authModes": ["manual_token"],
             "status": "researching",
             "lastVerifiedAt": today,
-            "notes": "token + optional device headers can now drive live list/metadata/create_dir attempts on api-drive.mypikpak.com, and task runtime can now also attempt rapid upload through the live /drive/v1/files create-by-hash call when a usable local file plus gcid is available; stable real samples and full resumable upload fallback are still pending.",
+            "notes": "token + optional device headers can now drive live list/metadata/create_dir attempts on api-drive.mypikpak.com, and task runtime can now first attempt create-by-hash through the live /drive/v1/files call and then continue into the returned S3-compatible resumable binary upload session when hash miss occurs and a usable local file plus gcid is available; stable real samples are still pending, and the download_upload strategy still has not been upgraded into a direct local-file upload path.",
         },
         {
             "providerKey": "123_open",

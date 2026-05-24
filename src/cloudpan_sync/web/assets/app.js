@@ -1177,7 +1177,7 @@ function renderTaskList() {
       left.appendChild(errorMeta);
     }
 
-    const resultRows = task.results || [];
+    const resultRows = task.latestResults || task.results || [];
     if (resultRows.length) {
       const latest = resultRows
         .slice(0, 3)
@@ -1383,7 +1383,7 @@ async function loadTasks() {
     return;
   }
   const data = await fetchJson("/api/tasks");
-  state.tasks = data.items || [];
+  state.tasks = data.listItems || data.items || [];
   render();
 }
 

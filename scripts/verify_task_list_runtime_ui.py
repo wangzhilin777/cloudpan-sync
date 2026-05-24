@@ -16,12 +16,14 @@ def main() -> None:
         json.dumps(
             {
                 "jsRenderTaskListHasLatestResultRows": "function renderTaskList()" in app_js and ".slice(0, 3)" in app_js,
+                "jsRenderTaskListPrefersLatestResults": "const resultRows = task.latestResults || task.results || [];" in app_js,
                 "jsRenderTaskListShowsRiskHint": 'row.liveAttempt?.riskHint ? ` - ${row.liveAttempt.riskHint}` : ""' in app_js,
                 "jsRenderTaskListShowsVerifyMode": 'row.liveAttempt?.verifyMode' in app_js and 'verify=${row.liveAttempt.verifyOk ? "ok" : "pending"}:${row.liveAttempt.verifyMode}' in app_js,
                 "jsRenderTaskListShowsVerifyNote": 'row.liveAttempt?.verifyNote' in app_js and 'verifyNote=${row.liveAttempt.verifyNote}' in app_js,
                 "jsRenderTaskListShowsConflictAction": 'row.liveAttempt?.conflictAction' in app_js and 'conflict=${row.liveAttempt.conflictAction}:${row.liveAttempt.resolvedTargetName || "(same)"}' in app_js,
                 "jsRenderTaskListShowsRequiredAuth": 'row.liveAttempt?.requiredAuth?.length' in app_js and 'requiredAuth=${row.liveAttempt.requiredAuth.join("/")}' in app_js,
                 "jsRenderTaskListShowsError": 'row.liveAttempt?.error' in app_js and 'error=${row.liveAttempt.error}' in app_js,
+                "jsLoadTasksUsesListItems": 'state.tasks = data.listItems || data.items || [];' in app_js,
             },
             ensure_ascii=False,
             indent=2,

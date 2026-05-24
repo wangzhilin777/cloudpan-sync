@@ -498,3 +498,5 @@
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 已验证队列页 `renderTaskList()` 最近结果行已显示 `requiredAuth / error`
   - 队列页任务最近结果简讯现还额外补上 `verifyNote`，probe-only、post-verify 成功或尚未进入验证的样本可直接在列表看出当前验证说明
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` 最近结果行已显示 `verifyNote`
+  - 队列页当前已改为优先消费 `/api/tasks` 返回的 `listItems / latestResults` 视图，不再把详情态 `results` 当成列表页唯一数据源，最近结果简讯终于能稳定显示真实运行样本
+  - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了 `loadTasks()` 已优先读取 `listItems`，且 `renderTaskList()` 已优先显示 `latestResults`

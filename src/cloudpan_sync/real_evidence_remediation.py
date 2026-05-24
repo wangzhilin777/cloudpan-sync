@@ -53,6 +53,15 @@ def _create_command_for_provider(
     return " ".join(cmd)
 
 
+def _bootstrap_command_for_provider(
+    *,
+    provider_key: str,
+    auth_modes: list[str],
+    field_hints: list[str],
+) -> str:
+    return f"{_create_command_for_provider(provider_key=provider_key, auth_modes=auth_modes, field_hints=field_hints)} --probe"
+
+
 def _profile_views() -> list[dict[str, object]]:
     return [auth_profile_view(profile) for profile in list_profiles()]
 
@@ -136,6 +145,13 @@ def build_real_evidence_remediation_bundle(
             )
             if not provider_profiles
             else "",
+            "recommendedBootstrapCommand": _bootstrap_command_for_provider(
+                provider_key=provider_key,
+                auth_modes=provider_auth_modes(provider_key),
+                field_hints=capture_field_hints(provider_key),
+            )
+            if not provider_profiles
+            else "",
             "nextStep": _next_step(
                 provider_key=provider_key,
                 provider_profiles=provider_profiles,
@@ -160,6 +176,7 @@ def build_real_evidence_remediation_bundle(
             "providersNeedingRuntimeSuccess": sum(1 for item in items if bool(item.get("needsRuntimeSuccess"))),
             "providersWithPatchCommand": sum(1 for item in items if str(item.get("recommendedPatchCommand") or "")),
             "providersWithCreateCommand": sum(1 for item in items if str(item.get("recommendedCreateCommand") or "")),
+            "providersWithBootstrapCommand": sum(1 for item in items if str(item.get("recommendedBootstrapCommand") or "")),
             "providersBlockedOnly": sum(1 for item in items if bool(item.get("runtimeBlockedOnly"))),
         },
         "items": items,
@@ -180,6 +197,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersNeedingRuntimeSuccess: `{summary.get('providersNeedingRuntimeSuccess', 0)}`")
     lines.append(f"- providersWithPatchCommand: `{summary.get('providersWithPatchCommand', 0)}`")
     lines.append(f"- providersWithCreateCommand: `{summary.get('providersWithCreateCommand', 0)}`")
+    lines.append(f"- providersWithBootstrapCommand: `{summary.get('providersWithBootstrapCommand', 0)}`")
     lines.append(f"- providersBlockedOnly: `{summary.get('providersBlockedOnly', 0)}`")
     lines.append("")
     lines.append("## Provider 清单")
@@ -208,6 +226,8 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
         lines.append(f"- nextStep: {row.get('nextStep', '')}")
         if row.get("recommendedCreateCommand"):
             lines.append(f"- recommendedCreateCommand: `{row.get('recommendedCreateCommand', '')}`")
+        if row.get("recommendedBootstrapCommand"):
+            lines.append(f"- recommendedBootstrapCommand: `{row.get('recommendedBootstrapCommand', '')}`")
         if row.get("recommendedPatchCommand"):
             lines.append(f"- recommendedPatchCommand: `{row.get('recommendedPatchCommand', '')}`")
         lines.append("")

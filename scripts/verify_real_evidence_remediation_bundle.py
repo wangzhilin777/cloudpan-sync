@@ -91,9 +91,11 @@ def main() -> None:
             {
                 "providerCount": ((bundle.get("summary") or {}).get("providerCount")),
                 "providersWithCreateCommand": ((bundle.get("summary") or {}).get("providersWithCreateCommand")),
+                "providersWithBootstrapCommand": ((bundle.get("summary") or {}).get("providersWithBootstrapCommand")),
                 "providersWithPatchCommand": ((bundle.get("summary") or {}).get("providersWithPatchCommand")),
                 "providersBlockedOnly": ((bundle.get("summary") or {}).get("providersBlockedOnly")),
                 "markdownHasCreateCommand": "create_auth_profile_stub.py" in markdown,
+                "markdownHasBootstrapCommand": "recommendedBootstrapCommand" in markdown and "--probe" in markdown,
                 "guangyaHasPatchCommand": "patch_auth_profile_extra.py" in markdown,
                 "cloud189HasHelper": "patch_189cloud_account_auth.py" in markdown,
                 "markdownHasAuthModes": "recommendedAuthModes" in markdown,

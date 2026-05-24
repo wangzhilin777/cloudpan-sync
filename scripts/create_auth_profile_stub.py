@@ -11,10 +11,12 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
+from cloudpan_sync.auth_profile_evidence import auth_profile_evidence_to_markdown, refresh_auth_profile_evidence
 from cloudpan_sync.auth_profile_patch import configure_data_dir
 from cloudpan_sync.auth_live_validate import run_profile_live_validation
 from cloudpan_sync.auth_store import save_profile
 from cloudpan_sync.models import AuthProfileInput
+from cloudpan_sync.webapp import _auth_profile_evidence
 
 
 def _parse_extra(values: list[str]) -> dict[str, str]:
@@ -43,6 +45,10 @@ def main() -> None:
     parser.add_argument("--cookie", default="", help="Optional cookie value.")
     parser.add_argument("--set", dest="extra", action="append", default=[], help="Extra field in key=value form.")
     parser.add_argument("--validate", action="store_true", help="Run provider-aware live validation after saving.")
+    parser.add_argument("--probe", action="store_true", help="Run validation + live probe evidence refresh after saving.")
+    parser.add_argument("--page-size", type=int, default=100, help="Optional live probe page size.")
+    parser.add_argument("--dir-name", default="", help="Optional create_dir probe name.")
+    parser.add_argument("--evidence-output", default="", help="Optional markdown evidence output file path.")
     args = parser.parse_args()
 
     payload = AuthProfileInput(
@@ -62,7 +68,20 @@ def main() -> None:
         "extra": dict(profile.extra or {}),
         "written": True,
     }
-    if args.validate:
+    if args.probe:
+        evidence = refresh_auth_profile_evidence(
+            profile=profile,
+            page_size=max(1, int(args.page_size or 100)),
+            dir_name=str(args.dir_name or "").strip(),
+            persist=True,
+            profile_view_builder=_auth_profile_evidence.__globals__["_auth_profile_view"],
+        )
+        result["evidence"] = evidence
+        if args.evidence_output:
+            output_path = Path(args.evidence_output)
+            output_path.write_text(auth_profile_evidence_to_markdown(evidence), encoding="utf-8")
+            result["evidenceOutput"] = str(output_path.resolve())
+    elif args.validate:
         result["validation"] = run_profile_live_validation(profile.profileId)
     print(json.dumps(result, ensure_ascii=False, indent=2))
 

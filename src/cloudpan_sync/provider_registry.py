@@ -77,7 +77,7 @@ def build_provider_registry() -> list[ProviderAdapter]:
         ProviderProfile(
             providerKey="xunlei",
             displayName="Xunlei Drive",
-            authModes=["web_login_capture", "manual_cookie"],
+            authModes=["web_login_capture", "manual_token"],
             fastUploadInputs=["gcid", "size"],
             fallbackModes=["download_upload"],
             conflictNotes="当前 Xunlei 已接入任务运行阶段的 create_dir 写探针，但真实文件上传场景下的同名文件冲突处理仍未声明为已支持。",
@@ -86,7 +86,7 @@ def build_provider_registry() -> list[ProviderAdapter]:
         ProviderProfile(
             providerKey="pikpak",
             displayName="PikPak",
-            authModes=["manual_token", "manual_cookie"],
+            authModes=["manual_token"],
             fastUploadInputs=["gcid", "size"],
             fallbackModes=["download_upload"],
             conflictNotes="当前 PikPak 已接入任务运行阶段的 create_dir 写探针，但真实文件上传场景下的同名文件冲突处理仍未声明为已支持。",

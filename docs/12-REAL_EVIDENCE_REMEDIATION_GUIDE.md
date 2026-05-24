@@ -113,28 +113,28 @@
 - profileCount: `0`
 - authReadyProfiles: `0`
 - writeReadyProfiles: `0`
-- recommendedAuthModes: `web_login_capture, manual_cookie`
+- recommendedAuthModes: `web_login_capture, manual_token`
 - webLoginUrl: https://pan.xunlei.com/
 - requiredFieldHints: `token or extra.authorization, extra.deviceId or extra.x-device-id, optional extra.fileId`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `xunlei` 的 auth profile，再执行最小 validation 和 live probe。
-- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key xunlei --auth-mode manual_cookie --display-name xunlei-manual_cookie --cookie YOUR_COOKIE --set deviceId=YOUR_VALUE`
-- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key xunlei --auth-mode manual_cookie --display-name xunlei-manual_cookie --cookie YOUR_COOKIE --set deviceId=YOUR_VALUE --probe`
+- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key xunlei --auth-mode manual_token --display-name xunlei-manual_token --token YOUR_TOKEN --set deviceId=YOUR_VALUE`
+- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key xunlei --auth-mode manual_token --display-name xunlei-manual_token --token YOUR_TOKEN --set deviceId=YOUR_VALUE --probe`
 
 ### pikpak - PikPak
 - profileCount: `0`
 - authReadyProfiles: `0`
 - writeReadyProfiles: `0`
-- recommendedAuthModes: `manual_token, manual_cookie`
+- recommendedAuthModes: `manual_token`
 - webLoginUrl: https://mypikpak.com/
 - officialDocsUrl: https://mypikpak.com/
 - requiredFieldHints: `token or extra.authorization, optional extra.deviceId, optional extra.fileId`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `pikpak` 的 auth profile，再执行最小 validation 和 live probe。
-- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_cookie --display-name pikpak-manual_cookie --cookie YOUR_COOKIE --set deviceId=YOUR_VALUE`
-- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_cookie --display-name pikpak-manual_cookie --cookie YOUR_COOKIE --set deviceId=YOUR_VALUE --probe`
+- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_token --display-name pikpak-manual_token --token YOUR_TOKEN --set deviceId=YOUR_VALUE`
+- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_token --display-name pikpak-manual_token --token YOUR_TOKEN --set deviceId=YOUR_VALUE --probe`
 
 ### 123_open - 123Pan Open
 - profileCount: `0`

@@ -6,6 +6,28 @@ from .provider_auth_hints import capture_field_hints, capture_login_url, officia
 from .real_evidence_report import build_real_evidence_report
 
 
+def _preferred_stub_auth_mode(provider_key: str, auth_modes: list[str]) -> str:
+    available_modes = [str(mode or "") for mode in auth_modes if str(mode or "")]
+    provider_first = {
+        "guangya": ("manual_token", "web_login_capture"),
+        "123_open": ("manual_token", "official_oauth"),
+        "xunlei": ("manual_token", "web_login_capture"),
+        "pikpak": ("manual_token",),
+        "115_open": ("manual_cookie", "official_oauth"),
+        "quark": ("manual_cookie", "web_login_capture"),
+        "uc": ("manual_cookie", "web_login_capture"),
+        "189cloud": ("manual_cookie", "web_login_capture"),
+        "baidu_netdisk": ("manual_cookie", "official_oauth"),
+    }
+    for candidate in provider_first.get(provider_key, ()):
+        if candidate in available_modes:
+            return candidate
+    for candidate in ("manual_token", "manual_cookie", "official_oauth", "web_login_capture"):
+        if candidate in available_modes:
+            return candidate
+    return "manual_token"
+
+
 def _patch_command_for_profile(profile: dict[str, object]) -> str:
     profile_id = str(profile.get("profileId") or "")
     provider_key = str(profile.get("providerKey") or "")
@@ -99,12 +121,7 @@ def _create_command_for_provider(
     auth_modes: list[str],
     field_hints: list[str],
 ) -> str:
-    available_modes = [str(mode or "") for mode in auth_modes if str(mode or "")]
-    auth_mode = "manual_token"
-    for candidate in ("manual_cookie", "manual_token", "official_oauth", "web_login_capture"):
-        if candidate in available_modes:
-            auth_mode = candidate
-            break
+    auth_mode = _preferred_stub_auth_mode(provider_key, auth_modes)
     cmd = [
         ".\\.venv\\Scripts\\python.exe",
         "scripts\\create_auth_profile_stub.py",

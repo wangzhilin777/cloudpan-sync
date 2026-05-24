@@ -114,6 +114,16 @@ def main() -> None:
         auth_modes=provider_auth_modes("baidu_netdisk"),
         field_hints=capture_field_hints("baidu_netdisk"),
     )
+    xunlei_create = _create_command_for_provider(
+        provider_key="xunlei",
+        auth_modes=provider_auth_modes("xunlei"),
+        field_hints=capture_field_hints("xunlei"),
+    )
+    pikpak_create = _create_command_for_provider(
+        provider_key="pikpak",
+        auth_modes=provider_auth_modes("pikpak"),
+        field_hints=capture_field_hints("pikpak"),
+    )
 
     with TemporaryDirectory() as tmp_dir:
         configure_data_dir(Path(tmp_dir))
@@ -155,6 +165,8 @@ def main() -> None:
                 "quarkSkipsCookieHeaderExtra": "--set cookie_header=YOUR_VALUE" not in quark_create,
                 "115PrefersManualCookie": "--provider-key 115_open --auth-mode manual_cookie" in pan115_create and "--cookie YOUR_COOKIE" in pan115_create,
                 "baiduManualCookieSkipsAuthorizationExtra": "--provider-key baidu_netdisk --auth-mode manual_cookie" in baidu_create and "--set authorization=YOUR_VALUE" not in baidu_create,
+                "xunleiPrefersManualToken": "--provider-key xunlei --auth-mode manual_token" in xunlei_create and "--token YOUR_TOKEN" in xunlei_create and "--set deviceId=YOUR_VALUE" in xunlei_create,
+                "pikpakPrefersManualToken": "--provider-key pikpak --auth-mode manual_token" in pikpak_create and "--token YOUR_TOKEN" in pikpak_create and "--set authorization=YOUR_VALUE" not in pikpak_create,
                 "cloud189HasHelper": "patch_189cloud_account_auth.py" in markdown,
                 "markdownHasAuthModes": "recommendedAuthModes" in markdown,
                 "markdownHasLoginUrl": "webLoginUrl" in markdown,

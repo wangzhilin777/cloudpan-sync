@@ -99,7 +99,7 @@ def build_provider_research_index() -> list[dict[str, object]]:
             "authModes": ["web_login_capture", "manual_cookie"],
             "status": "researching",
             "lastVerifiedAt": today,
-            "notes": "share-based live list/metadata(MD5 via file/download) attempts are online on the pc-api.uc.cn chain with saved cookie + pwdId, same-stack cookie-based create_dir attempts are now wired, and task runtime can now also attempt upload/pre + update/hash rapid upload first and continue into upload/auth + multipart PUT + commit + upload/finish when hash miss occurs and a usable local file plus md5/sha1 context is available; stable real online samples are still pending, and the download_upload strategy still has not been upgraded into a direct local-file upload path.",
+            "notes": "share-based live list/metadata(MD5 via file/download) attempts are online on the pc-api.uc.cn chain with saved cookie + pwdId, same-stack cookie-based create_dir attempts are now wired, and task runtime can now also drive direct local-file upload by starting with upload/pre + update/hash and continuing into upload/auth + multipart PUT + commit + upload/finish when hash miss occurs; same-name conflicts now support auto_rename_new with overwrite_existing downgraded to auto rename, while stable real online samples are still pending.",
         },
         {
             "providerKey": "xunlei",

@@ -109,6 +109,13 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
     )
 
 
+def _fast_check_ready(provider_key: str, profile: object, metadata_ready: bool) -> bool:
+    if not metadata_ready:
+        return False
+    inputs = list(getattr(profile, "fastUploadInputs", []) or [])
+    return bool(inputs)
+
+
 def build_status_matrix() -> dict[str, object]:
     registry = {x.profile.providerKey: x.profile for x in build_provider_registry()}
     research = {str(x.get("providerKey") or ""): x for x in build_provider_research_index()}
@@ -130,7 +137,7 @@ def build_status_matrix() -> dict[str, object]:
         list_ready = provider_key in live_list_ready
         metadata_ready = provider_key in live_metadata_ready
         create_dir_ready = provider_key in live_create_dir_ready
-        fast_check = provider_key in {"guangya", "xunlei", "pikpak", "aliyundrive_open", "115_open"}
+        fast_check = _fast_check_ready(provider_key, profile, metadata_ready)
         fallback_ready = True
         support_status = "auth_ready" if auth_ready else "planned"
         if list_ready:

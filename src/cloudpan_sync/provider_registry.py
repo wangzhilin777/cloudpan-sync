@@ -25,7 +25,11 @@ def build_provider_registry() -> list[ProviderAdapter]:
             authModes=["official_oauth"],
             fastUploadInputs=["md5", "size"],
             fallbackModes=["download_upload"],
-            conflictNotes="当前 Aliyun Drive Open 已接入任务运行阶段的 create_dir 写探针，但真实文件上传场景下的同名文件冲突处理仍未声明为已支持。",
+            conflictPolicies=["overwrite_existing", "auto_rename_new"],
+            supportsOverwrite=True,
+            supportsAutoRename=True,
+            overwriteBehavior="provider_managed",
+            conflictNotes="当前 Aliyun Drive Open 已接入任务运行阶段真实小文件上传；同名文件可按 overwrite_existing / auto_rename_new 显式选择。",
             status="researching",
         ),
         ProviderProfile(

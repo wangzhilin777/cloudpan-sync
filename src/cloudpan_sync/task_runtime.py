@@ -9,6 +9,7 @@ from uuid import uuid4
 
 from .auth_store import get_profile
 from .aliyun_open_live import fetch_aliyun_open_create_folder
+from .aliyun_open_upload_live import upload_aliyun_open_local_file
 from .baidu_netdisk_live import fetch_baidu_create_dir
 from .guangya_live import fetch_guangya_live_fast_check
 from .guangya_upload_live import upload_guangya_local_file
@@ -1205,52 +1206,53 @@ def run_task(task_id: str) -> dict[str, object]:
                 continue
 
         if strategy == "download_upload" and target_provider == "aliyundrive_open" and target_profile_id:
+            row_result["executionMode"] = "live"
             source_entry = source_entries_by_path.get(path, {})
             local_entry = _materialize_local_source_entry(source_entry, path, int(item.get("size", 0) or 0))
             if local_entry is not None:
-                probe_name = _probe_dir_name(str(task.get("taskId") or ""), path)
-                probe_result = fetch_aliyun_open_create_folder(
+                upload_result = upload_aliyun_open_local_file(
                     profile_id=target_profile_id,
+                    local_path=local_entry.localPath,
+                    target_name=PurePosixPath(path or "/").name or Path(local_entry.localPath).name,
                     parent_file_id=target_parent_id or "root",
-                    dir_name=probe_name,
+                    expected_md5=local_entry.md5,
+                    conflict_policy=conflict_policy,
                 )
-                row_result["executionMode"] = "probe"
-                if probe_result.ok:
+                if upload_result.ok:
                     done += 1
                     row_result["status"] = "done"
-                    row_result["note"] = (
-                        "Aliyun Drive Open runtime write probe succeeded through live create_dir. "
-                        "The current file transfer still completes with mock/download fallback flow."
-                    )
+                    row_result["note"] = upload_result.note
                     row_result["liveAttempt"] = {
-                        "mode": "aliyundrive_open_create_dir_probe",
-                        "parentId": target_parent_id or "root",
-                        "riskHint": "",
-                        "payload": probe_result.payload or {},
-                        "verifyOk": True,
-                        "verifyMode": "create_dir_response",
-                        "verifyNote": probe_result.note,
-                        "verifyPayload": probe_result.payload or {},
-                        "resolvedTargetName": probe_name,
-                        "conflictAction": "auto_rename_new",
+                        "mode": upload_result.mode,
+                        "parentId": upload_result.parentId,
+                        "riskHint": upload_result.riskHint,
+                        "payload": upload_result.payload or {},
+                        "verifyOk": upload_result.verifyOk,
+                        "verifyMode": upload_result.verifyMode,
+                        "verifyNote": upload_result.verifyNote,
+                        "verifyPayload": upload_result.verifyPayload or {},
+                        "conflictPolicy": conflict_policy,
+                        "resolvedTargetName": (upload_result.payload or {}).get("resolvedTargetName", ""),
+                        "conflictAction": (upload_result.payload or {}).get("conflictAction", ""),
                     }
                     results.append(row_result)
                     continue
                 failed += 1
                 row_result["status"] = "failed"
-                row_result["note"] = probe_result.note or "Aliyun Drive Open runtime write probe failed."
+                row_result["note"] = upload_result.note or "Aliyun Drive Open runtime upload failed."
                 row_result["liveAttempt"] = {
-                    "mode": "aliyundrive_open_create_dir_probe",
-                    "parentId": target_parent_id or "root",
-                    "error": probe_result.error,
-                    "riskHint": probe_result.note,
-                    "payload": probe_result.payload or {},
-                    "verifyOk": False,
+                    "mode": upload_result.mode or "aliyundrive_open_upload",
+                    "parentId": upload_result.parentId or (target_parent_id or "root"),
+                    "error": upload_result.error,
+                    "riskHint": upload_result.riskHint,
+                    "payload": upload_result.payload or {},
+                    "verifyOk": upload_result.verifyOk,
                     "verifyMode": "",
                     "verifyNote": "",
                     "verifyPayload": {},
-                    "resolvedTargetName": probe_name,
-                    "conflictAction": "",
+                    "conflictPolicy": conflict_policy,
+                    "resolvedTargetName": (upload_result.payload or {}).get("resolvedTargetName", ""),
+                    "conflictAction": (upload_result.payload or {}).get("conflictAction", ""),
                 }
                 results.append(row_result)
                 continue

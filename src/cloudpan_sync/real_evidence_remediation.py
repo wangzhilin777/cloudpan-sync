@@ -118,11 +118,12 @@ def _fast_candidate_command_for_profile(profile: dict[str, object]) -> str:
 def _live_upload_command_for_profile(profile: dict[str, object]) -> str:
     profile_id = str(profile.get("profileId") or "")
     provider_key = str(profile.get("providerKey") or "")
-    if not profile_id or provider_key != "guangya":
+    if not profile_id or provider_key not in {"guangya", "aliyundrive_open"}:
         return ""
     parts = [
         ".\\.venv\\Scripts\\python.exe",
         "scripts\\create_live_upload_task.py",
+        f"--target-provider {provider_key}",
         f"--target-profile-id {profile_id}",
     ]
     resolved_parent_id = str(profile.get("resolvedParentId") or "").strip()
@@ -132,7 +133,7 @@ def _live_upload_command_for_profile(profile: dict[str, object]) -> str:
         [
             "--auto-temp-file",
             "--threshold-mb 1",
-            "--evidence-dir tmp\\guangya-live-evidence",
+            f"--evidence-dir tmp\\{provider_key}-live-evidence",
         ]
     )
     return " ".join(parts)

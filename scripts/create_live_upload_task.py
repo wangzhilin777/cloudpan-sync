@@ -97,10 +97,10 @@ def main(argv: list[str] | None = None) -> int:
         configure_data_dir(custom_data_dir)
 
     parser = argparse.ArgumentParser(
-        description="Create and run a Guangya live upload task backed by a local file."
+        description="Create and run a live upload task backed by a local file."
     )
     parser.add_argument("--source-provider", default="guangya", help="Source provider. Defaults to guangya.")
-    parser.add_argument("--target-provider", default="guangya", help="Target provider key. Currently only guangya is supported.")
+    parser.add_argument("--target-provider", default="guangya", help="Target provider key. Currently supports guangya and aliyundrive_open.")
     parser.add_argument("--target-profile-id", required=True, help="Saved target auth profile id.")
     parser.add_argument("--target-parent-id", default="", help="Optional target parent id.")
     parser.add_argument("--remote-path", default="/cloudpan-sync-live-upload.bin", help="Remote path for the upload task.")
@@ -121,7 +121,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     target_provider = str(args.target_provider or "").strip()
-    if target_provider != "guangya":
+    if target_provider not in {"guangya", "aliyundrive_open"}:
         raise SystemExit(f"unsupported_live_upload_provider: {target_provider}")
 
     target_profile_id = str(args.target_profile_id or "").strip()

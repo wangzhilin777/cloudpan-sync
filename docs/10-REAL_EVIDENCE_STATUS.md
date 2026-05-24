@@ -24,7 +24,7 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `False` samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0 note=当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
-- notes: M5 mock list/metadata online; saved access token plus domainId/driveId can now drive live list/get/create_dir attempts, but real online samples are still pending.
+- notes: M5 mock list/metadata online; saved access token plus domainId/driveId can now drive live list/get/create_dir attempts, and task runtime now also has a localPath-driven create/upload_url/complete live upload path with overwrite/auto-rename conflict handling, but stable real online samples are still pending.
 
 ## 115_open - 115 Open
 - fullyVerified: `False`

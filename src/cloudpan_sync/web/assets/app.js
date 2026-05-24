@@ -1263,6 +1263,7 @@ function renderPendingList() {
         path: item.path,
         size: item.size,
         reason: item.reason,
+        conflictPolicy: item.conflictPolicy || "auto_rename_new",
         availableFastInputs: item.availableFastInputs || [],
         missingFastInputs: item.missingFastInputs || [],
         conflictSupportStatus: item.conflictSupportStatus || "",
@@ -1285,7 +1286,7 @@ function renderPendingList() {
     title.textContent = `${row.path} -> ${row.targetProvider}`;
     const meta = document.createElement("div");
     meta.className = "auth-item-meta";
-    meta.textContent = `task=${row.taskId}, size=${row.size}, available=${row.availableFastInputs.join(",") || "(none)"}, missing=${row.missingFastInputs.join(",") || "(none)"}`;
+    meta.textContent = `task=${row.taskId}, size=${row.size}, conflictPolicy=${row.conflictPolicy || "auto_rename_new"}, available=${row.availableFastInputs.join(",") || "(none)"}, missing=${row.missingFastInputs.join(",") || "(none)"}`;
     const detail = document.createElement("div");
     detail.className = "auth-item-meta";
     const conflictSupportText = row.conflictSupportStatus ? `, conflictSupport=${row.conflictSupportStatus}` : "";

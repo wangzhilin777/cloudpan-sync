@@ -514,3 +514,5 @@
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` 已显示 `targetProfileReady / targetWriteReady` 以及对应缺口提示
   - 队列页任务 detail 行现也已直接显示 `targetProfile` 名称与 `profileReady / writeReady` 摘要，不再只剩 `targetProfileId` 这种需要用户自己反查的内部标识
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` detail 行已显示 `targetProfile` 名称与 readiness 摘要
+  - 待处理页 meta 行现也已补上 `conflictPolicy`，用户查看待处理项时可直接知道当前是按 `overwrite_existing` 还是 `auto_rename_new` 在评估，不必再回任务表单反查
+  - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了待处理页 `renderPendingList()` 已携带并显示 `conflictPolicy`

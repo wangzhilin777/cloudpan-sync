@@ -114,7 +114,7 @@ def build_provider_research_index() -> list[dict[str, object]]:
             "authModes": ["web_login_capture", "manual_token"],
             "status": "researching",
             "lastVerifiedAt": today,
-            "notes": "token + x-device-id style live list/metadata(parentId-scoped lookup)/create_dir attempts are online from api-pan.xunlei.com evidence; stable real samples and upload chain are still pending.",
+            "notes": "token + x-device-id style live list/metadata(parentId-scoped lookup)/create_dir attempts are online from api-pan.xunlei.com evidence, and task runtime can now also attempt rapid upload through the live /drive/v1/files create-by-hash call when a usable local file plus gcid is available; stable real samples and full resumable upload fallback are still pending.",
         },
         {
             "providerKey": "pikpak",

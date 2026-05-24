@@ -27,6 +27,7 @@ from .task_runtime_evidence_store import save_task_runtime_evidence
 from .tianyi_live import fetch_tianyi_create_folder
 from .uc_fast_upload_live import upload_uc_fast_file
 from .uc_live import fetch_uc_create_folder
+from .xunlei_fast_upload_live import upload_xunlei_fast_file
 from .xunlei_live import fetch_xunlei_create_folder
 
 
@@ -1003,13 +1004,56 @@ def run_task(task_id: str) -> dict[str, object]:
                 source_entry.get("raw", {}).get("hash") if isinstance(source_entry.get("raw"), dict) else "",
                 normalized.get("raw", {}).get("hash") if isinstance(normalized.get("raw"), dict) else "",
             ).lower()
-            row_result["executionMode"] = "probe"
-            if gcid_value:
+            local_entry = _materialize_local_source_entry(source_entry, path, int(item.get("size", 0) or 0))
+            if local_entry is not None and gcid_value:
+                row_result["executionMode"] = "live"
+                upload_result = upload_xunlei_fast_file(
+                    profile_id=target_profile_id,
+                    local_path=local_entry.localPath,
+                    target_name=PurePosixPath(path or "/").name or Path(local_entry.localPath).name,
+                    parent_id=target_parent_id or "",
+                    expected_gcid=gcid_value or local_entry.gcid,
+                )
+                if upload_result.ok:
+                    done += 1
+                    row_result["status"] = "done"
+                    row_result["note"] = upload_result.note
+                    row_result["liveAttempt"] = {
+                        "mode": upload_result.mode,
+                        "parentId": upload_result.parentId,
+                        "riskHint": upload_result.riskHint,
+                        "payload": upload_result.payload or {},
+                        "verifyOk": upload_result.verifyOk,
+                        "verifyMode": upload_result.verifyMode,
+                        "verifyNote": upload_result.verifyNote,
+                        "verifyPayload": upload_result.verifyPayload or {},
+                        "resolvedTargetName": (upload_result.payload or {}).get("resolvedTargetName", ""),
+                        "conflictAction": (upload_result.payload or {}).get("conflictAction", ""),
+                    }
+                else:
+                    failed += 1
+                    row_result["status"] = "failed"
+                    row_result["note"] = upload_result.note or "Xunlei fast upload failed."
+                    row_result["liveAttempt"] = {
+                        "mode": upload_result.mode or "xunlei_fast_upload",
+                        "parentId": upload_result.parentId or (target_parent_id or ""),
+                        "error": upload_result.error,
+                        "riskHint": upload_result.riskHint,
+                        "payload": upload_result.payload or {},
+                        "verifyOk": upload_result.verifyOk,
+                        "verifyMode": upload_result.verifyMode,
+                        "verifyNote": upload_result.verifyNote,
+                        "verifyPayload": upload_result.verifyPayload or {},
+                        "resolvedTargetName": (upload_result.payload or {}).get("resolvedTargetName", ""),
+                        "conflictAction": (upload_result.payload or {}).get("conflictAction", ""),
+                    }
+            elif gcid_value:
+                row_result["executionMode"] = "probe"
                 done += 1
                 row_result["status"] = "done"
                 row_result["note"] = (
                     "Xunlei fast-upload candidate confirmed from current gcid/size fingerprints. "
-                    "The current runtime only records candidate evidence and does not call a live rapid-upload API yet."
+                    "The current runtime only records candidate evidence because there is no usable local file for a live rapid-upload attempt."
                 )
                 row_result["liveAttempt"] = {
                     "mode": "xunlei_fast_upload_candidate",
@@ -1017,10 +1061,10 @@ def run_task(task_id: str) -> dict[str, object]:
                     "candidate": True,
                     "requiredInputs": ["gcid", "size"],
                     "hashValue": gcid_value,
-                    "riskHint": "",
+                    "riskHint": "A live rapid-upload attempt still requires a usable local file with gcid context.",
                     "verifyOk": True,
                     "verifyMode": "fingerprint_candidate",
-                    "verifyNote": "Current gcid/size fingerprints satisfy Xunlei fast-upload precheck, but runtime remains probe-only.",
+                    "verifyNote": "Current gcid/size fingerprints satisfy Xunlei fast-upload precheck, but runtime remains probe-only without a local file.",
                     "verifyPayload": {
                         "gcid": gcid_value,
                         "size": int(item.get("size", 0) or 0),
@@ -1029,6 +1073,7 @@ def run_task(task_id: str) -> dict[str, object]:
                     "conflictAction": "",
                 }
             else:
+                row_result["executionMode"] = "probe"
                 failed += 1
                 row_result["status"] = "failed"
                 row_result["note"] = "Xunlei fast-upload candidate probe failed because gcid fingerprint is missing."

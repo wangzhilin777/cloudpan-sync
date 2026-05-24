@@ -462,3 +462,7 @@
   - [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py) 现还额外验证了设置页 `Task Runtime Evidence` 摘要已显示 `blockedProviders / blocked`，最近样本行已显示 `executionMode=...`
   - [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py) 现还额外验证了设置页 `Real Evidence` 摘要已显示 `runtime_blocked_providers / runtime_blocked`
   - [verify_provider_real_evidence_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_real_evidence_ui.py) 现还额外验证了 provider / research 面板中的 `task_runtime` 文案已带 `blocked=...`
+  - `provider_status_matrix` 现也已同步吸收 runtime blocked 样本：每个 provider 都会额外暴露 `task_runtime_blocked`，summary 也会带 `taskRuntimeBlockedProviderCount / taskRuntimeBlockedEvidenceCount`
+  - Provider 状态矩阵导出 [06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 现已补上 `task_runtime_blocked` 列；即使当前真实环境样本仍为 `0`，导出也会诚实保留该列
+  - [verify_provider_conflict_capabilities.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_conflict_capabilities.py) 现还额外验证了 `GET /api/providers/status_matrix` summary 已带 `taskRuntimeBlockedProviderCount / taskRuntimeBlockedEvidenceCount`，并且 `189cloud` 行会暴露 `task_runtime_blocked=1`
+  - [verify_provider_real_evidence_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_real_evidence_ui.py) 现还额外验证了 provider 面板 `task_runtime_track` 文案已显示 `blocked=...`

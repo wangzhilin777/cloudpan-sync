@@ -43,6 +43,7 @@ def _runtime_summary_by_provider() -> dict[str, dict[str, int]]:
                 "task_runtime_samples": 0,
                 "task_runtime_success": 0,
                 "task_runtime_failed": 0,
+                "task_runtime_blocked": 0,
                 "task_runtime_conflict_handled": 0,
             },
         )
@@ -51,6 +52,8 @@ def _runtime_summary_by_provider() -> dict[str, dict[str, int]]:
             bucket["task_runtime_success"] += 1
         else:
             bucket["task_runtime_failed"] += 1
+        if str(row.get("executionMode") or "") == "blocked":
+            bucket["task_runtime_blocked"] += 1
         if str(row.get("conflictAction") or ""):
             bucket["task_runtime_conflict_handled"] += 1
     return result
@@ -199,6 +202,7 @@ def build_status_matrix() -> dict[str, object]:
                 "task_runtime_samples": int(runtime.get("task_runtime_samples", 0) or 0),
                 "task_runtime_success": int(runtime.get("task_runtime_success", 0) or 0),
                 "task_runtime_failed": int(runtime.get("task_runtime_failed", 0) or 0),
+                "task_runtime_blocked": int(runtime.get("task_runtime_blocked", 0) or 0),
                 "task_runtime_conflict_handled": int(runtime.get("task_runtime_conflict_handled", 0) or 0),
                 "lastProbeMode": str(probe.get("mode") or ""),
                 "supportStatus": support_status,
@@ -238,6 +242,8 @@ def build_status_matrix() -> dict[str, object]:
             "taskRuntimeSampleCount": sum(int(x["task_runtime_samples"]) for x in items),
             "taskRuntimeSuccessCount": sum(int(x["task_runtime_success"]) for x in items),
             "taskRuntimeFailedCount": sum(int(x["task_runtime_failed"]) for x in items),
+            "taskRuntimeBlockedProviderCount": sum(1 for x in items if int(x["task_runtime_blocked"]) > 0),
+            "taskRuntimeBlockedEvidenceCount": sum(int(x["task_runtime_blocked"]) for x in items),
             "taskRuntimeConflictHandledProviderCount": sum(
                 1 for x in items if int(x["task_runtime_conflict_handled"]) > 0
             ),
@@ -257,15 +263,15 @@ def matrix_to_markdown(payload: dict[str, object]) -> str:
     lines.append("")
     lines.append(f"- GeneratedAt: `{payload.get('generatedAt', '')}`")
     lines.append(
-        f"- Summary: providerCount={summary.get('providerCount', 0)}, authReadyCount={summary.get('authReadyCount', 0)}, createDirReadyCount={summary.get('createDirReadyCount', 0)}, fastCheckCount={summary.get('fastCheckCount', 0)}, liveProbeOkCount={summary.get('liveProbeOkCount', 0)}, conflictAwareProviderCount={summary.get('conflictAwareProviderCount', 0)}, overwriteReadyCount={summary.get('overwriteReadyCount', 0)}, autoRenameReadyCount={summary.get('autoRenameReadyCount', 0)}, overwriteDowngradeCount={summary.get('overwriteDowngradeCount', 0)}, overwriteSupportedCount={summary.get('overwriteSupportedCount', 0)}, autoRenameSupportedCount={summary.get('autoRenameSupportedCount', 0)}, autoRenameProbeOnlyCount={summary.get('autoRenameProbeOnlyCount', 0)}, conflictUnsupportedProviderCount={summary.get('conflictUnsupportedProviderCount', 0)}, taskRuntimeEvidenceProviderCount={summary.get('taskRuntimeEvidenceProviderCount', 0)}, taskRuntimeFailedProviderCount={summary.get('taskRuntimeFailedProviderCount', 0)}, taskRuntimeSampleCount={summary.get('taskRuntimeSampleCount', 0)}, taskRuntimeSuccessCount={summary.get('taskRuntimeSuccessCount', 0)}, taskRuntimeFailedCount={summary.get('taskRuntimeFailedCount', 0)}, taskRuntimeConflictHandledProviderCount={summary.get('taskRuntimeConflictHandledProviderCount', 0)}, taskRuntimeConflictHandledCount={summary.get('taskRuntimeConflictHandledCount', 0)}, taskRuntimeActiveCount={summary.get('taskRuntimeActiveCount', 0)}, taskRuntimeCandidateCount={summary.get('taskRuntimeCandidateCount', 0)}, taskRuntimeBlockedCount={summary.get('taskRuntimeBlockedCount', 0)}"
+        f"- Summary: providerCount={summary.get('providerCount', 0)}, authReadyCount={summary.get('authReadyCount', 0)}, createDirReadyCount={summary.get('createDirReadyCount', 0)}, fastCheckCount={summary.get('fastCheckCount', 0)}, liveProbeOkCount={summary.get('liveProbeOkCount', 0)}, conflictAwareProviderCount={summary.get('conflictAwareProviderCount', 0)}, overwriteReadyCount={summary.get('overwriteReadyCount', 0)}, autoRenameReadyCount={summary.get('autoRenameReadyCount', 0)}, overwriteDowngradeCount={summary.get('overwriteDowngradeCount', 0)}, overwriteSupportedCount={summary.get('overwriteSupportedCount', 0)}, autoRenameSupportedCount={summary.get('autoRenameSupportedCount', 0)}, autoRenameProbeOnlyCount={summary.get('autoRenameProbeOnlyCount', 0)}, conflictUnsupportedProviderCount={summary.get('conflictUnsupportedProviderCount', 0)}, taskRuntimeEvidenceProviderCount={summary.get('taskRuntimeEvidenceProviderCount', 0)}, taskRuntimeFailedProviderCount={summary.get('taskRuntimeFailedProviderCount', 0)}, taskRuntimeSampleCount={summary.get('taskRuntimeSampleCount', 0)}, taskRuntimeSuccessCount={summary.get('taskRuntimeSuccessCount', 0)}, taskRuntimeFailedCount={summary.get('taskRuntimeFailedCount', 0)}, taskRuntimeBlockedProviderCount={summary.get('taskRuntimeBlockedProviderCount', 0)}, taskRuntimeBlockedEvidenceCount={summary.get('taskRuntimeBlockedEvidenceCount', 0)}, taskRuntimeConflictHandledProviderCount={summary.get('taskRuntimeConflictHandledProviderCount', 0)}, taskRuntimeConflictHandledCount={summary.get('taskRuntimeConflictHandledCount', 0)}, taskRuntimeActiveCount={summary.get('taskRuntimeActiveCount', 0)}, taskRuntimeCandidateCount={summary.get('taskRuntimeCandidateCount', 0)}, taskRuntimeBlockedCount={summary.get('taskRuntimeBlockedCount', 0)}"
     )
     lines.append("")
-    lines.append("| providerKey | supportStatus | auth_ready | list_ready | metadata_ready | create_dir_ready | fast_check | live_probe_ok | task_runtime_track | task_runtime_samples | task_runtime_success | task_runtime_failed | task_runtime_conflict_handled | supports_overwrite | supports_auto_rename | overwrite_behavior | overwrite_support_status | auto_rename_support_status | conflict_policies | fallback_ready |")
-    lines.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+    lines.append("| providerKey | supportStatus | auth_ready | list_ready | metadata_ready | create_dir_ready | fast_check | live_probe_ok | task_runtime_track | task_runtime_samples | task_runtime_success | task_runtime_failed | task_runtime_blocked | task_runtime_conflict_handled | supports_overwrite | supports_auto_rename | overwrite_behavior | overwrite_support_status | auto_rename_support_status | conflict_policies | fallback_ready |")
+    lines.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for row in payload.get("items", []):
         item = dict(row or {})
         lines.append(
-            f"| {item.get('providerKey','')} | {item.get('supportStatus','')} | {item.get('auth_ready',False)} | {item.get('list_ready',False)} | {item.get('metadata_ready',False)} | {item.get('create_dir_ready',False)} | {item.get('fast_check',False)} | {item.get('live_probe_ok',False)} | {item.get('task_runtime_track','')} | {item.get('task_runtime_samples',0)} | {item.get('task_runtime_success',0)} | {item.get('task_runtime_failed',0)} | {item.get('task_runtime_conflict_handled',0)} | {item.get('supportsOverwrite',False)} | {item.get('supportsAutoRename',False)} | {item.get('overwriteBehavior','')} | {item.get('overwrite_support_status','')} | {item.get('auto_rename_support_status','')} | {', '.join(item.get('conflictPolicies', [])) or '(none)'} | {item.get('fallback_ready',False)} |"
+            f"| {item.get('providerKey','')} | {item.get('supportStatus','')} | {item.get('auth_ready',False)} | {item.get('list_ready',False)} | {item.get('metadata_ready',False)} | {item.get('create_dir_ready',False)} | {item.get('fast_check',False)} | {item.get('live_probe_ok',False)} | {item.get('task_runtime_track','')} | {item.get('task_runtime_samples',0)} | {item.get('task_runtime_success',0)} | {item.get('task_runtime_failed',0)} | {item.get('task_runtime_blocked',0)} | {item.get('task_runtime_conflict_handled',0)} | {item.get('supportsOverwrite',False)} | {item.get('supportsAutoRename',False)} | {item.get('overwriteBehavior','')} | {item.get('overwrite_support_status','')} | {item.get('auto_rename_support_status','')} | {', '.join(item.get('conflictPolicies', [])) or '(none)'} | {item.get('fallback_ready',False)} |"
         )
         if item.get("task_runtime_track_note"):
             lines.append(f"|  | runtime_note |  |  |  |  |  |  | {str(item.get('task_runtime_track_note') or '').replace('|', '/')} |  |  |  |  |  |  |  |  |  |  |  |")

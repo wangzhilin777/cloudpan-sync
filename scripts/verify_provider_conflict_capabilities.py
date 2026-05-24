@@ -27,8 +27,8 @@ def main() -> None:
     webapp.ADMIN_PASSWORD = "admin123"
     try:
         provider_status_matrix.latest_task_runtime_evidence = lambda: [
-            {"providerKey": "guangya", "success": True, "conflictAction": "overwrite_downgraded_to_auto_rename"},
-            {"providerKey": "189cloud", "success": False},
+            {"providerKey": "guangya", "success": True, "executionMode": "live", "conflictAction": "overwrite_downgraded_to_auto_rename"},
+            {"providerKey": "189cloud", "success": False, "executionMode": "blocked"},
         ]
         app = webapp.create_app()
         client = TestClient(app)
@@ -67,6 +67,7 @@ def main() -> None:
                     "task_runtime_samples": guangya_matrix.get("task_runtime_samples"),
                     "task_runtime_success": guangya_matrix.get("task_runtime_success"),
                     "task_runtime_failed": guangya_matrix.get("task_runtime_failed"),
+                    "task_runtime_blocked": guangya_matrix.get("task_runtime_blocked"),
                     "task_runtime_conflict_handled": guangya_matrix.get("task_runtime_conflict_handled"),
                 },
                 "tianyiMatrix": {
@@ -81,6 +82,7 @@ def main() -> None:
                     "task_runtime_samples": tianyi_matrix.get("task_runtime_samples"),
                     "task_runtime_success": tianyi_matrix.get("task_runtime_success"),
                     "task_runtime_failed": tianyi_matrix.get("task_runtime_failed"),
+                    "task_runtime_blocked": tianyi_matrix.get("task_runtime_blocked"),
                     "task_runtime_conflict_handled": tianyi_matrix.get("task_runtime_conflict_handled"),
                 },
             },

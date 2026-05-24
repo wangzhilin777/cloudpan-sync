@@ -1539,7 +1539,7 @@ function renderProviderPanel() {
     conflict.textContent = `conflictPolicies=${policyText}, overwrite=${item.supportsOverwrite}, autoRename=${item.supportsAutoRename}, overwriteBehavior=${item.overwriteBehavior || "not_implemented"}, overwriteSupport=${item.overwrite_support_status || "unknown"}, autoRenameSupport=${item.auto_rename_support_status || "unknown"}`;
     const runtimeTrack = document.createElement("div");
     runtimeTrack.className = "auth-item-meta";
-    runtimeTrack.textContent = `task_runtime_track=${item.task_runtime_track || "runtime_planned"}, conflictHandled=${item.task_runtime_conflict_handled || 0}${item.task_runtime_track_note ? `, note=${item.task_runtime_track_note}` : ""}`;
+    runtimeTrack.textContent = `task_runtime_track=${item.task_runtime_track || "runtime_planned"}, blocked=${item.task_runtime_blocked || 0}, conflictHandled=${item.task_runtime_conflict_handled || 0}${item.task_runtime_track_note ? `, note=${item.task_runtime_track_note}` : ""}`;
     node.appendChild(title);
     node.appendChild(meta);
     node.appendChild(conflict);

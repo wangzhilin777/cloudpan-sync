@@ -1143,6 +1143,12 @@ function renderTaskList() {
     if (summary.riskReason) {
       appendTaskGuardPill(guardRow, `risk=${summary.riskReason}`, "warning");
     }
+    if (summary.awaitingAcknowledgement) {
+      appendTaskGuardPill(guardRow, "awaitingAcknowledgement=true", "ack");
+    }
+    if (summary.riskPaused) {
+      appendTaskGuardPill(guardRow, "riskPaused=true", "warning");
+    }
     const requiresAck = summary.requiresAcknowledgement || guard.requiresAcknowledgement || {};
     const acknowledged = summary.acknowledged || guard.acknowledged || {};
     if (requiresAck?.pendingManual || requiresAck?.downloadUpload) {

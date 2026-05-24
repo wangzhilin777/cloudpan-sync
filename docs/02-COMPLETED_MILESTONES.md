@@ -116,6 +116,8 @@
   - [verify_task_conflict_policy_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_policy_validation.py) 已验证 `/api/plan/mock` 与 `/api/tasks` 会拒绝非法 `conflictPolicy`
   - 任务明细现已补上 Markdown 导出：`GET /api/tasks/{id}/markdown` 会把任务选中的 `conflictPolicy`、计划项 `conflictSupportStatus/conflictNote`、以及运行期 `conflictAction/resolvedTargetName` 一起导出，方便直接对账“选了覆盖还是自动重命名、provider 是否诚实降级、最终落成了哪个目标文件名”
   - [verify_task_markdown_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_markdown_api.py) 已验证任务 Markdown 已包含 `selectedPolicy=overwrite_existing`、计划项冲突支持状态、运行期 `conflictAction=overwrite_downgraded_to_auto_rename` 与 `resolvedTargetName=demo (1).bin`
+  - 已新增导出脚本 [export_task_markdown.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_task_markdown.py)：可按当前进程内 `--task-id` 或离线任务快照 `--task-json` 导出任务详情 Markdown，并支持 `--output` 直接落本地文件，真实联调跑出任务后不必再手工从 API 响应复制证据
+  - [verify_export_task_markdown.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_markdown.py) 已验证导出脚本会真实写出 Markdown 文件，且内容已包含 `selectedPolicy=overwrite_existing`、`conflictSupportStatus=downgrade_to_auto_rename`、`conflictAction=overwrite_downgraded_to_auto_rename` 与 `resolvedTargetName=demo (1).bin`
 
 ### M7 - 受控执行与 UI
 

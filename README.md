@@ -18,8 +18,8 @@ CloudPan Sync 是一个面向常用网盘之间互传的控制台，当前重点
 ## Progress Snapshot
 
 - Plan audit status: `done=5` `partial=2` `todo=1`
-- Strict completion ratio: about `62.5%`
-- Weighted progress if `partial` counts as half: about `75%`
+- Feature completion ratio: about `85.7%`
+- Strict completion ratio: about `75.0%`
 - Current incomplete high-value gaps:
   - `M4` Guangya still lacks stable real online success samples
   - `M5` first-batch providers still lack enough real success evidence
@@ -48,6 +48,7 @@ See:
 - Honest downgrade when a target path cannot guarantee true overwrite
 - Frontend queue preview, task guard, acknowledgement flow, and task action state machine
 - Evidence export and remediation docs for saved auth profiles
+- Task detail Markdown export via `GET /api/tasks/{id}/markdown` or `scripts/export_task_markdown.py --task-json <task-snapshot.json>`
 
 ## Honest Boundaries
 
@@ -74,6 +75,7 @@ Recommended local verification order:
 .venv\Scripts\python.exe scripts\verify_queue_plan_preview_ui.py
 .venv\Scripts\python.exe scripts\verify_task_action_guards.py
 .venv\Scripts\python.exe scripts\verify_task_views_api.py
+.venv\Scripts\python.exe scripts\verify_export_task_markdown.py
 ```
 
 ## Default Admin Password

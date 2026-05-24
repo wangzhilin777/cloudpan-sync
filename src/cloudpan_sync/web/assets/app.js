@@ -1715,7 +1715,7 @@ function renderSettingsPanel() {
   }
   for (const item of (state.taskRuntimeEvidence || []).slice(0, 3)) {
     const li = document.createElement("li");
-    li.textContent = `${item.providerKey || "(unknown)"}: mode=${item.mode || ""}, verifyOk=${Boolean(item.verifyOk)}, conflict=${item.conflictAction || "(none)"}`;
+    li.textContent = `${item.providerKey || "(unknown)"}: mode=${item.mode || ""}, success=${Boolean(item.success)}, verifyOk=${Boolean(item.verifyOk)}, conflict=${item.conflictAction || "(none)"}`;
     taskRuntimeEvidenceList.appendChild(li);
   }
 

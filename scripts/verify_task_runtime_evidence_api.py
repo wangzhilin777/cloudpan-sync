@@ -55,6 +55,7 @@ def main() -> None:
                         "summary": payload.get("summary"),
                         "firstLatestItem": ((payload.get("latestItems") or [None])[0]),
                         "markdownHasTitle": "# CloudPan Sync 任务运行真实样本报告" in markdown,
+                        "markdownHasConflictHandledProviderCount": "conflictHandledProviderCount=1" in markdown,
                         "apiSummary": api_payload.get("summary"),
                         "apiMarkdownHasTitle": "# CloudPan Sync 任务运行真实样本报告" in str(api_markdown.get("markdown") or ""),
                     },

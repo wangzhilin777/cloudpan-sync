@@ -54,6 +54,13 @@ def task_runtime_evidence_summary() -> dict[str, object]:
         "successCount": sum(1 for row in latest if bool(row.get("success"))),
         "failedCount": sum(1 for row in latest if not bool(row.get("success"))),
         "verifyOkCount": sum(1 for row in latest if bool(row.get("verifyOk"))),
+        "conflictHandledProviderCount": len(
+            {
+                str(row.get("providerKey") or "")
+                for row in latest
+                if str(row.get("providerKey") or "") and str(row.get("conflictAction") or "")
+            }
+        ),
         "conflictHandledCount": sum(1 for row in latest if str(row.get("conflictAction") or "")),
         "providers": sorted({str(row.get("providerKey") or "") for row in latest if str(row.get("providerKey") or "")}),
     }
@@ -82,6 +89,7 @@ def task_runtime_evidence_to_markdown(payload: dict[str, object]) -> str:
         f" `successCount={summary.get('successCount', 0)}`"
         f" `failedCount={summary.get('failedCount', 0)}`"
         f" `verifyOkCount={summary.get('verifyOkCount', 0)}`"
+        f" `conflictHandledProviderCount={summary.get('conflictHandledProviderCount', 0)}`"
         f" `conflictHandledCount={summary.get('conflictHandledCount', 0)}`"
     )
     lines.append("")

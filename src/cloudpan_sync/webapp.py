@@ -58,6 +58,7 @@ from .provider_registry import build_provider_registry
 from .plan_audit import run_plan_audit, to_markdown
 from .live_probe import run_live_probe, probe_to_markdown
 from .provider_status_matrix import build_status_matrix, matrix_to_markdown
+from .real_evidence_report import build_real_evidence_report, real_evidence_to_markdown
 from .provider_live_probe import run_provider_live_probe
 from .provider_live_probe_store import (
     delete_provider_live_probe,
@@ -65,6 +66,11 @@ from .provider_live_probe_store import (
     list_provider_live_probes,
     provider_live_probe_summary,
     save_provider_live_probe,
+)
+from .task_runtime_evidence_store import delete_task_runtime_evidence
+from .task_runtime_evidence_store import (
+    build_task_runtime_evidence_payload,
+    task_runtime_evidence_to_markdown,
 )
 from .tianyi_live import fetch_tianyi_live_list, fetch_tianyi_live_metadata, fetch_tianyi_create_folder
 from .task_runtime import (
@@ -314,6 +320,32 @@ def create_app() -> FastAPI:
         data = build_status_matrix()
         return {"markdown": matrix_to_markdown(data)}
 
+    @app.get("/api/real_evidence")
+    def real_evidence_report(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        return build_real_evidence_report()
+
+    @app.get("/api/real_evidence_markdown")
+    def real_evidence_report_markdown(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        data = build_real_evidence_report()
+        return {"markdown": real_evidence_to_markdown(data)}
+
+    @app.get("/api/task_runtime_evidence")
+    def task_runtime_evidence(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        return build_task_runtime_evidence_payload()
+
+    @app.get("/api/task_runtime_evidence_markdown")
+    def task_runtime_evidence_markdown(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        data = build_task_runtime_evidence_payload()
+        return {"markdown": task_runtime_evidence_to_markdown(data)}
+
     @app.post("/api/providers/live_probe_profile")
     def provider_live_probe_profile(payload: ProviderLiveProbeRequest, request: Request) -> dict[str, object]:
         if not _is_logged_in(request):
@@ -468,6 +500,7 @@ def create_app() -> FastAPI:
         if not ok:
             raise HTTPException(status_code=404, detail="profile_not_found")
         delete_provider_live_probe(profile_id)
+        delete_task_runtime_evidence(profile_id)
         return {"ok": True}
 
     @app.post("/api/auth/capture/start")

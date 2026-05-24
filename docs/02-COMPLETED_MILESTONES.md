@@ -136,6 +136,7 @@
   - 任务对象现在还会统一带 `summary`：已收口 `state / allowedActions / hardBlocked / blockingCount / warningCount / requiresAcknowledgement / acknowledged / awaitingAcknowledgement / riskPaused / riskReason / hasLastActionError / lastActionError`，前端任务列表也已优先消费这个摘要而不是继续散读原始对象
   - `/api/tasks/{id}/action` 现在会明确返回 `action / actionApplied / actionError / allowedActions`，前端任务按钮也已切到服务端 `summary.allowedActions`，不再自己再维护一套并行动作白名单
   - 任务 API 现在已开始分离“原始对象 / 列表视图 / 详情视图”合同：`GET /api/tasks` 会同时返回 `items + listItems`，`POST /api/tasks`、`GET /api/tasks/{id}`、`POST /api/tasks/{id}/action` 会同时返回 `item + listView + detailView`，方便前端列表与详情直接消费稳定结构
+  - 任务结果现已显式区分 `executionMode=live/mock/manual/blocked`；像非 Guangya 的当前 mock/download fallback、待人工处理、以及当前 runtime 主动阻断的大文件 fallback，都不再只能靠 `note` 猜测，队列摘要会直接显示执行模式
   - 设置页认证验证 / provider probe 统计已改为直接读取后端 `items/latestItems/summary` 返回，不再把 `latestItems` 误当成 history 数量
   - 授权列表现会直接显示 `profileReady/missingFieldHints` 与最近一次 validation `riskHint`，方便在真正联调前先补档案缺口
   - 任务表单和授权列表现会优先使用档案返回的 `resolvedParentId/resolvedFileId`，降低别名字段场景下的手工映射成本
@@ -176,7 +177,8 @@
   - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了前端已开始优先读取 `task.summary`，包括 `summary.state` 与 `summary.lastActionError`
   - [verify_task_action_guards.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_action_guards.py) 现还额外验证了 `POST /api/tasks/{id}/action` 在 `awaiting_ack` 任务上返回 `actionApplied=false`、结构化 `actionError`，并同步返回当前 `allowedActions=["acknowledge_risk","retry"]`
   - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了前端任务按钮来源已切到 `task.summary.allowedActions`
-  - [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 已验证 `POST /api/tasks` 会返回 `item + listView + detailView`，`GET /api/tasks` 会返回 `items + listItems`，`GET /api/tasks/{id}` 与 `POST /api/tasks/{id}/action` 会继续返回 `listView/detailView`，且 `detailView` 已稳定带出 `planSummary / executionGroups / pendingItems / results / sourceEntries`
+  - [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 已验证 `POST /api/tasks` 会返回 `item + listView + detailView`，`GET /api/tasks` 会返回 `items + listItems`，`GET /api/tasks/{id}` 与 `POST /api/tasks/{id}/action` 会继续返回 `listView/detailView`，且 `detailView` 已稳定带出 `planSummary / executionGroups / pendingItems / results / sourceEntries`；当前 mock 执行分支还会显式回传 `results[].executionMode=mock`
+  - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的任务结果摘要现会直接显示 `executionMode`，例如 `done [mock]` 或 `failed [live]`，避免把任务已运行误读成真实互传已完成
   - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的任务结果摘要与待处理列表现会额外显示 `conflictSupportStatus/conflictNote`
   - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的设置页统计现已读取后端返回的 `summary/historyCount`，不会再把最新结果集误显示为历史总量
   - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的授权列表现会显示 `profileReady=false` 和缺失字段提示，例如 Guangya smoke 档案会直接提示缺 `extra.parentId`
@@ -326,6 +328,22 @@
   - live ready 集合已补进 `guangya`、`aliyundrive_open`、`189cloud`、`baidu_netdisk`、`123_open`、`115_open`、`xunlei`、`pikpak`、`quark`、`uc`，状态矩阵现可同时反映其 `list_ready / metadata_ready / create_dir_ready`
   - provider registry、状态矩阵 API、状态矩阵 Markdown 与“网盘能力”面板现都会显式暴露同名冲突处理能力：`conflictPolicies / supportsOverwrite / supportsAutoRename / overwriteBehavior / conflictNotes`
   - 当前 `guangya` 已诚实标注为“接受 `overwrite_existing / auto_rename_new`，但现阶段 `overwrite_existing` 会降级成 `auto_rename_new`”；当前 `189cloud` 已诚实标注为“当前 shareCode/accessCode 链路只读，不能承诺覆盖或自动重命名”
+  - 已新增真实证据状态聚合模块 `real_evidence_report`、API `GET /api/real_evidence` / `GET /api/real_evidence_markdown`、导出脚本 [export_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_real_evidence_report.py) 与文档 [10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md)，可按 provider 汇总当前已保存的 `auth / list / metadata / create_dir` 真实证据覆盖，并明确哪些缺口还停留在 `P-REAL`
+  - 任务运行阶段现已新增 `task_runtime_evidence` 持久化：当像 Guangya fallback 上传这类真实运行链路成功时，会把 `providerKey / profileId / mode / verifyOk / verifyMode / conflictAction / resolvedTargetName` 落盘，`real_evidence_report` 也会把它计入 `taskRuntimeEvidence`
+  - 设置页现已新增 `Real Evidence` 摘要区，会直接读取 `GET /api/real_evidence` 的 summary，并显示 `auth / list / metadata / create_dir / task_runtime / fully_verified` 覆盖数，不必再只靠看导出的 Markdown
+  - 已新增任务运行真实样本明细 API `GET /api/task_runtime_evidence` / `GET /api/task_runtime_evidence_markdown`、导出脚本 [export_task_runtime_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_task_runtime_evidence_report.py) 与文档 [11-TASK_RUNTIME_EVIDENCE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/11-TASK_RUNTIME_EVIDENCE.md)，可直接查看 runtime 真实样本明细、`verifyOk` 数量和冲突处理样本数
+  - provider 面板现也已直接接入真实证据摘要：每个 provider 都会显示 `auth / list / metadata / create_dir / task_runtime / fully_verified` 六项真实证据状态，以及 `real_evidence_gaps` 缺口说明，不用再切去设置页或单看导出文档
+  - 设置页现已新增 `Task Runtime Evidence` 摘要区，会直接读取 `GET /api/task_runtime_evidence` 的 summary，并显示 `sampleCount / providerCount / profileCount / verifyOkCount / conflictHandledCount`，以及最近几条 runtime 样本简讯
+  - `task_runtime_evidence` 现已不只记录成功样本，也会持久化真实失败样本，并区分 `successCount / failedCount`、错误码、风险提示和运行 note，后续排查 `P-REAL` 缺口时不必只看成功案例
+  - `real_evidence_report` 现也会显式吸收 runtime 失败样本：若某个 provider 已经出现真实运行失败但还没有成功样本，会在 `taskRuntimeEvidence` 中显示 `sampleCount / successCount / failedCount / failedProfiles`，并把“已有 task runtime 失败样本，但尚无成功样本”写进缺口提示
+  - provider 面板里的 `task_runtime` 现也已升级成 success/failed 计数展示，例如 `task_runtime=false(0/1)`，不再只是布尔值，能更直观看到“已经失败过几次、是否出现过成功样本”
+  - `real_evidence_report` summary 与设置页 `Real Evidence` 摘要现也已显式量化 `taskRuntimeFailedProviderCount`，可直接看到当前有多少 provider 已进入“真实运行失败但尚未成功”的阶段
+  - `real_evidence_report` summary 与设置页 `Real Evidence` 摘要现还已显式量化全局 runtime 样本总量：`taskRuntimeSampleCount / taskRuntimeSuccessCount / taskRuntimeFailedCount`，可以直接看到当前累计了多少真实运行样本、其中成功/失败各有多少
+  - `provider_status_matrix` 现也已吸收 runtime 真实样本计数：每个 provider 都会带 `task_runtime_samples / task_runtime_success / task_runtime_failed`，summary 也会带 `taskRuntimeEvidenceProviderCount / taskRuntimeFailedProviderCount / taskRuntimeSampleCount / taskRuntimeSuccessCount / taskRuntimeFailedCount`
+  - `provider_status_matrix` 现还会显式量化每个 provider 距离“接入真实运行写链路”还差多远：新增 `task_runtime_track=runtime_active/runtime_candidate/runtime_blocked/runtime_planned` 与 `task_runtime_track_note`，并在 summary 中汇总 `taskRuntimeActiveCount / taskRuntimeCandidateCount / taskRuntimeBlockedCount`
+  - provider 面板现也会直接展示 `task_runtime_track` 与说明文本，可一眼区分“Guangya / aliyundrive_open 已在 runtime_active”“189cloud 当前 runtime_blocked”“其余已接 live list/metadata/create_dir 的 provider 属于 runtime_candidate”
+  - `aliyundrive_open` 现已从 `runtime_candidate` 推进到 `runtime_active`：任务运行阶段遇到 `download_upload` 项且存在本地文件时，会先执行真实 `create_dir` 写探针，并把结果按 `mode=aliyundrive_open_create_dir_probe` 落入 `task_runtime_evidence`
+  - 该 Aliyun runtime 写探针会明确标成 `executionMode=probe`，并在任务结果说明里写清“真实 create_dir 写探针成功，但当前文件传输仍由 mock/download fallback 完成”，避免把写探针误写成文件上传成功
 - 当前验证证据：
   - `GET /api/providers/status_matrix` 返回结构化 summary 与 provider 明细，并区分真实 `list / metadata / create_dir` 绑定状态
   - `GET /api/providers/status_matrix_markdown` 返回非空 Markdown
@@ -347,3 +365,23 @@
   - 本地可控验证显示 `quark` 行的 `list_ready=True`、`metadata_ready=True`、`create_dir_ready=True`
   - 本地可控验证显示 `uc` 行的 `list_ready=True`、`metadata_ready=True`、`create_dir_ready=True`
   - [verify_189cloud_create_dir_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_create_dir_api.py) 已验证 `POST /api/providers/189cloud/create_dir` 会返回 `mode=unsupported_readonly_share_auth`、`fallbackReason=share_auth_readonly` 和所需 `requiredAuth`
+  - [verify_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_report.py) 已验证真实证据聚合会分别统计 `authEvidence / listEvidence / metadataEvidence / createDirEvidence / taskRuntimeEvidence`，并且 `GET /api/real_evidence` 与 `GET /api/real_evidence_markdown` 会返回对应 summary 与 Markdown 报告
+  - [verify_task_runtime_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence.py) 已验证 Guangya `binary_upload_multipart` 成功后会把 runtime 真实样本落进 `task_runtime_evidence`，并被 `real_evidence_report` 计成 `taskRuntimeEvidenceProviderCount=1`
+  - [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py) 已验证设置页已接入 `Real Evidence` 面板、`loadRealEvidenceSummary()`、登出清理、以及 `auth/list/metadata/create_dir/task_runtime/fully_verified` 摘要展示
+  - [10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 当前已落盘，能直接看见 `providerCount / profilesSaved / latestValidationProfileCount / latestProbeProfileCount` 以及各 provider 的真实证据缺口
+  - [verify_task_runtime_evidence_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_api.py) 已验证 `GET /api/task_runtime_evidence` 与 `GET /api/task_runtime_evidence_markdown` 会返回 `sampleCount / providerCount / profileCount / verifyOkCount / conflictHandledCount` 和样本明细
+  - [11-TASK_RUNTIME_EVIDENCE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/11-TASK_RUNTIME_EVIDENCE.md) 当前已落盘；若真实环境尚未产生 runtime 样本，它会诚实显示 `sampleCount=0`
+  - [verify_provider_real_evidence_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_real_evidence_ui.py) 已验证 provider 面板已接入 `realEvidenceReport`、`realEvidenceByProvider()`、真实证据摘要和 `real_evidence_gaps` 缺口展示
+  - [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py) 已验证设置页已接入 `Task Runtime Evidence` 面板、`loadTaskRuntimeEvidence()`、登出清理、以及 runtime 样本摘要展示
+  - [verify_task_runtime_failure_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_failure_evidence.py) 已验证 Guangya 真实运行失败样本也会写入 `task_runtime_evidence`，并在 summary 中体现为 `failedCount=1`
+  - [verify_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_report.py) 现还额外验证了当 provider 只有 runtime 失败样本时，`taskRuntimeEvidence.failedCount`、`failedProfiles` 与缺口提示都会同步出现
+  - [verify_provider_real_evidence_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_real_evidence_ui.py) 现还额外验证了 provider 面板 `task_runtime` 已带 `successCount/failedCount` 计数展示
+  - [verify_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_report.py) 现还额外验证了 report summary 与 Markdown 已带 `taskRuntimeFailedProviderCount / task_runtime_failed`
+  - [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py) 现还额外验证了设置页 `Real Evidence` 摘要已展示 `task_runtime_failed`
+  - [verify_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_report.py) 现还额外验证了 report summary 与 Markdown 已带 `taskRuntimeSampleCount / taskRuntimeSuccessCount / taskRuntimeFailedCount`
+  - [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py) 现还额外验证了设置页 `Real Evidence` 摘要已展示 `runtime_samples / runtime_success / runtime_failed`
+  - [verify_provider_conflict_capabilities.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_conflict_capabilities.py) 现还额外验证了 `GET /api/providers/status_matrix` summary 已带 `taskRuntimeEvidenceProviderCount / taskRuntimeFailedProviderCount / taskRuntimeSampleCount / taskRuntimeSuccessCount / taskRuntimeFailedCount`，并且 `guangya/189cloud` 行都已暴露 `task_runtime_samples / task_runtime_success / task_runtime_failed`
+  - [verify_provider_conflict_capabilities.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_conflict_capabilities.py) 现还额外验证了 `guangya`/`189cloud` 行都会暴露 `task_runtime_track`，可区分 `runtime_active` 与 `runtime_blocked`
+  - [verify_provider_real_evidence_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_real_evidence_ui.py) 现还额外验证了 provider 面板已显示 `task_runtime_track=...`
+  - [verify_aliyun_runtime_probe_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_aliyun_runtime_probe_evidence.py) 已验证 `aliyundrive_open` 任务运行会在 `download_upload` 分支执行真实 `create_dir` 写探针，返回 `results[].executionMode=probe`、`liveAttempt.mode=aliyundrive_open_create_dir_probe`，并把样本落入 `task_runtime_evidence`
+  - [06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 现已导出 runtime 样本列；若真实环境暂未积累样本，会诚实显示全 `0`

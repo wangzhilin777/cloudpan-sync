@@ -4,13 +4,16 @@ from hashlib import md5
 from pathlib import Path
 from datetime import datetime, timezone
 from pathlib import PurePosixPath
+import re
 from uuid import uuid4
 
+from .aliyun_open_live import fetch_aliyun_open_create_folder
 from .guangya_live import fetch_guangya_live_fast_check
 from .guangya_upload_live import upload_guangya_local_file
 from .models import SourceEntry, TaskCreateRequest
 from .planner import build_transfer_plan
 from .task_guard import evaluate_task_guard
+from .task_runtime_evidence_store import save_task_runtime_evidence
 
 
 _TASKS: dict[str, dict[str, object]] = {}
@@ -56,6 +59,12 @@ def _materialize_local_source_entry(raw: dict[str, object], default_path: str, d
         raw=dict(raw.get("raw") or {}),
         localPath=local_path,
     )
+
+
+def _probe_dir_name(task_id: str, path: str) -> str:
+    stem = PurePosixPath(path or "/probe").stem or "probe"
+    normalized = re.sub(r"[^a-zA-Z0-9._-]+", "-", stem).strip("-._") or "probe"
+    return f"cloudpan-sync-probe-{task_id[:8]}-{normalized[:40]}"
 
 
 def list_tasks() -> list[dict[str, object]]:
@@ -133,6 +142,47 @@ def build_task_summary(task: dict[str, object]) -> dict[str, object]:
 def refresh_task_summary(task: dict[str, object]) -> dict[str, object]:
     task["summary"] = build_task_summary(task)
     return task
+
+
+def _persist_task_runtime_evidence(task: dict[str, object], results: list[dict[str, object]]) -> None:
+    provider_key = str(task.get("targetProvider") or "")
+    profile_id = str(task.get("targetProfileId") or "")
+    task_id = str(task.get("taskId") or "")
+    updated_at = str(task.get("updatedAt") or _now())
+    if not provider_key:
+        return
+    for row in results:
+        result = dict(row or {})
+        live_attempt = dict(result.get("liveAttempt") or {})
+        mode = str(live_attempt.get("mode") or "")
+        status = str(result.get("status") or "")
+        if not mode:
+            continue
+        if mode in {"mock", "download_upload_mock"}:
+            continue
+        if status not in {"done", "failed"}:
+            continue
+        save_task_runtime_evidence(
+            {
+                "taskId": task_id,
+                "providerKey": provider_key,
+                "profileId": profile_id,
+                "path": str(result.get("path") or ""),
+                "mode": mode,
+                "success": status == "done",
+                "status": status,
+                "verifyOk": bool(live_attempt.get("verifyOk")),
+                "verifyMode": str(live_attempt.get("verifyMode") or ""),
+                "verifyNote": str(live_attempt.get("verifyNote") or ""),
+                "conflictPolicy": str(result.get("conflictPolicy") or ""),
+                "conflictAction": str(live_attempt.get("conflictAction") or ""),
+                "resolvedTargetName": str(live_attempt.get("resolvedTargetName") or ""),
+                "error": str(live_attempt.get("error") or ""),
+                "riskHint": str(live_attempt.get("riskHint") or ""),
+                "note": str(result.get("note") or ""),
+                "savedAt": updated_at,
+            }
+        )
 
 
 def build_task_list_view(task: dict[str, object]) -> dict[str, object]:
@@ -319,16 +369,19 @@ def run_task(task_id: str) -> dict[str, object]:
             "conflictPolicy": conflict_policy,
             "conflictSupportStatus": str(item.get("conflictSupportStatus") or "unknown"),
             "conflictNote": str(item.get("conflictNote") or ""),
+            "executionMode": "",
             "status": "skipped",
             "note": "",
         }
         if strategy == "pending_manual":
+            row_result["executionMode"] = "manual"
             row_result["status"] = "pending_manual"
             row_result["note"] = str(item.get("reason") or "")
             results.append(row_result)
             continue
 
         if strategy == "fast_upload" and target_provider == "guangya" and target_profile_id:
+            row_result["executionMode"] = "live"
             live_row = guangya_fast_rows.get(path)
             if live_row and bool(live_row.get("canFastUpload")):
                 done += 1
@@ -356,6 +409,7 @@ def run_task(task_id: str) -> dict[str, object]:
             continue
 
         if strategy == "download_upload" and target_provider == "guangya" and target_profile_id:
+            row_result["executionMode"] = "live"
             source_entry = source_entries_by_path.get(path, {})
             local_entry = _materialize_local_source_entry(source_entry, path, int(item.get("size", 0) or 0))
             if local_entry is not None:
@@ -433,12 +487,65 @@ def run_task(task_id: str) -> dict[str, object]:
                 results.append(row_result)
                 continue
 
+        if strategy == "download_upload" and target_provider == "aliyundrive_open" and target_profile_id:
+            source_entry = source_entries_by_path.get(path, {})
+            local_entry = _materialize_local_source_entry(source_entry, path, int(item.get("size", 0) or 0))
+            if local_entry is not None:
+                probe_name = _probe_dir_name(str(task.get("taskId") or ""), path)
+                probe_result = fetch_aliyun_open_create_folder(
+                    profile_id=target_profile_id,
+                    parent_file_id=target_parent_id or "root",
+                    dir_name=probe_name,
+                )
+                row_result["executionMode"] = "probe"
+                if probe_result.ok:
+                    done += 1
+                    row_result["status"] = "done"
+                    row_result["note"] = (
+                        "Aliyun Drive Open runtime write probe succeeded through live create_dir. "
+                        "The current file transfer still completes with mock/download fallback flow."
+                    )
+                    row_result["liveAttempt"] = {
+                        "mode": "aliyundrive_open_create_dir_probe",
+                        "parentId": target_parent_id or "root",
+                        "riskHint": "",
+                        "payload": probe_result.payload or {},
+                        "verifyOk": True,
+                        "verifyMode": "create_dir_response",
+                        "verifyNote": probe_result.note,
+                        "verifyPayload": probe_result.payload or {},
+                        "resolvedTargetName": probe_name,
+                        "conflictAction": "auto_rename_new",
+                    }
+                    results.append(row_result)
+                    continue
+                failed += 1
+                row_result["status"] = "failed"
+                row_result["note"] = probe_result.note or "Aliyun Drive Open runtime write probe failed."
+                row_result["liveAttempt"] = {
+                    "mode": "aliyundrive_open_create_dir_probe",
+                    "parentId": target_parent_id or "root",
+                    "error": probe_result.error,
+                    "riskHint": probe_result.note,
+                    "payload": probe_result.payload or {},
+                    "verifyOk": False,
+                    "verifyMode": "",
+                    "verifyNote": "",
+                    "verifyPayload": {},
+                    "resolvedTargetName": probe_name,
+                    "conflictAction": "",
+                }
+                results.append(row_result)
+                continue
+
         if strategy == "download_upload" and int(item.get("size", 0)) > 512 * 1024 * 1024:
+            row_result["executionMode"] = "blocked"
             failed += 1
             row_result["status"] = "failed"
             row_result["note"] = "Download-upload fallback is blocked for files larger than 512MB in the current runtime."
             results.append(row_result)
             continue
+        row_result["executionMode"] = "mock"
         done += 1
         row_result["status"] = "done"
         row_result["note"] = "Task runtime completed the item with the current mock/download fallback flow."
@@ -448,6 +555,7 @@ def run_task(task_id: str) -> dict[str, object]:
     task["results"] = results
     task["state"] = "completed" if failed == 0 else "completed_with_errors"
     task["updatedAt"] = _now()
+    _persist_task_runtime_evidence(task, results)
     refresh_task_summary(task)
     return task
 

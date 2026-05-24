@@ -11,7 +11,7 @@ if str(SRC) not in sys.path:
 
 from fastapi.testclient import TestClient
 
-from cloudpan_sync import webapp
+from cloudpan_sync import provider_status_matrix, webapp
 
 
 def _find_row(items: list[dict[str, object]], provider_key: str) -> dict[str, object]:
@@ -23,8 +23,13 @@ def _find_row(items: list[dict[str, object]], provider_key: str) -> dict[str, ob
 
 def main() -> None:
     original_password = webapp.ADMIN_PASSWORD
+    original_runtime = provider_status_matrix.latest_task_runtime_evidence
     webapp.ADMIN_PASSWORD = "admin123"
     try:
+        provider_status_matrix.latest_task_runtime_evidence = lambda: [
+            {"providerKey": "guangya", "success": True},
+            {"providerKey": "189cloud", "success": False},
+        ]
         app = webapp.create_app()
         client = TestClient(app)
         client.post("/api/login", json={"password": "admin123"})
@@ -32,6 +37,7 @@ def main() -> None:
         providers = client.get("/api/providers").json()
         matrix = client.get("/api/providers/status_matrix").json()
     finally:
+        provider_status_matrix.latest_task_runtime_evidence = original_runtime
         webapp.ADMIN_PASSWORD = original_password
 
     provider_items = providers.get("items") or []
@@ -55,6 +61,10 @@ def main() -> None:
                     "supportsOverwrite": guangya_matrix.get("supportsOverwrite"),
                     "supportsAutoRename": guangya_matrix.get("supportsAutoRename"),
                     "overwriteBehavior": guangya_matrix.get("overwriteBehavior"),
+                    "task_runtime_track": guangya_matrix.get("task_runtime_track"),
+                    "task_runtime_samples": guangya_matrix.get("task_runtime_samples"),
+                    "task_runtime_success": guangya_matrix.get("task_runtime_success"),
+                    "task_runtime_failed": guangya_matrix.get("task_runtime_failed"),
                 },
                 "tianyiMatrix": {
                     "create_dir_ready": tianyi_matrix.get("create_dir_ready"),
@@ -62,6 +72,10 @@ def main() -> None:
                     "supportsOverwrite": tianyi_matrix.get("supportsOverwrite"),
                     "supportsAutoRename": tianyi_matrix.get("supportsAutoRename"),
                     "overwriteBehavior": tianyi_matrix.get("overwriteBehavior"),
+                    "task_runtime_track": tianyi_matrix.get("task_runtime_track"),
+                    "task_runtime_samples": tianyi_matrix.get("task_runtime_samples"),
+                    "task_runtime_success": tianyi_matrix.get("task_runtime_success"),
+                    "task_runtime_failed": tianyi_matrix.get("task_runtime_failed"),
                 },
             },
             ensure_ascii=False,

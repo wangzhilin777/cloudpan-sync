@@ -35,12 +35,16 @@ const state = {
   providerResearch: [],
   statusMatrix: null,
   auditSummary: null,
+  realEvidenceReport: null,
+  realEvidenceSummary: null,
   authProfiles: [],
   authEditingProfileId: "",
   liveValidations: [],
   liveValidationMeta: { historyCount: 0, summary: null },
   providerLiveProbes: {},
   providerLiveProbeMeta: { historyCount: 0, summary: null },
+  taskRuntimeEvidence: [],
+  taskRuntimeEvidenceMeta: { historyCount: 0, summary: null },
   tasks: [],
   taskPlanPreview: null,
 };
@@ -66,6 +70,10 @@ function latestValidationByProfile(profileId) {
     }
   }
   return null;
+}
+
+function realEvidenceByProvider(providerKey) {
+  return (state.realEvidenceReport?.items || []).find((item) => item.providerKey === providerKey) || null;
 }
 
 function resolvedParentIdForProfile(profile) {
@@ -921,6 +929,17 @@ async function loadAuditSummary() {
   renderSettingsPanel();
 }
 
+async function loadRealEvidenceSummary() {
+  if (!state.loggedIn) {
+    return;
+  }
+  const data = await fetchJson("/api/real_evidence");
+  state.realEvidenceReport = data;
+  state.realEvidenceSummary = data.summary || null;
+  renderProviderPanel();
+  renderSettingsPanel();
+}
+
 async function loadLiveValidations() {
   if (!state.loggedIn) {
     return;
@@ -951,6 +970,19 @@ async function loadProviderLiveProbeResults() {
     summary: data.summary || null,
   };
   renderProviderPanel();
+  renderSettingsPanel();
+}
+
+async function loadTaskRuntimeEvidence() {
+  if (!state.loggedIn) {
+    return;
+  }
+  const data = await fetchJson("/api/task_runtime_evidence");
+  state.taskRuntimeEvidence = data.latestItems || data.items || [];
+  state.taskRuntimeEvidenceMeta = {
+    historyCount: (data.items || []).length,
+    summary: data.summary || null,
+  };
   renderSettingsPanel();
 }
 
@@ -1125,6 +1157,7 @@ function renderTaskList() {
       const latest = resultRows
         .slice(0, 3)
         .map((row) => {
+          const executionText = row.executionMode ? ` [${row.executionMode}]` : "";
           const modeText = row.liveAttempt ? ` (${row.liveAttempt.mode})` : "";
           const riskText = row.liveAttempt?.riskHint ? ` - ${row.liveAttempt.riskHint}` : "";
           const verifyText = row.liveAttempt?.verifyMode
@@ -1136,7 +1169,7 @@ function renderTaskList() {
           const conflictSupportText = row.conflictSupportStatus
             ? `, conflictSupport=${row.conflictSupportStatus}`
             : "";
-          return `${row.path}: ${row.status}${modeText}${verifyText}${conflictText}${conflictSupportText}${riskText}`;
+          return `${row.path}: ${row.status}${executionText}${modeText}${verifyText}${conflictText}${conflictSupportText}${riskText}`;
         })
         .join(" | ");
       const resultMeta = document.createElement("div");
@@ -1451,6 +1484,7 @@ function renderProviderPanel() {
       { label: "createDir", value: state.statusMatrix.summary.createDirReadyCount || 0 },
       { label: "fastCheck", value: state.statusMatrix.summary.fastCheckCount || 0 },
       { label: "conflictAware", value: state.statusMatrix.summary.conflictAwareProviderCount || 0 },
+      { label: "runtime", value: state.statusMatrix.summary.taskRuntimeSampleCount || 0 },
     ];
     for (const card of cards) {
       const node = document.createElement("div");
@@ -1477,9 +1511,26 @@ function renderProviderPanel() {
     conflict.className = "auth-item-meta";
     const policyText = (item.conflictPolicies || []).join(", ") || "(none)";
     conflict.textContent = `conflictPolicies=${policyText}, overwrite=${item.supportsOverwrite}, autoRename=${item.supportsAutoRename}, overwriteBehavior=${item.overwriteBehavior || "not_implemented"}`;
+    const runtimeTrack = document.createElement("div");
+    runtimeTrack.className = "auth-item-meta";
+    runtimeTrack.textContent = `task_runtime_track=${item.task_runtime_track || "runtime_planned"}${item.task_runtime_track_note ? `, note=${item.task_runtime_track_note}` : ""}`;
     node.appendChild(title);
     node.appendChild(meta);
     node.appendChild(conflict);
+    node.appendChild(runtimeTrack);
+    const realEvidence = realEvidenceByProvider(item.providerKey);
+    if (realEvidence) {
+      const evidenceMeta = document.createElement("div");
+      evidenceMeta.className = "auth-item-meta";
+      evidenceMeta.textContent = `real_evidence auth=${Boolean(realEvidence.authEvidence?.ok)}, list=${Boolean(realEvidence.listEvidence?.ok)}, metadata=${Boolean(realEvidence.metadataEvidence?.ok)}, create_dir=${Boolean(realEvidence.createDirEvidence?.ok)}, task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}), fully_verified=${Boolean(realEvidence.fullyVerified)}`;
+      node.appendChild(evidenceMeta);
+      if ((realEvidence.gaps || []).length) {
+        const evidenceGaps = document.createElement("div");
+        evidenceGaps.className = "auth-item-meta";
+        evidenceGaps.textContent = `real_evidence_gaps=${(realEvidence.gaps || []).join(" | ")}`;
+        node.appendChild(evidenceGaps);
+      }
+    }
     if (item.conflictNotes) {
       const notes = document.createElement("div");
       notes.className = "auth-item-meta";
@@ -1500,6 +1551,32 @@ function renderProviderPanel() {
     const notes = document.createElement("div");
     notes.className = "auth-item-meta";
     notes.textContent = item.notes || "";
+    const realEvidence = realEvidenceByProvider(item.providerKey);
+    if (realEvidence) {
+      const evidenceMeta = document.createElement("div");
+      evidenceMeta.className = "auth-item-meta";
+      evidenceMeta.textContent = `real_evidence auth=${Boolean(realEvidence.authEvidence?.ok)}, list=${Boolean(realEvidence.listEvidence?.ok)}, metadata=${Boolean(realEvidence.metadataEvidence?.ok)}, create_dir=${Boolean(realEvidence.createDirEvidence?.ok)}, task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}), fully_verified=${Boolean(realEvidence.fullyVerified)}`;
+      node.appendChild(title);
+      node.appendChild(meta);
+      node.appendChild(notes);
+      node.appendChild(evidenceMeta);
+      if ((realEvidence.gaps || []).length) {
+        const evidenceGaps = document.createElement("div");
+        evidenceGaps.className = "auth-item-meta";
+        evidenceGaps.textContent = `real_evidence_gaps=${(realEvidence.gaps || []).join(" | ")}`;
+        node.appendChild(evidenceGaps);
+      }
+      const matchedProfile = state.authProfiles.find((profile) => profile.providerKey === item.providerKey);
+      if (matchedProfile && state.providerLiveProbes[matchedProfile.profileId]) {
+        const probe = state.providerLiveProbes[matchedProfile.profileId];
+        const probeNode = document.createElement("div");
+        probeNode.className = "auth-item-meta";
+        probeNode.textContent = `live_probe=${probe.mode}, ok=${probe.ok}, checks=${(probe.checks || []).length}`;
+        node.appendChild(probeNode);
+      }
+      researchList.appendChild(node);
+      continue;
+    }
     const matchedProfile = state.authProfiles.find((profile) => profile.providerKey === item.providerKey);
     if (matchedProfile && state.providerLiveProbes[matchedProfile.profileId]) {
       const probe = state.providerLiveProbes[matchedProfile.profileId];
@@ -1524,10 +1601,14 @@ function renderSettingsPanel() {
   const sessionList = document.getElementById("settingsSessionList");
   const validationList = document.getElementById("settingsValidationList");
   const providerProbeList = document.getElementById("settingsProviderProbeList");
+  const realEvidenceList = document.getElementById("settingsRealEvidenceList");
+  const taskRuntimeEvidenceList = document.getElementById("settingsTaskRuntimeEvidenceList");
   const auditList = document.getElementById("settingsAuditList");
   sessionList.innerHTML = "";
   validationList.innerHTML = "";
   providerProbeList.innerHTML = "";
+  realEvidenceList.innerHTML = "";
+  taskRuntimeEvidenceList.innerHTML = "";
   auditList.innerHTML = "";
 
   const sessionRows = [
@@ -1582,6 +1663,36 @@ function renderSettingsPanel() {
     }
   }
 
+  const realEvidence = state.realEvidenceSummary || {};
+  const realEvidenceRows = [
+    `providers=${realEvidence.providerCount || 0}, profilesSaved=${realEvidence.profilesSaved || 0}`,
+    `auth=${realEvidence.authEvidenceProviderCount || 0}, list=${realEvidence.listEvidenceProviderCount || 0}, metadata=${realEvidence.metadataEvidenceProviderCount || 0}`,
+    `create_dir=${realEvidence.createDirEvidenceProviderCount || 0}, task_runtime=${realEvidence.taskRuntimeEvidenceProviderCount || 0}, task_runtime_failed=${realEvidence.taskRuntimeFailedProviderCount || 0}, fully_verified=${realEvidence.fullyVerifiedProviderCount || 0}`,
+    `runtime_samples=${realEvidence.taskRuntimeSampleCount || 0}, runtime_success=${realEvidence.taskRuntimeSuccessCount || 0}, runtime_failed=${realEvidence.taskRuntimeFailedCount || 0}`,
+  ];
+  for (const row of realEvidenceRows) {
+    const li = document.createElement("li");
+    li.textContent = row;
+    realEvidenceList.appendChild(li);
+  }
+
+  const runtimeEvidenceSummary = state.taskRuntimeEvidenceMeta?.summary || {};
+  const runtimeEvidenceRows = [
+    `history=${state.taskRuntimeEvidenceMeta?.historyCount || 0}, latestSamples=${runtimeEvidenceSummary.sampleCount || 0}`,
+    `providers=${runtimeEvidenceSummary.providerCount || 0}, profiles=${runtimeEvidenceSummary.profileCount || 0}, verifyOk=${runtimeEvidenceSummary.verifyOkCount || 0}`,
+    `conflictHandled=${runtimeEvidenceSummary.conflictHandledCount || 0}`,
+  ];
+  for (const row of runtimeEvidenceRows) {
+    const li = document.createElement("li");
+    li.textContent = row;
+    taskRuntimeEvidenceList.appendChild(li);
+  }
+  for (const item of (state.taskRuntimeEvidence || []).slice(0, 3)) {
+    const li = document.createElement("li");
+    li.textContent = `${item.providerKey || "(unknown)"}: mode=${item.mode || ""}, verifyOk=${Boolean(item.verifyOk)}, conflict=${item.conflictAction || "(none)"}`;
+    taskRuntimeEvidenceList.appendChild(li);
+  }
+
   const audit = state.auditSummary || {};
   const auditRows = [
     `done=${audit.done || 0}`,
@@ -1625,6 +1736,10 @@ async function onLogout() {
   state.liveValidationMeta = { historyCount: 0, summary: null };
   state.providerLiveProbes = {};
   state.providerLiveProbeMeta = { historyCount: 0, summary: null };
+  state.realEvidenceReport = null;
+  state.realEvidenceSummary = null;
+  state.taskRuntimeEvidence = [];
+  state.taskRuntimeEvidenceMeta = { historyCount: 0, summary: null };
   state.providerResearch = [];
   state.statusMatrix = null;
   state.auditSummary = null;
@@ -1644,6 +1759,8 @@ async function refreshProtectedData() {
     loadTasks(),
     loadLiveValidations(),
     loadProviderLiveProbeResults(),
+    loadRealEvidenceSummary(),
+    loadTaskRuntimeEvidence(),
     loadAuditSummary(),
   ]);
 }

@@ -170,6 +170,11 @@ def _resolve_conflict_support(conflict_policy: str, provider_key: str) -> tuple[
     if normalized_policy == "auto_rename_new":
         if profile.supportsAutoRename:
             return "supported", ""
+        if provider_key == "aliyundrive_open":
+            return (
+                "probe_only_runtime_write_check",
+                "Aliyun Drive Open task runtime can now perform a live create_dir write probe, but same-name file handling for real file upload is not declared yet.",
+            )
         return (
             "unsupported",
             profile.conflictNotes

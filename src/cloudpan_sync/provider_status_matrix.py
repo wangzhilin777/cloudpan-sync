@@ -6,6 +6,7 @@ from .auth_live_validate import list_live_validations
 from .provider_live_probe_store import list_provider_live_probes
 from .provider_registry import build_provider_registry
 from .provider_research import build_provider_research_index
+from .task_runtime_evidence_store import latest_task_runtime_evidence
 
 
 def _latest_ok_by_provider() -> dict[str, bool]:
@@ -29,11 +30,69 @@ def _latest_probe_by_provider() -> dict[str, dict[str, object]]:
     return result
 
 
+def _runtime_summary_by_provider() -> dict[str, dict[str, int]]:
+    result: dict[str, dict[str, int]] = {}
+    for row in latest_task_runtime_evidence():
+        key = str(row.get("providerKey") or "")
+        if not key:
+            continue
+        bucket = result.setdefault(
+            key,
+            {
+                "task_runtime_samples": 0,
+                "task_runtime_success": 0,
+                "task_runtime_failed": 0,
+            },
+        )
+        bucket["task_runtime_samples"] += 1
+        if bool(row.get("success")):
+            bucket["task_runtime_success"] += 1
+        else:
+            bucket["task_runtime_failed"] += 1
+    return result
+
+
+def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
+    if provider_key == "guangya":
+        return (
+            "runtime_active",
+            "Current task runtime already drives Guangya live fast-check and fallback upload attempts.",
+        )
+    if provider_key == "aliyundrive_open":
+        return (
+            "runtime_active",
+            "Current task runtime now drives an Aliyun Drive Open live create_dir write probe before mock/download fallback completion.",
+        )
+    if provider_key == "189cloud":
+        return (
+            "runtime_blocked",
+            "Current 189Cloud path is still shareCode/accessCode read-only, so task runtime write attempts cannot start yet.",
+        )
+    if provider_key in {
+        "123_open",
+        "115_open",
+        "baidu_netdisk",
+        "xunlei",
+        "pikpak",
+        "quark",
+        "uc",
+    }:
+        return (
+            "runtime_candidate",
+            "Live list/metadata/create_dir capability is already wired, but task runtime write/upload flow is not connected yet.",
+        )
+    return (
+        "runtime_planned",
+        "This provider has not reached task runtime write integration yet.",
+    )
+
+
 def build_status_matrix() -> dict[str, object]:
     registry = {x.profile.providerKey: x.profile for x in build_provider_registry()}
     research = {str(x.get("providerKey") or ""): x for x in build_provider_research_index()}
     auth_ok = _latest_ok_by_provider()
     probe_rows = _latest_probe_by_provider()
+    runtime_rows = _runtime_summary_by_provider()
     live_list_ready = {"guangya", "aliyundrive_open", "189cloud", "123_open", "115_open", "xunlei", "quark", "uc", "pikpak", "baidu_netdisk"}
     live_metadata_ready = {"guangya", "aliyundrive_open", "189cloud", "123_open", "115_open", "xunlei", "quark", "uc", "pikpak", "baidu_netdisk"}
     live_create_dir_ready = {"guangya", "aliyundrive_open", "123_open", "115_open", "xunlei", "pikpak", "baidu_netdisk", "quark", "uc"}
@@ -43,6 +102,8 @@ def build_status_matrix() -> dict[str, object]:
         row_research = research.get(provider_key, {})
         auth_ready = bool(auth_ok.get(provider_key, False))
         probe = dict(probe_rows.get(provider_key) or {})
+        runtime = dict(runtime_rows.get(provider_key) or {})
+        runtime_track, runtime_track_note = _runtime_track_for_provider(provider_key)
         live_probe_ok = bool(probe.get("ok"))
         list_ready = provider_key in live_list_ready
         metadata_ready = provider_key in live_metadata_ready
@@ -78,6 +139,11 @@ def build_status_matrix() -> dict[str, object]:
                 "fast_check": fast_check,
                 "fallback_ready": fallback_ready,
                 "live_probe_ok": live_probe_ok,
+                "task_runtime_track": runtime_track,
+                "task_runtime_track_note": runtime_track_note,
+                "task_runtime_samples": int(runtime.get("task_runtime_samples", 0) or 0),
+                "task_runtime_success": int(runtime.get("task_runtime_success", 0) or 0),
+                "task_runtime_failed": int(runtime.get("task_runtime_failed", 0) or 0),
                 "lastProbeMode": str(probe.get("mode") or ""),
                 "supportStatus": support_status,
             }
@@ -93,6 +159,14 @@ def build_status_matrix() -> dict[str, object]:
             "conflictAwareProviderCount": sum(1 for x in items if x["conflictPolicies"]),
             "overwriteReadyCount": sum(1 for x in items if x["supportsOverwrite"]),
             "autoRenameReadyCount": sum(1 for x in items if x["supportsAutoRename"]),
+            "taskRuntimeEvidenceProviderCount": sum(1 for x in items if int(x["task_runtime_success"]) > 0),
+            "taskRuntimeFailedProviderCount": sum(1 for x in items if int(x["task_runtime_failed"]) > 0),
+            "taskRuntimeSampleCount": sum(int(x["task_runtime_samples"]) for x in items),
+            "taskRuntimeSuccessCount": sum(int(x["task_runtime_success"]) for x in items),
+            "taskRuntimeFailedCount": sum(int(x["task_runtime_failed"]) for x in items),
+            "taskRuntimeActiveCount": sum(1 for x in items if str(x["task_runtime_track"]) == "runtime_active"),
+            "taskRuntimeCandidateCount": sum(1 for x in items if str(x["task_runtime_track"]) == "runtime_candidate"),
+            "taskRuntimeBlockedCount": sum(1 for x in items if str(x["task_runtime_track"]) == "runtime_blocked"),
         },
         "items": sorted(items, key=lambda x: str(x.get("providerKey") or "")),
     }
@@ -105,17 +179,19 @@ def matrix_to_markdown(payload: dict[str, object]) -> str:
     lines.append("")
     lines.append(f"- GeneratedAt: `{payload.get('generatedAt', '')}`")
     lines.append(
-        f"- Summary: providerCount={summary.get('providerCount', 0)}, authReadyCount={summary.get('authReadyCount', 0)}, createDirReadyCount={summary.get('createDirReadyCount', 0)}, fastCheckCount={summary.get('fastCheckCount', 0)}, liveProbeOkCount={summary.get('liveProbeOkCount', 0)}, conflictAwareProviderCount={summary.get('conflictAwareProviderCount', 0)}, overwriteReadyCount={summary.get('overwriteReadyCount', 0)}, autoRenameReadyCount={summary.get('autoRenameReadyCount', 0)}"
+        f"- Summary: providerCount={summary.get('providerCount', 0)}, authReadyCount={summary.get('authReadyCount', 0)}, createDirReadyCount={summary.get('createDirReadyCount', 0)}, fastCheckCount={summary.get('fastCheckCount', 0)}, liveProbeOkCount={summary.get('liveProbeOkCount', 0)}, conflictAwareProviderCount={summary.get('conflictAwareProviderCount', 0)}, overwriteReadyCount={summary.get('overwriteReadyCount', 0)}, autoRenameReadyCount={summary.get('autoRenameReadyCount', 0)}, taskRuntimeEvidenceProviderCount={summary.get('taskRuntimeEvidenceProviderCount', 0)}, taskRuntimeFailedProviderCount={summary.get('taskRuntimeFailedProviderCount', 0)}, taskRuntimeSampleCount={summary.get('taskRuntimeSampleCount', 0)}, taskRuntimeSuccessCount={summary.get('taskRuntimeSuccessCount', 0)}, taskRuntimeFailedCount={summary.get('taskRuntimeFailedCount', 0)}, taskRuntimeActiveCount={summary.get('taskRuntimeActiveCount', 0)}, taskRuntimeCandidateCount={summary.get('taskRuntimeCandidateCount', 0)}, taskRuntimeBlockedCount={summary.get('taskRuntimeBlockedCount', 0)}"
     )
     lines.append("")
-    lines.append("| providerKey | supportStatus | auth_ready | list_ready | metadata_ready | create_dir_ready | fast_check | live_probe_ok | supports_overwrite | supports_auto_rename | overwrite_behavior | conflict_policies | fallback_ready |")
-    lines.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+    lines.append("| providerKey | supportStatus | auth_ready | list_ready | metadata_ready | create_dir_ready | fast_check | live_probe_ok | task_runtime_track | task_runtime_samples | task_runtime_success | task_runtime_failed | supports_overwrite | supports_auto_rename | overwrite_behavior | conflict_policies | fallback_ready |")
+    lines.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for row in payload.get("items", []):
         item = dict(row or {})
         lines.append(
-            f"| {item.get('providerKey','')} | {item.get('supportStatus','')} | {item.get('auth_ready',False)} | {item.get('list_ready',False)} | {item.get('metadata_ready',False)} | {item.get('create_dir_ready',False)} | {item.get('fast_check',False)} | {item.get('live_probe_ok',False)} | {item.get('supportsOverwrite',False)} | {item.get('supportsAutoRename',False)} | {item.get('overwriteBehavior','')} | {', '.join(item.get('conflictPolicies', [])) or '(none)'} | {item.get('fallback_ready',False)} |"
+            f"| {item.get('providerKey','')} | {item.get('supportStatus','')} | {item.get('auth_ready',False)} | {item.get('list_ready',False)} | {item.get('metadata_ready',False)} | {item.get('create_dir_ready',False)} | {item.get('fast_check',False)} | {item.get('live_probe_ok',False)} | {item.get('task_runtime_track','')} | {item.get('task_runtime_samples',0)} | {item.get('task_runtime_success',0)} | {item.get('task_runtime_failed',0)} | {item.get('supportsOverwrite',False)} | {item.get('supportsAutoRename',False)} | {item.get('overwriteBehavior','')} | {', '.join(item.get('conflictPolicies', [])) or '(none)'} | {item.get('fallback_ready',False)} |"
         )
+        if item.get("task_runtime_track_note"):
+            lines.append(f"|  | runtime_note |  |  |  |  |  |  | {str(item.get('task_runtime_track_note') or '').replace('|', '/')} |  |  |  |  |  |  |  |  |")
         if item.get("conflictNotes"):
-            lines.append(f"|  | note |  |  |  |  |  |  |  |  |  | {str(item.get('conflictNotes') or '').replace('|', '/')} |  |")
+            lines.append(f"|  | note |  |  |  |  |  |  |  |  |  |  |  |  | {str(item.get('conflictNotes') or '').replace('|', '/')} |  |  |")
     lines.append("")
     return "\n".join(lines)

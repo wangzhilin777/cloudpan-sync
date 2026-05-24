@@ -67,6 +67,7 @@ def main() -> None:
         action = action_resp.json()
         action_list = dict(action.get("listView") or {})
         action_detail = dict(action.get("detailView") or {})
+        first_action_result = dict((action_detail.get("results") or [None])[0] or {})
 
         print(
             json.dumps(
@@ -111,6 +112,7 @@ def main() -> None:
                         "hasDetailView": bool(action_detail),
                         "detailState": ((action_detail.get("summary") or {}).get("state")),
                         "detailResultsCount": len(action_detail.get("results") or []),
+                        "firstExecutionMode": first_action_result.get("executionMode"),
                     },
                 },
                 ensure_ascii=False,

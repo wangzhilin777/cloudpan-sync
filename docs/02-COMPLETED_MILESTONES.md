@@ -341,13 +341,15 @@
   - `real_evidence_report` summary 与设置页 `Real Evidence` 摘要现还已显式量化全局 runtime 样本总量：`taskRuntimeSampleCount / taskRuntimeSuccessCount / taskRuntimeFailedCount`，可以直接看到当前累计了多少真实运行样本、其中成功/失败各有多少
   - `provider_status_matrix` 现也已吸收 runtime 真实样本计数：每个 provider 都会带 `task_runtime_samples / task_runtime_success / task_runtime_failed`，summary 也会带 `taskRuntimeEvidenceProviderCount / taskRuntimeFailedProviderCount / taskRuntimeSampleCount / taskRuntimeSuccessCount / taskRuntimeFailedCount`
   - `provider_status_matrix` 现还会显式量化每个 provider 距离“接入真实运行写链路”还差多远：新增 `task_runtime_track=runtime_active/runtime_candidate/runtime_blocked/runtime_planned` 与 `task_runtime_track_note`，并在 summary 中汇总 `taskRuntimeActiveCount / taskRuntimeCandidateCount / taskRuntimeBlockedCount`
-  - provider 面板现也会直接展示 `task_runtime_track` 与说明文本，可一眼区分“Guangya / aliyundrive_open / 123_open / 115_open 已在 runtime_active”“189cloud 当前 runtime_blocked”“其余已接 live list/metadata/create_dir 的 provider 属于 runtime_candidate”
+  - provider 面板现也会直接展示 `task_runtime_track` 与说明文本，可一眼区分“Guangya / aliyundrive_open / 123_open / 115_open / xunlei 已在 runtime_active”“189cloud 当前 runtime_blocked”“其余已接 live list/metadata/create_dir 的 provider 属于 runtime_candidate”
   - `aliyundrive_open` 现已从 `runtime_candidate` 推进到 `runtime_active`：任务运行阶段遇到 `download_upload` 项且存在本地文件时，会先执行真实 `create_dir` 写探针，并把结果按 `mode=aliyundrive_open_create_dir_probe` 落入 `task_runtime_evidence`
   - 该 Aliyun runtime 写探针会明确标成 `executionMode=probe`，并在任务结果说明里写清“真实 create_dir 写探针成功，但当前文件传输仍由 mock/download fallback 完成”，避免把写探针误写成文件上传成功
   - `123_open` 现也已从 `runtime_candidate` 推进到 `runtime_active`：任务运行阶段遇到 `download_upload` 项且存在本地文件时，会先执行真实 `create_dir` 写探针，并把结果按 `mode=123_open_create_dir_probe` 落入 `task_runtime_evidence`
   - 该 123Pan runtime 写探针同样会明确标成 `executionMode=probe`，并在任务结果说明里写清“真实 create_dir 写探针成功，但当前文件传输仍由 mock/download fallback 完成”，避免把写探针误写成文件上传成功
   - `115_open` 现也已从 `runtime_candidate` 推进到 `runtime_active`：任务运行阶段遇到 `download_upload` 项且存在本地文件时，会先执行真实 `create_dir` 写探针，并把结果按 `mode=115_open_create_dir_probe` 落入 `task_runtime_evidence`
   - 该 115 Open runtime 写探针同样会明确标成 `executionMode=probe`，并在任务结果说明里写清“真实 create_dir 写探针成功，但当前文件传输仍由 mock/download fallback 完成”，避免把写探针误写成文件上传成功
+  - `xunlei` 现也已从 `runtime_candidate` 推进到 `runtime_active`：任务运行阶段遇到 `download_upload` 项且存在本地文件时，会先执行真实 `create_dir` 写探针，并把结果按 `mode=xunlei_create_dir_probe` 落入 `task_runtime_evidence`
+  - 该 Xunlei runtime 写探针同样会明确标成 `executionMode=probe`，并在任务结果说明里写清“真实 create_dir 写探针成功，但当前文件传输仍由 mock/download fallback 完成”，避免把写探针误写成文件上传成功
 - 当前验证证据：
   - `GET /api/providers/status_matrix` 返回结构化 summary 与 provider 明细，并区分真实 `list / metadata / create_dir` 绑定状态
   - `GET /api/providers/status_matrix_markdown` 返回非空 Markdown
@@ -386,9 +388,10 @@
   - [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py) 现还额外验证了设置页 `Real Evidence` 摘要已展示 `runtime_samples / runtime_success / runtime_failed`
   - [verify_provider_conflict_capabilities.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_conflict_capabilities.py) 现还额外验证了 `GET /api/providers/status_matrix` summary 已带 `taskRuntimeEvidenceProviderCount / taskRuntimeFailedProviderCount / taskRuntimeSampleCount / taskRuntimeSuccessCount / taskRuntimeFailedCount`，并且 `guangya/189cloud` 行都已暴露 `task_runtime_samples / task_runtime_success / task_runtime_failed`
   - [verify_provider_conflict_capabilities.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_conflict_capabilities.py) 现还额外验证了 `guangya`/`189cloud` 行都会暴露 `task_runtime_track`，可区分 `runtime_active` 与 `runtime_blocked`
-  - [verify_provider_conflict_capabilities.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_conflict_capabilities.py) 当前还可验证状态矩阵 summary 已推进到 `taskRuntimeActiveCount=4`、`taskRuntimeCandidateCount=5`、`taskRuntimeBlockedCount=1`
+  - [verify_provider_conflict_capabilities.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_conflict_capabilities.py) 当前还可验证状态矩阵 summary 已推进到 `taskRuntimeActiveCount=5`、`taskRuntimeCandidateCount=4`、`taskRuntimeBlockedCount=1`
   - [verify_provider_real_evidence_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_real_evidence_ui.py) 现还额外验证了 provider 面板已显示 `task_runtime_track=...`
   - [verify_aliyun_runtime_probe_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_aliyun_runtime_probe_evidence.py) 已验证 `aliyundrive_open` 任务运行会在 `download_upload` 分支执行真实 `create_dir` 写探针，返回 `results[].executionMode=probe`、`liveAttempt.mode=aliyundrive_open_create_dir_probe`，并把样本落入 `task_runtime_evidence`
   - [verify_123_runtime_probe_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_123_runtime_probe_evidence.py) 已验证 `123_open` 任务运行会在 `download_upload` 分支执行真实 `create_dir` 写探针，返回 `results[].executionMode=probe`、`liveAttempt.mode=123_open_create_dir_probe`，并把样本落入 `task_runtime_evidence`
   - [verify_115_runtime_probe_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_115_runtime_probe_evidence.py) 已验证 `115_open` 任务运行会在 `download_upload` 分支执行真实 `create_dir` 写探针，返回 `results[].executionMode=probe`、`liveAttempt.mode=115_open_create_dir_probe`，并把样本落入 `task_runtime_evidence`
+  - [verify_xunlei_runtime_probe_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_xunlei_runtime_probe_evidence.py) 已验证 `xunlei` 任务运行会在 `download_upload` 分支执行真实 `create_dir` 写探针，返回 `results[].executionMode=probe`、`liveAttempt.mode=xunlei_create_dir_probe`，并把样本落入 `task_runtime_evidence`
   - [06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 现已导出 runtime 样本列；若真实环境暂未积累样本，会诚实显示全 `0`

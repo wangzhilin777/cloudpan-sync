@@ -1,7 +1,7 @@
 # CloudPan Sync Provider Status Matrix
 
-- GeneratedAt: `2026-05-24T07:51:15.914567+00:00`
-- Summary: providerCount=10, authReadyCount=0, createDirReadyCount=9, fastCheckCount=5, liveProbeOkCount=0, conflictAwareProviderCount=1, overwriteReadyCount=0, autoRenameReadyCount=1, taskRuntimeEvidenceProviderCount=0, taskRuntimeFailedProviderCount=0, taskRuntimeSampleCount=0, taskRuntimeSuccessCount=0, taskRuntimeFailedCount=0, taskRuntimeActiveCount=4, taskRuntimeCandidateCount=5, taskRuntimeBlockedCount=1
+- GeneratedAt: `2026-05-24T07:56:23.452457+00:00`
+- Summary: providerCount=10, authReadyCount=0, createDirReadyCount=9, fastCheckCount=5, liveProbeOkCount=0, conflictAwareProviderCount=1, overwriteReadyCount=0, autoRenameReadyCount=1, taskRuntimeEvidenceProviderCount=0, taskRuntimeFailedProviderCount=0, taskRuntimeSampleCount=0, taskRuntimeSuccessCount=0, taskRuntimeFailedCount=0, taskRuntimeActiveCount=5, taskRuntimeCandidateCount=4, taskRuntimeBlockedCount=1
 
 | providerKey | supportStatus | auth_ready | list_ready | metadata_ready | create_dir_ready | fast_check | live_probe_ok | task_runtime_track | task_runtime_samples | task_runtime_success | task_runtime_failed | supports_overwrite | supports_auto_rename | overwrite_behavior | conflict_policies | fallback_ready |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -32,6 +32,6 @@
 | uc | list_ready | False | True | True | True | False | False | runtime_candidate | 0 | 0 | 0 | False | False | not_implemented | (none) | True |
 |  | runtime_note |  |  |  |  |  |  | Live list/metadata/create_dir capability is already wired, but task runtime write/upload flow is not connected yet. |  |  |  |  |  |  |  |  |
 |  | note |  |  |  |  |  |  |  |  |  |  |  |  | 当前任务运行时尚未暴露该 provider 的同名冲突处理链路。 |  |  |
-| xunlei | list_ready | False | True | True | True | True | False | runtime_candidate | 0 | 0 | 0 | False | False | not_implemented | (none) | True |
-|  | runtime_note |  |  |  |  |  |  | Live list/metadata/create_dir capability is already wired, but task runtime write/upload flow is not connected yet. |  |  |  |  |  |  |  |  |
-|  | note |  |  |  |  |  |  |  |  |  |  |  |  | 当前任务运行时尚未暴露该 provider 的同名冲突处理链路。 |  |  |
+| xunlei | list_ready | False | True | True | True | True | False | runtime_active | 0 | 0 | 0 | False | False | not_implemented | (none) | True |
+|  | runtime_note |  |  |  |  |  |  | Current task runtime now drives a live Xunlei create_dir write probe before mock/download fallback completion. |  |  |  |  |  |  |  |  |
+|  | note |  |  |  |  |  |  |  |  |  |  |  |  | 当前 Xunlei 已接入任务运行阶段的 create_dir 写探针，但真实文件上传场景下的同名文件冲突处理仍未声明为已支持。 |  |  |

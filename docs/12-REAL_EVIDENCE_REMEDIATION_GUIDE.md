@@ -10,6 +10,7 @@
 - providersWithPatchCommand: `1`
 - providersWithPatchProbeCommand: `1`
 - providersWithRefreshEvidenceCommand: `1`
+- providersWithRuntimeProbeCommand: `0`
 - providersWithCreateCommand: `8`
 - providersWithBootstrapCommand: `8`
 - providersBlockedOnly: `0`

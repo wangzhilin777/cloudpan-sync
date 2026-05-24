@@ -88,6 +88,17 @@
   - 同一脚本还验证了 `115_open` 会把 `recommendedRuntimeSuccessCommand` 回退到 `create_fast_upload_candidate_task.py`，而 `guangya` 会优先保留 `create_live_upload_task.py`
   - [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 已随导出同步带出新的 `recommendedRuntimeSuccessCommand` 字段
 
+### 已完成补齐项 - `2026-05-25`（115/189 Fast Helper 取证覆盖）
+
+- 提交：`本次提交`
+- 完成范围：
+  - 已新增 [verify_create_fast_upload_task_115.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_task_115.py)，补齐 `115_open` 在统一 helper `create_fast_upload_candidate_task.py` 下的 real-transfer evidence bundle 验证
+  - 已新增 [verify_create_fast_upload_task_189cloud.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_task_189cloud.py)，补齐 `189cloud` 在统一 helper 下的 real-transfer evidence bundle 验证
+  - 两个 fast provider 现在都已有与 `quark / uc` 同口径的 helper 级回归脚本，可直接验证 helper 会把 live result 收口为 `state=completed`、`completionKind=real_transfer`、`hasRealTransferSuccess=true`，并稳定写出固定文件名 evidence bundle
+- 当前验证证据：
+  - [verify_create_fast_upload_task_115.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_task_115.py) 已验证 `create_fast_upload_candidate_task.py --target-provider 115_open --auto-temp-file --sha1 auto` 会产出 `executionMode=live`、`verifyMode=metadata_by_file_id` 的 real-transfer 结果，并落出 `task.json / task.md / runtime_evidence.md`
+  - [verify_create_fast_upload_task_189cloud.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_task_189cloud.py) 已验证 `create_fast_upload_candidate_task.py --target-provider 189cloud --auto-temp-file` 会产出 `executionMode=live`、`verifyMode=commit_response_xml` 的 real-transfer 结果，并落出 `task.json / task.md / runtime_evidence.md`
+
 ### M1 - 独立项目骨架
 
 - 完成日期：`2026-05-23`

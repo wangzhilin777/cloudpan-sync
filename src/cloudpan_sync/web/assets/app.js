@@ -1509,6 +1509,7 @@ function renderProviderPanel() {
       { label: "conflictAware", value: state.statusMatrix.summary.conflictAwareProviderCount || 0 },
       { label: "autoRenameProbeOnly", value: state.statusMatrix.summary.autoRenameProbeOnlyCount || 0 },
       { label: "conflictUnsupported", value: state.statusMatrix.summary.conflictUnsupportedProviderCount || 0 },
+      { label: "runtimeConflictHandled", value: state.statusMatrix.summary.taskRuntimeConflictHandledCount || 0 },
       { label: "runtime", value: state.statusMatrix.summary.taskRuntimeSampleCount || 0 },
     ];
     for (const card of cards) {

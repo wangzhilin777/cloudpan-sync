@@ -1734,7 +1734,7 @@ function renderSettingsPanel() {
   }
   for (const item of (state.taskRuntimeEvidence || []).slice(0, 3)) {
     const li = document.createElement("li");
-    li.textContent = `${item.providerKey || "(unknown)"}: path=${item.path || "(unknown)"}, mode=${item.mode || ""}, executionMode=${item.executionMode || ""}, success=${Boolean(item.success)}, verifyOk=${Boolean(item.verifyOk)}, verifyMode=${item.verifyMode || "(none)"}, conflict=${item.conflictAction || "(none)"}, resolvedTargetName=${item.resolvedTargetName || "(none)"}, requiredAuth=${(item.requiredAuth || []).join("/") || "(none)"}, error=${item.error || "(none)"}`;
+    li.textContent = `${item.providerKey || "(unknown)"}: path=${item.path || "(unknown)"}, mode=${item.mode || ""}, executionMode=${item.executionMode || ""}, success=${Boolean(item.success)}, verifyOk=${Boolean(item.verifyOk)}, verifyMode=${item.verifyMode || "(none)"}, conflict=${item.conflictAction || "(none)"}, resolvedTargetName=${item.resolvedTargetName || "(none)"}, riskHint=${item.riskHint || "(none)"}, requiredAuth=${(item.requiredAuth || []).join("/") || "(none)"}, error=${item.error || "(none)"}`;
     taskRuntimeEvidenceList.appendChild(li);
   }
 

@@ -1,9 +1,9 @@
 # CloudPan Sync Provider Status Matrix
 
 - GeneratedAt: `2026-05-24T02:58:00.875950+00:00`
-- Summary: providerCount=10, authReadyCount=0, createDirReadyCount=9, fastCheckCount=5, liveProbeOkCount=0, conflictAwareProviderCount=1, overwriteReadyCount=0, autoRenameReadyCount=1, taskRuntimeEvidenceProviderCount=0, taskRuntimeFailedProviderCount=0, taskRuntimeSampleCount=0, taskRuntimeSuccessCount=0, taskRuntimeFailedCount=0, taskRuntimeActiveCount=2, taskRuntimeCandidateCount=7, taskRuntimeBlockedCount=1
+- Summary: providerCount=10, authReadyCount=0, createDirReadyCount=9, fastCheckCount=5, liveProbeOkCount=0, conflictAwareProviderCount=1, overwriteReadyCount=0, autoRenameReadyCount=1, taskRuntimeEvidenceProviderCount=0, taskRuntimeFailedProviderCount=0, taskRuntimeSampleCount=0, taskRuntimeSuccessCount=0, taskRuntimeFailedCount=0, taskRuntimeActiveCount=3, taskRuntimeCandidateCount=6, taskRuntimeBlockedCount=1
 
-> Runtime track note: `guangya` and `aliyundrive_open` are now `runtime_active`; `189cloud=runtime_blocked`; and the current `123_open / 115_open / baidu_netdisk / xunlei / pikpak / quark / uc` rows should now be interpreted as `runtime_candidate` because live list/metadata/create_dir is already wired while task runtime write/upload flow is not yet connected.
+> Runtime track note: `guangya` / `aliyundrive_open` / `123_open` are now `runtime_active`; `189cloud=runtime_blocked`; and the current `115_open / baidu_netdisk / xunlei / pikpak / quark / uc` rows should now be interpreted as `runtime_candidate` because live list/metadata/create_dir is already wired while task runtime write/upload flow is not yet connected.
 
 | providerKey | supportStatus | auth_ready | list_ready | metadata_ready | create_dir_ready | fast_check | live_probe_ok | task_runtime_samples | task_runtime_success | task_runtime_failed | supports_overwrite | supports_auto_rename | overwrite_behavior | conflict_policies | fallback_ready |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|

@@ -11,6 +11,7 @@ from .aliyun_open_live import fetch_aliyun_open_create_folder
 from .guangya_live import fetch_guangya_live_fast_check
 from .guangya_upload_live import upload_guangya_local_file
 from .models import SourceEntry, TaskCreateRequest
+from .pan123_open_live import fetch_123_open_create_folder
 from .planner import build_transfer_plan
 from .task_guard import evaluate_task_guard
 from .task_runtime_evidence_store import save_task_runtime_evidence
@@ -525,6 +526,57 @@ def run_task(task_id: str) -> dict[str, object]:
                 row_result["liveAttempt"] = {
                     "mode": "aliyundrive_open_create_dir_probe",
                     "parentId": target_parent_id or "root",
+                    "error": probe_result.error,
+                    "riskHint": probe_result.note,
+                    "payload": probe_result.payload or {},
+                    "verifyOk": False,
+                    "verifyMode": "",
+                    "verifyNote": "",
+                    "verifyPayload": {},
+                    "resolvedTargetName": probe_name,
+                    "conflictAction": "",
+                }
+                results.append(row_result)
+                continue
+
+        if strategy == "download_upload" and target_provider == "123_open" and target_profile_id:
+            source_entry = source_entries_by_path.get(path, {})
+            local_entry = _materialize_local_source_entry(source_entry, path, int(item.get("size", 0) or 0))
+            if local_entry is not None:
+                probe_name = _probe_dir_name(str(task.get("taskId") or ""), path)
+                probe_result = fetch_123_open_create_folder(
+                    profile_id=target_profile_id,
+                    parent_file_id=target_parent_id or "0",
+                    dir_name=probe_name,
+                )
+                row_result["executionMode"] = "probe"
+                if probe_result.ok:
+                    done += 1
+                    row_result["status"] = "done"
+                    row_result["note"] = (
+                        "123Pan Open runtime write probe succeeded through live create_dir. "
+                        "The current file transfer still completes with mock/download fallback flow."
+                    )
+                    row_result["liveAttempt"] = {
+                        "mode": "123_open_create_dir_probe",
+                        "parentId": target_parent_id or "0",
+                        "riskHint": "",
+                        "payload": probe_result.payload or {},
+                        "verifyOk": True,
+                        "verifyMode": "create_dir_response",
+                        "verifyNote": probe_result.note,
+                        "verifyPayload": probe_result.payload or {},
+                        "resolvedTargetName": probe_name,
+                        "conflictAction": "auto_rename_new",
+                    }
+                    results.append(row_result)
+                    continue
+                failed += 1
+                row_result["status"] = "failed"
+                row_result["note"] = probe_result.note or "123Pan Open runtime write probe failed."
+                row_result["liveAttempt"] = {
+                    "mode": "123_open_create_dir_probe",
+                    "parentId": target_parent_id or "0",
                     "error": probe_result.error,
                     "riskHint": probe_result.note,
                     "payload": probe_result.payload or {},

@@ -474,6 +474,8 @@
   - [verify_provider_status_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_status_settings_ui.py) 现还额外验证了设置页状态矩阵摘要已包含上述冲突能力统计字段
   - 设置页 `Audit` 面板现也已补上 `researchCount`，与审计 API / Markdown 中已有的 `providerCount + researchCount` 覆盖摘要保持一致
   - [verify_audit_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_audit_settings_ui.py) 已验证设置页审计摘要已包含 `done / partial / todo / providerCount / researchCount`
+  - 计划审计现已正式拆成双口径进度：`featureCompletionPercent` 只按 `M1-M7` 主功能里程碑按 `done=1 / partial=0.5` 计分，`strictCompletionPercent` 则把 `P-REAL` 一并纳入总验收，后续再看进度时不会把“功能完成度”和“真实联调完成度”混成一个百分比
+  - [verify_audit_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_audit_settings_ui.py) 现还额外验证了设置页审计摘要已显示 `featureCompletionPercent / strictCompletionPercent`
   - 设置页 `Real Evidence` 摘要现也已补上 `latestValidationProfiles / latestProbeProfiles`，可直接看出当前真实证据汇总是基于多少个最新 validation / probe 档案样本得出的
   - [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py) 现还额外验证了设置页 `Real Evidence` 摘要已显示 `latestValidationProfiles / latestProbeProfiles`
   - 设置页 `Provider Status Matrix` 面板现还额外补上 `liveProbeOk / runtimeEvidenceProviders / runtimeFailedProviders`，可以直接看出当前有多少 provider 已经跑出 live probe 成功样本、真实 runtime 成功样本与失败样本

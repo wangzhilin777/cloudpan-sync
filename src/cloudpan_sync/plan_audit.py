@@ -91,6 +91,11 @@ def run_plan_audit() -> dict[str, object]:
     done = sum(1 for x in items if x.status == "done")
     partial = sum(1 for x in items if x.status == "partial")
     todo = sum(1 for x in items if x.status == "todo")
+    feature_items = [item for item in items if item.key != "P-REAL"]
+    feature_done = sum(1 for item in feature_items if item.status == "done")
+    feature_partial = sum(1 for item in feature_items if item.status == "partial")
+    feature_completion_percent = round(((feature_done + feature_partial * 0.5) / len(feature_items)) * 100, 1)
+    strict_completion_percent = round(((done + partial * 0.5) / len(items)) * 100, 1)
 
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
@@ -100,6 +105,10 @@ def run_plan_audit() -> dict[str, object]:
             "todo": todo,
             "providerCount": provider_count,
             "researchCount": research_count,
+            "featureMilestoneCount": len(feature_items),
+            "strictMilestoneCount": len(items),
+            "featureCompletionPercent": feature_completion_percent,
+            "strictCompletionPercent": strict_completion_percent,
         },
         "items": [item.to_dict() for item in items],
     }
@@ -113,6 +122,15 @@ def to_markdown(audit: dict[str, object]) -> str:
     lines.append(f"- 生成时间：`{audit.get('generatedAt', '')}`")
     lines.append(
         f"- 汇总：`done={summary.get('done', 0)}` `partial={summary.get('partial', 0)}` `todo={summary.get('todo', 0)}`"
+    )
+    lines.append(
+        f"- 进度口径：`featureCompletionPercent={summary.get('featureCompletionPercent', 0)}` `strictCompletionPercent={summary.get('strictCompletionPercent', 0)}`"
+    )
+    lines.append(
+        f"  - `featureCompletionPercent` = 只按 `M1-M7` 主功能里程碑计分，`done=1`、`partial=0.5`。"
+    )
+    lines.append(
+        f"  - `strictCompletionPercent` = 把 `P-REAL` 真实联调一起纳入总验收后计分，`done=1`、`partial=0.5`。"
     )
     lines.append(
         f"- Provider覆盖：`providerCount={summary.get('providerCount', 0)}` `researchCount={summary.get('researchCount', 0)}`"

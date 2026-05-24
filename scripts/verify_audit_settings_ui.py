@@ -20,7 +20,7 @@ def main() -> None:
                 "jsHasAuditSummaryState": 'auditSummary: null' in app_js,
                 "jsHasAuditLoader": 'async function loadAuditSummary()' in app_js and 'fetchJson("/api/plan/audit")' in app_js,
                 "jsRefreshProtectedDataLoadsAudit": 'loadAuditSummary(),' in app_js,
-                "jsRenderSettingsUsesAuditSummary": 'const audit = state.auditSummary || {};' in app_js and 'done=' in app_js and 'partial=' in app_js and 'todo=' in app_js and 'providerCount=' in app_js and 'researchCount=' in app_js,
+                "jsRenderSettingsUsesAuditSummary": 'const audit = state.auditSummary || {};' in app_js and 'done=' in app_js and 'partial=' in app_js and 'todo=' in app_js and 'featureCompletionPercent=' in app_js and 'strictCompletionPercent=' in app_js and 'providerCount=' in app_js and 'researchCount=' in app_js,
                 "jsLogoutClearsAuditSummary": 'state.auditSummary = null;' in app_js,
             },
             ensure_ascii=False,

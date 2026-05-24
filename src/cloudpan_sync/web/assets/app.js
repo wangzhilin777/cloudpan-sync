@@ -1791,6 +1791,8 @@ function renderSettingsPanel() {
     `done=${audit.done || 0}`,
     `partial=${audit.partial || 0}`,
     `todo=${audit.todo || 0}`,
+    `featureCompletionPercent=${audit.featureCompletionPercent || 0}`,
+    `strictCompletionPercent=${audit.strictCompletionPercent || 0}`,
     `providerCount=${audit.providerCount || 0}`,
     `researchCount=${audit.researchCount || 0}`,
   ];

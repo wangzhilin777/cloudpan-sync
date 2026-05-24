@@ -472,3 +472,5 @@
   - [verify_provider_status_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_status_settings_ui.py) 已验证设置页已接入 `Provider Status Matrix` 面板、`loadStatusMatrix()` 会触发 `renderSettingsPanel()`，并且摘要中已包含 blocked/runtime track 相关字段
   - 设置页 `Provider Status Matrix` 面板现还额外补上同名冲突能力摘要：会直接显示 `conflictAware / overwriteDowngrade / overwriteSupported / autoRenameSupported / autoRenameProbeOnly / conflictUnsupported`
   - [verify_provider_status_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_status_settings_ui.py) 现还额外验证了设置页状态矩阵摘要已包含上述冲突能力统计字段
+  - 设置页 `Audit` 面板现也已补上 `researchCount`，与审计 API / Markdown 中已有的 `providerCount + researchCount` 覆盖摘要保持一致
+  - [verify_audit_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_audit_settings_ui.py) 已验证设置页审计摘要已包含 `done / partial / todo / providerCount / researchCount`

@@ -1744,6 +1744,7 @@ function renderSettingsPanel() {
     `partial=${audit.partial || 0}`,
     `todo=${audit.todo || 0}`,
     `providerCount=${audit.providerCount || 0}`,
+    `researchCount=${audit.researchCount || 0}`,
   ];
   for (const row of auditRows) {
     const li = document.createElement("li");

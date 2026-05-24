@@ -44,6 +44,13 @@ def _patch_probe_command_for_profile(profile: dict[str, object]) -> str:
     return f"{base} --set key=value --write"
 
 
+def _refresh_evidence_command_for_profile(profile: dict[str, object]) -> str:
+    profile_id = str(profile.get("profileId") or "")
+    if not profile_id:
+        return ""
+    return f".\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --profile-id {profile_id} --write"
+
+
 def _create_command_for_provider(
     *,
     provider_key: str,
@@ -129,6 +136,8 @@ def build_real_evidence_remediation_bundle(
         metadata_evidence = dict(row.get("metadataEvidence") or {})
         create_dir_evidence = dict(row.get("createDirEvidence") or {})
         runtime_evidence = dict(row.get("taskRuntimeEvidence") or {})
+        profile_ready = bool(provider_profiles) and all(bool(profile.get("profileReady")) for profile in provider_profiles)
+        write_ready = bool(provider_profiles) and all(bool(profile.get("writeReady", True)) for profile in provider_profiles)
         profile_needing_patch = next(
             (
                 profile
@@ -158,6 +167,9 @@ def build_real_evidence_remediation_bundle(
             "gaps": list(row.get("gaps") or []),
             "recommendedPatchCommand": _patch_command_for_profile(profile_needing_patch or {}),
             "recommendedPatchProbeCommand": _patch_probe_command_for_profile(profile_needing_patch or {}),
+            "recommendedRefreshEvidenceCommand": _refresh_evidence_command_for_profile(provider_profiles[0] if provider_profiles else {})
+            if provider_profiles and profile_ready and write_ready and (not bool(auth_evidence.get("ok")) or not bool(list_evidence.get("ok")) or not bool(metadata_evidence.get("ok")) or not bool(create_dir_evidence.get("ok")))
+            else "",
             "recommendedCreateCommand": _create_command_for_provider(
                 provider_key=provider_key,
                 auth_modes=provider_auth_modes(provider_key),
@@ -196,6 +208,7 @@ def build_real_evidence_remediation_bundle(
             "providersNeedingRuntimeSuccess": sum(1 for item in items if bool(item.get("needsRuntimeSuccess"))),
             "providersWithPatchCommand": sum(1 for item in items if str(item.get("recommendedPatchCommand") or "")),
             "providersWithPatchProbeCommand": sum(1 for item in items if str(item.get("recommendedPatchProbeCommand") or "")),
+            "providersWithRefreshEvidenceCommand": sum(1 for item in items if str(item.get("recommendedRefreshEvidenceCommand") or "")),
             "providersWithCreateCommand": sum(1 for item in items if str(item.get("recommendedCreateCommand") or "")),
             "providersWithBootstrapCommand": sum(1 for item in items if str(item.get("recommendedBootstrapCommand") or "")),
             "providersBlockedOnly": sum(1 for item in items if bool(item.get("runtimeBlockedOnly"))),
@@ -218,6 +231,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersNeedingRuntimeSuccess: `{summary.get('providersNeedingRuntimeSuccess', 0)}`")
     lines.append(f"- providersWithPatchCommand: `{summary.get('providersWithPatchCommand', 0)}`")
     lines.append(f"- providersWithPatchProbeCommand: `{summary.get('providersWithPatchProbeCommand', 0)}`")
+    lines.append(f"- providersWithRefreshEvidenceCommand: `{summary.get('providersWithRefreshEvidenceCommand', 0)}`")
     lines.append(f"- providersWithCreateCommand: `{summary.get('providersWithCreateCommand', 0)}`")
     lines.append(f"- providersWithBootstrapCommand: `{summary.get('providersWithBootstrapCommand', 0)}`")
     lines.append(f"- providersBlockedOnly: `{summary.get('providersBlockedOnly', 0)}`")
@@ -254,5 +268,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedPatchCommand: `{row.get('recommendedPatchCommand', '')}`")
         if row.get("recommendedPatchProbeCommand"):
             lines.append(f"- recommendedPatchProbeCommand: `{row.get('recommendedPatchProbeCommand', '')}`")
+        if row.get("recommendedRefreshEvidenceCommand"):
+            lines.append(f"- recommendedRefreshEvidenceCommand: `{row.get('recommendedRefreshEvidenceCommand', '')}`")
         lines.append("")
     return "\n".join(lines).strip() + "\n"

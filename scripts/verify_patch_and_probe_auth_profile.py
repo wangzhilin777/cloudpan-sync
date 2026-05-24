@@ -113,6 +113,15 @@ def main() -> None:
                     str(evidence_path),
                 ]
             )
+            patch_and_probe_script.main(
+                [
+                    "--profile-id",
+                    "gy-patch-probe-1",
+                    "--write",
+                    "--data-dir",
+                    str(data_dir),
+                ]
+            )
         finally:
             auth_live_validate.validate_profile_object = original_validate
             provider_live_probe.run_provider_live_probe = original_probe
@@ -137,6 +146,7 @@ def main() -> None:
                     "probeCount": len(probes),
                     "latestProbeSummary": probe.get("summary", ""),
                     "latestProbeChecks": [item.get("kind", "") for item in probe.get("checks", [])],
+                    "refreshOnlyStillWorked": len(validations) >= 2 and len(probes) >= 1,
                     "evidenceFileExists": evidence_path.exists(),
                     "evidenceHasProfileId": "`gy-patch-probe-1`" in evidence_path.read_text(encoding="utf-8"),
                 },

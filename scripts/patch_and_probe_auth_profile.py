@@ -31,7 +31,7 @@ def _parse_set_value(raw: str) -> tuple[str, str]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Patch one saved auth profile, then run provider-aware validation and live probe."
+        description="Patch one saved auth profile, or just refresh its evidence, then run provider-aware validation and live probe."
     )
     parser.add_argument("--profile-id", required=True, help="Exact profileId to update.")
     parser.add_argument("--set", dest="sets", action="append", default=[], type=_parse_set_value, help="KEY=VALUE extra patch. Repeatable.")
@@ -57,9 +57,6 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.data_dir:
         configure_data_dir(args.data_dir)
-    if not args.sets:
-        parser.error("At least one --set KEY=VALUE is required.")
-
     profile = get_profile(args.profile_id)
     if profile is None:
         raise SystemExit(f"profile_not_found: {args.profile_id}")

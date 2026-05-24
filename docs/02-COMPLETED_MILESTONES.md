@@ -482,14 +482,17 @@
   - 已新增本地 helper [create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py)，可直接按 `providerKey/authMode/token|cookie/extra` 创建本地 auth profile；`Real Evidence Next Steps` 现在也会为“当前尚无档案”的 provider 直接生成 `recommendedCreateCommand`
   - [create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 现还已支持 `--probe / --page-size / --dir-name / --evidence-output`，建档案后可直接刷新 validation + live probe 证据；`Real Evidence Next Steps` 现在也会继续生成更接近真实留证的 `recommendedBootstrapCommand`
   - `Real Evidence Next Steps` 现也会为“已有档案但尚未 ready”的 provider 直接生成 `recommendedPatchProbeCommand`，把“补字段”和“立刻落 validation/probe 证据”收成一条命令，不再只剩 `patch_auth_profile_extra.py`
+  - `patch_and_probe_auth_profile.py` 现已允许“零补字段”直接刷新证据；`Real Evidence Next Steps` 现在也会为“已有档案且已 ready，但仍缺 auth/list/metadata/create_dir 成功证据”的 provider 生成 `recommendedRefreshEvidenceCommand`
   - [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已验证 remediation bundle 会为 `guangya` / `189cloud` 这类 provider 生成 `nextStep / recommendedPatchCommand`，并且 API / Markdown 端点已可用
   - 同一脚本现还额外验证了 remediation Markdown 已带 `recommendedAuthModes / webLoginUrl / requiredFieldHints`
   - 同一脚本现还额外验证了 remediation Markdown 已带 `recommendedCreateCommand`
   - 同一脚本现还额外验证了 remediation Markdown 已带 `recommendedBootstrapCommand`，并会显式包含 `--probe`
   - 同一脚本现还额外验证了 remediation Markdown 已带 `recommendedPatchProbeCommand`，并会显式包含 `patch_and_probe_auth_profile.py`
+  - 同一脚本现还额外验证了 remediation Markdown 已带 `recommendedRefreshEvidenceCommand`
   - [verify_create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_auth_profile_stub.py) 已验证 `create_auth_profile_stub.py` 可真实写入 `aliyundrive_open` auth profile，并保留 `domainId / driveId`
+  - [verify_patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_and_probe_auth_profile.py) 现还额外验证了 `patch_and_probe_auth_profile.py` 在不传 `--set` 时也可直接刷新已有档案的 validation / probe 证据
   - [verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py) 已验证设置页已接入 `Real Evidence Next Steps` 面板、`loadRealEvidenceRemediationSummary()`、登录刷新和登出清理逻辑
-  - 同一脚本现还额外验证了设置页摘要已消费 `recommendedAuthModes / webLoginUrl / requiredFieldHints / recommendedCreateCommand / recommendedBootstrapCommand / recommendedPatchProbeCommand`
+  - 同一脚本现还额外验证了设置页摘要已消费 `recommendedAuthModes / webLoginUrl / requiredFieldHints / recommendedCreateCommand / recommendedBootstrapCommand / recommendedPatchProbeCommand / recommendedRefreshEvidenceCommand`
   - 设置页 `Real Evidence` 摘要现也已补上 `latestValidationProfiles / latestProbeProfiles`，可直接看出当前真实证据汇总是基于多少个最新 validation / probe 档案样本得出的
   - [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py) 现还额外验证了设置页 `Real Evidence` 摘要已显示 `latestValidationProfiles / latestProbeProfiles`
   - 设置页 `Provider Status Matrix` 面板现还额外补上 `liveProbeOk / runtimeEvidenceProviders / runtimeFailedProviders`，可以直接看出当前有多少 provider 已经跑出 live probe 成功样本、真实 runtime 成功样本与失败样本

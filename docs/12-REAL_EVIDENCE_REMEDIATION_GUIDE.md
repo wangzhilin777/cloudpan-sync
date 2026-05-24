@@ -9,6 +9,7 @@
 - providersNeedingRuntimeSuccess: `10`
 - providersWithPatchCommand: `1`
 - providersWithPatchProbeCommand: `1`
+- providersWithRefreshEvidenceCommand: `1`
 - providersWithCreateCommand: `8`
 - providersWithBootstrapCommand: `8`
 - providersBlockedOnly: `0`
@@ -38,6 +39,7 @@
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 对现有档案重跑 provider live probe，优先补齐 auth/list/metadata/create_dir 成功证据。
+- recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --write`
 
 ### 115_open - 115 Open
 - profileCount: `0`

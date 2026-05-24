@@ -466,3 +466,4 @@
   - Provider 状态矩阵导出 [06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 现已补上 `task_runtime_blocked` 列；即使当前真实环境样本仍为 `0`，导出也会诚实保留该列
   - [verify_provider_conflict_capabilities.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_conflict_capabilities.py) 现还额外验证了 `GET /api/providers/status_matrix` summary 已带 `taskRuntimeBlockedProviderCount / taskRuntimeBlockedEvidenceCount`，并且 `189cloud` 行会暴露 `task_runtime_blocked=1`
   - [verify_provider_real_evidence_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_real_evidence_ui.py) 现还额外验证了 provider 面板 `task_runtime_track` 文案已显示 `blocked=...`
+  - Provider 面板顶部摘要卡片现也已把状态矩阵里的 blocked runtime 计数抬出来，新增 `runtimeBlocked` 卡片，方便直接看到当前被运行期阻断的真实样本总数

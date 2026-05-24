@@ -1265,9 +1265,12 @@ function renderPendingList() {
   const rows = [];
   for (const task of state.tasks) {
     const items = task?.pendingItems || task?.plan?.pendingItems || [];
+    const taskSummary = task?.summary || {};
     for (const item of items) {
       rows.push({
         taskId: task.taskId,
+        taskState: taskSummary.state || task.state || "",
+        taskRiskReason: taskSummary.riskReason || "",
         targetProvider: task.targetProvider,
         path: item.path,
         size: item.size,
@@ -1295,7 +1298,7 @@ function renderPendingList() {
     title.textContent = `${row.path} -> ${row.targetProvider}`;
     const meta = document.createElement("div");
     meta.className = "auth-item-meta";
-    meta.textContent = `task=${row.taskId}, size=${row.size}, conflictPolicy=${row.conflictPolicy || "auto_rename_new"}, available=${row.availableFastInputs.join(",") || "(none)"}, missing=${row.missingFastInputs.join(",") || "(none)"}`;
+    meta.textContent = `task=${row.taskId}, state=${row.taskState || "(unknown)"}, risk=${row.taskRiskReason || "(none)"}, size=${row.size}, conflictPolicy=${row.conflictPolicy || "auto_rename_new"}, available=${row.availableFastInputs.join(",") || "(none)"}, missing=${row.missingFastInputs.join(",") || "(none)"}`;
     const detail = document.createElement("div");
     detail.className = "auth-item-meta";
     const conflictSupportText = row.conflictSupportStatus ? `, conflictSupport=${row.conflictSupportStatus}` : "";

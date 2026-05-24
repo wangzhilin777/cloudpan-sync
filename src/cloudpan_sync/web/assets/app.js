@@ -1130,6 +1130,8 @@ function renderTaskList() {
     appendTaskStatusPill(meta, `done=${task.progress.done}/${task.progress.total}`);
     appendTaskStatusPill(meta, `failed=${task.progress.failed}`);
     appendTaskStatusPill(meta, `pending=${task.progress.pendingManual}`);
+    appendTaskStatusPill(meta, `live=${summary.liveSuccessCount || task.progress.liveSuccess || 0}`);
+    appendTaskStatusPill(meta, `liveFailed=${summary.liveFailedCount || task.progress.liveFailed || 0}`);
     appendTaskStatusPill(meta, `probe=${summary.probeOnlyCount || task.progress.probeOnly || 0}`);
     appendTaskStatusPill(meta, `candidate=${summary.candidateOnlyCount || task.progress.candidateOnly || 0}`);
     if (summary.completionKind) {

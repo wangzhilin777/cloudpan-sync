@@ -545,6 +545,7 @@
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` 最近结果行已显示 `verifyNote`
   - 队列页任务状态 pill 现也已补上 `probe=`、`candidate=` 与 `completion=`，即使 `state=completed`，也能一眼看出这次完成的是 `probe_only` 还是 `real_transfer`
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` 已显示 `probe / candidate / completion` 三个摘要 pill
+  - 队列页任务状态 pill 现还额外补上 `live=` 与 `liveFailed=`，用户看到 `done=1/1` 时也能同时知道其中到底有多少条是真实传输成功、多少条是真实传输失败，不再把“有探针/候选结果的 done”误读成真实传输完成
   - 队列页状态 pill 样式现也已补上 `completed_probe_only / completed_candidate_only`，这两类“留到证据但未真实传输完成”的终态会沿用 warning 色系，避免在视觉上和真正的 `completed` 绿态混在一起
   - 队列页当前已改为优先消费 `/api/tasks` 返回的 `listItems / latestResults` 视图，不再把详情态 `results` 当成列表页唯一数据源，最近结果简讯终于能稳定显示真实运行样本
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了 `loadTasks()` 已优先读取 `listItems`，且 `renderTaskList()` 已优先显示 `latestResults`

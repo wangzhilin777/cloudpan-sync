@@ -94,7 +94,7 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
     if provider_key == "pikpak":
         return (
             "runtime_active",
-            "Current task runtime now drives a live PikPak create_dir write probe for download_upload items and a probe-only gcid fast-upload candidate check for fast_upload items; real rapid-upload API execution is still not wired yet.",
+            "Current task runtime now drives a live PikPak create_dir write probe for download_upload items, and can also attempt PikPak rapid upload through the live /drive/v1/files create-by-hash call for fast_upload items when a usable local file plus gcid is available; full resumable binary upload fallback is still not wired yet.",
         )
     if provider_key == "baidu_netdisk":
         return (

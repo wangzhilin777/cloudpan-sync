@@ -93,17 +93,15 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
             "runtime_active",
             "Current task runtime now drives a live Quark create_dir write probe before mock/download fallback completion.",
         )
+    if provider_key == "uc":
+        return (
+            "runtime_active",
+            "Current task runtime now drives a live UC Drive create_dir write probe before mock/download fallback completion.",
+        )
     if provider_key == "189cloud":
         return (
             "runtime_blocked",
             "Current 189Cloud path is still shareCode/accessCode read-only, so task runtime write attempts cannot start yet.",
-        )
-    if provider_key in {
-        "uc",
-    }:
-        return (
-            "runtime_candidate",
-            "Live list/metadata/create_dir capability is already wired, but task runtime write/upload flow is not connected yet.",
         )
     return (
         "runtime_planned",

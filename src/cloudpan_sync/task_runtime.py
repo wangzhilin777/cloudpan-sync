@@ -19,6 +19,7 @@ from .planner import build_transfer_plan
 from .quark_live import fetch_quark_create_folder
 from .task_guard import evaluate_task_guard
 from .task_runtime_evidence_store import save_task_runtime_evidence
+from .uc_live import fetch_uc_create_folder
 from .xunlei_live import fetch_xunlei_create_folder
 
 
@@ -836,6 +837,57 @@ def run_task(task_id: str) -> dict[str, object]:
                 row_result["note"] = probe_result.note or "Quark runtime write probe failed."
                 row_result["liveAttempt"] = {
                     "mode": "quark_create_dir_probe",
+                    "parentId": target_parent_id or "0",
+                    "error": probe_result.error,
+                    "riskHint": probe_result.note,
+                    "payload": probe_result.payload or {},
+                    "verifyOk": False,
+                    "verifyMode": "",
+                    "verifyNote": "",
+                    "verifyPayload": {},
+                    "resolvedTargetName": probe_name,
+                    "conflictAction": "",
+                }
+                results.append(row_result)
+                continue
+
+        if strategy == "download_upload" and target_provider == "uc" and target_profile_id:
+            source_entry = source_entries_by_path.get(path, {})
+            local_entry = _materialize_local_source_entry(source_entry, path, int(item.get("size", 0) or 0))
+            if local_entry is not None:
+                probe_name = _probe_dir_name(str(task.get("taskId") or ""), path)
+                probe_result = fetch_uc_create_folder(
+                    profile_id=target_profile_id,
+                    parent_id=target_parent_id or "0",
+                    dir_name=probe_name,
+                )
+                row_result["executionMode"] = "probe"
+                if probe_result.ok:
+                    done += 1
+                    row_result["status"] = "done"
+                    row_result["note"] = (
+                        "UC Drive runtime write probe succeeded through live create_dir. "
+                        "The current file transfer still completes with mock/download fallback flow."
+                    )
+                    row_result["liveAttempt"] = {
+                        "mode": "uc_create_dir_probe",
+                        "parentId": target_parent_id or "0",
+                        "riskHint": "",
+                        "payload": probe_result.payload or {},
+                        "verifyOk": True,
+                        "verifyMode": "create_dir_response",
+                        "verifyNote": probe_result.note,
+                        "verifyPayload": probe_result.payload or {},
+                        "resolvedTargetName": probe_name,
+                        "conflictAction": "auto_rename_new",
+                    }
+                    results.append(row_result)
+                    continue
+                failed += 1
+                row_result["status"] = "failed"
+                row_result["note"] = probe_result.note or "UC Drive runtime write probe failed."
+                row_result["liveAttempt"] = {
+                    "mode": "uc_create_dir_probe",
                     "parentId": target_parent_id or "0",
                     "error": probe_result.error,
                     "riskHint": probe_result.note,

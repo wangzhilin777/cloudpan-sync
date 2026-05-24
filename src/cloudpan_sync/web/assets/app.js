@@ -37,6 +37,7 @@ const state = {
   auditSummary: null,
   realEvidenceReport: null,
   realEvidenceSummary: null,
+  realEvidenceRemediation: null,
   authProfiles: [],
   authEditingProfileId: "",
   liveValidations: [],
@@ -965,6 +966,15 @@ async function loadRealEvidenceSummary() {
   renderSettingsPanel();
 }
 
+async function loadRealEvidenceRemediationSummary() {
+  if (!state.loggedIn) {
+    return;
+  }
+  const data = await fetchJson("/api/real_evidence_remediation_bundle");
+  state.realEvidenceRemediation = data;
+  renderSettingsPanel();
+}
+
 async function loadLiveValidations() {
   if (!state.loggedIn) {
     return;
@@ -1680,6 +1690,7 @@ function renderSettingsPanel() {
   const providerProbeList = document.getElementById("settingsProviderProbeList");
   const providerStatusList = document.getElementById("settingsProviderStatusList");
   const realEvidenceList = document.getElementById("settingsRealEvidenceList");
+  const realEvidenceRemediationList = document.getElementById("settingsRealEvidenceRemediationList");
   const taskRuntimeEvidenceList = document.getElementById("settingsTaskRuntimeEvidenceList");
   const auditList = document.getElementById("settingsAuditList");
   sessionList.innerHTML = "";
@@ -1687,6 +1698,7 @@ function renderSettingsPanel() {
   providerProbeList.innerHTML = "";
   providerStatusList.innerHTML = "";
   realEvidenceList.innerHTML = "";
+  realEvidenceRemediationList.innerHTML = "";
   taskRuntimeEvidenceList.innerHTML = "";
   auditList.innerHTML = "";
 
@@ -1769,6 +1781,23 @@ function renderSettingsPanel() {
     realEvidenceList.appendChild(li);
   }
 
+  const remediationSummary = state.realEvidenceRemediation?.summary || {};
+  const remediationItems = state.realEvidenceRemediation?.items || [];
+  const remediationRows = [
+    `providers=${remediationSummary.providerCount || 0}, noProfiles=${remediationSummary.providersWithNoProfiles || 0}, patchCommands=${remediationSummary.providersWithPatchCommand || 0}, blockedOnly=${remediationSummary.providersBlockedOnly || 0}`,
+    `needAuth=${remediationSummary.providersNeedingAuthEvidence || 0}, needList=${remediationSummary.providersNeedingListEvidence || 0}, needMetadata=${remediationSummary.providersNeedingMetadataEvidence || 0}, needCreateDir=${remediationSummary.providersNeedingCreateDirEvidence || 0}, needRuntime=${remediationSummary.providersNeedingRuntimeSuccess || 0}`,
+  ];
+  for (const row of remediationRows) {
+    const li = document.createElement("li");
+    li.textContent = row;
+    realEvidenceRemediationList.appendChild(li);
+  }
+  for (const item of remediationItems.filter((row) => row.nextStep).slice(0, 3)) {
+    const li = document.createElement("li");
+    li.textContent = `${item.providerKey || "(unknown)"}: profiles=${item.profileCount || 0}, nextStep=${item.nextStep}${item.recommendedPatchCommand ? `, patch=${item.recommendedPatchCommand}` : ""}`;
+    realEvidenceRemediationList.appendChild(li);
+  }
+
   const runtimeEvidenceSummary = state.taskRuntimeEvidenceMeta?.summary || {};
   const runtimeEvidenceRows = [
     `history=${state.taskRuntimeEvidenceMeta?.historyCount || 0}, latestSamples=${runtimeEvidenceSummary.sampleCount || 0}`,
@@ -1834,6 +1863,7 @@ async function onLogout() {
   state.providerLiveProbeMeta = { historyCount: 0, summary: null };
   state.realEvidenceReport = null;
   state.realEvidenceSummary = null;
+  state.realEvidenceRemediation = null;
   state.taskRuntimeEvidence = [];
   state.taskRuntimeEvidenceMeta = { historyCount: 0, summary: null };
   state.providerResearch = [];
@@ -1856,6 +1886,7 @@ async function refreshProtectedData() {
     loadLiveValidations(),
     loadProviderLiveProbeResults(),
     loadRealEvidenceSummary(),
+    loadRealEvidenceRemediationSummary(),
     loadTaskRuntimeEvidence(),
     loadAuditSummary(),
   ]);

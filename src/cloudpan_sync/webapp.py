@@ -58,6 +58,7 @@ from .provider_registry import build_provider_registry
 from .plan_audit import run_plan_audit, to_markdown
 from .live_probe import run_live_probe, probe_to_markdown
 from .provider_status_matrix import build_status_matrix, matrix_to_markdown
+from .real_evidence_remediation import build_real_evidence_remediation_bundle, real_evidence_remediation_to_markdown
 from .real_evidence_report import build_real_evidence_report, real_evidence_to_markdown
 from .provider_live_probe import run_provider_live_probe
 from .provider_live_probe_store import (
@@ -340,6 +341,19 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=401, detail="please_login_first")
         data = build_real_evidence_report()
         return {"markdown": real_evidence_to_markdown(data)}
+
+    @app.get("/api/real_evidence_remediation_bundle")
+    def real_evidence_remediation_bundle(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        return build_real_evidence_remediation_bundle()
+
+    @app.get("/api/real_evidence_remediation_markdown")
+    def real_evidence_remediation_markdown(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        bundle = build_real_evidence_remediation_bundle()
+        return {"markdown": real_evidence_remediation_to_markdown(bundle)}
 
     @app.get("/api/task_runtime_evidence")
     def task_runtime_evidence(request: Request) -> dict[str, object]:

@@ -104,4 +104,4 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `False` samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0 note=当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
-- notes: token driven live list/metadata(create via parentFileId-scoped lookup) and create_dir attempts are online; stable real samples and upload chain are still pending.
+- notes: token driven live list/metadata(create via parentFileId-scoped lookup) and create_dir attempts are online, and task runtime now also has a localPath-driven create/get_upload_url/put/upload_complete/upload_async_result live upload path with auto-rename plus overwrite-to-auto-rename downgrade handling, but stable real online samples are still pending.

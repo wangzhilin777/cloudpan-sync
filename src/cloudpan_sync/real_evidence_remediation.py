@@ -118,7 +118,7 @@ def _fast_candidate_command_for_profile(profile: dict[str, object]) -> str:
 def _live_upload_command_for_profile(profile: dict[str, object]) -> str:
     profile_id = str(profile.get("profileId") or "")
     provider_key = str(profile.get("providerKey") or "")
-    if not profile_id or provider_key not in {"guangya", "aliyundrive_open"}:
+    if not profile_id or provider_key not in {"guangya", "aliyundrive_open", "123_open"}:
         return ""
     parts = [
         ".\\.venv\\Scripts\\python.exe",

@@ -44,6 +44,7 @@ def main() -> None:
     matrix_items = matrix.get("items") or []
     guangya_provider = _find_row(provider_items, "guangya")
     guangya_matrix = _find_row(matrix_items, "guangya")
+    pan123_matrix = _find_row(matrix_items, "123_open")
     tianyi_matrix = _find_row(matrix_items, "189cloud")
 
     print(
@@ -69,6 +70,20 @@ def main() -> None:
                     "task_runtime_failed": guangya_matrix.get("task_runtime_failed"),
                     "task_runtime_blocked": guangya_matrix.get("task_runtime_blocked"),
                     "task_runtime_conflict_handled": guangya_matrix.get("task_runtime_conflict_handled"),
+                },
+                "pan123Matrix": {
+                    "conflictPolicies": pan123_matrix.get("conflictPolicies"),
+                    "supportsOverwrite": pan123_matrix.get("supportsOverwrite"),
+                    "supportsAutoRename": pan123_matrix.get("supportsAutoRename"),
+                    "overwriteBehavior": pan123_matrix.get("overwriteBehavior"),
+                    "overwrite_support_status": pan123_matrix.get("overwrite_support_status"),
+                    "auto_rename_support_status": pan123_matrix.get("auto_rename_support_status"),
+                    "task_runtime_track": pan123_matrix.get("task_runtime_track"),
+                    "task_runtime_samples": pan123_matrix.get("task_runtime_samples"),
+                    "task_runtime_success": pan123_matrix.get("task_runtime_success"),
+                    "task_runtime_failed": pan123_matrix.get("task_runtime_failed"),
+                    "task_runtime_blocked": pan123_matrix.get("task_runtime_blocked"),
+                    "task_runtime_conflict_handled": pan123_matrix.get("task_runtime_conflict_handled"),
                 },
                 "tianyiMatrix": {
                     "create_dir_ready": tianyi_matrix.get("create_dir_ready"),

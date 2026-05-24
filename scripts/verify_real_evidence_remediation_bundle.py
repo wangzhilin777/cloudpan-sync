@@ -68,6 +68,7 @@ def main() -> None:
             "displayName": "ali-ready",
             "profileReady": True,
             "writeReady": True,
+            "resolvedParentId": "ali-root-1",
         },
         {
             "profileId": "189-rem-1",
@@ -110,6 +111,7 @@ def main() -> None:
                 "guangyaHasPatchProbeCommand": "patch_and_probe_auth_profile.py" in markdown,
                 "markdownHasRefreshEvidenceCommand": "recommendedRefreshEvidenceCommand" in markdown and "--profile-id" in markdown,
                 "markdownHasRuntimeProbeCommand": "recommendedRuntimeProbeCommand" in markdown and "create_runtime_probe_task.py" in markdown,
+                "runtimeProbeCommandCarriesResolvedParent": "--target-parent-id ali-root-1" in markdown,
                 "cloud189HasHelper": "patch_189cloud_account_auth.py" in markdown,
                 "markdownHasAuthModes": "recommendedAuthModes" in markdown,
                 "markdownHasLoginUrl": "webLoginUrl" in markdown,

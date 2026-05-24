@@ -14,6 +14,8 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from cloudpan_sync.auth_profile_patch import configure_data_dir
+from cloudpan_sync.auth_profile_view import auth_profile_view
+from cloudpan_sync.auth_store import get_profile
 from cloudpan_sync import task_runtime
 from cloudpan_sync.models import SourceEntry, TaskCreateRequest
 
@@ -43,6 +45,31 @@ def _build_entry(path: Path, remote_path: str, include_md5: bool) -> SourceEntry
     )
 
 
+def _provider_root_parent_id(provider_key: str) -> str:
+    mapping = {
+        "aliyundrive_open": "root",
+        "123_open": "0",
+        "115_open": "0",
+        "quark": "0",
+        "uc": "0",
+        "baidu_netdisk": "/",
+    }
+    return str(mapping.get(str(provider_key or ""), ""))
+
+
+def _resolve_target_parent_id(profile_id: str, target_provider: str, explicit_parent_id: str) -> str:
+    if explicit_parent_id:
+        return explicit_parent_id
+    profile = get_profile(profile_id)
+    if profile is None:
+        return _provider_root_parent_id(target_provider)
+    profile_view = auth_profile_view(profile)
+    resolved = str(profile_view.get("resolvedParentId") or "").strip()
+    if resolved:
+        return resolved
+    return _provider_root_parent_id(target_provider)
+
+
 def main(argv: list[str] | None = None) -> int:
     custom_data_dir = str(os.environ.get("CLOUDPAN_SYNC_DATA_DIR") or "").strip()
     if custom_data_dir:
@@ -61,13 +88,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--include-md5", action="store_true", help="Include md5 in source entry to allow fast_upload planning if desired.")
     args = parser.parse_args(argv)
 
+    target_provider = str(args.target_provider or "").strip()
+    target_profile_id = str(args.target_profile_id or "").strip()
+    resolved_target_parent_id = _resolve_target_parent_id(
+        target_profile_id,
+        target_provider,
+        str(args.target_parent_id or "").strip(),
+    )
     file_path, is_temp = _ensure_local_file(str(args.local_file or "").strip(), bool(args.auto_temp_file))
     entry = _build_entry(file_path, str(args.remote_path or "/cloudpan-sync-runtime-probe.bin"), bool(args.include_md5))
     payload = TaskCreateRequest(
-        sourceProvider=str(args.source_provider or args.target_provider or "").strip(),
-        targetProvider=str(args.target_provider or "").strip(),
-        targetProfileId=str(args.target_profile_id or "").strip(),
-        targetParentId=str(args.target_parent_id or "").strip(),
+        sourceProvider=str(args.source_provider or target_provider or "").strip(),
+        targetProvider=target_provider,
+        targetProfileId=target_profile_id,
+        targetParentId=resolved_target_parent_id,
         thresholdMB=max(0, int(args.threshold_mb or 0)),
         conflictPolicy=str(args.conflict_policy or "auto_rename_new"),
         selectedRoots=[],
@@ -80,6 +114,7 @@ def main(argv: list[str] | None = None) -> int:
         "state": str(result.get("state") or ""),
         "targetProvider": str(result.get("targetProvider") or ""),
         "targetProfileId": str(result.get("targetProfileId") or ""),
+        "resolvedTargetParentId": resolved_target_parent_id,
         "sourceEntries": list(result.get("sourceEntries") or []),
         "results": list(result.get("results") or []),
         "summary": dict(result.get("summary") or {}),

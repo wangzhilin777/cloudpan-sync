@@ -56,12 +56,17 @@ def _runtime_probe_command_for_profile(profile: dict[str, object]) -> str:
     provider_key = str(profile.get("providerKey") or "")
     if not profile_id or not provider_key:
         return ""
-    return (
-        ".\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py "
-        f"--target-provider {provider_key} "
-        f"--target-profile-id {profile_id} "
-        "--auto-temp-file --threshold-mb 1"
-    )
+    parts = [
+        ".\\.venv\\Scripts\\python.exe",
+        "scripts\\create_runtime_probe_task.py",
+        f"--target-provider {provider_key}",
+        f"--target-profile-id {profile_id}",
+    ]
+    resolved_parent_id = str(profile.get("resolvedParentId") or "").strip()
+    if resolved_parent_id:
+        parts.append(f"--target-parent-id {resolved_parent_id}")
+    parts.extend(["--auto-temp-file", "--threshold-mb 1"])
+    return " ".join(parts)
 
 
 def _create_command_for_provider(

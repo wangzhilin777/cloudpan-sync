@@ -347,12 +347,14 @@
   - 设置页现已新增 `Real Evidence` 摘要区，会直接读取 `GET /api/real_evidence` 的 summary，并显示 `auth / list / metadata / create_dir / task_runtime / fully_verified` 覆盖数，不必再只靠看导出的 Markdown
   - 已新增任务运行真实样本明细 API `GET /api/task_runtime_evidence` / `GET /api/task_runtime_evidence_markdown`、导出脚本 [export_task_runtime_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_task_runtime_evidence_report.py) 与文档 [11-TASK_RUNTIME_EVIDENCE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/11-TASK_RUNTIME_EVIDENCE.md)，可直接查看 runtime 真实样本明细、`verifyOk` 数量和冲突处理样本数
   - provider 面板现也已直接接入真实证据摘要：每个 provider 都会显示 `auth / list / metadata / create_dir / task_runtime / fully_verified` 六项真实证据状态，以及 `real_evidence_gaps` 缺口说明，不用再切去设置页或单看导出文档
+  - provider 面板里的 `real_evidence task_runtime` 摘要现也会直接显示 `conflict=...`，可以看出当前某个 provider 已经累计留下了多少条真实运行冲突处理样本
   - 设置页现已新增 `Task Runtime Evidence` 摘要区，会直接读取 `GET /api/task_runtime_evidence` 的 summary，并显示 `sampleCount / providerCount / profileCount / verifyOkCount / conflictHandledCount`，以及最近几条 runtime 样本简讯
   - `task_runtime_evidence` 现已不只记录成功样本，也会持久化真实失败样本，并区分 `successCount / failedCount`、错误码、风险提示和运行 note，后续排查 `P-REAL` 缺口时不必只看成功案例
   - `real_evidence_report` 现也会显式吸收 runtime 失败样本：若某个 provider 已经出现真实运行失败但还没有成功样本，会在 `taskRuntimeEvidence` 中显示 `sampleCount / successCount / failedCount / failedProfiles`，并把“已有 task runtime 失败样本，但尚无成功样本”写进缺口提示
   - provider 面板里的 `task_runtime` 现也已升级成 success/failed 计数展示，例如 `task_runtime=false(0/1)`，不再只是布尔值，能更直观看到“已经失败过几次、是否出现过成功样本”
   - `real_evidence_report` summary 与设置页 `Real Evidence` 摘要现也已显式量化 `taskRuntimeFailedProviderCount`，可直接看到当前有多少 provider 已进入“真实运行失败但尚未成功”的阶段
   - `real_evidence_report` summary 与设置页 `Real Evidence` 摘要现还已显式量化全局 runtime 样本总量：`taskRuntimeSampleCount / taskRuntimeSuccessCount / taskRuntimeFailedCount`，可以直接看到当前累计了多少真实运行样本、其中成功/失败各有多少
+  - `real_evidence_report` summary 与设置页 `Real Evidence` 摘要现还已显式量化 `taskRuntimeConflictHandledCount`，并且每个 provider 的 `taskRuntimeEvidence` 也会带 `conflictHandledCount`
   - `provider_status_matrix` 现也已吸收 runtime 真实样本计数：每个 provider 都会带 `task_runtime_samples / task_runtime_success / task_runtime_failed`，summary 也会带 `taskRuntimeEvidenceProviderCount / taskRuntimeFailedProviderCount / taskRuntimeSampleCount / taskRuntimeSuccessCount / taskRuntimeFailedCount`
   - `provider_status_matrix` 现还会继续吸收 runtime 同名冲突处理样本：每个 provider 都会额外带 `task_runtime_conflict_handled`，summary 也会带 `taskRuntimeConflictHandledProviderCount / taskRuntimeConflictHandledCount`
   - `provider_status_matrix` 现还会显式量化每个 provider 距离“接入真实运行写链路”还差多远：新增 `task_runtime_track=runtime_active/runtime_candidate/runtime_blocked/runtime_planned` 与 `task_runtime_track_note`，并在 summary 中汇总 `taskRuntimeActiveCount / taskRuntimeCandidateCount / taskRuntimeBlockedCount`
@@ -415,6 +417,7 @@
   - [verify_task_runtime_evidence_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_api.py) 已验证 `GET /api/task_runtime_evidence` 与 `GET /api/task_runtime_evidence_markdown` 会返回 `sampleCount / providerCount / profileCount / verifyOkCount / conflictHandledCount` 和样本明细
   - [11-TASK_RUNTIME_EVIDENCE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/11-TASK_RUNTIME_EVIDENCE.md) 当前已落盘；若真实环境尚未产生 runtime 样本，它会诚实显示 `sampleCount=0`
   - [verify_provider_real_evidence_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_real_evidence_ui.py) 已验证 provider 面板已接入 `realEvidenceReport`、`realEvidenceByProvider()`、真实证据摘要和 `real_evidence_gaps` 缺口展示
+  - [verify_provider_real_evidence_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_real_evidence_ui.py) 现还额外验证了 provider 面板 `real_evidence task_runtime` 已带 `conflict=...`
   - [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py) 已验证设置页已接入 `Task Runtime Evidence` 面板、`loadTaskRuntimeEvidence()`、登出清理、以及 runtime 样本摘要展示
   - [verify_task_runtime_failure_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_failure_evidence.py) 已验证 Guangya 真实运行失败样本也会写入 `task_runtime_evidence`，并在 summary 中体现为 `failedCount=1`
   - [verify_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_report.py) 现还额外验证了当 provider 只有 runtime 失败样本时，`taskRuntimeEvidence.failedCount`、`failedProfiles` 与缺口提示都会同步出现
@@ -422,7 +425,9 @@
   - [verify_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_report.py) 现还额外验证了 report summary 与 Markdown 已带 `taskRuntimeFailedProviderCount / task_runtime_failed`
   - [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py) 现还额外验证了设置页 `Real Evidence` 摘要已展示 `task_runtime_failed`
   - [verify_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_report.py) 现还额外验证了 report summary 与 Markdown 已带 `taskRuntimeSampleCount / taskRuntimeSuccessCount / taskRuntimeFailedCount`
+  - [verify_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_report.py) 现还额外验证了 report summary 与 Markdown 已带 `taskRuntimeConflictHandledCount / runtime_conflict_handled`
   - [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py) 现还额外验证了设置页 `Real Evidence` 摘要已展示 `runtime_samples / runtime_success / runtime_failed`
+  - [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py) 现还额外验证了设置页 `Real Evidence` 摘要已展示 `runtime_conflict_handled`
   - [verify_provider_conflict_capabilities.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_conflict_capabilities.py) 现还额外验证了 `GET /api/providers/status_matrix` summary 已带 `taskRuntimeEvidenceProviderCount / taskRuntimeFailedProviderCount / taskRuntimeSampleCount / taskRuntimeSuccessCount / taskRuntimeFailedCount`，并且 `guangya/189cloud` 行都已暴露 `task_runtime_samples / task_runtime_success / task_runtime_failed`
   - [verify_provider_conflict_capabilities.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_conflict_capabilities.py) 现还额外验证了状态矩阵 summary 已带 `taskRuntimeConflictHandledProviderCount / taskRuntimeConflictHandledCount`，并且 `guangya/189cloud` 行都会暴露 `task_runtime_conflict_handled`
   - [verify_provider_fast_check_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_fast_check_matrix.py) 已验证状态矩阵中的 `fastCheckCount` 已推进到 `10`，并且首批 `guangya / aliyundrive_open / 115_open / 189cloud / baidu_netdisk / quark / uc / xunlei / pikpak / 123_open` 都会在 `metadata_ready=true` 时显示 `fast_check=true`

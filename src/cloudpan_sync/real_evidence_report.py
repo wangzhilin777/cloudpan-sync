@@ -113,6 +113,7 @@ def build_real_evidence_report() -> dict[str, object]:
     fully_verified_provider_count = 0
     task_runtime_evidence_provider_count = 0
     task_runtime_failed_provider_count = 0
+    task_runtime_conflict_handled_count = 0
 
     for provider_key in provider_keys:
         provider_validations = [row for row in validations if str(row.get("providerKey") or "") == provider_key]
@@ -132,6 +133,7 @@ def build_real_evidence_report() -> dict[str, object]:
         create_dir_ok = bool(create_dir_ok_labels)
         runtime_ok = bool(runtime_ok_labels)
         runtime_failed = bool(runtime_failed_labels)
+        runtime_conflict_handled = sum(1 for row in provider_runtime_rows if str(row.get("conflictAction") or ""))
 
         if auth_ok:
             auth_evidence_provider_count += 1
@@ -145,6 +147,7 @@ def build_real_evidence_report() -> dict[str, object]:
             task_runtime_evidence_provider_count += 1
         if runtime_failed:
             task_runtime_failed_provider_count += 1
+        task_runtime_conflict_handled_count += runtime_conflict_handled
         if auth_ok and list_ok and metadata_ok and create_dir_ok:
             fully_verified_provider_count += 1
 
@@ -192,6 +195,7 @@ def build_real_evidence_report() -> dict[str, object]:
                     "sampleCount": len(provider_runtime_rows),
                     "successCount": sum(1 for row in provider_runtime_rows if bool(row.get("success"))),
                     "failedCount": sum(1 for row in provider_runtime_rows if not bool(row.get("success"))),
+                    "conflictHandledCount": runtime_conflict_handled,
                     "okProfileCount": len(runtime_ok_labels),
                     "profiles": runtime_ok_labels,
                     "failedProfiles": runtime_failed_labels,
@@ -227,6 +231,7 @@ def build_real_evidence_report() -> dict[str, object]:
             "taskRuntimeSampleCount": len(runtime_rows),
             "taskRuntimeSuccessCount": sum(1 for row in runtime_rows if bool(row.get("success"))),
             "taskRuntimeFailedCount": sum(1 for row in runtime_rows if not bool(row.get("success"))),
+            "taskRuntimeConflictHandledCount": task_runtime_conflict_handled_count,
         },
         "items": items,
     }
@@ -257,6 +262,7 @@ def real_evidence_to_markdown(payload: dict[str, object]) -> str:
         f" `runtime_samples={summary.get('taskRuntimeSampleCount', 0)}`"
         f" `runtime_success={summary.get('taskRuntimeSuccessCount', 0)}`"
         f" `runtime_failed={summary.get('taskRuntimeFailedCount', 0)}`"
+        f" `runtime_conflict_handled={summary.get('taskRuntimeConflictHandledCount', 0)}`"
     )
     lines.append("")
     lines.append("> 说明：本报告只统计当前仓库已保存的最新真实校验/探测证据，不把 mock 成功、静态能力声明或未持久化的临时运行结果算成真实成功。")
@@ -286,6 +292,7 @@ def real_evidence_to_markdown(payload: dict[str, object]) -> str:
             f"samples={((row.get('taskRuntimeEvidence') or {}).get('sampleCount', 0))} "
             f"success={((row.get('taskRuntimeEvidence') or {}).get('successCount', 0))} "
             f"failed={((row.get('taskRuntimeEvidence') or {}).get('failedCount', 0))} "
+            f"conflictHandled={((row.get('taskRuntimeEvidence') or {}).get('conflictHandledCount', 0))} "
             f"note={str((row.get('taskRuntimeEvidence') or {}).get('note') or '')}"
         )
         if row.get("gaps"):

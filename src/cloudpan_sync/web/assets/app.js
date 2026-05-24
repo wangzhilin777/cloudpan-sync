@@ -1548,7 +1548,7 @@ function renderProviderPanel() {
     if (realEvidence) {
       const evidenceMeta = document.createElement("div");
       evidenceMeta.className = "auth-item-meta";
-      evidenceMeta.textContent = `real_evidence auth=${Boolean(realEvidence.authEvidence?.ok)}, list=${Boolean(realEvidence.listEvidence?.ok)}, metadata=${Boolean(realEvidence.metadataEvidence?.ok)}, create_dir=${Boolean(realEvidence.createDirEvidence?.ok)}, task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}), fully_verified=${Boolean(realEvidence.fullyVerified)}`;
+      evidenceMeta.textContent = `real_evidence auth=${Boolean(realEvidence.authEvidence?.ok)}, list=${Boolean(realEvidence.listEvidence?.ok)}, metadata=${Boolean(realEvidence.metadataEvidence?.ok)}, create_dir=${Boolean(realEvidence.createDirEvidence?.ok)}, task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}, conflict=${realEvidence.taskRuntimeEvidence?.conflictHandledCount || 0}), fully_verified=${Boolean(realEvidence.fullyVerified)}`;
       node.appendChild(evidenceMeta);
       if ((realEvidence.gaps || []).length) {
         const evidenceGaps = document.createElement("div");
@@ -1581,7 +1581,7 @@ function renderProviderPanel() {
     if (realEvidence) {
       const evidenceMeta = document.createElement("div");
       evidenceMeta.className = "auth-item-meta";
-      evidenceMeta.textContent = `real_evidence auth=${Boolean(realEvidence.authEvidence?.ok)}, list=${Boolean(realEvidence.listEvidence?.ok)}, metadata=${Boolean(realEvidence.metadataEvidence?.ok)}, create_dir=${Boolean(realEvidence.createDirEvidence?.ok)}, task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}), fully_verified=${Boolean(realEvidence.fullyVerified)}`;
+      evidenceMeta.textContent = `real_evidence auth=${Boolean(realEvidence.authEvidence?.ok)}, list=${Boolean(realEvidence.listEvidence?.ok)}, metadata=${Boolean(realEvidence.metadataEvidence?.ok)}, create_dir=${Boolean(realEvidence.createDirEvidence?.ok)}, task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}, conflict=${realEvidence.taskRuntimeEvidence?.conflictHandledCount || 0}), fully_verified=${Boolean(realEvidence.fullyVerified)}`;
       node.appendChild(title);
       node.appendChild(meta);
       node.appendChild(notes);
@@ -1694,7 +1694,7 @@ function renderSettingsPanel() {
     `providers=${realEvidence.providerCount || 0}, profilesSaved=${realEvidence.profilesSaved || 0}`,
     `auth=${realEvidence.authEvidenceProviderCount || 0}, list=${realEvidence.listEvidenceProviderCount || 0}, metadata=${realEvidence.metadataEvidenceProviderCount || 0}`,
     `create_dir=${realEvidence.createDirEvidenceProviderCount || 0}, task_runtime=${realEvidence.taskRuntimeEvidenceProviderCount || 0}, task_runtime_failed=${realEvidence.taskRuntimeFailedProviderCount || 0}, fully_verified=${realEvidence.fullyVerifiedProviderCount || 0}`,
-    `runtime_samples=${realEvidence.taskRuntimeSampleCount || 0}, runtime_success=${realEvidence.taskRuntimeSuccessCount || 0}, runtime_failed=${realEvidence.taskRuntimeFailedCount || 0}`,
+    `runtime_samples=${realEvidence.taskRuntimeSampleCount || 0}, runtime_success=${realEvidence.taskRuntimeSuccessCount || 0}, runtime_failed=${realEvidence.taskRuntimeFailedCount || 0}, runtime_conflict_handled=${realEvidence.taskRuntimeConflictHandledCount || 0}`,
   ];
   for (const row of realEvidenceRows) {
     const li = document.createElement("li");

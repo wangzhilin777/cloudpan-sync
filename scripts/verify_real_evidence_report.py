@@ -55,7 +55,7 @@ def main() -> None:
             },
         ]
         real_evidence_report.latest_task_runtime_evidence = lambda: [
-            {"providerKey": "guangya", "profileId": "gy-1", "path": "/demo.bin", "mode": "binary_upload_multipart", "success": True},
+            {"providerKey": "guangya", "profileId": "gy-1", "path": "/demo.bin", "mode": "binary_upload_multipart", "success": True, "conflictAction": "overwrite_downgraded_to_auto_rename"},
             {"providerKey": "189cloud", "profileId": "189-1", "path": "/demo.bin", "mode": "share_upload_attempt", "success": False, "error": "readonly"},
         ]
         real_evidence_report.build_provider_registry = lambda: [
@@ -85,7 +85,7 @@ def main() -> None:
                     "tianyi": next((item for item in payload.get("items", []) if item.get("providerKey") == "189cloud"), {}),
                     "markdownHasTitle": "# CloudPan Sync 真实证据状态报告" in markdown,
                     "markdownHasRuntimeFailedSummary": "task_runtime_failed=1" in markdown,
-                    "markdownHasRuntimeSampleSummary": "runtime_samples=2" in markdown and "runtime_success=1" in markdown and "runtime_failed=1" in markdown,
+                    "markdownHasRuntimeSampleSummary": "runtime_samples=2" in markdown and "runtime_success=1" in markdown and "runtime_failed=1" in markdown and "runtime_conflict_handled=1" in markdown,
                     "markdownHasGuangya": "## guangya - 光鸭网盘" in markdown,
                     "apiSummary": api_payload.get("summary"),
                     "apiMarkdownHasTitle": "# CloudPan Sync 真实证据状态报告" in str(api_markdown.get("markdown") or ""),

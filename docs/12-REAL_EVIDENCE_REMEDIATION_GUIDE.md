@@ -8,6 +8,7 @@
 - providersNeedingCreateDirEvidence: `10`
 - providersNeedingRuntimeSuccess: `10`
 - providersWithPatchCommand: `1`
+- providersWithPatchProbeCommand: `1`
 - providersWithCreateCommand: `8`
 - providersWithBootstrapCommand: `8`
 - providersBlockedOnly: `0`
@@ -25,6 +26,7 @@
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先补齐档案缺字段并重跑 validation / live probe，拿到 auth/list/metadata 最小成功证据。
 - recommendedPatchCommand: `.\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id 0318479d-4669-415f-9083-7aecc102bf90 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate`
+- recommendedPatchProbeCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 0318479d-4669-415f-9083-7aecc102bf90 --set parentId=YOUR_REAL_PARENT_ID --write`
 
 ### aliyundrive_open - Aliyun Drive Open
 - profileCount: `1`

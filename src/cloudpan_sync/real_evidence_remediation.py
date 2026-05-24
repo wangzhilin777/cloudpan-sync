@@ -25,6 +25,25 @@ def _patch_command_for_profile(profile: dict[str, object]) -> str:
     return f"{base} --set key=value --write --revalidate"
 
 
+def _patch_probe_command_for_profile(profile: dict[str, object]) -> str:
+    profile_id = str(profile.get("profileId") or "")
+    provider_key = str(profile.get("providerKey") or "")
+    base = f".\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --profile-id {profile_id}"
+    if not profile_id:
+        return ""
+    if provider_key == "guangya":
+        return f"{base} --set parentId=YOUR_REAL_PARENT_ID --write"
+    if provider_key == "aliyundrive_open":
+        return f"{base} --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write"
+    if provider_key == "189cloud":
+        return f".\\.venv\\Scripts\\python.exe scripts\\patch_189cloud_account_auth.py --profile-id {profile_id} --raw-file captured_189_headers.txt --write --revalidate"
+    if provider_key == "xunlei":
+        return f"{base} --set deviceId=YOUR_DEVICE_ID --write"
+    if provider_key in {"quark", "uc"}:
+        return f"{base} --set pwdId=YOUR_SHARE_PWD_ID --write"
+    return f"{base} --set key=value --write"
+
+
 def _create_command_for_provider(
     *,
     provider_key: str,
@@ -138,6 +157,7 @@ def build_real_evidence_remediation_bundle(
             "runtimeBlockedOnly": runtime_blocked_only,
             "gaps": list(row.get("gaps") or []),
             "recommendedPatchCommand": _patch_command_for_profile(profile_needing_patch or {}),
+            "recommendedPatchProbeCommand": _patch_probe_command_for_profile(profile_needing_patch or {}),
             "recommendedCreateCommand": _create_command_for_provider(
                 provider_key=provider_key,
                 auth_modes=provider_auth_modes(provider_key),
@@ -175,6 +195,7 @@ def build_real_evidence_remediation_bundle(
             "providersNeedingCreateDirEvidence": sum(1 for item in items if bool(item.get("needsCreateDirEvidence"))),
             "providersNeedingRuntimeSuccess": sum(1 for item in items if bool(item.get("needsRuntimeSuccess"))),
             "providersWithPatchCommand": sum(1 for item in items if str(item.get("recommendedPatchCommand") or "")),
+            "providersWithPatchProbeCommand": sum(1 for item in items if str(item.get("recommendedPatchProbeCommand") or "")),
             "providersWithCreateCommand": sum(1 for item in items if str(item.get("recommendedCreateCommand") or "")),
             "providersWithBootstrapCommand": sum(1 for item in items if str(item.get("recommendedBootstrapCommand") or "")),
             "providersBlockedOnly": sum(1 for item in items if bool(item.get("runtimeBlockedOnly"))),
@@ -196,6 +217,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersNeedingCreateDirEvidence: `{summary.get('providersNeedingCreateDirEvidence', 0)}`")
     lines.append(f"- providersNeedingRuntimeSuccess: `{summary.get('providersNeedingRuntimeSuccess', 0)}`")
     lines.append(f"- providersWithPatchCommand: `{summary.get('providersWithPatchCommand', 0)}`")
+    lines.append(f"- providersWithPatchProbeCommand: `{summary.get('providersWithPatchProbeCommand', 0)}`")
     lines.append(f"- providersWithCreateCommand: `{summary.get('providersWithCreateCommand', 0)}`")
     lines.append(f"- providersWithBootstrapCommand: `{summary.get('providersWithBootstrapCommand', 0)}`")
     lines.append(f"- providersBlockedOnly: `{summary.get('providersBlockedOnly', 0)}`")
@@ -230,5 +252,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedBootstrapCommand: `{row.get('recommendedBootstrapCommand', '')}`")
         if row.get("recommendedPatchCommand"):
             lines.append(f"- recommendedPatchCommand: `{row.get('recommendedPatchCommand', '')}`")
+        if row.get("recommendedPatchProbeCommand"):
+            lines.append(f"- recommendedPatchProbeCommand: `{row.get('recommendedPatchProbeCommand', '')}`")
         lines.append("")
     return "\n".join(lines).strip() + "\n"

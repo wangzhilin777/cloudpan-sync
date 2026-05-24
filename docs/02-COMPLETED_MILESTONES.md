@@ -494,3 +494,5 @@
   - [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py) 现还额外验证了设置页 runtime 简讯已显示 `riskHint`
   - `Task Runtime Evidence` Markdown / 导出链最近样本行现也已补上 `riskHint / verifyNote`，离线对账 blocked、失败或已完成验证样本时不必再只靠 `error / verifyMode` 猜测运行期上下文
   - [verify_task_runtime_evidence_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_api.py) 现还额外验证了 `GET /api/task_runtime_evidence_markdown` 样本行已带 `riskHint / verifyNote`
+  - 队列页任务最近结果简讯现也已补上 `requiredAuth / error`，像 `189cloud` 只读阻断或缺写鉴权场景可直接在任务列表看到缺哪些鉴权以及后端返回的错误标识
+  - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 已验证队列页 `renderTaskList()` 最近结果行已显示 `requiredAuth / error`

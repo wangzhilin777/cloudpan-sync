@@ -1185,6 +1185,12 @@ function renderTaskList() {
           const executionText = row.executionMode ? ` [${row.executionMode}]` : "";
           const modeText = row.liveAttempt ? ` (${row.liveAttempt.mode})` : "";
           const riskText = row.liveAttempt?.riskHint ? ` - ${row.liveAttempt.riskHint}` : "";
+          const authText = row.liveAttempt?.requiredAuth?.length
+            ? `, requiredAuth=${row.liveAttempt.requiredAuth.join("/")}`
+            : "";
+          const errorText = row.liveAttempt?.error
+            ? `, error=${row.liveAttempt.error}`
+            : "";
           const verifyText = row.liveAttempt?.verifyMode
             ? `, verify=${row.liveAttempt.verifyOk ? "ok" : "pending"}:${row.liveAttempt.verifyMode}`
             : "";
@@ -1194,7 +1200,7 @@ function renderTaskList() {
           const conflictSupportText = row.conflictSupportStatus
             ? `, conflictSupport=${row.conflictSupportStatus}`
             : "";
-          return `${row.path}: ${row.status}${executionText}${modeText}${verifyText}${conflictText}${conflictSupportText}${riskText}`;
+          return `${row.path}: ${row.status}${executionText}${modeText}${verifyText}${conflictText}${conflictSupportText}${authText}${errorText}${riskText}`;
         })
         .join(" | ");
       const resultMeta = document.createElement("div");

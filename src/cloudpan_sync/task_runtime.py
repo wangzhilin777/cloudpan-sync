@@ -19,6 +19,7 @@ from .planner import build_transfer_plan
 from .quark_live import fetch_quark_create_folder
 from .task_guard import evaluate_task_guard
 from .task_runtime_evidence_store import save_task_runtime_evidence
+from .tianyi_live import fetch_tianyi_create_folder
 from .uc_live import fetch_uc_create_folder
 from .xunlei_live import fetch_xunlei_create_folder
 
@@ -186,6 +187,7 @@ def _persist_task_runtime_evidence(task: dict[str, object], results: list[dict[s
                 "resolvedTargetName": str(live_attempt.get("resolvedTargetName") or ""),
                 "error": str(live_attempt.get("error") or ""),
                 "riskHint": str(live_attempt.get("riskHint") or ""),
+                "requiredAuth": list(live_attempt.get("requiredAuth") or []),
                 "note": str(result.get("note") or ""),
                 "savedAt": updated_at,
             }
@@ -790,6 +792,59 @@ def run_task(task_id: str) -> dict[str, object]:
                     "error": probe_result.error,
                     "riskHint": probe_result.note,
                     "payload": probe_result.payload or {},
+                    "verifyOk": False,
+                    "verifyMode": "",
+                    "verifyNote": "",
+                    "verifyPayload": {},
+                    "resolvedTargetName": probe_name,
+                    "conflictAction": "",
+                }
+                results.append(row_result)
+                continue
+
+        if strategy == "download_upload" and target_provider == "189cloud" and target_profile_id:
+            source_entry = source_entries_by_path.get(path, {})
+            local_entry = _materialize_local_source_entry(source_entry, path, int(item.get("size", 0) or 0))
+            if local_entry is not None:
+                probe_name = _probe_dir_name(str(task.get("taskId") or ""), path)
+                probe_result = fetch_tianyi_create_folder(
+                    profile_id=target_profile_id,
+                    parent_id=target_parent_id,
+                    dir_name=probe_name,
+                )
+                row_result["executionMode"] = "probe"
+                if probe_result.ok:
+                    done += 1
+                    row_result["status"] = "done"
+                    row_result["note"] = (
+                        "189Cloud runtime write probe succeeded through createFolder.action. "
+                        "The current file transfer still completes with mock/download fallback flow."
+                    )
+                    row_result["liveAttempt"] = {
+                        "mode": "189cloud_create_dir_probe",
+                        "parentId": target_parent_id,
+                        "riskHint": "",
+                        "payload": probe_result.payload or {},
+                        "requiredAuth": list((probe_result.payload or {}).get("requiredAuth") or []),
+                        "verifyOk": True,
+                        "verifyMode": "create_dir_response",
+                        "verifyNote": probe_result.note,
+                        "verifyPayload": probe_result.payload or {},
+                        "resolvedTargetName": probe_name,
+                        "conflictAction": "auto_rename_new",
+                    }
+                    results.append(row_result)
+                    continue
+                failed += 1
+                row_result["status"] = "failed"
+                row_result["note"] = probe_result.note or "189Cloud runtime write probe failed."
+                row_result["liveAttempt"] = {
+                    "mode": "189cloud_create_dir_probe",
+                    "parentId": target_parent_id,
+                    "error": probe_result.error,
+                    "riskHint": probe_result.note,
+                    "payload": probe_result.payload or {},
+                    "requiredAuth": list((probe_result.payload or {}).get("requiredAuth") or []),
                     "verifyOk": False,
                     "verifyMode": "",
                     "verifyNote": "",

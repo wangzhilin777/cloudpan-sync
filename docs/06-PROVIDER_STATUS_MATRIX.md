@@ -1,6 +1,6 @@
 # CloudPan Sync Provider Status Matrix
 
-- GeneratedAt: `2026-05-24T08:30:43.329196+00:00`
+- GeneratedAt: `2026-05-24T08:53:54.303740+00:00`
 - Summary: providerCount=10, authReadyCount=0, createDirReadyCount=9, fastCheckCount=5, liveProbeOkCount=0, conflictAwareProviderCount=1, overwriteReadyCount=0, autoRenameReadyCount=1, taskRuntimeEvidenceProviderCount=0, taskRuntimeFailedProviderCount=0, taskRuntimeSampleCount=0, taskRuntimeSuccessCount=0, taskRuntimeFailedCount=0, taskRuntimeActiveCount=9, taskRuntimeCandidateCount=0, taskRuntimeBlockedCount=1
 
 | providerKey | supportStatus | auth_ready | list_ready | metadata_ready | create_dir_ready | fast_check | live_probe_ok | task_runtime_track | task_runtime_samples | task_runtime_success | task_runtime_failed | supports_overwrite | supports_auto_rename | overwrite_behavior | conflict_policies | fallback_ready |
@@ -12,7 +12,7 @@
 |  | runtime_note |  |  |  |  |  |  | Current task runtime now drives a 123Pan Open live create_dir write probe before mock/download fallback completion. |  |  |  |  |  |  |  |  |
 |  | note |  |  |  |  |  |  |  |  |  |  |  |  | 当前 123Pan Open 已接入任务运行阶段的 create_dir 写探针，但真实文件上传场景下的同名文件冲突处理仍未声明为已支持。 |  |  |
 | 189cloud | list_ready | False | True | True | False | False | False | runtime_blocked | 0 | 0 | 0 | False | False | readonly_auth_blocked | (none) | True |
-|  | runtime_note |  |  |  |  |  |  | Current 189Cloud path is still shareCode/accessCode read-only, so task runtime write attempts cannot start yet. |  |  |  |  |  |  |  |  |
+|  | runtime_note |  |  |  |  |  |  | Current task runtime now records an explicit 189Cloud create_dir blocked probe, but the shareCode/accessCode path is still read-only until account-level OAuth write auth is wired. |  |  |  |  |  |  |  |  |
 |  | note |  |  |  |  |  |  |  |  |  |  |  |  | 当前 189Cloud 仅验证到 shareCode/accessCode 只读链路，写入链路未就绪，因此不能承诺覆盖或自动重命名。 |  |  |
 | aliyundrive_open | list_ready | False | True | True | True | True | False | runtime_active | 0 | 0 | 0 | False | False | not_implemented | (none) | True |
 |  | runtime_note |  |  |  |  |  |  | Current task runtime now drives an Aliyun Drive Open live create_dir write probe before mock/download fallback completion. |  |  |  |  |  |  |  |  |

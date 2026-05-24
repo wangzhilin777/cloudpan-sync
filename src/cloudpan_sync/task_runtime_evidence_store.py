@@ -91,7 +91,7 @@ def task_runtime_evidence_to_markdown(payload: dict[str, object]) -> str:
             f"- {item.get('providerKey', '')} profile={item.get('profileId', '')} path={item.get('path', '')} "
             f"mode={item.get('mode', '')} success={item.get('success', False)} verifyOk={item.get('verifyOk', False)} "
             f"verifyMode={item.get('verifyMode', '')} conflictAction={item.get('conflictAction', '')} "
-            f"resolvedTargetName={item.get('resolvedTargetName', '')} error={item.get('error', '')}"
+            f"resolvedTargetName={item.get('resolvedTargetName', '')} requiredAuth={','.join(item.get('requiredAuth', []) or [])} error={item.get('error', '')}"
         )
     if not payload.get("latestItems"):
         lines.append("- none")

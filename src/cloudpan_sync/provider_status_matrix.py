@@ -101,7 +101,7 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
     if provider_key == "189cloud":
         return (
             "runtime_blocked",
-            "Current 189Cloud path is still shareCode/accessCode read-only, so task runtime write attempts cannot start yet.",
+            "Current task runtime now records an explicit 189Cloud create_dir blocked probe, but the shareCode/accessCode path is still read-only until account-level OAuth write auth is wired.",
         )
     return (
         "runtime_planned",

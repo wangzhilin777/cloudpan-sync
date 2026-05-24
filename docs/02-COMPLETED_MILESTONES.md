@@ -153,6 +153,7 @@
   - Guangya 任务运行阶段已接入真实 fallback 上传链路入口：库存 miss 后可继续尝试本地文件二进制上传
   - Guangya fallback 真上传成功后，现会继续做 post-upload verify：优先使用返回 `fileId` 做 live metadata 确认，拿不到 `fileId` 时退回 `parentId + 文件名` 的 live list 确认
   - Guangya fallback 真上传前现在会先检查目标目录同名文件；若用户选择 `auto_rename_new` 则自动改名上传，若用户选择 `overwrite_existing` 但当前链路不支持真覆盖，则会诚实降级为自动改名，并把降级动作写回任务结果
+  - `189cloud` 当前已补上显式 runtime blocked probe 分支：即使 shareCode/accessCode 链路仍然只读，运行期结果与 task runtime evidence 也会明确落出 `189cloud_create_dir_probe`、`share_auth_readonly` 与所需 `AccessToken/Signature/Date`
 - 当前验证证据：
   - 任务动作流 `resume -> run -> retry -> pause` 返回状态依次可用
   - [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 包含 `pendingPanel`、`providersPanel`、`settingsPanel`
@@ -178,6 +179,7 @@
   - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了前端已接入 `lastActionError=` pill 和 `task-action-error` 文本展示逻辑
   - [verify_task_summary_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_summary_api.py) 已验证 `blocked / awaiting_ack / acknowledge_risk 后 ready` 三种任务状态都会返回同步更新的 `summary`，其中 `allowedActions / awaitingAcknowledgement / riskReason` 等关键字段会随状态转换正确变化
   - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了前端已开始优先读取 `task.summary`，包括 `summary.state` 与 `summary.lastActionError`
+  - [verify_189cloud_runtime_probe_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_runtime_probe_evidence.py) 已验证 `189cloud` runtime 分支会落出 `executionMode=probe` 的失败样本，并把 `189cloud_create_dir_probe / share_auth_readonly / requiredAuth=[AccessToken,Signature,Date]` 同步写入 task runtime evidence、real evidence report 与 provider status matrix
   - [verify_task_action_guards.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_action_guards.py) 现还额外验证了 `POST /api/tasks/{id}/action` 在 `awaiting_ack` 任务上返回 `actionApplied=false`、结构化 `actionError`，并同步返回当前 `allowedActions=["acknowledge_risk","retry"]`
   - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了前端任务按钮来源已切到 `task.summary.allowedActions`
   - [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 已验证 `POST /api/tasks` 会返回 `item + listView + detailView`，`GET /api/tasks` 会返回 `items + listItems`，`GET /api/tasks/{id}` 与 `POST /api/tasks/{id}/action` 会继续返回 `listView/detailView`，且 `detailView` 已稳定带出 `planSummary / executionGroups / pendingItems / results / sourceEntries`；当前 mock 执行分支还会显式回传 `results[].executionMode=mock`

@@ -31,7 +31,10 @@ def main() -> None:
 
     task_json = ROOT / "tmp" / "verify-live-upload-task.json"
     task_markdown = ROOT / "tmp" / "verify-live-upload-task.md"
-    for path in (task_json, task_markdown):
+    runtime_evidence = ROOT / "tmp" / "verify-live-runtime-evidence.md"
+    real_evidence = ROOT / "tmp" / "verify-live-real-evidence.md"
+    remediation = ROOT / "tmp" / "verify-live-remediation.md"
+    for path in (task_json, task_markdown, runtime_evidence, real_evidence, remediation):
         if path.exists():
             path.unlink()
 
@@ -120,6 +123,12 @@ def main() -> None:
                     str(task_json),
                     "--markdown-output",
                     str(task_markdown),
+                    "--runtime-evidence-output",
+                    str(runtime_evidence),
+                    "--real-evidence-output",
+                    str(real_evidence),
+                    "--remediation-output",
+                    str(remediation),
                 ]
             )
     finally:
@@ -132,8 +141,11 @@ def main() -> None:
     output = json.loads(stdout_buffer.getvalue())
     task_payload = json.loads(task_json.read_text(encoding="utf-8"))
     markdown = task_markdown.read_text(encoding="utf-8")
+    runtime_evidence_markdown = runtime_evidence.read_text(encoding="utf-8")
+    real_evidence_markdown = real_evidence.read_text(encoding="utf-8")
+    remediation_markdown = remediation.read_text(encoding="utf-8")
 
-    for path in (task_json, task_markdown):
+    for path in (task_json, task_markdown, runtime_evidence, real_evidence, remediation):
         if path.exists():
             path.unlink()
 
@@ -151,8 +163,14 @@ def main() -> None:
                 "jsonSavedVerifyMode": (((((task_payload.get("results") or [None])[0]) or {}).get("liveAttempt") or {}).get("verifyMode")) == "list_by_parent_name",
                 "markdownHasConflictAction": "conflictAction=`overwrite_downgraded_to_auto_rename`" in markdown,
                 "markdownHasResolvedTargetName": "resolvedTargetName=`cloudpan-sync-live-upload (1).bin`" in markdown,
+                "runtimeEvidenceHasTitle": "# CloudPan Sync 任务运行真实样本报告" in runtime_evidence_markdown,
+                "realEvidenceHasTitle": "# CloudPan Sync 真实证据状态报告" in real_evidence_markdown,
+                "remediationHasTitle": "# CloudPan Sync 真实联调补救指南" in remediation_markdown,
                 "scriptHasMarkdownOutputArg": "--markdown-output" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasTaskJsonOutputArg": "--task-json-output" in SCRIPT_PATH.read_text(encoding="utf-8"),
+                "scriptHasRuntimeEvidenceOutputArg": "--runtime-evidence-output" in SCRIPT_PATH.read_text(encoding="utf-8"),
+                "scriptHasRealEvidenceOutputArg": "--real-evidence-output" in SCRIPT_PATH.read_text(encoding="utf-8"),
+                "scriptHasRemediationOutputArg": "--remediation-output" in SCRIPT_PATH.read_text(encoding="utf-8"),
             },
             ensure_ascii=False,
             indent=2,

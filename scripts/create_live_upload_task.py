@@ -15,6 +15,9 @@ if str(SRC) not in sys.path:
 from cloudpan_sync.auth_profile_patch import configure_data_dir
 from cloudpan_sync.auth_profile_view import auth_profile_view
 from cloudpan_sync.auth_store import get_profile
+from cloudpan_sync.real_evidence_remediation import build_real_evidence_remediation_bundle, real_evidence_remediation_to_markdown
+from cloudpan_sync.real_evidence_report import build_real_evidence_report, real_evidence_to_markdown
+from cloudpan_sync.task_runtime_evidence_store import build_task_runtime_evidence_payload, task_runtime_evidence_to_markdown
 from cloudpan_sync import task_runtime
 from cloudpan_sync.models import SourceEntry, TaskCreateRequest
 
@@ -53,6 +56,16 @@ def _build_entry(path: Path, remote_path: str) -> SourceEntry:
     )
 
 
+def _write_optional_text(path_text: str, content: str) -> str:
+    output = str(path_text or "").strip()
+    if not output:
+        return ""
+    output_path = Path(output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(content, encoding="utf-8")
+    return str(output_path)
+
+
 def main(argv: list[str] | None = None) -> int:
     custom_data_dir = str(os.environ.get("CLOUDPAN_SYNC_DATA_DIR") or "").strip()
     if custom_data_dir:
@@ -74,6 +87,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--no-acknowledge-download-upload", action="store_true", help="Do not auto-acknowledge download_upload fallback risk.")
     parser.add_argument("--task-json-output", default="", help="Optional output path for the task JSON snapshot.")
     parser.add_argument("--markdown-output", default="", help="Optional output path for the task markdown snapshot.")
+    parser.add_argument("--runtime-evidence-output", default="", help="Optional output path for runtime evidence markdown.")
+    parser.add_argument("--real-evidence-output", default="", help="Optional output path for real evidence markdown.")
+    parser.add_argument("--remediation-output", default="", help="Optional output path for remediation markdown.")
     args = parser.parse_args(argv)
 
     target_provider = str(args.target_provider or "").strip()
@@ -110,11 +126,19 @@ def main(argv: list[str] | None = None) -> int:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    markdown_output = str(args.markdown_output or "").strip()
-    if markdown_output:
-        output_path = Path(markdown_output)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(task_runtime.task_to_markdown(result), encoding="utf-8")
+    markdown_output = _write_optional_text(str(args.markdown_output or "").strip(), task_runtime.task_to_markdown(result))
+    runtime_evidence_output = _write_optional_text(
+        str(args.runtime_evidence_output or "").strip(),
+        task_runtime_evidence_to_markdown(build_task_runtime_evidence_payload()),
+    )
+    real_evidence_output = _write_optional_text(
+        str(args.real_evidence_output or "").strip(),
+        real_evidence_to_markdown(build_real_evidence_report()),
+    )
+    remediation_output = _write_optional_text(
+        str(args.remediation_output or "").strip(),
+        real_evidence_remediation_to_markdown(build_real_evidence_remediation_bundle()),
+    )
 
     output = {
         "taskId": str(result.get("taskId") or ""),
@@ -130,6 +154,9 @@ def main(argv: list[str] | None = None) -> int:
         "acknowledgedDownloadUpload": acknowledge_download_upload,
         "taskJsonOutput": task_json_output,
         "markdownOutput": markdown_output,
+        "runtimeEvidenceOutput": runtime_evidence_output,
+        "realEvidenceOutput": real_evidence_output,
+        "remediationOutput": remediation_output,
     }
     print(json.dumps(output, ensure_ascii=False, indent=2))
     if is_temp and file_path.exists():

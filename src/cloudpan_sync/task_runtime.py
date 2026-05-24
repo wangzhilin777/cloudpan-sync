@@ -7,6 +7,7 @@ from pathlib import PurePosixPath
 import re
 from uuid import uuid4
 
+from .auth_store import get_profile
 from .aliyun_open_live import fetch_aliyun_open_create_folder
 from .baidu_netdisk_live import fetch_baidu_create_dir
 from .guangya_live import fetch_guangya_live_fast_check
@@ -95,6 +96,23 @@ def _first_text(*values: object) -> str:
         if text:
             return text
     return ""
+
+
+def _tianyi_account_auth_fields(profile_id: str) -> tuple[str, str, str]:
+    profile = get_profile(profile_id)
+    if profile is None:
+        return "", "", ""
+    extra = getattr(profile, "extra", {}) or {}
+    access_token = _first_text(
+        getattr(profile, "token", ""),
+        extra.get("authorization"),
+        extra.get("Authorization"),
+        extra.get("accessToken"),
+        extra.get("access_token"),
+    )
+    signature = _first_text(extra.get("signature"), extra.get("Signature"))
+    date_value = _first_text(extra.get("date"), extra.get("Date"))
+    return access_token, signature, date_value
 
 
 def list_tasks() -> list[dict[str, object]]:
@@ -867,6 +885,75 @@ def run_task(task_id: str) -> dict[str, object]:
                     "requiredInputs": ["md5", "size"],
                     "error": "missing_md5",
                     "riskHint": "Fast-upload candidate probe requires md5 fingerprint.",
+                    "verifyOk": False,
+                    "verifyMode": "",
+                    "verifyNote": "",
+                    "verifyPayload": {},
+                    "resolvedTargetName": PurePosixPath(path or "/").name or path,
+                    "conflictAction": "",
+                }
+            results.append(row_result)
+            continue
+
+        if strategy == "fast_upload" and target_provider == "189cloud" and target_profile_id:
+            source_entry = _source_entry_for_item(source_entries_by_path, item)
+            normalized = _normalized_fingerprints_for_item(item)
+            md5_value = _first_text(
+                source_entry.get("md5"),
+                normalized.get("md5"),
+                source_entry.get("etag"),
+                normalized.get("etag"),
+            ).lower()
+            access_token, signature, date_value = _tianyi_account_auth_fields(target_profile_id)
+            row_result["executionMode"] = "probe"
+            if md5_value and access_token and signature and date_value:
+                done += 1
+                row_result["status"] = "done"
+                row_result["note"] = (
+                    "189Cloud fast-upload candidate confirmed from current md5/size fingerprints and account-level write auth. "
+                    "The current runtime only records candidate evidence and does not call a live rapid-upload API yet."
+                )
+                row_result["liveAttempt"] = {
+                    "mode": "189cloud_fast_upload_candidate",
+                    "hashKind": "md5",
+                    "candidate": True,
+                    "requiredInputs": ["md5", "size"],
+                    "requiredAuth": ["AccessToken", "Signature", "Date"],
+                    "hashValue": md5_value,
+                    "riskHint": "",
+                    "verifyOk": True,
+                    "verifyMode": "fingerprint_candidate",
+                    "verifyNote": "Current md5/size fingerprints plus account-level write auth satisfy 189Cloud fast-upload precheck, but runtime remains probe-only.",
+                    "verifyPayload": {
+                        "md5": md5_value,
+                        "size": int(item.get("size", 0) or 0),
+                    },
+                    "resolvedTargetName": PurePosixPath(path or "/").name or path,
+                    "conflictAction": "",
+                }
+            else:
+                failed += 1
+                missing_parts: list[str] = []
+                if not md5_value:
+                    missing_parts.append("md5")
+                if not access_token:
+                    missing_parts.append("AccessToken")
+                if not signature:
+                    missing_parts.append("Signature")
+                if not date_value:
+                    missing_parts.append("Date")
+                row_result["status"] = "failed"
+                row_result["note"] = (
+                    "189Cloud fast-upload candidate probe is not ready because required fingerprints or account-level write auth are missing."
+                )
+                row_result["liveAttempt"] = {
+                    "mode": "189cloud_fast_upload_candidate",
+                    "hashKind": "md5",
+                    "candidate": False,
+                    "requiredInputs": ["md5", "size"],
+                    "requiredAuth": ["AccessToken", "Signature", "Date"],
+                    "error": f"missing_{'_'.join(missing_parts).lower()}",
+                    "riskHint": "189Cloud fast-upload candidate probe requires md5 plus account-level AccessToken/Signature/Date.",
                     "verifyOk": False,
                     "verifyMode": "",
                     "verifyNote": "",

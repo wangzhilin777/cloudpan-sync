@@ -62,6 +62,7 @@
   - 已新增本地脚本 [patch_189cloud_account_auth.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_189cloud_account_auth.py)，可直接从抓包 header / curl / JSON 文本里提取 `accessToken / signature / date`，并按已有 `profileId` 回填 189Cloud 档案，不必再手工逐项抄写账号级写鉴权字段
   - `189cloud` remediation bundle 与前端本地 patch hint 现已切到专用 helper：即使档案已经 `profileReady=true` 但仍 `writeReady=false`，也会继续显示 `patch_189cloud_account_auth.py` 推荐命令，不会再因为“读 ready”而把写鉴权补救命令隐藏掉
   - `189cloud` 当前已接入账号级 `createFolder.action` 写目录尝试：当档案具备 `token/accessToken + signature + date` 时，会走账号级 headers 发起真实 create_dir 请求；若仍是 shareCode/accessCode-only 档案，则继续诚实返回只读阻断
+  - `189cloud` 现已额外补上 `fast_upload` 任务分支的候选探针：只有当档案具备账号级 `AccessToken / Signature / Date` 且文件已有 `md5 + size` 时，运行期才会产出 `executionMode=probe`、`liveAttempt.mode=189cloud_fast_upload_candidate` 的 runtime 样本；share-only 或缺写鉴权时会诚实返回缺鉴权阻断
 - 当前验证证据：
   - `POST /api/auth/profiles` 现会在保存时同步返回结构化 `validation` 结果，并据此写入 profile `status`
   - `POST /api/auth/profiles/{id}/validate` 现会返回结构化 `validation` 结果，并据此更新 profile `status`
@@ -85,6 +86,7 @@
   - [verify_189cloud_write_auth_ui_hints.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_write_auth_ui_hints.py) 已验证 189Cloud 授权表单已暴露 `accessToken/signature/date` 字段，capture hints 与 remediation patch 命令也会明确提示账号级写鉴权所需字段
   - [verify_patch_189cloud_account_auth.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_189cloud_account_auth.py) 已验证 `patch_189cloud_account_auth.py` 可从原始 header 文本提取 `accessToken/signature/date`，并按 `profileId` 真实写回 189Cloud 档案的 `extra`
   - [verify_189cloud_account_auth_create_dir.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_account_auth_create_dir.py) 已验证 `tianyi_live.fetch_tianyi_create_folder()` 会按 `POST https://cloud.189.cn/api/open/file/createFolder.action` 发起请求，并带上 `AccessToken/Accesstoken/Signature/Date` 头与 `parentFolderId/folderName` 表单体
+  - [verify_189cloud_fast_upload_candidate_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_fast_upload_candidate_evidence.py) 已验证 `189cloud` 任务运行会在 `fast_upload` 分支产出 `executionMode=probe`、`liveAttempt.mode=189cloud_fast_upload_candidate`、`hashKind=md5` 的候选样本，并把该 probe-only 证据写入 `task_runtime_evidence` 与 `real_evidence_report`
   - 当前本地两个 Guangya smoke 档案已可通过 `POST /api/auth/profiles/{id}/validate` 被判定为 `status=invalid`、`lastError=missing_parent_id`
   - 当前本地 `2` 个 Guangya smoke 档案也已可通过 `patch_auth_profile_extra.py --provider-key guangya --display-name-contains smoke --set parentId=...` 被 dry-run 命中，后续拿到真实 `parentId` 后可直接批量回填
 

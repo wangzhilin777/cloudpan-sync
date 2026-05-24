@@ -1194,13 +1194,16 @@ function renderTaskList() {
           const verifyText = row.liveAttempt?.verifyMode
             ? `, verify=${row.liveAttempt.verifyOk ? "ok" : "pending"}:${row.liveAttempt.verifyMode}`
             : "";
+          const verifyNoteText = row.liveAttempt?.verifyNote
+            ? `, verifyNote=${row.liveAttempt.verifyNote}`
+            : "";
           const conflictText = row.liveAttempt?.conflictAction
             ? `, conflict=${row.liveAttempt.conflictAction}:${row.liveAttempt.resolvedTargetName || "(same)"}`
             : "";
           const conflictSupportText = row.conflictSupportStatus
             ? `, conflictSupport=${row.conflictSupportStatus}`
             : "";
-          return `${row.path}: ${row.status}${executionText}${modeText}${verifyText}${conflictText}${conflictSupportText}${authText}${errorText}${riskText}`;
+          return `${row.path}: ${row.status}${executionText}${modeText}${verifyText}${verifyNoteText}${conflictText}${conflictSupportText}${authText}${errorText}${riskText}`;
         })
         .join(" | ");
       const resultMeta = document.createElement("div");

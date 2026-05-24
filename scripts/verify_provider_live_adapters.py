@@ -197,9 +197,18 @@ def verify_aliyun_open() -> dict[str, object]:
 
 
 def verify_189cloud() -> dict[str, object]:
-    profile = SimpleNamespace(
+    share_profile = SimpleNamespace(
         profileId="189-test",
         extra={"shareCode": "share-demo", "fileId": "root-file", "pathPrefix": "/189cloud-share"},
+    )
+    write_profile = SimpleNamespace(
+        profileId="189-write-test",
+        token="access-token-demo",
+        extra={
+            "signature": "sig-demo",
+            "date": "Sat, 24 May 2026 00:00:00 GMT",
+            "fileId": "root-file",
+        },
     )
 
     def fake_share_info(share_code: str):
@@ -225,18 +234,28 @@ def verify_189cloud() -> dict[str, object]:
             },
         }
 
-    with patched_attr(tianyi_live, "get_profile", lambda profile_id: profile):
+    def fake_get_profile(profile_id: str):
+        if profile_id == "189-write-test":
+            return write_profile
+        return share_profile
+
+    def fake_create_request(access_token: str, signature: str, date_value: str, parent_id: str, dir_name: str):
+        return 200, {"res_code": 0, "id": "dir-189-1", "name": dir_name}
+
+    with patched_attr(tianyi_live, "get_profile", fake_get_profile):
         with patched_attr(tianyi_live, "_fetch_share_info", fake_share_info):
             with patched_attr(tianyi_live, "_fetch_share_id", fake_share_id):
                 with patched_attr(tianyi_live, "_fetch_dir_page", fake_dir_page):
-                    list_result = tianyi_live.fetch_tianyi_live_list("189-test", file_id="root-file", page_size=50)
-                    meta_result = tianyi_live.fetch_tianyi_live_metadata("189-test", file_id="file-1")
-                    create_result = tianyi_live.fetch_tianyi_create_folder("189-test", parent_id="root-file", dir_name="demo-dir")
+                    with patched_attr(tianyi_live, "_request_create_folder", fake_create_request):
+                        list_result = tianyi_live.fetch_tianyi_live_list("189-test", file_id="root-file", page_size=50)
+                        meta_result = tianyi_live.fetch_tianyi_live_metadata("189-test", file_id="file-1")
+                        create_result = tianyi_live.fetch_tianyi_create_folder("189-write-test", parent_id="root-file", dir_name="demo-dir")
     return {
         "list_ok": list_result.ok,
         "metadata_ok": meta_result.ok,
         "create_ok": create_result.ok,
         "create_mode": create_result.mode,
+        "create_file_id": ((create_result.payload or {}).get("item") or {}).get("fileId", ""),
         "metadata_md5": meta_result.payload.get("entry", {}).get("md5", ""),
     }
 
@@ -442,6 +461,21 @@ def verify_uc() -> dict[str, object]:
 
 
 def verify_probe_and_matrix() -> dict[str, object]:
+    def registry_profile(provider_key: str, display_name: str, auth_modes: list[str]) -> SimpleNamespace:
+        return SimpleNamespace(
+            profile=SimpleNamespace(
+                providerKey=provider_key,
+                displayName=display_name,
+                authModes=auth_modes,
+                status="researching",
+                conflictPolicies=[],
+                supportsOverwrite=False,
+                supportsAutoRename=False,
+                overwriteBehavior="",
+                conflictNotes="",
+            )
+        )
+
     provider_profiles = {
         "guangya": SimpleNamespace(profileId="gy-profile", providerKey="guangya"),
         "aliyundrive_open": SimpleNamespace(profileId="ali-profile", providerKey="aliyundrive_open"),
@@ -456,17 +490,22 @@ def verify_probe_and_matrix() -> dict[str, object]:
     }
 
     registry_profiles = [
-        SimpleNamespace(profile=SimpleNamespace(providerKey="guangya", displayName="Guangya", authModes=["manual_token"], status="researching")),
-        SimpleNamespace(profile=SimpleNamespace(providerKey="aliyundrive_open", displayName="Aliyun Drive Open", authModes=["official_oauth"], status="researching")),
-        SimpleNamespace(profile=SimpleNamespace(providerKey="189cloud", displayName="189Cloud", authModes=["web_login_capture"], status="researching")),
-        SimpleNamespace(profile=SimpleNamespace(providerKey="baidu_netdisk", displayName="Baidu Netdisk", authModes=["manual_token"], status="researching")),
-        SimpleNamespace(profile=SimpleNamespace(providerKey="123_open", displayName="123Pan Open", authModes=["manual_token"], status="researching")),
-        SimpleNamespace(profile=SimpleNamespace(providerKey="115_open", displayName="115 Open", authModes=["manual_cookie"], status="researching")),
-        SimpleNamespace(profile=SimpleNamespace(providerKey="xunlei", displayName="Xunlei Drive", authModes=["manual_token"], status="researching")),
-        SimpleNamespace(profile=SimpleNamespace(providerKey="pikpak", displayName="PikPak", authModes=["manual_token"], status="researching")),
-        SimpleNamespace(profile=SimpleNamespace(providerKey="quark", displayName="Quark", authModes=["manual_cookie"], status="researching")),
-        SimpleNamespace(profile=SimpleNamespace(providerKey="uc", displayName="UC Drive", authModes=["manual_cookie"], status="researching")),
+        registry_profile("guangya", "Guangya", ["manual_token"]),
+        registry_profile("aliyundrive_open", "Aliyun Drive Open", ["official_oauth"]),
+        registry_profile("189cloud", "189Cloud", ["web_login_capture"]),
+        registry_profile("baidu_netdisk", "Baidu Netdisk", ["manual_token"]),
+        registry_profile("123_open", "123Pan Open", ["manual_token"]),
+        registry_profile("115_open", "115 Open", ["manual_cookie"]),
+        registry_profile("xunlei", "Xunlei Drive", ["manual_token"]),
+        registry_profile("pikpak", "PikPak", ["manual_token"]),
+        registry_profile("quark", "Quark", ["manual_cookie"]),
+        registry_profile("uc", "UC Drive", ["manual_cookie"]),
     ]
+    registry_profiles[0].profile.conflictPolicies = ["overwrite_existing", "auto_rename_new"]
+    registry_profiles[0].profile.supportsAutoRename = True
+    registry_profiles[0].profile.overwriteBehavior = "downgrade_to_auto_rename"
+    registry_profiles[0].profile.conflictNotes = "guangya note"
+    registry_profiles[2].profile.overwriteBehavior = "readonly_auth_blocked"
 
     research_rows = [{"providerKey": profile.profile.providerKey, "status": "researching"} for profile in registry_profiles]
     saved_probes = [

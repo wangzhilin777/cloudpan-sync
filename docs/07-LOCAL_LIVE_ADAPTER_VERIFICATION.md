@@ -19,8 +19,9 @@
 ## 189cloud
 - list_ok: `True`
 - metadata_ok: `True`
-- create_ok: `False`
-- create_mode: `unsupported_readonly_share_auth`
+- create_ok: `True`
+- create_mode: `live_account_auth`
+- create_file_id: `dir-189-1`
 - metadata_md5: `0123456789abcdef0123456789abcdef`
 
 ## baidu_netdisk
@@ -80,7 +81,7 @@
 ## Matrix Rows
 - 115_open: `list_ready=True` `metadata_ready=True` `create_dir_ready=True` `live_probe_ok=True`
 - 123_open: `list_ready=True` `metadata_ready=True` `create_dir_ready=True` `live_probe_ok=True`
-- 189cloud: `list_ready=True` `metadata_ready=True` `create_dir_ready=False` `live_probe_ok=True`
+- 189cloud: `list_ready=True` `metadata_ready=True` `create_dir_ready=True` `live_probe_ok=True`
 - aliyundrive_open: `list_ready=True` `metadata_ready=True` `create_dir_ready=True` `live_probe_ok=True`
 - baidu_netdisk: `list_ready=True` `metadata_ready=True` `create_dir_ready=True` `live_probe_ok=True`
 - guangya: `list_ready=True` `metadata_ready=True` `create_dir_ready=True` `live_probe_ok=True`

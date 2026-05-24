@@ -51,9 +51,27 @@ def main() -> None:
                 error="share_auth_readonly",
             ),
         ):
-            result = client.post(
+            readonly_result = client.post(
                 "/api/providers/189cloud/create_dir",
                 json={"profileId": "189-profile", "parentId": "root-file", "dirName": "demo-dir"},
+            ).json()
+
+        with patched_attr(
+            webapp,
+            "fetch_tianyi_create_folder",
+            lambda profile_id, parent_id="", dir_name="": SimpleNamespace(
+                ok=True,
+                mode="live_account_auth",
+                profileId=profile_id,
+                status=200,
+                note="189Cloud live create folder succeeded with account-level OAuth headers.",
+                payload={"parentId": parent_id, "item": {"fileId": "189-dir-1", "name": dir_name}},
+                error="",
+            ),
+        ):
+            account_result = client.post(
+                "/api/providers/189cloud/create_dir",
+                json={"profileId": "189-write-profile", "parentId": "root-file", "dirName": "demo-dir"},
             ).json()
     finally:
         webapp.ADMIN_PASSWORD = original_password
@@ -61,9 +79,16 @@ def main() -> None:
     print(
         json.dumps(
             {
-                "mode": result.get("mode"),
-                "fallbackReason": result.get("fallbackReason"),
-                "requiredAuth": result.get("requiredAuth"),
+                "readonly": {
+                    "mode": readonly_result.get("mode"),
+                    "fallbackReason": readonly_result.get("fallbackReason"),
+                    "requiredAuth": readonly_result.get("requiredAuth"),
+                },
+                "accountAuth": {
+                    "mode": account_result.get("mode"),
+                    "fileId": ((account_result.get("item") or {}).get("fileId")),
+                    "parentId": account_result.get("parentId"),
+                },
             },
             ensure_ascii=False,
             indent=2,

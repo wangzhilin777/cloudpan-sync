@@ -100,8 +100,8 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
         )
     if provider_key == "189cloud":
         return (
-            "runtime_blocked",
-            "Current task runtime now records an explicit 189Cloud create_dir blocked probe, but the shareCode/accessCode path is still read-only until account-level OAuth write auth is wired.",
+            "runtime_candidate",
+            "Current task runtime can now attempt 189Cloud create_dir with account-level OAuth headers, but shareCode/accessCode-only profiles still remain read-only and no successful runtime sample has been verified yet.",
         )
     return (
         "runtime_planned",
@@ -117,7 +117,7 @@ def build_status_matrix() -> dict[str, object]:
     runtime_rows = _runtime_summary_by_provider()
     live_list_ready = {"guangya", "aliyundrive_open", "189cloud", "123_open", "115_open", "xunlei", "quark", "uc", "pikpak", "baidu_netdisk"}
     live_metadata_ready = {"guangya", "aliyundrive_open", "189cloud", "123_open", "115_open", "xunlei", "quark", "uc", "pikpak", "baidu_netdisk"}
-    live_create_dir_ready = {"guangya", "aliyundrive_open", "123_open", "115_open", "xunlei", "pikpak", "baidu_netdisk", "quark", "uc"}
+    live_create_dir_ready = {"guangya", "aliyundrive_open", "189cloud", "123_open", "115_open", "xunlei", "pikpak", "baidu_netdisk", "quark", "uc"}
 
     items: list[dict[str, object]] = []
     for provider_key, profile in registry.items():

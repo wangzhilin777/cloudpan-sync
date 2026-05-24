@@ -62,8 +62,8 @@ def run_plan_audit() -> dict[str, object]:
             key="M5",
             title="首批常用网盘接入",
             status="partial",
-            evidence=f"首批 provider 已补齐到 {provider_count} 个，研究索引 {research_count} 条；其中 aliyundrive_open 已支持基于已保存 access token + domainId/driveId 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；123_open 已支持基于已保存 token 的真实 list/metadata(parentFileId scoped)/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；115_open 已支持基于已保存 cookie 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；xunlei 已支持基于 token + device headers 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；pikpak 已支持基于 token 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；baidu_netdisk 已支持基于 access token 或 cookie 的保守 live list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；quark 与 uc 已支持基于 cookie + pwdId 的分享链路 live list/metadata(MD5 via file/download) 与 create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；189cloud 已支持基于分享参数的真实 list/metadata 尝试，并且任务运行阶段现已接入显式 create_dir blocked probe，会把 shareCode/accessCode 只读限制与 `AccessToken/Signature/Date` 这类账号级写鉴权缺口落成真实 runtime 样本；状态矩阵现已额外显式量化 create_dir 能力以及 task runtime 轨道，当前可区分 `runtime_active / runtime_candidate / runtime_blocked`。",
-            gaps="当前仅剩 189Cloud 仍缺真正可写成功的任务运行链路；它虽然已能在 runtime 样本里显式暴露 blocked probe 与所需鉴权头，但仍停留在 shareCode/accessCode 只读链路，尚未接入账号级 OAuth 写接口。Quark/UC 的 upload 链路还未接入，百度与 PikPak 的秒传证据也还缺失。",
+            evidence=f"首批 provider 已补齐到 {provider_count} 个，研究索引 {research_count} 条；其中 aliyundrive_open 已支持基于已保存 access token + domainId/driveId 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；123_open 已支持基于已保存 token 的真实 list/metadata(parentFileId scoped)/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；115_open 已支持基于已保存 cookie 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；xunlei 已支持基于 token + device headers 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；pikpak 已支持基于 token 的真实 list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；baidu_netdisk 已支持基于 access token 或 cookie 的保守 live list/metadata/create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；quark 与 uc 已支持基于 cookie + pwdId 的分享链路 live list/metadata(MD5 via file/download) 与 create_dir 尝试，并在任务运行阶段补上真实 create_dir 写探针；189cloud 已支持基于分享参数的真实 list/metadata 尝试，且 `createFolder.action` 现已接入账号级 `AccessToken/Signature/Date` 写目录尝试，share-only 场景仍会诚实返回只读阻断；状态矩阵现已额外显式量化 create_dir 能力以及 task runtime 轨道，当前可区分 `runtime_active / runtime_candidate / runtime_blocked`。",
+            gaps="189Cloud 目前仍缺真实在线成功样本与稳定的账号级签名来源；shareCode/accessCode-only 档案依旧不可写。Quark/UC 的 upload 链路还未接入，百度与 PikPak 的秒传证据也还缺失。",
         ),
         AuditItem(
             key="M6",
@@ -83,7 +83,7 @@ def run_plan_audit() -> dict[str, object]:
             key="P-REAL",
             title="真实联调验证",
             status="todo",
-            evidence="已具备本地 mock 验证链路，并新增真实证据状态报告与任务运行真实样本持久化能力，可按 provider 量化当前已保存的 auth/list/metadata/create_dir/task_runtime 真实证据覆盖；其中 Guangya 已接真实上传链路，aliyundrive_open、123_open、115_open、xunlei、pikpak、baidu_netdisk、quark 与 uc 已接任务运行阶段真实 create_dir 写探针，189cloud 也已能落出显式 blocked probe 样本与所需鉴权头。",
+            evidence="已具备本地 mock 验证链路，并新增真实证据状态报告与任务运行真实样本持久化能力，可按 provider 量化当前已保存的 auth/list/metadata/create_dir/task_runtime 真实证据覆盖；其中 Guangya 已接真实上传链路，aliyundrive_open、123_open、115_open、xunlei、pikpak、baidu_netdisk、quark 与 uc 已接任务运行阶段真实 create_dir 写探针，189cloud 也已能在 share-only 场景落出 blocked probe 样本，并在账号级鉴权齐备时发起 createFolder.action 写目录尝试。",
             gaps="尚未提供首批 provider 的真实联调成功证据（认证、目录、元数据、秒传/降级路径）；任务运行阶段虽已支持成功/失败样本持久化，但当前仍缺足够的真实成功样本来收敛 P-REAL。",
         ),
     ]

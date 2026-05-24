@@ -59,6 +59,7 @@
   - 已新增 auth remediation bundle 接口 `GET /api/auth/remediation_bundle`、Markdown 接口 `GET /api/auth/remediation_bundle_markdown` 与导出脚本 [export_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_auth_remediation_bundle.py)，可把当前全部 auth profile 的 readiness 缺口和建议补字段命令汇总到 [09-AUTH_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/09-AUTH_REMEDIATION_GUIDE.md)，方便为 Guangya/阿里/夸克等 provider 的真实联调先补齐最关键字段
   - auth profile 视图、单档案 evidence 与 remediation bundle 现已区分 `profileReady` 与 `writeReady`：像 `189cloud` 这类当前仅具备 shareCode/accessCode 只读链路的档案，会明确返回 `writeReady=false`、`writeMissingFieldHints` 与 `writeBlockerNote`，不再把“能读但不能写”混成一个 readiness 状态
   - `189cloud` 当前已把“只读 share 链路”和“账号级写鉴权”拆开提示：capture hints、remediation patch 命令与前端本地 patch hint 都会明确写出 `shareCode` 只覆盖读探测，而写目录仍需 `token/accessToken + signature + date`
+  - `189cloud` 当前已接入账号级 `createFolder.action` 写目录尝试：当档案具备 `token/accessToken + signature + date` 时，会走账号级 headers 发起真实 create_dir 请求；若仍是 shareCode/accessCode-only 档案，则继续诚实返回只读阻断
 - 当前验证证据：
   - `POST /api/auth/profiles` 现会在保存时同步返回结构化 `validation` 结果，并据此写入 profile `status`
   - `POST /api/auth/profiles/{id}/validate` 现会返回结构化 `validation` 结果，并据此更新 profile `status`
@@ -80,6 +81,7 @@
   - [verify_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_remediation_bundle.py) 已验证 remediation bundle API、`/remediation_bundle_markdown` 与 Markdown 导出会同时带出 `profileCount/readyCount/needsFixCount` 和建议补字段命令
   - [verify_auth_profile_write_readiness.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_write_readiness.py) 已验证 `189cloud` share-only 档案在 `/api/auth/profiles`、单档案 evidence API 与 Markdown 导出里都会暴露 `writeReady=false`、`writeMissingFieldHints` 与 `writeBlockerNote`
   - [verify_189cloud_write_auth_ui_hints.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_write_auth_ui_hints.py) 已验证 189Cloud 授权表单已暴露 `accessToken/signature/date` 字段，capture hints 与 remediation patch 命令也会明确提示账号级写鉴权所需字段
+  - [verify_189cloud_account_auth_create_dir.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_account_auth_create_dir.py) 已验证 `tianyi_live.fetch_tianyi_create_folder()` 会按 `POST https://cloud.189.cn/api/open/file/createFolder.action` 发起请求，并带上 `AccessToken/Accesstoken/Signature/Date` 头与 `parentFolderId/folderName` 表单体
   - 当前本地两个 Guangya smoke 档案已可通过 `POST /api/auth/profiles/{id}/validate` 被判定为 `status=invalid`、`lastError=missing_parent_id`
   - 当前本地 `2` 个 Guangya smoke 档案也已可通过 `patch_auth_profile_extra.py --provider-key guangya --display-name-contains smoke --set parentId=...` 被 dry-run 命中，后续拿到真实 `parentId` 后可直接批量回填
 
@@ -154,6 +156,7 @@
   - Guangya fallback 真上传成功后，现会继续做 post-upload verify：优先使用返回 `fileId` 做 live metadata 确认，拿不到 `fileId` 时退回 `parentId + 文件名` 的 live list 确认
   - Guangya fallback 真上传前现在会先检查目标目录同名文件；若用户选择 `auto_rename_new` 则自动改名上传，若用户选择 `overwrite_existing` 但当前链路不支持真覆盖，则会诚实降级为自动改名，并把降级动作写回任务结果
   - `189cloud` 当前已补上显式 runtime blocked probe 分支：即使 shareCode/accessCode 链路仍然只读，运行期结果与 task runtime evidence 也会明确落出 `189cloud_create_dir_probe`、`share_auth_readonly` 与所需 `AccessToken/Signature/Date`
+  - `189cloud` 当前也已支持账号级写目录 success path：`/api/providers/189cloud/create_dir` 在档案具备 `token/accessToken + signature + date` 时可返回 `mode=live`，provider 状态矩阵则改为 `runtime_candidate`，表示代码链路已可尝试但仍缺真实成功样本
 - 当前验证证据：
   - 任务动作流 `resume -> run -> retry -> pause` 返回状态依次可用
   - [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 包含 `pendingPanel`、`providersPanel`、`settingsPanel`
@@ -180,6 +183,7 @@
   - [verify_task_summary_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_summary_api.py) 已验证 `blocked / awaiting_ack / acknowledge_risk 后 ready` 三种任务状态都会返回同步更新的 `summary`，其中 `allowedActions / awaitingAcknowledgement / riskReason` 等关键字段会随状态转换正确变化
   - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了前端已开始优先读取 `task.summary`，包括 `summary.state` 与 `summary.lastActionError`
   - [verify_189cloud_runtime_probe_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_runtime_probe_evidence.py) 已验证 `189cloud` runtime 分支会落出 `executionMode=probe` 的失败样本，并把 `189cloud_create_dir_probe / share_auth_readonly / requiredAuth=[AccessToken,Signature,Date]` 同步写入 task runtime evidence、real evidence report 与 provider status matrix
+  - [verify_189cloud_create_dir_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_create_dir_api.py) 现已同时验证 `189cloud` 的只读 share 场景会返回 `unsupported_readonly_share_auth`，而账号级写鉴权场景会返回 `mode=live` 与新目录 `fileId`
   - [verify_task_action_guards.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_action_guards.py) 现还额外验证了 `POST /api/tasks/{id}/action` 在 `awaiting_ack` 任务上返回 `actionApplied=false`、结构化 `actionError`，并同步返回当前 `allowedActions=["acknowledge_risk","retry"]`
   - [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现还额外验证了前端任务按钮来源已切到 `task.summary.allowedActions`
   - [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 已验证 `POST /api/tasks` 会返回 `item + listView + detailView`，`GET /api/tasks` 会返回 `items + listItems`，`GET /api/tasks/{id}` 与 `POST /api/tasks/{id}/action` 会继续返回 `listView/detailView`，且 `detailView` 已稳定带出 `planSummary / executionGroups / pendingItems / results / sourceEntries`；当前 mock 执行分支还会显式回传 `results[].executionMode=mock`
@@ -257,8 +261,8 @@
   - 本地可控验证导出脚本 `scripts/export_local_live_adapter_verification.py`
   - 探测报告文档 `docs/05-PROVIDER_LIVE_PROBE_REPORT.md`
   - 本地可控验证文档 `docs/07-LOCAL_LIVE_ADAPTER_VERIFICATION.md`
-  - `guangya`、`aliyundrive_open`、`189cloud`、`baidu_netdisk`、`123_open`、`115_open`、`xunlei`、`pikpak`、`quark`、`uc` 都已接入 profile 级 live probe；其中 Guangya、阿里云盘 Open、百度、迅雷、PikPak、123、115、Quark、UC 当前覆盖到 `list / metadata / create_dir`，`189cloud` 当前仍是 `list / metadata`，并会在 `create_dir` 探测里明确返回“当前 shareCode/accessCode 链路只读”
-  - 已新增 `POST /api/providers/189cloud/create_dir`，当前会诚实返回 `unsupported_readonly_share_auth`，并附带 `AccessToken/Signature/Date` 这类账号级写接口所需鉴权提示，而不是伪装成已支持写目录
+  - `guangya`、`aliyundrive_open`、`189cloud`、`baidu_netdisk`、`123_open`、`115_open`、`xunlei`、`pikpak`、`quark`、`uc` 都已接入 profile 级 live probe；其中 Guangya、阿里云盘 Open、百度、迅雷、PikPak、123、115、Quark、UC 当前覆盖到 `list / metadata / create_dir`，`189cloud` 现也已补上账号级 `create_dir` 尝试，而 share-only 档案仍会在 `create_dir` 探测里明确返回只读阻断
+  - 已新增 `POST /api/providers/189cloud/create_dir` 的双轨行为：share-only 档案会诚实返回 `unsupported_readonly_share_auth` 与 `AccessToken/Signature/Date` 提示，账号级鉴权齐备时则会走 `createFolder.action` 尝试真实写目录
   - 已新增 `POST /api/providers/quark/create_dir` 与 `POST /api/providers/uc/create_dir`，可基于已保存 cookie 直接尝试 live 建目录，并把结果返回给前端或脚本侧调用方
 - 当前验证证据：
   - `GET /api/providers/live_probe` 返回 `providerCount=10, totalChecks=12, failedChecks=0`
@@ -272,7 +276,7 @@
   - [07-LOCAL_LIVE_ADAPTER_VERIFICATION.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/07-LOCAL_LIVE_ADAPTER_VERIFICATION.md) 可落盘保存当前本地可控验证快照
   - 本地可控验证已覆盖 `guangya` 的 `3` 个 probe checks 并返回 `probe_ok=True`
   - 本地可控验证已覆盖 `aliyundrive_open` 的 `3` 个 probe checks 并返回 `probe_ok=True`
-  - 本地可控验证已覆盖 `189cloud` 的 `3` 个 probe checks，其中 `list/metadata` 返回成功，`create_dir` 会明确返回 `unsupported_readonly_share_auth`
+  - 本地可控验证已覆盖 `189cloud` 的 `3` 个 probe checks，其中 share profile 下 `list/metadata` 返回成功，账号级鉴权 profile 下 `create_dir` 可返回 `create_ok=True`
   - 本地可控验证已覆盖 `baidu_netdisk` 的 `3` 个 probe checks 并返回 `probe_ok=True`
   - 本地可控验证已覆盖 `123_open` 的 `3` 个 probe checks 并返回 `probe_ok=True`
   - 本地可控验证已覆盖 `115_open` 的 `3` 个 probe checks 并返回 `probe_ok=True`

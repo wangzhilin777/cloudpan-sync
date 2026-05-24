@@ -53,7 +53,7 @@ def build_provider_registry() -> list[ProviderAdapter]:
             fastUploadInputs=["md5", "size"],
             fallbackModes=["download_upload"],
             overwriteBehavior="readonly_auth_blocked",
-            conflictNotes="当前 189Cloud 仅验证到 shareCode/accessCode 只读链路，写入链路未就绪，因此不能承诺覆盖或自动重命名。",
+            conflictNotes="当前 189Cloud 已接入账号级 create_dir 写目录尝试，但 shareCode/accessCode-only 档案仍然只读，真实文件上传与同名冲突处理仍未声明为已支持。",
             status="researching",
         ),
         ProviderProfile(

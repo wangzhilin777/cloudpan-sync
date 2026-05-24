@@ -40,6 +40,16 @@ def _headers(share_code: str, form: bool = False) -> dict[str, str]:
     return headers
 
 
+def _account_write_headers(access_token: str, signature: str, date_value: str, form: bool = False) -> dict[str, str]:
+    headers = _headers("", form=form)
+    headers["AccessToken"] = access_token
+    headers["Accesstoken"] = access_token
+    headers["Signature"] = signature
+    headers["Date"] = date_value
+    headers["Timestamp"] = date_value
+    return headers
+
+
 def _request_json(url: str, method: str = "GET", headers: dict[str, str] | None = None, body: str = "") -> tuple[int, dict[str, object]]:
     request = Request(
         url=url,
@@ -138,6 +148,52 @@ def _fetch_dir_page(share_code: str, share_id: str, share_mode: int, file_id: st
     return _request_json(
         f"https://cloud.189.cn/api/open/share/listShareDir.action?{query}",
         headers=_headers(share_code),
+    )
+
+
+def _account_auth_fields(profile: object) -> tuple[str, str, str]:
+    extra = getattr(profile, "extra", {}) or {}
+    access_token = _text(
+        getattr(profile, "token", "")
+        or extra.get("authorization")
+        or extra.get("Authorization")
+        or extra.get("accessToken")
+        or extra.get("access_token")
+    )
+    signature = _text(extra.get("signature") or extra.get("Signature"))
+    date_value = _text(extra.get("date") or extra.get("Date"))
+    return access_token, signature, date_value
+
+
+def _extract_created_folder_id(payload: dict[str, object]) -> str:
+    candidates = [
+        payload,
+        payload.get("data") if isinstance(payload.get("data"), dict) else {},
+        payload.get("createFolderVO") if isinstance(payload.get("createFolderVO"), dict) else {},
+        (payload.get("data") or {}).get("createFolderVO") if isinstance(payload.get("data"), dict) else {},
+    ]
+    for candidate in candidates:
+        if not isinstance(candidate, dict):
+            continue
+        for key in ("id", "fileId", "folderId", "folderID", "fileID"):
+            value = _text(candidate.get(key))
+            if value:
+                return value
+    return ""
+
+
+def _request_create_folder(access_token: str, signature: str, date_value: str, parent_id: str, dir_name: str) -> tuple[int, dict[str, object]]:
+    body = urlencode(
+        {
+            "parentFolderId": _text(parent_id),
+            "folderName": _text(dir_name),
+        }
+    )
+    return _request_json(
+        "https://cloud.189.cn/api/open/file/createFolder.action",
+        method="POST",
+        headers=_account_write_headers(access_token, signature, date_value, form=True),
+        body=body,
     )
 
 
@@ -276,6 +332,143 @@ def fetch_tianyi_create_folder(profile_id: str, parent_id: str = "", dir_name: s
     if profile is None:
         return TianyiLiveResult(False, "profile_missing", False, profile_id, 0, "profile_not_found", "Saved 189Cloud auth profile was not found.", {})
 
+    normalized_parent_id = _text(parent_id or getattr(profile, "extra", {}).get("parentId") or getattr(profile, "extra", {}).get("fileId"))
+    normalized_dir_name = _text(dir_name)
+    if not normalized_parent_id:
+        return TianyiLiveResult(
+            False,
+            "profile_incomplete",
+            True,
+            profile.profileId,
+            0,
+            "missing_parent_id",
+            "189Cloud create folder requires parentId or auth profile extra.parentId/fileId.",
+            {
+                "parentId": "",
+                "dirName": normalized_dir_name,
+                "requiredAuth": ["AccessToken", "Signature", "Date"],
+            },
+        )
+    if not normalized_dir_name:
+        return TianyiLiveResult(
+            False,
+            "input_missing",
+            True,
+            profile.profileId,
+            0,
+            "missing_dir_name",
+            "189Cloud create folder requires a non-empty dirName.",
+            {
+                "parentId": normalized_parent_id,
+                "dirName": "",
+                "requiredAuth": ["AccessToken", "Signature", "Date"],
+            },
+        )
+
+    access_token, signature, date_value = _account_auth_fields(profile)
+    if access_token and signature and date_value:
+        try:
+            status, payload = _request_create_folder(access_token, signature, date_value, normalized_parent_id, normalized_dir_name)
+            ok, code = _assert_success(payload)
+            if not ok:
+                return TianyiLiveResult(
+                    False,
+                    "live_error",
+                    True,
+                    profile.profileId,
+                    status,
+                    f"create_dir_failed:{code}",
+                    "189Cloud createFolder.action reached the API but did not report success.",
+                    {
+                        "parentId": normalized_parent_id,
+                        "dirName": normalized_dir_name,
+                        "requiredAuth": ["AccessToken", "Signature", "Date"],
+                        "raw": payload,
+                    },
+                )
+            created_id = _extract_created_folder_id(payload)
+            return TianyiLiveResult(
+                True,
+                "live_account_auth",
+                True,
+                profile.profileId,
+                status,
+                "",
+                "189Cloud live create folder succeeded with account-level OAuth headers.",
+                {
+                    "parentId": normalized_parent_id,
+                    "item": {
+                        "fileId": created_id,
+                        "parentId": normalized_parent_id,
+                        "name": normalized_dir_name,
+                        "path": normalized_dir_name,
+                        "type": "dir",
+                        "isDir": True,
+                    },
+                    "raw": payload,
+                },
+            )
+        except HTTPError as exc:
+            return TianyiLiveResult(
+                False,
+                "live_error",
+                True,
+                profile.profileId,
+                int(exc.code or 0),
+                f"http_error:{exc.code}",
+                "189Cloud createFolder.action reached the API but was rejected.",
+                {
+                    "parentId": normalized_parent_id,
+                    "dirName": normalized_dir_name,
+                    "requiredAuth": ["AccessToken", "Signature", "Date"],
+                },
+            )
+        except URLError as exc:
+            return TianyiLiveResult(
+                False,
+                "live_error",
+                True,
+                profile.profileId,
+                0,
+                f"url_error:{exc.reason}",
+                "189Cloud createFolder.action could not reach the API endpoint.",
+                {
+                    "parentId": normalized_parent_id,
+                    "dirName": normalized_dir_name,
+                    "requiredAuth": ["AccessToken", "Signature", "Date"],
+                },
+            )
+        except json.JSONDecodeError:
+            return TianyiLiveResult(
+                False,
+                "live_error",
+                True,
+                profile.profileId,
+                200,
+                "invalid_json",
+                "189Cloud createFolder.action returned non-JSON content.",
+                {
+                    "parentId": normalized_parent_id,
+                    "dirName": normalized_dir_name,
+                    "requiredAuth": ["AccessToken", "Signature", "Date"],
+                },
+            )
+        except Exception as exc:  # pragma: no cover
+            return TianyiLiveResult(
+                False,
+                "live_error",
+                True,
+                profile.profileId,
+                0,
+                f"unexpected:{exc}",
+                "189Cloud createFolder.action failed unexpectedly.",
+                {
+                    "parentId": normalized_parent_id,
+                    "dirName": normalized_dir_name,
+                    "requiredAuth": ["AccessToken", "Signature", "Date"],
+                },
+            )
+
     share_code = _text(profile.extra.get("shareCode"))
     if share_code:
         return TianyiLiveResult(
@@ -287,8 +480,8 @@ def fetch_tianyi_create_folder(profile_id: str, parent_id: str = "", dir_name: s
             "share_auth_readonly",
             "189Cloud create folder is not available on the current shareCode/accessCode read-only probe path; official createFolder.action requires account-level OAuth headers.",
             {
-                "parentId": _text(parent_id),
-                "dirName": _text(dir_name),
+                "parentId": normalized_parent_id,
+                "dirName": normalized_dir_name,
                 "requiredAuth": ["AccessToken", "Signature", "Date"],
             },
         )
@@ -302,8 +495,8 @@ def fetch_tianyi_create_folder(profile_id: str, parent_id: str = "", dir_name: s
         "missing_account_level_auth",
         "189Cloud create folder still needs account-level OAuth auth wiring before createFolder.action can be called.",
         {
-            "parentId": _text(parent_id),
-            "dirName": _text(dir_name),
+            "parentId": normalized_parent_id,
+            "dirName": normalized_dir_name,
             "requiredAuth": ["AccessToken", "Signature", "Date"],
         },
     )

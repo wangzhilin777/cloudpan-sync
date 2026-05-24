@@ -72,7 +72,7 @@ def build_provider_research_index() -> list[dict[str, object]]:
             "authModes": ["web_login_capture", "manual_cookie"],
             "status": "researching",
             "lastVerifiedAt": today,
-            "notes": "shareCode/accessCode based live list/metadata attempts are online, but this path is currently read-only; official createFolder.action needs account-level OAuth headers such as AccessToken/Signature/Date, so create_dir is now exposed as an explicit unsupported downgrade until account-level auth wiring is added.",
+            "notes": "shareCode/accessCode based live list/metadata attempts are online, and createFolder.action is now wired for account-level OAuth headers such as AccessToken/Signature/Date; share-only profiles still remain read-only, and stable real success samples are still pending.",
         },
         {
             "providerKey": "baidu_netdisk",

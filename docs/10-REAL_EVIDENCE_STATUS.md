@@ -74,7 +74,7 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `False` samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0 note=当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
-- notes: share-based live list/metadata(MD5 via file/download) attempts are online on the pc-api.uc.cn chain with saved cookie + pwdId, and same-stack cookie-based create_dir attempts are now wired; stable real samples and upload chain are still pending.
+- notes: share-based live list/metadata(MD5 via file/download) attempts are online on the pc-api.uc.cn chain with saved cookie + pwdId, same-stack cookie-based create_dir attempts are now wired, and task runtime can now also attempt rapid upload through upload/pre + update/hash + upload/finish when a usable local file plus md5/sha1 context is available; stable real online samples and ordinary upload chain are still pending.
 
 ## xunlei - Xunlei Drive
 - fullyVerified: `False`

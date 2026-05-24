@@ -109,7 +109,7 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
     if provider_key == "uc":
         return (
             "runtime_active",
-            "Current task runtime now drives a live UC Drive create_dir write probe for download_upload items and a probe-only md5 fast-upload candidate check for fast_upload items; real rapid-upload API execution is still not wired yet.",
+            "Current task runtime now drives a live UC Drive create_dir write probe for download_upload items, and can also attempt UC rapid upload through upload/pre + update/hash + upload/finish for fast_upload items when a usable local file plus md5/sha1 context is available; ordinary local-file upload is still not wired yet.",
         )
     if provider_key == "189cloud":
         return (

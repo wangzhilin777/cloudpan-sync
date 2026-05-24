@@ -25,6 +25,7 @@ from .quark_live import fetch_quark_create_folder
 from .task_guard import evaluate_task_guard
 from .task_runtime_evidence_store import save_task_runtime_evidence
 from .tianyi_live import fetch_tianyi_create_folder
+from .uc_fast_upload_live import upload_uc_fast_file
 from .uc_live import fetch_uc_create_folder
 from .xunlei_live import fetch_xunlei_create_folder
 
@@ -845,13 +846,61 @@ def run_task(task_id: str) -> dict[str, object]:
                 source_entry.get("etag"),
                 normalized.get("etag"),
             ).lower()
-            row_result["executionMode"] = "probe"
-            if md5_value:
+            sha1_value = _first_text(
+                source_entry.get("sha1"),
+                normalized.get("sha1"),
+            ).lower()
+            local_entry = _materialize_local_source_entry(source_entry, path, int(item.get("size", 0) or 0))
+            if local_entry is not None and md5_value:
+                row_result["executionMode"] = "live"
+                upload_result = upload_uc_fast_file(
+                    profile_id=target_profile_id,
+                    local_path=local_entry.localPath,
+                    target_name=PurePosixPath(path or "/").name or Path(local_entry.localPath).name,
+                    parent_id=target_parent_id or "0",
+                    expected_md5=md5_value or local_entry.md5,
+                    expected_sha1=sha1_value or local_entry.sha1,
+                )
+                if upload_result.ok:
+                    done += 1
+                    row_result["status"] = "done"
+                    row_result["note"] = upload_result.note
+                    row_result["liveAttempt"] = {
+                        "mode": upload_result.mode,
+                        "parentId": upload_result.parentId,
+                        "riskHint": upload_result.riskHint,
+                        "payload": upload_result.payload or {},
+                        "verifyOk": upload_result.verifyOk,
+                        "verifyMode": upload_result.verifyMode,
+                        "verifyNote": upload_result.verifyNote,
+                        "verifyPayload": upload_result.verifyPayload or {},
+                        "resolvedTargetName": (upload_result.payload or {}).get("resolvedTargetName", ""),
+                        "conflictAction": (upload_result.payload or {}).get("conflictAction", ""),
+                    }
+                else:
+                    failed += 1
+                    row_result["status"] = "failed"
+                    row_result["note"] = upload_result.note or "UC fast upload failed."
+                    row_result["liveAttempt"] = {
+                        "mode": upload_result.mode or "uc_fast_upload",
+                        "parentId": upload_result.parentId or (target_parent_id or "0"),
+                        "error": upload_result.error,
+                        "riskHint": upload_result.riskHint,
+                        "payload": upload_result.payload or {},
+                        "verifyOk": upload_result.verifyOk,
+                        "verifyMode": upload_result.verifyMode,
+                        "verifyNote": upload_result.verifyNote,
+                        "verifyPayload": upload_result.verifyPayload or {},
+                        "resolvedTargetName": (upload_result.payload or {}).get("resolvedTargetName", ""),
+                        "conflictAction": (upload_result.payload or {}).get("conflictAction", ""),
+                    }
+            elif md5_value:
+                row_result["executionMode"] = "probe"
                 done += 1
                 row_result["status"] = "done"
                 row_result["note"] = (
                     "UC Drive fast-upload candidate confirmed from current md5/size fingerprints. "
-                    "The current runtime only records candidate evidence and does not call a live rapid-upload API yet."
+                    "The current runtime only records candidate evidence because there is no usable local file for a live rapid-upload attempt."
                 )
                 row_result["liveAttempt"] = {
                     "mode": "uc_fast_upload_candidate",
@@ -859,10 +908,10 @@ def run_task(task_id: str) -> dict[str, object]:
                     "candidate": True,
                     "requiredInputs": ["md5", "size"],
                     "hashValue": md5_value,
-                    "riskHint": "",
+                    "riskHint": "A live rapid-upload attempt still requires a usable local file with sha1/md5 context.",
                     "verifyOk": True,
                     "verifyMode": "fingerprint_candidate",
-                    "verifyNote": "Current md5/size fingerprints satisfy UC Drive fast-upload precheck, but runtime remains probe-only.",
+                    "verifyNote": "Current md5/size fingerprints satisfy UC Drive fast-upload precheck, but runtime remains probe-only without a local file.",
                     "verifyPayload": {
                         "md5": md5_value,
                         "size": int(item.get("size", 0) or 0),
@@ -871,6 +920,7 @@ def run_task(task_id: str) -> dict[str, object]:
                     "conflictAction": "",
                 }
             else:
+                row_result["executionMode"] = "probe"
                 failed += 1
                 row_result["status"] = "failed"
                 row_result["note"] = "UC Drive fast-upload candidate probe failed because md5 fingerprint is missing."

@@ -41,7 +41,7 @@
 |  | auto_rename_note |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | Quark task runtime can now perform a live create_dir write probe, but same-name file handling for real file upload is not declared yet. |  |  |
 |  | note |  |  |  |  |  |  |  |  |  |  |  |  | 当前 Quark 已接入任务运行阶段的 create_dir 写探针，但真实文件上传场景下的同名文件冲突处理仍未声明为已支持。 |  |  |  |  |  |
 | uc | list_ready | False | True | True | True | True | False | runtime_active | 0 | 0 | 0 | 0 | 0 | 0 | 0 | False | False | not_implemented | unsupported | probe_only_runtime_write_check | (none) | True |
-|  | runtime_note |  |  |  |  |  |  | Current task runtime now drives a live UC Drive create_dir write probe for download_upload items and a probe-only md5 fast-upload candidate check for fast_upload items; real rapid-upload API execution is still not wired yet. |  |  |  |  |  |  |  |  |  |  |  |
+|  | runtime_note |  |  |  |  |  |  | Current task runtime now drives a live UC Drive create_dir write probe for download_upload items, and can also attempt UC rapid upload through upload/pre + update/hash + upload/finish for fast_upload items when a usable local file plus md5/sha1 context is available; ordinary local-file upload is still not wired yet. |  |  |  |  |  |  |  |  |  |  |  |
 |  | overwrite_note |  |  |  |  |  |  |  |  |  |  |  |  |  |  | 当前 UC Drive 已接入任务运行阶段的 create_dir 写探针，但真实文件上传场景下的同名文件冲突处理仍未声明为已支持。 |  |  |  |
 |  | auto_rename_note |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | UC Drive task runtime can now perform a live create_dir write probe, but same-name file handling for real file upload is not declared yet. |  |  |
 |  | note |  |  |  |  |  |  |  |  |  |  |  |  | 当前 UC Drive 已接入任务运行阶段的 create_dir 写探针，但真实文件上传场景下的同名文件冲突处理仍未声明为已支持。 |  |  |  |  |  |

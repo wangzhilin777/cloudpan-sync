@@ -20,6 +20,8 @@ def main() -> None:
                 "jsRenderTaskListShowsRiskReason": "summary.riskReason" in app_js and 'appendTaskGuardPill(guardRow, `risk=${summary.riskReason}`, "warning");' in app_js,
                 "jsRenderTaskListShowsAwaitingAcknowledgement": "summary.awaitingAcknowledgement" in app_js and 'appendTaskGuardPill(guardRow, "awaitingAcknowledgement=true", "ack");' in app_js,
                 "jsRenderTaskListShowsRiskPaused": "summary.riskPaused" in app_js and 'appendTaskGuardPill(guardRow, "riskPaused=true", "warning");' in app_js,
+                "jsRenderTaskListShowsTargetProfileReadiness": 'const targetProfile = guard.targetProfile || {};' in app_js and 'appendTaskGuardPill(guardRow, "targetProfileReady=false", "warning");' in app_js and 'appendTaskGuardPill(guardRow, "targetWriteReady=false", "blocking");' in app_js,
+                "jsRenderTaskListShowsTargetProfileMissingHints": 'targetProfileMissing=${(targetProfile.missingFieldHints || []).join(" | ") || "(none)"}' in app_js and 'targetWriteMissing=${(targetProfile.writeMissingFieldHints || []).join(" | ") || "(none)"}' in app_js and 'writeBlocker=${targetProfile.writeBlockerNote}' in app_js,
                 "jsRenderTaskListShowsRiskHint": 'row.liveAttempt?.riskHint ? ` - ${row.liveAttempt.riskHint}` : ""' in app_js,
                 "jsRenderTaskListShowsVerifyMode": 'row.liveAttempt?.verifyMode' in app_js and 'verify=${row.liveAttempt.verifyOk ? "ok" : "pending"}:${row.liveAttempt.verifyMode}' in app_js,
                 "jsRenderTaskListShowsVerifyNote": 'row.liveAttempt?.verifyNote' in app_js and 'verifyNote=${row.liveAttempt.verifyNote}' in app_js,

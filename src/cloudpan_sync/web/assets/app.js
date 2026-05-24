@@ -1127,6 +1127,7 @@ function renderTaskList() {
     left.appendChild(meta);
     left.appendChild(detail);
     const guard = task.guard || {};
+    const targetProfile = guard.targetProfile || {};
     const blockingReasons = guard.blockingReasons || [];
     const warningReasons = guard.warningReasons || [];
     const guardRow = document.createElement("div");
@@ -1149,6 +1150,12 @@ function renderTaskList() {
     if (summary.riskPaused) {
       appendTaskGuardPill(guardRow, "riskPaused=true", "warning");
     }
+    if (targetProfile.profileReady === false) {
+      appendTaskGuardPill(guardRow, "targetProfileReady=false", "warning");
+    }
+    if (targetProfile.writeReady === false) {
+      appendTaskGuardPill(guardRow, "targetWriteReady=false", "blocking");
+    }
     const requiresAck = summary.requiresAcknowledgement || guard.requiresAcknowledgement || {};
     const acknowledged = summary.acknowledged || guard.acknowledged || {};
     if (requiresAck?.pendingManual || requiresAck?.downloadUpload) {
@@ -1169,6 +1176,12 @@ function renderTaskList() {
       guardMeta.className = "auth-item-meta";
       guardMeta.textContent = `blocking=${blockingReasons.join(" | ") || "(none)"}, warnings=${warningReasons.join(" | ") || "(none)"}`;
       left.appendChild(guardMeta);
+    }
+    if (targetProfile.profileReady === false || targetProfile.writeReady === false) {
+      const targetProfileMeta = document.createElement("div");
+      targetProfileMeta.className = "auth-item-meta";
+      targetProfileMeta.textContent = `targetProfileMissing=${(targetProfile.missingFieldHints || []).join(" | ") || "(none)"}, targetWriteMissing=${(targetProfile.writeMissingFieldHints || []).join(" | ") || "(none)"}${targetProfile.writeBlockerNote ? `, writeBlocker=${targetProfile.writeBlockerNote}` : ""}`;
+      left.appendChild(targetProfileMeta);
     }
     const lastActionError = summary.lastActionError || task.lastActionError || {};
     if (lastActionError.action || lastActionError.reason) {

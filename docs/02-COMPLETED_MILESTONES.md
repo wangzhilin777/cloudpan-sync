@@ -510,3 +510,5 @@
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` 已显示 `riskReason`
   - 队列页任务守卫行现还额外补上 `awaitingAcknowledgement / riskPaused`，可直接区分“当前仍待确认才能继续”与“已因风险暂停”的状态位
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` 已显示 `awaitingAcknowledgement / riskPaused`
+  - 队列页任务守卫行现也已把 `guard.targetProfile` 的 `profileReady / writeReady` 与缺口提示抬出来，像 `189cloud` share-only 档案这类“目标档案不可写”场景不必再点回授权页才能看懂为什么被硬拦住
+  - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` 已显示 `targetProfileReady / targetWriteReady` 以及对应缺口提示

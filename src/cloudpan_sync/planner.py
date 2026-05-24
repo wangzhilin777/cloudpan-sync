@@ -75,6 +75,7 @@ def build_transfer_plan(
                 "conflictPolicy": item.conflictPolicy,
                 "conflictSupportStatus": item.conflictSupportStatus,
                 "conflictNote": item.conflictNote,
+                "availableFastInputs": item.availableFastInputs,
                 "missingFastInputs": item.missingFastInputs,
             }
         for item in items

@@ -26,6 +26,8 @@ def main() -> None:
                 "jsLoadTasksUsesListItems": 'state.tasks = data.listItems || data.items || [];' in app_js,
                 "jsRenderPendingListCarriesConflictFields": 'conflictSupportStatus: item.conflictSupportStatus || ""' in app_js and 'conflictNote: item.conflictNote || ""' in app_js,
                 "jsRenderPendingListShowsConflictFields": 'const conflictSupportText = row.conflictSupportStatus ? `, conflictSupport=${row.conflictSupportStatus}` : "";' in app_js and 'const conflictNoteText = row.conflictNote ? `, conflictNote=${row.conflictNote}` : "";' in app_js,
+                "jsRenderPendingListCarriesAvailableFastInputs": 'availableFastInputs: item.availableFastInputs || []' in app_js,
+                "jsRenderPendingListShowsAvailableFastInputs": 'available=${row.availableFastInputs.join(",") || "(none)"}' in app_js,
             },
             ensure_ascii=False,
             indent=2,

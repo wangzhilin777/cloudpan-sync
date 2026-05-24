@@ -49,12 +49,39 @@ def main() -> None:
         task_id = str(created_item.get("taskId") or "")
         assert task_id, created
 
+        pending_resp = client.post(
+            "/api/tasks",
+            json={
+                "sourceProvider": "quark",
+                "targetProvider": "guangya",
+                "targetProfileId": "",
+                "targetParentId": "",
+                "thresholdMB": 0,
+                "conflictPolicy": "auto_rename_new",
+                "acknowledgePendingManual": True,
+                "acknowledgeDownloadUpload": False,
+                "selectedRoots": ["/pending.bin"],
+                "entries": [{"path": "/pending.bin", "size": 4, "md5": ""}],
+            },
+        )
+        assert pending_resp.status_code == 200, pending_resp.text
+        pending_created = pending_resp.json()
+        pending_list_view = dict(pending_created.get("listView") or {})
+
         list_resp = client.get("/api/tasks")
         assert list_resp.status_code == 200, list_resp.text
         listed = list_resp.json()
         list_items = list(listed.get("listItems") or [])
         assert list_items, listed
         first_list = dict(list_items[0] or {})
+        pending_list_item = next(
+            (
+                dict(item or {})
+                for item in list_items
+                if str((item or {}).get("taskId") or "") == str(pending_list_view.get("taskId") or "")
+            ),
+            {},
+        )
 
         get_resp = client.get(f"/api/tasks/{task_id}")
         assert get_resp.status_code == 200, get_resp.text
@@ -82,6 +109,12 @@ def main() -> None:
                         "pendingItemsCount": len(created_list.get("pendingItems") or []),
                         "latestResultsCount": len(created_list.get("latestResults") or []),
                     },
+                    "pendingCreateListView": {
+                        "taskId": pending_list_view.get("taskId"),
+                        "state": pending_list_view.get("state"),
+                        "pendingItemsCount": len(pending_list_view.get("pendingItems") or []),
+                        "firstPendingItemHasAvailableFastInputs": isinstance((((pending_list_view.get("pendingItems") or [None])[0]) or {}).get("availableFastInputs"), list),
+                    },
                     "createDetailView": {
                         "taskId": created_detail.get("taskId"),
                         "state": ((created_detail.get("summary") or {}).get("state")),
@@ -99,6 +132,8 @@ def main() -> None:
                         "firstHasProgress": isinstance(first_list.get("progress"), dict),
                         "firstHasPendingItems": isinstance(first_list.get("pendingItems"), list),
                         "firstHasLatestResults": isinstance(first_list.get("latestResults"), list),
+                        "pendingTaskHasPendingItems": isinstance(pending_list_item.get("pendingItems"), list),
+                        "pendingTaskFirstPendingItemHasAvailableFastInputs": isinstance(((((pending_list_item.get("pendingItems") or [None])[0]) or {}).get("availableFastInputs")), list),
                     },
                     "getEndpoint": {
                         "hasListView": bool(fetched_list),

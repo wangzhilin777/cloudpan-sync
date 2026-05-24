@@ -504,3 +504,5 @@
   - [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 现还额外验证了 `/api/tasks` 的 `listItems[].pendingItems` 已返回，且列表视图仍保留 `latestResults`
   - 待处理页现也已把 `pendingItems` 里的 `conflictSupportStatus / conflictNote` 真正透传到渲染层，不再只在代码里准备显示文案却因为 `rows` 丢字段而始终空白
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了待处理页 `renderPendingList()` 已携带并显示 `conflictSupportStatus / conflictNote`
+  - `pendingItems` 现还额外补回 `availableFastInputs`，待处理页可直接同时看到“当前已有指纹”和“仍缺哪些 fast-upload 输入”，不再只剩一侧 `missing`
+  - [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 现还额外验证了真实 `pending_manual` 任务的 `listItems[].pendingItems[].availableFastInputs` 已返回；[verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 也同步验证了待处理页已显示 `available / missing`

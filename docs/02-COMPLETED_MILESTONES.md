@@ -76,6 +76,18 @@
   - [verify_create_live_upload_task_quark_uc.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task_quark_uc.py) 已验证 `create_live_upload_task.py` 对 `quark / uc` 会产出 `state=completed`、`completionKind=real_transfer`、`hasRealTransferSuccess=true`，并写出固定文件名 evidence bundle
   - [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已继续验证 remediation markdown/API 仍能正常生成，并保留 `recommendedLiveUploadCommand / recommendedFastCandidateCommand / recommendedRuntimeProbeCommand` 等字段
 
+### 已完成补齐项 - `2026-05-25`（Runtime Success 命令收口）
+
+- 提交：`本次提交`
+- 完成范围：
+  - `real_evidence_remediation.py` 现已新增统一字段 `recommendedRuntimeSuccessCommand`，用于给“基础证据已齐但还缺 runtime success”的 provider 直接推荐下一条最应该跑的真实成功命令
+  - 该字段会优先选择 `create_live_upload_task.py`，若当前 provider 没有 live helper 但已经具备 fast/runtime 上传链路，则会自动回退到 `create_fast_upload_candidate_task.py`
+  - 这样 `115_open / 189cloud` 这类 fast provider 也不再只有 generic 文案，而能拿到更直接的下一步命令；`guangya / xunlei / pikpak / quark / uc` 等 provider 则继续优先走统一 live helper
+- 当前验证证据：
+  - [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已验证 remediation summary 现新增 `providersWithRuntimeSuccessCommand`
+  - 同一脚本还验证了 `115_open` 会把 `recommendedRuntimeSuccessCommand` 回退到 `create_fast_upload_candidate_task.py`，而 `guangya` 会优先保留 `create_live_upload_task.py`
+  - [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 已随导出同步带出新的 `recommendedRuntimeSuccessCommand` 字段
+
 ### M1 - 独立项目骨架
 
 - 完成日期：`2026-05-23`

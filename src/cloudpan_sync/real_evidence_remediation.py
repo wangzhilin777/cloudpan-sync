@@ -139,6 +139,13 @@ def _live_upload_command_for_profile(profile: dict[str, object]) -> str:
     return " ".join(parts)
 
 
+def _runtime_success_command_for_profile(profile: dict[str, object]) -> str:
+    live_command = _live_upload_command_for_profile(profile)
+    if live_command:
+        return live_command
+    return _fast_candidate_command_for_profile(profile)
+
+
 def _create_command_for_provider(
     *,
     provider_key: str,
@@ -196,7 +203,7 @@ def _next_step(
     runtime_blocked_only: bool,
     runtime_candidate_only: bool,
     runtime_probe_only: bool,
-    runtime_live_upload_command: str,
+    runtime_success_command: str,
 ) -> str:
     if not provider_profiles:
         return f"先创建 `{provider_key}` 的 auth profile，再执行最小 validation 和 live probe。"
@@ -207,8 +214,8 @@ def _next_step(
     if not auth_ok or not list_ok or not metadata_ok or not create_dir_ok:
         return "对现有档案重跑 provider live probe，优先补齐 auth/list/metadata/create_dir 成功证据。"
     if not runtime_ok:
-        if runtime_live_upload_command:
-            return "当前基础证据已齐，可直接运行统一的 live upload helper，优先补一条真实传输成功样本并落任务 JSON/Markdown 快照。"
+        if runtime_success_command:
+            return "当前基础证据已齐，可直接运行统一的 runtime success helper，优先补一条真实传输成功样本并落任务 JSON/Markdown 快照。"
         if runtime_probe_only:
             return "当前只有 probe-only 样本，说明写探针已跑通但尚未形成真实传输成功证据；请在保留探针样本的基础上继续跑小文件真实任务。"
         if runtime_candidate_only:
@@ -251,6 +258,7 @@ def build_real_evidence_remediation_bundle(
         runtime_candidate_only = bool(runtime_evidence.get("candidateCount")) and not bool(runtime_evidence.get("ok"))
         runtime_probe_only = bool(runtime_evidence.get("probeCount")) and not bool(runtime_evidence.get("ok"))
         runtime_live_upload_command = _live_upload_command_for_profile(provider_profiles[0] if provider_profiles else {})
+        runtime_success_command = _runtime_success_command_for_profile(provider_profiles[0] if provider_profiles else {})
         item_payload = {
             "providerKey": provider_key,
             "displayName": str(row.get("displayName") or provider_key),
@@ -285,6 +293,9 @@ def build_real_evidence_remediation_bundle(
             "recommendedFastCandidateCommand": _fast_candidate_command_for_profile(provider_profiles[0] if provider_profiles else {})
             if provider_profiles and profile_ready and write_ready and bool(auth_evidence.get("ok")) and bool(list_evidence.get("ok")) and bool(metadata_evidence.get("ok")) and not bool(runtime_evidence.get("ok"))
             else "",
+            "recommendedRuntimeSuccessCommand": runtime_success_command
+            if provider_profiles and profile_ready and write_ready and bool(auth_evidence.get("ok")) and bool(list_evidence.get("ok")) and bool(metadata_evidence.get("ok")) and bool(create_dir_evidence.get("ok")) and not bool(runtime_evidence.get("ok"))
+            else "",
             "recommendedCreateCommand": _create_command_for_provider(
                 provider_key=provider_key,
                 auth_modes=provider_auth_modes(provider_key),
@@ -310,7 +321,7 @@ def build_real_evidence_remediation_bundle(
                 runtime_blocked_only=runtime_blocked_only,
                 runtime_candidate_only=runtime_candidate_only,
                 runtime_probe_only=runtime_probe_only,
-                runtime_live_upload_command=runtime_live_upload_command,
+                runtime_success_command=runtime_success_command,
             ),
         }
         items.append(item_payload)
@@ -330,6 +341,7 @@ def build_real_evidence_remediation_bundle(
             "providersWithRuntimeProbeCommand": sum(1 for item in items if str(item.get("recommendedRuntimeProbeCommand") or "")),
             "providersWithLiveUploadCommand": sum(1 for item in items if str(item.get("recommendedLiveUploadCommand") or "")),
             "providersWithFastCandidateCommand": sum(1 for item in items if str(item.get("recommendedFastCandidateCommand") or "")),
+            "providersWithRuntimeSuccessCommand": sum(1 for item in items if str(item.get("recommendedRuntimeSuccessCommand") or "")),
             "providersWithCreateCommand": sum(1 for item in items if str(item.get("recommendedCreateCommand") or "")),
             "providersWithBootstrapCommand": sum(1 for item in items if str(item.get("recommendedBootstrapCommand") or "")),
             "providersBlockedOnly": sum(1 for item in items if bool(item.get("runtimeBlockedOnly"))),
@@ -358,6 +370,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersWithRuntimeProbeCommand: `{summary.get('providersWithRuntimeProbeCommand', 0)}`")
     lines.append(f"- providersWithLiveUploadCommand: `{summary.get('providersWithLiveUploadCommand', 0)}`")
     lines.append(f"- providersWithFastCandidateCommand: `{summary.get('providersWithFastCandidateCommand', 0)}`")
+    lines.append(f"- providersWithRuntimeSuccessCommand: `{summary.get('providersWithRuntimeSuccessCommand', 0)}`")
     lines.append(f"- providersWithCreateCommand: `{summary.get('providersWithCreateCommand', 0)}`")
     lines.append(f"- providersWithBootstrapCommand: `{summary.get('providersWithBootstrapCommand', 0)}`")
     lines.append(f"- providersBlockedOnly: `{summary.get('providersBlockedOnly', 0)}`")
@@ -404,5 +417,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedLiveUploadCommand: `{row.get('recommendedLiveUploadCommand', '')}`")
         if row.get("recommendedFastCandidateCommand"):
             lines.append(f"- recommendedFastCandidateCommand: `{row.get('recommendedFastCandidateCommand', '')}`")
+        if row.get("recommendedRuntimeSuccessCommand"):
+            lines.append(f"- recommendedRuntimeSuccessCommand: `{row.get('recommendedRuntimeSuccessCommand', '')}`")
         lines.append("")
     return "\n".join(lines).strip() + "\n"

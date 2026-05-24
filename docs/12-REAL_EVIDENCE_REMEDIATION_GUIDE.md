@@ -13,6 +13,7 @@
 - providersWithRuntimeProbeCommand: `0`
 - providersWithLiveUploadCommand: `0`
 - providersWithFastCandidateCommand: `0`
+- providersWithRuntimeSuccessCommand: `0`
 - providersWithCreateCommand: `8`
 - providersWithBootstrapCommand: `8`
 - providersBlockedOnly: `0`

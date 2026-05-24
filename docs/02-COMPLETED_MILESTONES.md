@@ -64,6 +64,18 @@
   - [verify_115_fast_upload_live.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_115_fast_upload_live.py) 已验证 `status=7 -> sign_check -> status=2` 的秒传命中路径仍然成立，并返回 `mode=rapid_upload_by_hash`
   - [verify_115_fast_upload_binary_fallback.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_115_fast_upload_binary_fallback.py) 已验证 hash miss 时会继续请求 `upload/get_token` 并执行 OSS 上传，返回 `mode=binary_upload_after_hash_miss`、`verifyMode=list_by_parent_name`
 
+### 已完成补齐项 - `2026-05-25`（Live Helper 覆盖补齐）
+
+- 提交：`本次提交`
+- 完成范围：
+  - 统一真实取证 helper [create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py) 现已从 `guangya / aliyundrive_open / 123_open / baidu_netdisk` 扩展到 `xunlei / pikpak / quark / uc`
+  - 这 4 个 provider 现在也可以直接通过同一条 helper 命令生成固定 evidence bundle：`task.json / task.md / auth_evidence.md / runtime_evidence.md / real_evidence.md / remediation.md`
+  - `real_evidence_remediation.py` 的下一步建议也已同步对齐：当这些 provider 已具备基础 auth/list/metadata/create_dir 证据但仍缺 runtime success 时，不再只给出 generic fast candidate 提示，而是可以给出统一 live upload helper 命令
+- 当前验证证据：
+  - [verify_create_live_upload_task_xunlei_pikpak.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task_xunlei_pikpak.py) 已验证 `create_live_upload_task.py` 对 `xunlei / pikpak` 会产出 `state=completed`、`completionKind=real_transfer`、`hasRealTransferSuccess=true`，并写出固定文件名 evidence bundle
+  - [verify_create_live_upload_task_quark_uc.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task_quark_uc.py) 已验证 `create_live_upload_task.py` 对 `quark / uc` 会产出 `state=completed`、`completionKind=real_transfer`、`hasRealTransferSuccess=true`，并写出固定文件名 evidence bundle
+  - [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已继续验证 remediation markdown/API 仍能正常生成，并保留 `recommendedLiveUploadCommand / recommendedFastCandidateCommand / recommendedRuntimeProbeCommand` 等字段
+
 ### M1 - 独立项目骨架
 
 - 完成日期：`2026-05-23`

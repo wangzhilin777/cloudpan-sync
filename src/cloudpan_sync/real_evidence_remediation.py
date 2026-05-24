@@ -118,7 +118,7 @@ def _fast_candidate_command_for_profile(profile: dict[str, object]) -> str:
 def _live_upload_command_for_profile(profile: dict[str, object]) -> str:
     profile_id = str(profile.get("profileId") or "")
     provider_key = str(profile.get("providerKey") or "")
-    if not profile_id or provider_key not in {"guangya", "aliyundrive_open", "123_open", "baidu_netdisk"}:
+    if not profile_id or provider_key not in {"guangya", "aliyundrive_open", "123_open", "baidu_netdisk", "xunlei", "pikpak", "quark", "uc"}:
         return ""
     parts = [
         ".\\.venv\\Scripts\\python.exe",
@@ -208,7 +208,7 @@ def _next_step(
         return "对现有档案重跑 provider live probe，优先补齐 auth/list/metadata/create_dir 成功证据。"
     if not runtime_ok:
         if runtime_live_upload_command:
-            return "当前基础证据已齐，可直接运行 Guangya live upload helper，优先补一条真实传输成功样本并落任务 JSON/Markdown 快照。"
+            return "当前基础证据已齐，可直接运行统一的 live upload helper，优先补一条真实传输成功样本并落任务 JSON/Markdown 快照。"
         if runtime_probe_only:
             return "当前只有 probe-only 样本，说明写探针已跑通但尚未形成真实传输成功证据；请在保留探针样本的基础上继续跑小文件真实任务。"
         if runtime_candidate_only:

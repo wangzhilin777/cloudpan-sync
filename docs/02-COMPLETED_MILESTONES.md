@@ -114,6 +114,8 @@
   - [verify_task_conflict_policy_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_policy_api.py) 已验证 `POST /api/tasks` 创建任务与 `POST /api/tasks/{id}/action` 运行任务时，HTTP 返回会保留 `conflictPolicy`，并把 `conflictAction/resolvedTargetName` 回写到结果
   - [verify_task_conflict_support.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_support.py) 已验证 `POST /api/tasks` 创建任务后，`plan.items[].conflictSupportStatus` 会继续透传到运行结果 `results[].conflictSupportStatus`，例如当前 `guangya + overwrite_existing` 会稳定回显 `downgrade_to_auto_rename`
   - [verify_task_conflict_policy_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_policy_validation.py) 已验证 `/api/plan/mock` 与 `/api/tasks` 会拒绝非法 `conflictPolicy`
+  - 任务明细现已补上 Markdown 导出：`GET /api/tasks/{id}/markdown` 会把任务选中的 `conflictPolicy`、计划项 `conflictSupportStatus/conflictNote`、以及运行期 `conflictAction/resolvedTargetName` 一起导出，方便直接对账“选了覆盖还是自动重命名、provider 是否诚实降级、最终落成了哪个目标文件名”
+  - [verify_task_markdown_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_markdown_api.py) 已验证任务 Markdown 已包含 `selectedPolicy=overwrite_existing`、计划项冲突支持状态、运行期 `conflictAction=overwrite_downgraded_to_auto_rename` 与 `resolvedTargetName=demo (1).bin`
 
 ### M7 - 受控执行与 UI
 

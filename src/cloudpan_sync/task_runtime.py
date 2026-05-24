@@ -351,6 +351,100 @@ def build_task_detail_view(task: dict[str, object]) -> dict[str, object]:
     }
 
 
+def task_to_markdown(task: dict[str, object]) -> str:
+    summary = dict(task.get("summary") or build_task_summary(task))
+    progress = dict(task.get("progress") or {})
+    guard = dict(task.get("guard") or {})
+    plan = dict(task.get("plan") or {})
+    pending_items = list(plan.get("pendingItems") or [])
+    plan_items = list(plan.get("items") or [])
+    results = list(task.get("results") or [])
+    lines: list[str] = []
+    lines.append("# CloudPan Sync 任务详情")
+    lines.append("")
+    lines.append(f"- taskId: `{task.get('taskId', '')}`")
+    lines.append(f"- sourceProvider: `{task.get('sourceProvider', '')}`")
+    lines.append(f"- targetProvider: `{task.get('targetProvider', '')}`")
+    lines.append(f"- targetProfileId: `{task.get('targetProfileId', '') or '(none)'}`")
+    lines.append(f"- targetParentId: `{task.get('targetParentId', '') or '(none)'}`")
+    lines.append(f"- state: `{summary.get('state', '')}`")
+    lines.append(f"- completionKind: `{summary.get('completionKind', '') or '(none)'}`")
+    lines.append(f"- hasRealTransferSuccess: `{bool(summary.get('hasRealTransferSuccess'))}`")
+    lines.append(f"- createdAt: `{task.get('createdAt', '')}`")
+    lines.append(f"- updatedAt: `{task.get('updatedAt', '')}`")
+    lines.append("")
+    lines.append("## 同名文件冲突策略")
+    lines.append("")
+    lines.append(f"- selectedPolicy: `{task.get('conflictPolicy', '') or 'auto_rename_new'}`")
+    lines.append(
+        f"- summary: `liveSuccess={summary.get('liveSuccessCount', 0)}`"
+        f" `liveFailed={summary.get('liveFailedCount', 0)}`"
+        f" `probeOnly={summary.get('probeOnlyCount', 0)}`"
+        f" `candidateOnly={summary.get('candidateOnlyCount', 0)}`"
+    )
+    if results:
+        for index, row in enumerate(results, start=1):
+            item = dict(row or {})
+            live_attempt = dict(item.get("liveAttempt") or {})
+            lines.append(
+                f"- result[{index}]: path=`{item.get('path', '')}` status=`{item.get('status', '')}` executionMode=`{item.get('executionMode', '')}` "
+                f"conflictPolicy=`{item.get('conflictPolicy', '') or task.get('conflictPolicy', '') or 'auto_rename_new'}` "
+                f"conflictAction=`{live_attempt.get('conflictAction', '') or '(none)'}` "
+                f"resolvedTargetName=`{live_attempt.get('resolvedTargetName', '') or '(none)'}`"
+            )
+    else:
+        lines.append("- result: `(none)`")
+    lines.append("")
+    lines.append("## 计划摘要")
+    lines.append("")
+    lines.append(
+        f"- progress: `total={progress.get('total', 0)}` `done={progress.get('done', 0)}` "
+        f"`failed={progress.get('failed', 0)}` `pendingManual={progress.get('pendingManual', 0)}`"
+    )
+    plan_summary = dict(plan.get("summary") or {})
+    strategy_counts = dict(plan_summary.get("strategyCounts") or {})
+    lines.append(
+        f"- planSummary: `total={plan_summary.get('total', 0)}` "
+        f"`fast_upload={strategy_counts.get('fast_upload', 0)}` "
+        f"`download_upload={strategy_counts.get('download_upload', 0)}` "
+        f"`pending_manual={strategy_counts.get('pending_manual', 0)}`"
+    )
+    if pending_items:
+        for index, item in enumerate(pending_items, start=1):
+            row = dict(item or {})
+            lines.append(
+                f"- pending[{index}]: path=`{row.get('path', '')}` strategy=`{row.get('strategy', '')}` "
+                f"conflictPolicy=`{row.get('conflictPolicy', '') or task.get('conflictPolicy', '') or 'auto_rename_new'}` "
+                f"conflictSupportStatus=`{row.get('conflictSupportStatus', '') or '(none)'}` "
+                f"conflictNote=`{row.get('conflictNote', '') or '(none)'}`"
+            )
+    else:
+        lines.append("- pending: `(none)`")
+    if plan_items:
+        for index, item in enumerate(plan_items, start=1):
+            row = dict(item or {})
+            lines.append(
+                f"- item[{index}]: path=`{row.get('path', '')}` strategy=`{row.get('strategy', '')}` "
+                f"conflictPolicy=`{row.get('conflictPolicy', '') or task.get('conflictPolicy', '') or 'auto_rename_new'}` "
+                f"conflictSupportStatus=`{row.get('conflictSupportStatus', '') or '(none)'}` "
+                f"conflictNote=`{row.get('conflictNote', '') or '(none)'}`"
+            )
+    lines.append("")
+    lines.append("## 风险与守卫")
+    lines.append("")
+    lines.append(
+        f"- guard: `hardBlocked={bool(guard.get('hardBlocked'))}` "
+        f"`awaitingAcknowledgement={bool(summary.get('awaitingAcknowledgement'))}` "
+        f"`riskReason={summary.get('riskReason', '') or '(none)'}`"
+    )
+    blocking_reasons = list(guard.get("blockingReasons") or [])
+    warning_reasons = list(guard.get("warningReasons") or [])
+    lines.append(f"- blockingReasons: `{','.join(blocking_reasons) or '(none)'}`")
+    lines.append(f"- warningReasons: `{','.join(warning_reasons) or '(none)'}`")
+    lines.append("")
+    return "\n".join(lines).strip() + "\n"
+
+
 def create_task(payload: TaskCreateRequest) -> dict[str, object]:
     plan = build_transfer_plan(
         source_provider=payload.sourceProvider,

@@ -86,6 +86,7 @@ from .task_runtime import (
     resume_task,
     retry_task,
     run_task,
+    task_to_markdown,
 )
 
 
@@ -1543,6 +1544,15 @@ def create_app() -> FastAPI:
         if task is None:
             raise HTTPException(status_code=404, detail="task_not_found")
         return {"item": task, "detailView": build_task_detail_view(task), "listView": build_task_list_view(task)}
+
+    @app.get("/api/tasks/{task_id}/markdown")
+    def task_markdown(task_id: str, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        task = get_task(task_id)
+        if task is None:
+            raise HTTPException(status_code=404, detail="task_not_found")
+        return {"markdown": task_to_markdown(task)}
 
     @app.post("/api/tasks/{task_id}/action")
     def task_action(task_id: str, payload: TaskActionRequest, request: Request) -> dict[str, object]:

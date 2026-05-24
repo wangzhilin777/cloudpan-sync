@@ -1122,12 +1122,13 @@ function renderTaskList() {
     appendTaskStatusPill(meta, `pending=${task.progress.pendingManual}`);
     const detail = document.createElement("div");
     detail.className = "auth-item-meta";
-    detail.textContent = `targetProfileId=${task.targetProfileId || "(none)"}, targetParentId=${task.targetParentId || "(none)"}, conflictPolicy=${task.conflictPolicy || "auto_rename_new"}`;
+    const guard = task.guard || {};
+    const targetProfile = guard.targetProfile || {};
+    const targetProfileText = targetProfile.displayName || task.targetProfileId || "(none)";
+    detail.textContent = `targetProfile=${targetProfileText}, targetProfileId=${task.targetProfileId || "(none)"}, targetParentId=${task.targetParentId || "(none)"}, conflictPolicy=${task.conflictPolicy || "auto_rename_new"}, profileReady=${targetProfile.profileReady !== false}, writeReady=${targetProfile.writeReady !== false}`;
     left.appendChild(title);
     left.appendChild(meta);
     left.appendChild(detail);
-    const guard = task.guard || {};
-    const targetProfile = guard.targetProfile || {};
     const blockingReasons = guard.blockingReasons || [];
     const warningReasons = guard.warningReasons || [];
     const guardRow = document.createElement("div");

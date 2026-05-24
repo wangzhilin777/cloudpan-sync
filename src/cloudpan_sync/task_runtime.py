@@ -75,6 +75,28 @@ def _probe_dir_name(task_id: str, path: str) -> str:
     return f"cloudpan-sync-probe-{task_id[:8]}-{normalized[:40]}"
 
 
+def _source_entry_for_item(
+    source_entries_by_path: dict[str, dict[str, object]],
+    item: dict[str, object],
+) -> dict[str, object]:
+    return dict(source_entries_by_path.get(str(item.get("path") or ""), {}) or {})
+
+
+def _normalized_fingerprints_for_item(item: dict[str, object]) -> dict[str, object]:
+    value = item.get("normalizedFingerprints")
+    if hasattr(value, "model_dump"):
+        return dict(value.model_dump() or {})
+    return dict(value or {})
+
+
+def _first_text(*values: object) -> str:
+    for value in values:
+        text = str(value or "").strip()
+        if text:
+            return text
+    return ""
+
+
 def list_tasks() -> list[dict[str, object]]:
     return sorted(_TASKS.values(), key=lambda x: str(x.get("createdAt", "")), reverse=True)
 
@@ -413,6 +435,116 @@ def run_task(task_id: str) -> dict[str, object]:
                     "canFastUpload": bool((live_row or {}).get("canFastUpload")),
                     "error": (live_row or {}).get("error", "") or guangya_fast_summary.get("error", ""),
                     "riskHint": (live_row or {}).get("riskHint", "") or guangya_fast_summary.get("riskHint", ""),
+                }
+            results.append(row_result)
+            continue
+
+        if strategy == "fast_upload" and target_provider == "baidu_netdisk" and target_profile_id:
+            source_entry = _source_entry_for_item(source_entries_by_path, item)
+            normalized = _normalized_fingerprints_for_item(item)
+            md5_value = _first_text(
+                source_entry.get("md5"),
+                normalized.get("md5"),
+                source_entry.get("etag"),
+                normalized.get("etag"),
+            ).lower()
+            row_result["executionMode"] = "probe"
+            if md5_value:
+                done += 1
+                row_result["status"] = "done"
+                row_result["note"] = (
+                    "Baidu Netdisk fast-upload candidate confirmed from current md5/size fingerprints. "
+                    "The current runtime only records candidate evidence and does not call a live rapid-upload API yet."
+                )
+                row_result["liveAttempt"] = {
+                    "mode": "baidu_netdisk_fast_upload_candidate",
+                    "hashKind": "md5",
+                    "candidate": True,
+                    "requiredInputs": ["md5", "size"],
+                    "hashValue": md5_value,
+                    "riskHint": "",
+                    "verifyOk": True,
+                    "verifyMode": "fingerprint_candidate",
+                    "verifyNote": "Current md5/size fingerprints satisfy Baidu Netdisk fast-upload precheck, but runtime remains probe-only.",
+                    "verifyPayload": {
+                        "md5": md5_value,
+                        "size": int(item.get("size", 0) or 0),
+                    },
+                    "resolvedTargetName": PurePosixPath(path or "/").name or path,
+                    "conflictAction": "",
+                }
+            else:
+                failed += 1
+                row_result["status"] = "failed"
+                row_result["note"] = "Baidu Netdisk fast-upload candidate probe failed because md5 fingerprint is missing."
+                row_result["liveAttempt"] = {
+                    "mode": "baidu_netdisk_fast_upload_candidate",
+                    "hashKind": "md5",
+                    "candidate": False,
+                    "requiredInputs": ["md5", "size"],
+                    "error": "missing_md5",
+                    "riskHint": "Fast-upload candidate probe requires md5 fingerprint.",
+                    "verifyOk": False,
+                    "verifyMode": "",
+                    "verifyNote": "",
+                    "verifyPayload": {},
+                    "resolvedTargetName": PurePosixPath(path or "/").name or path,
+                    "conflictAction": "",
+                }
+            results.append(row_result)
+            continue
+
+        if strategy == "fast_upload" and target_provider == "pikpak" and target_profile_id:
+            source_entry = _source_entry_for_item(source_entries_by_path, item)
+            normalized = _normalized_fingerprints_for_item(item)
+            gcid_value = _first_text(
+                source_entry.get("gcid"),
+                normalized.get("gcid"),
+                source_entry.get("raw", {}).get("hash") if isinstance(source_entry.get("raw"), dict) else "",
+                normalized.get("raw", {}).get("hash") if isinstance(normalized.get("raw"), dict) else "",
+            ).lower()
+            row_result["executionMode"] = "probe"
+            if gcid_value:
+                done += 1
+                row_result["status"] = "done"
+                row_result["note"] = (
+                    "PikPak fast-upload candidate confirmed from current gcid/size fingerprints. "
+                    "The current runtime only records candidate evidence and does not call a live rapid-upload API yet."
+                )
+                row_result["liveAttempt"] = {
+                    "mode": "pikpak_fast_upload_candidate",
+                    "hashKind": "gcid",
+                    "candidate": True,
+                    "requiredInputs": ["gcid", "size"],
+                    "hashValue": gcid_value,
+                    "riskHint": "",
+                    "verifyOk": True,
+                    "verifyMode": "fingerprint_candidate",
+                    "verifyNote": "Current gcid/size fingerprints satisfy PikPak fast-upload precheck, but runtime remains probe-only.",
+                    "verifyPayload": {
+                        "gcid": gcid_value,
+                        "size": int(item.get("size", 0) or 0),
+                    },
+                    "resolvedTargetName": PurePosixPath(path or "/").name or path,
+                    "conflictAction": "",
+                }
+            else:
+                failed += 1
+                row_result["status"] = "failed"
+                row_result["note"] = "PikPak fast-upload candidate probe failed because gcid fingerprint is missing."
+                row_result["liveAttempt"] = {
+                    "mode": "pikpak_fast_upload_candidate",
+                    "hashKind": "gcid",
+                    "candidate": False,
+                    "requiredInputs": ["gcid", "size"],
+                    "error": "missing_gcid",
+                    "riskHint": "Fast-upload candidate probe requires gcid fingerprint.",
+                    "verifyOk": False,
+                    "verifyMode": "",
+                    "verifyNote": "",
+                    "verifyPayload": {},
+                    "resolvedTargetName": PurePosixPath(path or "/").name or path,
+                    "conflictAction": "",
                 }
             results.append(row_result)
             continue

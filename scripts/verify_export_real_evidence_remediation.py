@@ -1,0 +1,133 @@
+from __future__ import annotations
+
+import importlib.util
+import json
+import sys
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from cloudpan_sync.real_evidence_remediation import real_evidence_remediation_to_markdown
+
+SCRIPT_PATH = ROOT / "scripts" / "export_real_evidence_remediation.py"
+SPEC = importlib.util.spec_from_file_location("export_real_evidence_remediation", SCRIPT_PATH)
+if SPEC is None or SPEC.loader is None:
+    raise RuntimeError(f"Cannot load script module: {SCRIPT_PATH}")
+export_script = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(export_script)
+
+
+def main() -> None:
+    synthetic_payload = {
+        "summary": {
+            "providerCount": 2,
+            "providersWithNoProfiles": 0,
+            "providersNeedingAuthEvidence": 0,
+            "providersNeedingListEvidence": 0,
+            "providersNeedingMetadataEvidence": 0,
+            "providersNeedingCreateDirEvidence": 0,
+            "providersNeedingRuntimeSuccess": 2,
+            "providersWithPatchCommand": 0,
+            "providersWithPatchProbeCommand": 0,
+            "providersWithRefreshEvidenceCommand": 0,
+            "providersWithRuntimeProbeCommand": 0,
+            "providersWithLiveUploadCommand": 1,
+            "providersWithFastCandidateCommand": 1,
+            "providersWithRuntimeSuccessCommand": 2,
+            "providersWithCreateCommand": 0,
+            "providersWithBootstrapCommand": 0,
+            "providersBlockedOnly": 0,
+            "providersCandidateOnly": 1,
+            "providersProbeOnly": 0,
+        },
+        "items": [
+            {
+                "providerKey": "guangya",
+                "displayName": "Guangya",
+                "profileCount": 1,
+                "authReadyProfiles": 1,
+                "writeReadyProfiles": 1,
+                "recommendedAuthModes": ["manual_token"],
+                "webLoginUrl": "https://guangyapan.com/",
+                "requiredFieldHints": ["token or extra.authorization"],
+                "needsAuthEvidence": False,
+                "needsListEvidence": False,
+                "needsMetadataEvidence": False,
+                "needsCreateDirEvidence": False,
+                "needsRuntimeSuccess": True,
+                "runtimeBlockedOnly": False,
+                "runtimeCandidateOnly": False,
+                "runtimeProbeOnly": False,
+                "gaps": ["基础证据已齐，但尚未记录到真实 runtime 成功样本"],
+                "recommendedLiveUploadCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --evidence-dir tmp\guangya-live-evidence",
+                "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --evidence-dir tmp\guangya-live-evidence",
+                "nextStep": "当前基础证据已齐，可直接运行统一的 runtime success helper。",
+            },
+            {
+                "providerKey": "115_open",
+                "displayName": "115 Open",
+                "profileCount": 1,
+                "authReadyProfiles": 1,
+                "writeReadyProfiles": 1,
+                "recommendedAuthModes": ["manual_cookie"],
+                "requiredFieldHints": ["cookie or extra.cookie_header"],
+                "needsAuthEvidence": False,
+                "needsListEvidence": False,
+                "needsMetadataEvidence": False,
+                "needsCreateDirEvidence": False,
+                "needsRuntimeSuccess": True,
+                "runtimeBlockedOnly": False,
+                "runtimeCandidateOnly": True,
+                "runtimeProbeOnly": False,
+                "gaps": ["已有 fast-upload candidate 样本，但尚未记录到真实 runtime 成功样本"],
+                "recommendedFastCandidateCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-1 --sha1 auto --auto-temp-file --evidence-dir tmp\115_open-fast-candidate-evidence",
+                "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-1 --sha1 auto --auto-temp-file --evidence-dir tmp\115_open-fast-candidate-evidence",
+                "nextStep": "当前基础证据已齐，可直接运行统一的 runtime success helper。",
+            },
+        ],
+    }
+
+    original_root = export_script.ROOT
+    original_builder = export_script.build_real_evidence_remediation_bundle
+    original_renderer = export_script.real_evidence_remediation_to_markdown
+
+    with TemporaryDirectory() as tmp_dir:
+        tmp_root = Path(tmp_dir)
+        (tmp_root / "docs").mkdir(parents=True, exist_ok=True)
+        export_script.ROOT = tmp_root
+        export_script.build_real_evidence_remediation_bundle = lambda: synthetic_payload
+        export_script.real_evidence_remediation_to_markdown = real_evidence_remediation_to_markdown
+        try:
+            export_script.main()
+        finally:
+            export_script.ROOT = original_root
+            export_script.build_real_evidence_remediation_bundle = original_builder
+            export_script.real_evidence_remediation_to_markdown = original_renderer
+
+        output_path = tmp_root / "docs" / "12-REAL_EVIDENCE_REMEDIATION_GUIDE.md"
+        markdown = output_path.read_text(encoding="utf-8")
+
+    print(
+        json.dumps(
+            {
+                "exportedFileExists": True,
+                "exportedHasTitle": "# CloudPan Sync 真实联调补救指南" in markdown,
+                "exportedHasRuntimeSuccessSummary": "providersWithRuntimeSuccessCommand: `2`" in markdown,
+                "exportedHasLiveRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown
+                and r"tmp\guangya-live-evidence" in markdown,
+                "exportedHasFastRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown
+                and r"tmp\115_open-fast-candidate-evidence" in markdown,
+                "exportedHasCandidateOnlyFlag": "runtimeCandidateOnly=True" in markdown,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
+
+
+if __name__ == "__main__":
+    main()

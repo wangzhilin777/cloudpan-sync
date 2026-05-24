@@ -109,6 +109,16 @@
 - 当前验证证据：
   - [verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py) 已验证 settings 页 remediation 面板会消费 `recommendedRuntimeSuccessCommand / providersWithRuntimeSuccessCommand`
 
+### 已完成补齐项 - `2026-05-25`（Runtime Success 导出链补齐）
+
+- 提交：`本次提交`
+- 完成范围：
+  - 已新增 [verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)，补齐 `export_real_evidence_remediation.py` 的落盘导出验证
+  - 该验证现在会直接跑导出脚本，把 `12-REAL_EVIDENCE_REMEDIATION_GUIDE.md` 写到临时目录，并确认 `providersWithRuntimeSuccessCommand` 与每个 provider 的 `recommendedRuntimeSuccessCommand` 都确实进入最终 Markdown，而不只是停留在 bundle/API/UI
+  - 这样 `real_evidence_remediation.py` 这条链路现在已经覆盖到 bundle、settings UI 和 Markdown export 三个出口
+- 当前验证证据：
+  - [verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py) 已验证导出文件包含 `providersWithRuntimeSuccessCommand` 汇总、`guangya` 的 live helper 型 `recommendedRuntimeSuccessCommand`、`115_open` 的 fast helper 型 `recommendedRuntimeSuccessCommand`，并保留 `runtimeCandidateOnly=True` 标记
+
 ### M1 - 独立项目骨架
 
 - 完成日期：`2026-05-23`

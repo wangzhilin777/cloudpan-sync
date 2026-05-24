@@ -1734,7 +1734,7 @@ function renderSettingsPanel() {
   }
   for (const item of (state.taskRuntimeEvidence || []).slice(0, 3)) {
     const li = document.createElement("li");
-    li.textContent = `${item.providerKey || "(unknown)"}: mode=${item.mode || ""}, executionMode=${item.executionMode || ""}, success=${Boolean(item.success)}, verifyOk=${Boolean(item.verifyOk)}, conflict=${item.conflictAction || "(none)"}`;
+    li.textContent = `${item.providerKey || "(unknown)"}: mode=${item.mode || ""}, executionMode=${item.executionMode || ""}, success=${Boolean(item.success)}, verifyOk=${Boolean(item.verifyOk)}, conflict=${item.conflictAction || "(none)"}, requiredAuth=${(item.requiredAuth || []).join("/") || "(none)"}, error=${item.error || "(none)"}`;
     taskRuntimeEvidenceList.appendChild(li);
   }
 

@@ -1220,6 +1220,9 @@ function renderTaskList() {
           const errorText = row.liveAttempt?.error
             ? `, error=${row.liveAttempt.error}`
             : "";
+          const noteText = row.note
+            ? `, note=${row.note}`
+            : "";
           const verifyText = row.liveAttempt?.verifyMode
             ? `, verify=${row.liveAttempt.verifyOk ? "ok" : "pending"}:${row.liveAttempt.verifyMode}`
             : "";
@@ -1232,7 +1235,7 @@ function renderTaskList() {
           const conflictSupportText = row.conflictSupportStatus
             ? `, conflictSupport=${row.conflictSupportStatus}`
             : "";
-          return `${row.path}: ${row.status}${executionText}${modeText}${verifyText}${verifyNoteText}${conflictText}${conflictSupportText}${authText}${errorText}${riskText}`;
+          return `${row.path}: ${row.status}${executionText}${modeText}${verifyText}${verifyNoteText}${conflictText}${conflictSupportText}${authText}${errorText}${noteText}${riskText}`;
         })
         .join(" | ");
       const resultMeta = document.createElement("div");

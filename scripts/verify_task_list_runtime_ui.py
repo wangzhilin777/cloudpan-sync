@@ -29,6 +29,7 @@ def main() -> None:
                 "jsRenderTaskListShowsConflictAction": 'row.liveAttempt?.conflictAction' in app_js and 'conflict=${row.liveAttempt.conflictAction}:${row.liveAttempt.resolvedTargetName || "(same)"}' in app_js,
                 "jsRenderTaskListShowsRequiredAuth": 'row.liveAttempt?.requiredAuth?.length' in app_js and 'requiredAuth=${row.liveAttempt.requiredAuth.join("/")}' in app_js,
                 "jsRenderTaskListShowsError": 'row.liveAttempt?.error' in app_js and 'error=${row.liveAttempt.error}' in app_js,
+                "jsRenderTaskListShowsRowNote": 'row.note' in app_js and 'note=${row.note}' in app_js,
                 "jsLoadTasksUsesListItems": 'state.tasks = data.listItems || data.items || [];' in app_js,
                 "jsRenderPendingListCarriesConflictPolicy": 'conflictPolicy: item.conflictPolicy || "auto_rename_new"' in app_js,
                 "jsRenderPendingListCarriesConflictFields": 'conflictSupportStatus: item.conflictSupportStatus || ""' in app_js and 'conflictNote: item.conflictNote || ""' in app_js,

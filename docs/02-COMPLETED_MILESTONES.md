@@ -518,3 +518,5 @@
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了待处理页 `renderPendingList()` 已携带并显示 `conflictPolicy`
   - 队列页任务 detail 行现对 `profileReady / writeReady` 改成诚实显示：只有 `guard.targetProfile` 真返回这两个状态位时才显示 `true/false`，否则显示 `(unknown)`，不再把“没有目标档案信息”误渲染成 `true`
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` detail 行已改为通过 `profileReadyText / writeReadyText` 诚实渲染 readiness 摘要
+  - 队列页最近结果简讯现也已补上 `row.note`，像 probe-only 命中、fallback 未命中、blocked 原因或“当前仍走 mock/download fallback”的解释性说明可直接在列表层看到
+  - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` 最近结果行已显示 `row.note`

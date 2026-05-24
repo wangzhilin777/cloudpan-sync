@@ -59,7 +59,7 @@ def build_provider_research_index() -> list[dict[str, object]]:
             "authModes": ["web_login_capture", "manual_cookie"],
             "status": "researching",
             "lastVerifiedAt": today,
-            "notes": "share-based live list/metadata(MD5 via file/download) attempts are online from pc-api.uc.cn evidence, and cookie-based create_dir attempts are now wired on the Quark PC drive API path; stable real samples and upload chain are still pending.",
+            "notes": "share-based live list/metadata(MD5 via file/download) attempts are online from pc-api.uc.cn evidence, cookie-based create_dir attempts are now wired on the Quark PC drive API path, and task runtime can now also attempt rapid upload through upload/pre + update/hash + upload/finish when a usable local file plus md5/sha1 context is available; stable real online samples and ordinary upload chain are still pending.",
         },
         {
             "providerKey": "189cloud",

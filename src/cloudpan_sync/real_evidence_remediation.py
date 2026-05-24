@@ -69,6 +69,30 @@ def _runtime_probe_command_for_profile(profile: dict[str, object]) -> str:
     return " ".join(parts)
 
 
+def _fast_candidate_command_for_profile(profile: dict[str, object]) -> str:
+    profile_id = str(profile.get("profileId") or "")
+    provider_key = str(profile.get("providerKey") or "")
+    if not profile_id or not provider_key or provider_key == "guangya":
+        return ""
+    parts = [
+        ".\\.venv\\Scripts\\python.exe",
+        "scripts\\create_fast_upload_candidate_task.py",
+        f"--target-provider {provider_key}",
+        f"--target-profile-id {profile_id}",
+    ]
+    resolved_parent_id = str(profile.get("resolvedParentId") or "").strip()
+    if resolved_parent_id:
+        parts.append(f"--target-parent-id {resolved_parent_id}")
+    if provider_key == "115_open":
+        parts.append("--sha1 auto")
+    elif provider_key in {"xunlei", "pikpak"}:
+        parts.append("--gcid YOUR_GCID")
+    else:
+        parts.append("--md5 auto")
+    parts.append("--auto-temp-file")
+    return " ".join(parts)
+
+
 def _create_command_for_provider(
     *,
     provider_key: str,
@@ -191,6 +215,9 @@ def build_real_evidence_remediation_bundle(
             "recommendedRuntimeProbeCommand": _runtime_probe_command_for_profile(provider_profiles[0] if provider_profiles else {})
             if provider_profiles and write_ready and bool(auth_evidence.get("ok")) and bool(list_evidence.get("ok")) and bool(metadata_evidence.get("ok")) and bool(create_dir_evidence.get("ok")) and not bool(runtime_evidence.get("ok"))
             else "",
+            "recommendedFastCandidateCommand": _fast_candidate_command_for_profile(provider_profiles[0] if provider_profiles else {})
+            if provider_profiles and profile_ready and write_ready and bool(auth_evidence.get("ok")) and bool(list_evidence.get("ok")) and bool(metadata_evidence.get("ok")) and not bool(runtime_evidence.get("ok"))
+            else "",
             "recommendedCreateCommand": _create_command_for_provider(
                 provider_key=provider_key,
                 auth_modes=provider_auth_modes(provider_key),
@@ -231,6 +258,7 @@ def build_real_evidence_remediation_bundle(
             "providersWithPatchProbeCommand": sum(1 for item in items if str(item.get("recommendedPatchProbeCommand") or "")),
             "providersWithRefreshEvidenceCommand": sum(1 for item in items if str(item.get("recommendedRefreshEvidenceCommand") or "")),
             "providersWithRuntimeProbeCommand": sum(1 for item in items if str(item.get("recommendedRuntimeProbeCommand") or "")),
+            "providersWithFastCandidateCommand": sum(1 for item in items if str(item.get("recommendedFastCandidateCommand") or "")),
             "providersWithCreateCommand": sum(1 for item in items if str(item.get("recommendedCreateCommand") or "")),
             "providersWithBootstrapCommand": sum(1 for item in items if str(item.get("recommendedBootstrapCommand") or "")),
             "providersBlockedOnly": sum(1 for item in items if bool(item.get("runtimeBlockedOnly"))),
@@ -255,6 +283,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersWithPatchProbeCommand: `{summary.get('providersWithPatchProbeCommand', 0)}`")
     lines.append(f"- providersWithRefreshEvidenceCommand: `{summary.get('providersWithRefreshEvidenceCommand', 0)}`")
     lines.append(f"- providersWithRuntimeProbeCommand: `{summary.get('providersWithRuntimeProbeCommand', 0)}`")
+    lines.append(f"- providersWithFastCandidateCommand: `{summary.get('providersWithFastCandidateCommand', 0)}`")
     lines.append(f"- providersWithCreateCommand: `{summary.get('providersWithCreateCommand', 0)}`")
     lines.append(f"- providersWithBootstrapCommand: `{summary.get('providersWithBootstrapCommand', 0)}`")
     lines.append(f"- providersBlockedOnly: `{summary.get('providersBlockedOnly', 0)}`")
@@ -295,5 +324,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedRefreshEvidenceCommand: `{row.get('recommendedRefreshEvidenceCommand', '')}`")
         if row.get("recommendedRuntimeProbeCommand"):
             lines.append(f"- recommendedRuntimeProbeCommand: `{row.get('recommendedRuntimeProbeCommand', '')}`")
+        if row.get("recommendedFastCandidateCommand"):
+            lines.append(f"- recommendedFastCandidateCommand: `{row.get('recommendedFastCandidateCommand', '')}`")
         lines.append("")
     return "\n".join(lines).strip() + "\n"

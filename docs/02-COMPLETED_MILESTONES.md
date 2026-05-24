@@ -485,6 +485,8 @@
   - `patch_and_probe_auth_profile.py` 现已允许“零补字段”直接刷新证据；`Real Evidence Next Steps` 现在也会为“已有档案且已 ready，但仍缺 auth/list/metadata/create_dir 成功证据”的 provider 生成 `recommendedRefreshEvidenceCommand`
   - 已新增本地 helper [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)，可按 `targetProvider / targetProfileId` 自动创建小文件任务并直接运行；`Real Evidence Next Steps` 现在也会为“基础证据已齐、但还缺 runtime 成功样本”的 provider 生成 `recommendedRuntimeProbeCommand`
   - [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py) 现会优先复用已保存 auth profile 的 `resolvedParentId`，若档案里没有再按 provider 根目录默认值补齐 `targetParentId`；补救指南里的 `recommendedRuntimeProbeCommand` 也会在已有解析结果时直接把 `--target-parent-id` 带出来，进一步减少真实 runtime 起手时的手填量
+  - 已新增本地 helper [create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py)，可按 `targetProvider / targetProfileId` 自动创建 `fast_upload` 候选探针任务并直接运行；当前会复用已保存档案的 `resolvedParentId`，并支持按 provider 自动补 `md5/sha1` 或手传 `gcid`，方便给 Aliyun/123/115/Quark/UC/Baidu/Xunlei/PikPak/189Cloud 这类“已有候选探针分支、但还没接真实 rapid-upload API”的 provider 留下真实 candidate 样本
+  - `Real Evidence Next Steps` 现在也会继续为“基础 auth/list/metadata 已齐、但还缺 task runtime 成功样本”的非 Guangya provider 生成 `recommendedFastCandidateCommand`；像 `115_open` 会直接给出 `--sha1 auto`，`xunlei/pikpak` 会明确提示补 `--gcid YOUR_GCID`，已有 `resolvedParentId` 时也会一并带上 `--target-parent-id`
   - [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已验证 remediation bundle 会为 `guangya` / `189cloud` 这类 provider 生成 `nextStep / recommendedPatchCommand`，并且 API / Markdown 端点已可用
   - 同一脚本现还额外验证了 remediation Markdown 已带 `recommendedAuthModes / webLoginUrl / requiredFieldHints`
   - 同一脚本现还额外验证了 remediation Markdown 已带 `recommendedCreateCommand`
@@ -496,8 +498,9 @@
   - [verify_patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_and_probe_auth_profile.py) 现还额外验证了 `patch_and_probe_auth_profile.py` 在不传 `--set` 时也可直接刷新已有档案的 validation / probe 证据
   - [verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py) 已验证 `create_runtime_probe_task.py` 支持 `--target-profile-id / --auto-temp-file / --threshold-mb`，并会真实输出任务结果 JSON
   - 同一脚本现还额外验证了 `create_runtime_probe_task.py` 会从已保存档案自动解析 `resolvedTargetParentId`
+  - [verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py) 已验证 `create_fast_upload_candidate_task.py` 支持 `--sha1 / --gcid / --auto-temp-file`，会按已保存档案自动解析 `resolvedTargetParentId`，并能真实输出候选任务结果 JSON
   - [verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py) 已验证设置页已接入 `Real Evidence Next Steps` 面板、`loadRealEvidenceRemediationSummary()`、登录刷新和登出清理逻辑
-  - 同一脚本现还额外验证了设置页摘要已消费 `recommendedAuthModes / webLoginUrl / requiredFieldHints / recommendedCreateCommand / recommendedBootstrapCommand / recommendedPatchProbeCommand / recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand`
+  - 同一脚本现还额外验证了设置页摘要已消费 `recommendedAuthModes / webLoginUrl / requiredFieldHints / recommendedCreateCommand / recommendedBootstrapCommand / recommendedPatchProbeCommand / recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand / recommendedFastCandidateCommand`
   - 设置页 `Real Evidence` 摘要现也已补上 `latestValidationProfiles / latestProbeProfiles`，可直接看出当前真实证据汇总是基于多少个最新 validation / probe 档案样本得出的
   - [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py) 现还额外验证了设置页 `Real Evidence` 摘要已显示 `latestValidationProfiles / latestProbeProfiles`
   - 设置页 `Provider Status Matrix` 面板现还额外补上 `liveProbeOk / runtimeEvidenceProviders / runtimeFailedProviders`，可以直接看出当前有多少 provider 已经跑出 live probe 成功样本、真实 runtime 成功样本与失败样本

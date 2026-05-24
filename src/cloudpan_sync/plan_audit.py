@@ -83,7 +83,7 @@ def run_plan_audit() -> dict[str, object]:
             key="P-REAL",
             title="真实联调验证",
             status="todo",
-            evidence="已具备本地 mock 验证链路，并新增真实证据状态报告与任务运行真实样本持久化能力，可按 provider 量化当前已保存的 auth/list/metadata/create_dir/task_runtime 真实证据覆盖；其中 Guangya 已接真实上传链路，aliyundrive_open、123_open 与 baidu_netdisk 现也已接任务运行阶段真实本地文件上传链路，quark、uc、xunlei 与 pikpak 现也已接任务运行阶段真实 rapid-upload API 尝试，115_open 已接任务运行阶段真实 create_dir 写探针，189cloud 也已能在 share-only 场景落出 blocked probe 样本，并在账号级鉴权齐备时发起 createFolder.action 写目录尝试。",
+            evidence="已具备本地 mock 验证链路，并新增真实证据状态报告与任务运行真实样本持久化能力，可按 provider 量化当前已保存的 auth/list/metadata/create_dir/task_runtime 真实证据覆盖；其中 Guangya 已接真实上传链路，aliyundrive_open、123_open 与 baidu_netdisk 现也已接任务运行阶段真实本地文件上传链路，quark、uc、xunlei、pikpak 与 115_open 现也已接任务运行阶段真实 rapid-upload API 尝试，189cloud 也已能在 share-only 场景落出 blocked probe 样本，并在账号级鉴权齐备时发起 createFolder.action 写目录尝试。",
             gaps="尚未提供首批 provider 的真实联调成功证据（认证、目录、元数据、秒传/降级路径）；任务运行阶段虽已支持成功/失败样本持久化，但当前仍缺足够的真实成功样本来收敛 P-REAL。",
         ),
     ]

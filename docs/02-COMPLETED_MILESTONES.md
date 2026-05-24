@@ -99,6 +99,16 @@
   - [verify_create_fast_upload_task_115.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_task_115.py) 已验证 `create_fast_upload_candidate_task.py --target-provider 115_open --auto-temp-file --sha1 auto` 会产出 `executionMode=live`、`verifyMode=metadata_by_file_id` 的 real-transfer 结果，并落出 `task.json / task.md / runtime_evidence.md`
   - [verify_create_fast_upload_task_189cloud.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_task_189cloud.py) 已验证 `create_fast_upload_candidate_task.py --target-provider 189cloud --auto-temp-file` 会产出 `executionMode=live`、`verifyMode=commit_response_xml` 的 real-transfer 结果，并落出 `task.json / task.md / runtime_evidence.md`
 
+### 已完成补齐项 - `2026-05-25`（Runtime Success 设置页收口）
+
+- 提交：`本次提交`
+- 完成范围：
+  - settings 页 `Real Evidence Remediation` 摘要现已补上 `providersWithRuntimeSuccessCommand` 聚合计数，不再只有后端 summary 和 Markdown 导出知道这条字段
+  - settings 页 remediation provider 简讯现也已直接展示 `recommendedRuntimeSuccessCommand`，这样 `115_open / 189cloud` 这类 provider 在前端就能直接看到下一条推荐的真实成功命令，不必再只去翻导出文档
+  - 前端 remediation 收口口径现在已与后端 `real_evidence_remediation.py`、导出文档 `12-REAL_EVIDENCE_REMEDIATION_GUIDE.md` 保持一致
+- 当前验证证据：
+  - [verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py) 已验证 settings 页 remediation 面板会消费 `recommendedRuntimeSuccessCommand / providersWithRuntimeSuccessCommand`
+
 ### M1 - 独立项目骨架
 
 - 完成日期：`2026-05-23`

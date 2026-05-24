@@ -239,6 +239,7 @@ def build_task_list_view(task: dict[str, object]) -> dict[str, object]:
     summary = dict(task.get("summary") or build_task_summary(task))
     progress = dict(task.get("progress") or {})
     guard = dict(task.get("guard") or {})
+    plan = dict(task.get("plan") or {})
     last_action_error = dict(task.get("lastActionError") or {})
     latest_results = list(task.get("results") or [])[:3]
     return {
@@ -255,6 +256,7 @@ def build_task_list_view(task: dict[str, object]) -> dict[str, object]:
         "summary": summary,
         "guard": guard,
         "lastActionError": last_action_error,
+        "pendingItems": list(plan.get("pendingItems") or []),
         "latestResults": latest_results,
     }
 

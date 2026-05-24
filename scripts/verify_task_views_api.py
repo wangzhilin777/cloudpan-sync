@@ -79,6 +79,7 @@ def main() -> None:
                         "hasProgress": isinstance(created_list.get("progress"), dict),
                         "hasSummary": isinstance(created_list.get("summary"), dict),
                         "hasGuard": isinstance(created_list.get("guard"), dict),
+                        "pendingItemsCount": len(created_list.get("pendingItems") or []),
                         "latestResultsCount": len(created_list.get("latestResults") or []),
                     },
                     "createDetailView": {
@@ -96,6 +97,7 @@ def main() -> None:
                         "firstTaskId": first_list.get("taskId"),
                         "firstHasSummary": isinstance(first_list.get("summary"), dict),
                         "firstHasProgress": isinstance(first_list.get("progress"), dict),
+                        "firstHasPendingItems": isinstance(first_list.get("pendingItems"), list),
                         "firstHasLatestResults": isinstance(first_list.get("latestResults"), list),
                     },
                     "getEndpoint": {

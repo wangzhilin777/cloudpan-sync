@@ -1232,7 +1232,7 @@ function renderPendingList() {
   list.innerHTML = "";
   const rows = [];
   for (const task of state.tasks) {
-    const items = task?.plan?.pendingItems || [];
+    const items = task?.pendingItems || task?.plan?.pendingItems || [];
     for (const item of items) {
       rows.push({
         taskId: task.taskId,

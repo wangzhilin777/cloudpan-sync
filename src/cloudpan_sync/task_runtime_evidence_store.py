@@ -51,6 +51,20 @@ def task_runtime_evidence_summary() -> dict[str, object]:
         "sampleCount": len(latest),
         "providerCount": len({str(row.get("providerKey") or "") for row in latest if str(row.get("providerKey") or "")}),
         "profileCount": len({str(row.get("profileId") or "") for row in latest if str(row.get("profileId") or "")}),
+        "successProviderCount": len(
+            {
+                str(row.get("providerKey") or "")
+                for row in latest
+                if str(row.get("providerKey") or "") and bool(row.get("success"))
+            }
+        ),
+        "failedProviderCount": len(
+            {
+                str(row.get("providerKey") or "")
+                for row in latest
+                if str(row.get("providerKey") or "") and not bool(row.get("success"))
+            }
+        ),
         "successCount": sum(1 for row in latest if bool(row.get("success"))),
         "failedCount": sum(1 for row in latest if not bool(row.get("success"))),
         "verifyOkCount": sum(1 for row in latest if bool(row.get("verifyOk"))),
@@ -86,6 +100,8 @@ def task_runtime_evidence_to_markdown(payload: dict[str, object]) -> str:
         f" `sampleCount={summary.get('sampleCount', 0)}`"
         f" `providerCount={summary.get('providerCount', 0)}`"
         f" `profileCount={summary.get('profileCount', 0)}`"
+        f" `successProviderCount={summary.get('successProviderCount', 0)}`"
+        f" `failedProviderCount={summary.get('failedProviderCount', 0)}`"
         f" `successCount={summary.get('successCount', 0)}`"
         f" `failedCount={summary.get('failedCount', 0)}`"
         f" `verifyOkCount={summary.get('verifyOkCount', 0)}`"

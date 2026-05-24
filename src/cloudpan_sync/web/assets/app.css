@@ -485,6 +485,11 @@ button.ghost {
   background: #fff4d6;
   color: #8a5a00;
 }
+.task-status-pill.completed_probe_only,
+.task-status-pill.completed_candidate_only {
+  background: #fff4d6;
+  color: #8a5a00;
+}
 .task-guard-pill.blocking {
   background: #fdecec;
   color: #a42a2a;

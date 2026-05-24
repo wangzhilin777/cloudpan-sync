@@ -208,7 +208,7 @@ def allowed_task_actions(task: dict[str, object]) -> list[str]:
         return ["pause"]
     if state in {"paused", "risk_paused"}:
         return ["resume", "retry"]
-    if state in {"completed", "completed_with_errors"}:
+    if state in {"completed", "completed_with_errors", "completed_probe_only", "completed_candidate_only"}:
         return ["retry"]
     return ["retry"]
 
@@ -411,7 +411,7 @@ def run_task(task_id: str) -> dict[str, object]:
         elif state == "blocked":
             reason = "run_not_allowed_while_guard_blocked"
         return _set_action_error(task, "run", reason)
-    if task["state"] == "completed":
+    if str(task.get("state") or "") in {"completed", "completed_with_errors", "completed_probe_only", "completed_candidate_only"}:
         return task
     _clear_action_error(task)
     task["state"] = "running"
@@ -1603,7 +1603,16 @@ def run_task(task_id: str) -> dict[str, object]:
     task["progress"]["liveSuccess"] = int(runtime_summary.get("liveSuccessCount", 0) or 0)
     task["progress"]["liveFailed"] = int(runtime_summary.get("liveFailedCount", 0) or 0)
     task["results"] = results
-    task["state"] = "completed" if failed == 0 else "completed_with_errors"
+    completion_kind = str(runtime_summary.get("completionKind") or "")
+    has_real_transfer_success = bool(runtime_summary.get("hasRealTransferSuccess"))
+    if failed > 0:
+        task["state"] = "completed_with_errors"
+    elif completion_kind == "candidate_only":
+        task["state"] = "completed_candidate_only"
+    elif completion_kind in {"probe_only", "mixed_non_live"} and not has_real_transfer_success:
+        task["state"] = "completed_probe_only"
+    else:
+        task["state"] = "completed"
     task["updatedAt"] = _now()
     _persist_task_runtime_evidence(task, results)
     refresh_task_summary(task)

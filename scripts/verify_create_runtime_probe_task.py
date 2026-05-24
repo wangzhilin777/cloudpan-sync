@@ -42,7 +42,7 @@ def main() -> None:
     def fake_run_task(task_id: str) -> dict[str, object]:
         return {
             "taskId": task_id,
-            "state": "completed_with_errors",
+            "state": "completed_probe_only",
             "targetProvider": "aliyundrive_open",
             "targetProfileId": "ali-runtime-1",
             "sourceEntries": [
@@ -60,7 +60,7 @@ def main() -> None:
                     "liveAttempt": {"mode": "aliyundrive_open_create_dir_probe"},
                 }
             ],
-            "summary": {"state": "completed_with_errors"},
+            "summary": {"state": "completed_probe_only", "completionKind": "probe_only", "probeOnlyCount": 1},
         }
 
     def fake_get_profile(profile_id: str) -> AuthProfile | None:
@@ -115,6 +115,7 @@ def main() -> None:
                 "scriptHasAutoTempFile": "--auto-temp-file" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasThresholdDefault": "--threshold-mb" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasTargetProfileArg": "--target-profile-id" in SCRIPT_PATH.read_text(encoding="utf-8"),
+                "scriptProbeOnlyState": output.get("state") == "completed_probe_only" and ((output.get("summary") or {}).get("completionKind") == "probe_only"),
             },
             ensure_ascii=False,
             indent=2,

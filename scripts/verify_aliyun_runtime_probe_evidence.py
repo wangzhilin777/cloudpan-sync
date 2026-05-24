@@ -131,6 +131,7 @@ def main() -> None:
                 "probeOnlyDoesNotCountAsRuntimeSuccess": not bool(((provider_row.get("taskRuntimeEvidence") or {}).get("ok"))),
                 "probeCountPreserved": int(((provider_row.get("taskRuntimeEvidence") or {}).get("probeCount", 0)) or 0) == 1,
                 "detailSummaryMarksProbeOnly": int(((detail_view.get("summary") or {}).get("probeOnlyCount", 0)) or 0) == 1 and str(((detail_view.get("summary") or {}).get("completionKind") or "")) == "probe_only",
+                "taskStateIsProbeOnly": str((run_result.get("item") or {}).get("state") or detail_view.get("state") or "") == "completed_probe_only",
             },
             ensure_ascii=False,
             indent=2,

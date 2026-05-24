@@ -529,6 +529,8 @@
   - 设置页 `Task Runtime Evidence` 摘要与最近样本简讯现还额外补上 `probeProviders / probe / probeOnly`，方便直接识别“这是探针留证，不是实际文件已完成传输”
   - 任务运行摘要现也已把 `probe-only / candidate-only / real_transfer` 拆开：`build_task_summary()` 会额外返回 `probeOnlyCount / candidateOnlyCount / liveSuccessCount / liveFailedCount / completionKind / hasRealTransferSuccess`，像 `aliyundrive_open_create_dir_probe` 这类仅探针成功的任务会明确显示 `completionKind=probe_only`，不再只剩一个笼统的 `completed`
   - [verify_aliyun_runtime_probe_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_aliyun_runtime_probe_evidence.py) 现还额外验证了真实 `detailView.summary` 已带 `probeOnlyCount=1` 与 `completionKind=probe_only`
+  - 任务终态现也已按完成口径拆开：全量 `probe-only` 结果会落成 `completed_probe_only`，全量 `candidate-only` 结果会落成 `completed_candidate_only`，而真实传输成功仍保持 `completed`；这样脚本输出、API 明细和队列页状态不会再把“只留到探针/候选证据”的任务混成真正传输完成
+  - [verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py) 现已验证 `create_runtime_probe_task.py` 输出会带 `state=completed_probe_only` 与 `summary.completionKind=probe_only`；[verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py) 也同步验证了 `state=completed_candidate_only` 与 `summary.completionKind=candidate_only`
   - 设置页 `Task Runtime Evidence` 最近样本简讯现还额外补上 `verifyMode`，可直接看出真实运行样本是靠哪条 verify 路径落证据
   - [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py) 现还额外验证了设置页 runtime 简讯已显示 `verifyMode`
   - 设置页 `Task Runtime Evidence` 最近样本简讯现还额外补上 `path / resolvedTargetName`，排查同名冲突改名或目标落点时不必再只靠 `conflictAction` 猜文件最终写到哪里
@@ -543,6 +545,7 @@
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` 最近结果行已显示 `verifyNote`
   - 队列页任务状态 pill 现也已补上 `probe=`、`candidate=` 与 `completion=`，即使 `state=completed`，也能一眼看出这次完成的是 `probe_only` 还是 `real_transfer`
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了队列页 `renderTaskList()` 已显示 `probe / candidate / completion` 三个摘要 pill
+  - 队列页状态 pill 样式现也已补上 `completed_probe_only / completed_candidate_only`，这两类“留到证据但未真实传输完成”的终态会沿用 warning 色系，避免在视觉上和真正的 `completed` 绿态混在一起
   - 队列页当前已改为优先消费 `/api/tasks` 返回的 `listItems / latestResults` 视图，不再把详情态 `results` 当成列表页唯一数据源，最近结果简讯终于能稳定显示真实运行样本
   - [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 现还额外验证了 `loadTasks()` 已优先读取 `listItems`，且 `renderTaskList()` 已优先显示 `latestResults`
   - 列表视图 `build_task_list_view()` 现也已补回 `pendingItems`，待处理页在切到轻量 `listItems` 后不再因为缺少 `plan.pendingItems` 而丢失待处理条目

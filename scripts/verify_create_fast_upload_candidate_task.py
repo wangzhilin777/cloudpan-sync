@@ -42,7 +42,7 @@ def main() -> None:
     def fake_run_task(task_id: str) -> dict[str, object]:
         return {
             "taskId": task_id,
-            "state": "completed",
+            "state": "completed_candidate_only",
             "targetProvider": "115_open",
             "targetProfileId": "115-fast-1",
             "sourceEntries": [
@@ -61,7 +61,7 @@ def main() -> None:
                     "liveAttempt": {"mode": "115_open_fast_upload_candidate", "candidate": True},
                 }
             ],
-            "summary": {"state": "completed"},
+            "summary": {"state": "completed_candidate_only", "completionKind": "candidate_only", "candidateOnlyCount": 1},
         }
 
     def fake_get_profile(profile_id: str) -> AuthProfile | None:
@@ -121,6 +121,7 @@ def main() -> None:
                 "scriptHasAutoTempFile": "--auto-temp-file" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasSha1Arg": "--sha1" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasGcidArg": "--gcid" in SCRIPT_PATH.read_text(encoding="utf-8"),
+                "scriptCandidateOnlyState": output.get("state") == "completed_candidate_only" and ((output.get("summary") or {}).get("completionKind") == "candidate_only"),
             },
             ensure_ascii=False,
             indent=2,

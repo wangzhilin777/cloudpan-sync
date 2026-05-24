@@ -72,7 +72,7 @@ def build_provider_research_index() -> list[dict[str, object]]:
             "authModes": ["web_login_capture", "manual_cookie"],
             "status": "researching",
             "lastVerifiedAt": today,
-            "notes": "shareCode/accessCode based live list/metadata attempts are online, and createFolder.action is now wired for account-level OAuth headers such as AccessToken/Signature/Date; share-only profiles still remain read-only, and stable real success samples are still pending.",
+            "notes": "shareCode/accessCode based live list/metadata attempts are online, createFolder.action is now wired for account-level OAuth headers such as AccessToken/Signature/Date, and task runtime can now also attempt rapid upload through createUploadFile plus fileCommitUrl when a usable local file plus md5 is available; share-only profiles still remain read-only, and stable real success samples plus full binary upload fallback are still pending.",
         },
         {
             "providerKey": "baidu_netdisk",

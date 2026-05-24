@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from .auth_live_validate import list_live_validations
+from .planner import _resolve_conflict_support
 from .provider_live_probe_store import list_provider_live_probes
 from .provider_registry import build_provider_registry
 from .provider_research import build_provider_research_index
@@ -116,6 +117,23 @@ def _fast_check_ready(provider_key: str, profile: object, metadata_ready: bool) 
     return bool(inputs)
 
 
+def _conflict_support_snapshot(provider_key: str) -> dict[str, str]:
+    overwrite_status, overwrite_note = _resolve_conflict_support(
+        conflict_policy="overwrite_existing",
+        provider_key=provider_key,
+    )
+    auto_rename_status, auto_rename_note = _resolve_conflict_support(
+        conflict_policy="auto_rename_new",
+        provider_key=provider_key,
+    )
+    return {
+        "overwrite_support_status": overwrite_status,
+        "overwrite_support_note": overwrite_note,
+        "auto_rename_support_status": auto_rename_status,
+        "auto_rename_support_note": auto_rename_note,
+    }
+
+
 def build_status_matrix() -> dict[str, object]:
     registry = {x.profile.providerKey: x.profile for x in build_provider_registry()}
     research = {str(x.get("providerKey") or ""): x for x in build_provider_research_index()}
@@ -133,6 +151,7 @@ def build_status_matrix() -> dict[str, object]:
         probe = dict(probe_rows.get(provider_key) or {})
         runtime = dict(runtime_rows.get(provider_key) or {})
         runtime_track, runtime_track_note = _runtime_track_for_provider(provider_key)
+        conflict_support = _conflict_support_snapshot(provider_key)
         live_probe_ok = bool(probe.get("ok"))
         list_ready = provider_key in live_list_ready
         metadata_ready = provider_key in live_metadata_ready
@@ -159,6 +178,10 @@ def build_status_matrix() -> dict[str, object]:
                 "supportsAutoRename": profile.supportsAutoRename,
                 "overwriteBehavior": profile.overwriteBehavior,
                 "conflictNotes": profile.conflictNotes,
+                "overwrite_support_status": conflict_support["overwrite_support_status"],
+                "overwrite_support_note": conflict_support["overwrite_support_note"],
+                "auto_rename_support_status": conflict_support["auto_rename_support_status"],
+                "auto_rename_support_note": conflict_support["auto_rename_support_note"],
                 "registryStatus": profile.status,
                 "researchStatus": row_research.get("status", ""),
                 "auth_ready": auth_ready,
@@ -188,6 +211,24 @@ def build_status_matrix() -> dict[str, object]:
             "conflictAwareProviderCount": sum(1 for x in items if x["conflictPolicies"]),
             "overwriteReadyCount": sum(1 for x in items if x["supportsOverwrite"]),
             "autoRenameReadyCount": sum(1 for x in items if x["supportsAutoRename"]),
+            "overwriteDowngradeCount": sum(
+                1 for x in items if str(x["overwrite_support_status"]) == "downgrade_to_auto_rename"
+            ),
+            "overwriteSupportedCount": sum(
+                1 for x in items if str(x["overwrite_support_status"]) == "supported"
+            ),
+            "autoRenameSupportedCount": sum(
+                1 for x in items if str(x["auto_rename_support_status"]) == "supported"
+            ),
+            "autoRenameProbeOnlyCount": sum(
+                1 for x in items if str(x["auto_rename_support_status"]) == "probe_only_runtime_write_check"
+            ),
+            "conflictUnsupportedProviderCount": sum(
+                1
+                for x in items
+                if str(x["overwrite_support_status"]) == "unsupported"
+                and str(x["auto_rename_support_status"]) == "unsupported"
+            ),
             "taskRuntimeEvidenceProviderCount": sum(1 for x in items if int(x["task_runtime_success"]) > 0),
             "taskRuntimeFailedProviderCount": sum(1 for x in items if int(x["task_runtime_failed"]) > 0),
             "taskRuntimeSampleCount": sum(int(x["task_runtime_samples"]) for x in items),
@@ -208,19 +249,23 @@ def matrix_to_markdown(payload: dict[str, object]) -> str:
     lines.append("")
     lines.append(f"- GeneratedAt: `{payload.get('generatedAt', '')}`")
     lines.append(
-        f"- Summary: providerCount={summary.get('providerCount', 0)}, authReadyCount={summary.get('authReadyCount', 0)}, createDirReadyCount={summary.get('createDirReadyCount', 0)}, fastCheckCount={summary.get('fastCheckCount', 0)}, liveProbeOkCount={summary.get('liveProbeOkCount', 0)}, conflictAwareProviderCount={summary.get('conflictAwareProviderCount', 0)}, overwriteReadyCount={summary.get('overwriteReadyCount', 0)}, autoRenameReadyCount={summary.get('autoRenameReadyCount', 0)}, taskRuntimeEvidenceProviderCount={summary.get('taskRuntimeEvidenceProviderCount', 0)}, taskRuntimeFailedProviderCount={summary.get('taskRuntimeFailedProviderCount', 0)}, taskRuntimeSampleCount={summary.get('taskRuntimeSampleCount', 0)}, taskRuntimeSuccessCount={summary.get('taskRuntimeSuccessCount', 0)}, taskRuntimeFailedCount={summary.get('taskRuntimeFailedCount', 0)}, taskRuntimeActiveCount={summary.get('taskRuntimeActiveCount', 0)}, taskRuntimeCandidateCount={summary.get('taskRuntimeCandidateCount', 0)}, taskRuntimeBlockedCount={summary.get('taskRuntimeBlockedCount', 0)}"
+        f"- Summary: providerCount={summary.get('providerCount', 0)}, authReadyCount={summary.get('authReadyCount', 0)}, createDirReadyCount={summary.get('createDirReadyCount', 0)}, fastCheckCount={summary.get('fastCheckCount', 0)}, liveProbeOkCount={summary.get('liveProbeOkCount', 0)}, conflictAwareProviderCount={summary.get('conflictAwareProviderCount', 0)}, overwriteReadyCount={summary.get('overwriteReadyCount', 0)}, autoRenameReadyCount={summary.get('autoRenameReadyCount', 0)}, overwriteDowngradeCount={summary.get('overwriteDowngradeCount', 0)}, overwriteSupportedCount={summary.get('overwriteSupportedCount', 0)}, autoRenameSupportedCount={summary.get('autoRenameSupportedCount', 0)}, autoRenameProbeOnlyCount={summary.get('autoRenameProbeOnlyCount', 0)}, conflictUnsupportedProviderCount={summary.get('conflictUnsupportedProviderCount', 0)}, taskRuntimeEvidenceProviderCount={summary.get('taskRuntimeEvidenceProviderCount', 0)}, taskRuntimeFailedProviderCount={summary.get('taskRuntimeFailedProviderCount', 0)}, taskRuntimeSampleCount={summary.get('taskRuntimeSampleCount', 0)}, taskRuntimeSuccessCount={summary.get('taskRuntimeSuccessCount', 0)}, taskRuntimeFailedCount={summary.get('taskRuntimeFailedCount', 0)}, taskRuntimeActiveCount={summary.get('taskRuntimeActiveCount', 0)}, taskRuntimeCandidateCount={summary.get('taskRuntimeCandidateCount', 0)}, taskRuntimeBlockedCount={summary.get('taskRuntimeBlockedCount', 0)}"
     )
     lines.append("")
-    lines.append("| providerKey | supportStatus | auth_ready | list_ready | metadata_ready | create_dir_ready | fast_check | live_probe_ok | task_runtime_track | task_runtime_samples | task_runtime_success | task_runtime_failed | supports_overwrite | supports_auto_rename | overwrite_behavior | conflict_policies | fallback_ready |")
-    lines.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+    lines.append("| providerKey | supportStatus | auth_ready | list_ready | metadata_ready | create_dir_ready | fast_check | live_probe_ok | task_runtime_track | task_runtime_samples | task_runtime_success | task_runtime_failed | supports_overwrite | supports_auto_rename | overwrite_behavior | overwrite_support_status | auto_rename_support_status | conflict_policies | fallback_ready |")
+    lines.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for row in payload.get("items", []):
         item = dict(row or {})
         lines.append(
-            f"| {item.get('providerKey','')} | {item.get('supportStatus','')} | {item.get('auth_ready',False)} | {item.get('list_ready',False)} | {item.get('metadata_ready',False)} | {item.get('create_dir_ready',False)} | {item.get('fast_check',False)} | {item.get('live_probe_ok',False)} | {item.get('task_runtime_track','')} | {item.get('task_runtime_samples',0)} | {item.get('task_runtime_success',0)} | {item.get('task_runtime_failed',0)} | {item.get('supportsOverwrite',False)} | {item.get('supportsAutoRename',False)} | {item.get('overwriteBehavior','')} | {', '.join(item.get('conflictPolicies', [])) or '(none)'} | {item.get('fallback_ready',False)} |"
+            f"| {item.get('providerKey','')} | {item.get('supportStatus','')} | {item.get('auth_ready',False)} | {item.get('list_ready',False)} | {item.get('metadata_ready',False)} | {item.get('create_dir_ready',False)} | {item.get('fast_check',False)} | {item.get('live_probe_ok',False)} | {item.get('task_runtime_track','')} | {item.get('task_runtime_samples',0)} | {item.get('task_runtime_success',0)} | {item.get('task_runtime_failed',0)} | {item.get('supportsOverwrite',False)} | {item.get('supportsAutoRename',False)} | {item.get('overwriteBehavior','')} | {item.get('overwrite_support_status','')} | {item.get('auto_rename_support_status','')} | {', '.join(item.get('conflictPolicies', [])) or '(none)'} | {item.get('fallback_ready',False)} |"
         )
         if item.get("task_runtime_track_note"):
-            lines.append(f"|  | runtime_note |  |  |  |  |  |  | {str(item.get('task_runtime_track_note') or '').replace('|', '/')} |  |  |  |  |  |  |  |  |")
+            lines.append(f"|  | runtime_note |  |  |  |  |  |  | {str(item.get('task_runtime_track_note') or '').replace('|', '/')} |  |  |  |  |  |  |  |  |  |  |")
+        if item.get("overwrite_support_note"):
+            lines.append(f"|  | overwrite_note |  |  |  |  |  |  |  |  |  |  |  |  |  | {str(item.get('overwrite_support_note') or '').replace('|', '/')} |  |  |  |")
+        if item.get("auto_rename_support_note"):
+            lines.append(f"|  | auto_rename_note |  |  |  |  |  |  |  |  |  |  |  |  |  |  | {str(item.get('auto_rename_support_note') or '').replace('|', '/')} |  |  |")
         if item.get("conflictNotes"):
-            lines.append(f"|  | note |  |  |  |  |  |  |  |  |  |  |  |  | {str(item.get('conflictNotes') or '').replace('|', '/')} |  |  |")
+            lines.append(f"|  | note |  |  |  |  |  |  |  |  |  |  |  |  | {str(item.get('conflictNotes') or '').replace('|', '/')} |  |  |  |  |")
     lines.append("")
     return "\n".join(lines)

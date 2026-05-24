@@ -1533,7 +1533,7 @@ function renderProviderPanel() {
     const conflict = document.createElement("div");
     conflict.className = "auth-item-meta";
     const policyText = (item.conflictPolicies || []).join(", ") || "(none)";
-    conflict.textContent = `conflictPolicies=${policyText}, overwrite=${item.supportsOverwrite}, autoRename=${item.supportsAutoRename}, overwriteBehavior=${item.overwriteBehavior || "not_implemented"}`;
+    conflict.textContent = `conflictPolicies=${policyText}, overwrite=${item.supportsOverwrite}, autoRename=${item.supportsAutoRename}, overwriteBehavior=${item.overwriteBehavior || "not_implemented"}, overwriteSupport=${item.overwrite_support_status || "unknown"}, autoRenameSupport=${item.auto_rename_support_status || "unknown"}`;
     const runtimeTrack = document.createElement("div");
     runtimeTrack.className = "auth-item-meta";
     runtimeTrack.textContent = `task_runtime_track=${item.task_runtime_track || "runtime_planned"}${item.task_runtime_track_note ? `, note=${item.task_runtime_track_note}` : ""}`;

@@ -12,9 +12,11 @@ if str(SRC) not in sys.path:
 
 from cloudpan_sync.auth_profile_patch import configure_data_dir
 from cloudpan_sync.real_evidence_remediation import (
+    _create_command_for_provider,
     build_real_evidence_remediation_bundle,
     real_evidence_remediation_to_markdown,
 )
+from cloudpan_sync.provider_auth_hints import capture_field_hints, provider_auth_modes
 from cloudpan_sync import webapp
 from fastapi.testclient import TestClient
 
@@ -35,22 +37,32 @@ def main() -> None:
             {
                 "providerKey": "189cloud",
                 "displayName": "Tianyi 189Cloud",
-                "authEvidence": {"ok": True},
-                "listEvidence": {"ok": True},
-                "metadataEvidence": {"ok": True},
+                "authEvidence": {"ok": False},
+                "listEvidence": {"ok": False},
+                "metadataEvidence": {"ok": False},
                 "createDirEvidence": {"ok": False},
-                "taskRuntimeEvidence": {"ok": False, "blockedCount": 1},
-                "gaps": ["已有 task runtime 失败样本，但尚无成功样本"],
+                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0},
+                "gaps": ["缺少通过的 auth validation 证据"],
             },
             {
-                "providerKey": "aliyundrive_open",
-                "displayName": "Aliyun Drive Open",
+                "providerKey": "quark",
+                "displayName": "Quark",
+                "authEvidence": {"ok": False},
+                "listEvidence": {"ok": False},
+                "metadataEvidence": {"ok": False},
+                "createDirEvidence": {"ok": False},
+                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0},
+                "gaps": ["缺少通过的 auth validation 证据"],
+            },
+            {
+                "providerKey": "115_open",
+                "displayName": "115 Open",
                 "authEvidence": {"ok": True},
                 "listEvidence": {"ok": True},
                 "metadataEvidence": {"ok": True},
-                "createDirEvidence": {"ok": False},
+                "createDirEvidence": {"ok": True},
                 "taskRuntimeEvidence": {"ok": False, "blockedCount": 0, "candidateCount": 1},
-                "gaps": ["当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。"],
+                "gaps": ["已有 fast-upload candidate 样本，但尚未记录到真实 runtime 成功样本"],
             },
         ]
     }
@@ -61,14 +73,6 @@ def main() -> None:
             "displayName": "smoke-guangya",
             "profileReady": False,
             "writeReady": True,
-        },
-        {
-            "profileId": "ali-rem-1",
-            "providerKey": "aliyundrive_open",
-            "displayName": "ali-ready",
-            "profileReady": True,
-            "writeReady": True,
-            "resolvedParentId": "ali-root-1",
         },
         {
             "profileId": "115-rem-1",
@@ -85,9 +89,31 @@ def main() -> None:
             "profileReady": True,
             "writeReady": False,
         },
+        {
+            "profileId": "quark-rem-1",
+            "providerKey": "quark",
+            "displayName": "quark-manual",
+            "profileReady": False,
+            "writeReady": True,
+        },
     ]
     bundle = build_real_evidence_remediation_bundle(report=synthetic_report, profile_views=synthetic_profiles)
     markdown = real_evidence_remediation_to_markdown(bundle)
+    quark_create = _create_command_for_provider(
+        provider_key="quark",
+        auth_modes=provider_auth_modes("quark"),
+        field_hints=capture_field_hints("quark"),
+    )
+    pan115_create = _create_command_for_provider(
+        provider_key="115_open",
+        auth_modes=provider_auth_modes("115_open"),
+        field_hints=capture_field_hints("115_open"),
+    )
+    baidu_create = _create_command_for_provider(
+        provider_key="baidu_netdisk",
+        auth_modes=provider_auth_modes("baidu_netdisk"),
+        field_hints=capture_field_hints("baidu_netdisk"),
+    )
 
     with TemporaryDirectory() as tmp_dir:
         configure_data_dir(Path(tmp_dir))
@@ -121,10 +147,14 @@ def main() -> None:
                 "guangyaHasPatchProbeCommand": "patch_and_probe_auth_profile.py" in markdown,
                 "markdownHasRefreshEvidenceCommand": "recommendedRefreshEvidenceCommand" in markdown and "--profile-id" in markdown,
                 "markdownHasRuntimeProbeCommand": "recommendedRuntimeProbeCommand" in markdown and "create_runtime_probe_task.py" in markdown,
-                "runtimeProbeCommandCarriesResolvedParent": "--target-parent-id ali-root-1" in markdown,
+                "runtimeProbeCommandCarriesResolvedParent": "--target-parent-id 115-root-1" in markdown,
                 "markdownHasFastCandidateCommand": "recommendedFastCandidateCommand" in markdown and "create_fast_upload_candidate_task.py" in markdown,
-                "fastCandidateCommandCarriesResolvedParent": "--target-parent-id ali-root-1" in markdown,
+                "fastCandidateCommandCarriesResolvedParent": "--target-parent-id 115-root-1" in markdown,
                 "markdownHasCandidateOnlyFlag": "runtimeCandidateOnly=True" in markdown,
+                "quarkPrefersManualCookie": "--provider-key quark --auth-mode manual_cookie" in quark_create and "--cookie YOUR_COOKIE" in quark_create,
+                "quarkSkipsCookieHeaderExtra": "--set cookie_header=YOUR_VALUE" not in quark_create,
+                "115PrefersManualCookie": "--provider-key 115_open --auth-mode manual_cookie" in pan115_create and "--cookie YOUR_COOKIE" in pan115_create,
+                "baiduManualCookieSkipsAuthorizationExtra": "--provider-key baidu_netdisk --auth-mode manual_cookie" in baidu_create and "--set authorization=YOUR_VALUE" not in baidu_create,
                 "cloud189HasHelper": "patch_189cloud_account_auth.py" in markdown,
                 "markdownHasAuthModes": "recommendedAuthModes" in markdown,
                 "markdownHasLoginUrl": "webLoginUrl" in markdown,

@@ -99,7 +99,12 @@ def _create_command_for_provider(
     auth_modes: list[str],
     field_hints: list[str],
 ) -> str:
-    auth_mode = str(auth_modes[0] if auth_modes else "manual_token")
+    available_modes = [str(mode or "") for mode in auth_modes if str(mode or "")]
+    auth_mode = "manual_token"
+    for candidate in ("manual_cookie", "manual_token", "official_oauth", "web_login_capture"):
+        if candidate in available_modes:
+            auth_mode = candidate
+            break
     cmd = [
         ".\\.venv\\Scripts\\python.exe",
         "scripts\\create_auth_profile_stub.py",
@@ -116,6 +121,10 @@ def _create_command_for_provider(
         if "extra." not in text:
             continue
         key = text.split("extra.", 1)[1].split()[0].split(",")[0].strip()
+        if auth_mode == "manual_cookie" and key in {"cookie_header", "cookie", "authorization", "accessToken", "access_token"}:
+            continue
+        if auth_mode != "manual_cookie" and key in {"authorization", "accessToken", "access_token"}:
+            continue
         if key:
             cmd.append(f"--set {key}=YOUR_VALUE")
     return " ".join(cmd)

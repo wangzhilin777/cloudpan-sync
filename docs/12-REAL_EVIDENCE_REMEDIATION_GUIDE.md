@@ -53,8 +53,8 @@
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `115_open` 的 auth profile，再执行最小 validation 和 live probe。
-- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode official_oauth --display-name 115_open-official_oauth --token YOUR_TOKEN --set cookie_header=YOUR_VALUE --set parentId=YOUR_VALUE`
-- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode official_oauth --display-name 115_open-official_oauth --token YOUR_TOKEN --set cookie_header=YOUR_VALUE --set parentId=YOUR_VALUE --probe`
+- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode manual_cookie --display-name 115_open-manual_cookie --cookie YOUR_COOKIE --set parentId=YOUR_VALUE`
+- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode manual_cookie --display-name 115_open-manual_cookie --cookie YOUR_COOKIE --set parentId=YOUR_VALUE --probe`
 
 ### quark - Quark
 - profileCount: `0`
@@ -66,8 +66,8 @@
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `quark` 的 auth profile，再执行最小 validation 和 live probe。
-- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key quark --auth-mode web_login_capture --display-name quark-web_login_capture --token YOUR_TOKEN --set cookie_header=YOUR_VALUE --set pwdId=YOUR_VALUE`
-- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key quark --auth-mode web_login_capture --display-name quark-web_login_capture --token YOUR_TOKEN --set cookie_header=YOUR_VALUE --set pwdId=YOUR_VALUE --probe`
+- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key quark --auth-mode manual_cookie --display-name quark-manual_cookie --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE`
+- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key quark --auth-mode manual_cookie --display-name quark-manual_cookie --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE --probe`
 
 ### 189cloud - Tianyi 189Cloud
 - profileCount: `0`
@@ -79,8 +79,8 @@
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `189cloud` 的 auth profile，再执行最小 validation 和 live probe。
-- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 189cloud --auth-mode web_login_capture --display-name 189cloud-web_login_capture --token YOUR_TOKEN --set shareCode=YOUR_VALUE --set accessCode=YOUR_VALUE`
-- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 189cloud --auth-mode web_login_capture --display-name 189cloud-web_login_capture --token YOUR_TOKEN --set shareCode=YOUR_VALUE --set accessCode=YOUR_VALUE --probe`
+- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 189cloud --auth-mode manual_cookie --display-name 189cloud-manual_cookie --cookie YOUR_COOKIE --set shareCode=YOUR_VALUE --set accessCode=YOUR_VALUE`
+- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 189cloud --auth-mode manual_cookie --display-name 189cloud-manual_cookie --cookie YOUR_COOKIE --set shareCode=YOUR_VALUE --set accessCode=YOUR_VALUE --probe`
 
 ### baidu_netdisk - Baidu Netdisk
 - profileCount: `0`
@@ -93,8 +93,8 @@
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `baidu_netdisk` 的 auth profile，再执行最小 validation 和 live probe。
-- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key baidu_netdisk --auth-mode official_oauth --display-name baidu_netdisk-official_oauth --token YOUR_TOKEN --set authorization=YOUR_VALUE --set fileId=YOUR_VALUE`
-- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key baidu_netdisk --auth-mode official_oauth --display-name baidu_netdisk-official_oauth --token YOUR_TOKEN --set authorization=YOUR_VALUE --set fileId=YOUR_VALUE --probe`
+- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key baidu_netdisk --auth-mode manual_cookie --display-name baidu_netdisk-manual_cookie --cookie YOUR_COOKIE --set fileId=YOUR_VALUE`
+- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key baidu_netdisk --auth-mode manual_cookie --display-name baidu_netdisk-manual_cookie --cookie YOUR_COOKIE --set fileId=YOUR_VALUE --probe`
 
 ### uc - UC Drive
 - profileCount: `0`
@@ -106,8 +106,8 @@
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `uc` 的 auth profile，再执行最小 validation 和 live probe。
-- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key uc --auth-mode web_login_capture --display-name uc-web_login_capture --token YOUR_TOKEN --set cookie_header=YOUR_VALUE --set pwdId=YOUR_VALUE`
-- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key uc --auth-mode web_login_capture --display-name uc-web_login_capture --token YOUR_TOKEN --set cookie_header=YOUR_VALUE --set pwdId=YOUR_VALUE --probe`
+- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key uc --auth-mode manual_cookie --display-name uc-manual_cookie --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE`
+- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key uc --auth-mode manual_cookie --display-name uc-manual_cookie --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE --probe`
 
 ### xunlei - Xunlei Drive
 - profileCount: `0`
@@ -119,8 +119,8 @@
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `xunlei` 的 auth profile，再执行最小 validation 和 live probe。
-- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key xunlei --auth-mode web_login_capture --display-name xunlei-web_login_capture --token YOUR_TOKEN --set authorization=YOUR_VALUE --set deviceId=YOUR_VALUE`
-- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key xunlei --auth-mode web_login_capture --display-name xunlei-web_login_capture --token YOUR_TOKEN --set authorization=YOUR_VALUE --set deviceId=YOUR_VALUE --probe`
+- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key xunlei --auth-mode manual_cookie --display-name xunlei-manual_cookie --cookie YOUR_COOKIE --set deviceId=YOUR_VALUE`
+- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key xunlei --auth-mode manual_cookie --display-name xunlei-manual_cookie --cookie YOUR_COOKIE --set deviceId=YOUR_VALUE --probe`
 
 ### pikpak - PikPak
 - profileCount: `0`
@@ -133,8 +133,8 @@
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `pikpak` 的 auth profile，再执行最小 validation 和 live probe。
-- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_token --display-name pikpak-manual_token --token YOUR_TOKEN --set authorization=YOUR_VALUE --set deviceId=YOUR_VALUE`
-- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_token --display-name pikpak-manual_token --token YOUR_TOKEN --set authorization=YOUR_VALUE --set deviceId=YOUR_VALUE --probe`
+- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_cookie --display-name pikpak-manual_cookie --cookie YOUR_COOKIE --set deviceId=YOUR_VALUE`
+- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_cookie --display-name pikpak-manual_cookie --cookie YOUR_COOKIE --set deviceId=YOUR_VALUE --probe`
 
 ### 123_open - 123Pan Open
 - profileCount: `0`
@@ -147,5 +147,5 @@
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `123_open` 的 auth profile，再执行最小 validation 和 live probe。
-- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 123_open --auth-mode official_oauth --display-name 123_open-official_oauth --token YOUR_TOKEN --set authorization=YOUR_VALUE --set parentFileId=YOUR_VALUE`
-- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 123_open --auth-mode official_oauth --display-name 123_open-official_oauth --token YOUR_TOKEN --set authorization=YOUR_VALUE --set parentFileId=YOUR_VALUE --probe`
+- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 123_open --auth-mode manual_token --display-name 123_open-manual_token --token YOUR_TOKEN --set parentFileId=YOUR_VALUE`
+- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 123_open --auth-mode manual_token --display-name 123_open-manual_token --token YOUR_TOKEN --set parentFileId=YOUR_VALUE --probe`

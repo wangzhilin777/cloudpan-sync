@@ -68,13 +68,17 @@ def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
             "runtime_active",
             "Current task runtime now drives a 123Pan Open live create_dir write probe before mock/download fallback completion.",
         )
+    if provider_key == "115_open":
+        return (
+            "runtime_active",
+            "Current task runtime now drives a 115 Open live create_dir write probe before mock/download fallback completion.",
+        )
     if provider_key == "189cloud":
         return (
             "runtime_blocked",
             "Current 189Cloud path is still shareCode/accessCode read-only, so task runtime write attempts cannot start yet.",
         )
     if provider_key in {
-        "115_open",
         "baidu_netdisk",
         "xunlei",
         "pikpak",

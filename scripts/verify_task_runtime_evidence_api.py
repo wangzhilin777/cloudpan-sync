@@ -36,6 +36,7 @@ def main() -> None:
                     "conflictPolicy": "overwrite_existing",
                     "conflictAction": "overwrite_downgraded_to_auto_rename",
                     "resolvedTargetName": "demo (1).bin",
+                    "riskHint": "fallback upload required",
                     "savedAt": "2026-05-24T00:00:00+00:00",
                 }
             )
@@ -50,10 +51,11 @@ def main() -> None:
                     "success": False,
                     "verifyOk": False,
                     "verifyMode": "",
-                    "verifyNote": "",
+                    "verifyNote": "blocked before verification",
                     "conflictPolicy": "auto_rename_new",
                     "conflictAction": "",
                     "resolvedTargetName": "large.iso",
+                    "riskHint": "download_upload_size_limit_exceeded",
                     "error": "download_upload_blocked_by_size_limit",
                     "savedAt": "2026-05-25T00:00:00+00:00",
                 }
@@ -79,6 +81,8 @@ def main() -> None:
                         "markdownHasSuccessFailedProviderCount": "successProviderCount=1" in markdown and "failedProviderCount=1" in markdown,
                         "markdownHasBlockedCounts": "blockedProviderCount=1" in markdown and "blockedCount=1" in markdown,
                         "markdownHasExecutionMode": "executionMode=blocked" in markdown and "executionMode=live" in markdown,
+                        "markdownHasRiskHint": "riskHint=fallback upload required" in markdown and "riskHint=download_upload_size_limit_exceeded" in markdown,
+                        "markdownHasVerifyNote": "verifyNote=verified by list" in markdown and "verifyNote=blocked before verification" in markdown,
                         "apiSummary": api_payload.get("summary"),
                         "apiMarkdownHasTitle": "# CloudPan Sync 任务运行真实样本报告" in str(api_markdown.get("markdown") or ""),
                     },

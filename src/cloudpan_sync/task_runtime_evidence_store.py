@@ -127,7 +127,9 @@ def task_runtime_evidence_to_markdown(payload: dict[str, object]) -> str:
             f"mode={item.get('mode', '')} executionMode={item.get('executionMode', '')} "
             f"success={item.get('success', False)} verifyOk={item.get('verifyOk', False)} "
             f"verifyMode={item.get('verifyMode', '')} conflictAction={item.get('conflictAction', '')} "
-            f"resolvedTargetName={item.get('resolvedTargetName', '')} requiredAuth={','.join(item.get('requiredAuth', []) or [])} error={item.get('error', '')}"
+            f"resolvedTargetName={item.get('resolvedTargetName', '')} riskHint={item.get('riskHint', '')} "
+            f"verifyNote={item.get('verifyNote', '')} requiredAuth={','.join(item.get('requiredAuth', []) or [])} "
+            f"error={item.get('error', '')}"
         )
     if not payload.get("latestItems"):
         lines.append("- none")

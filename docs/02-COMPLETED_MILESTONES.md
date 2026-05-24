@@ -492,3 +492,5 @@
   - [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py) 现还额外验证了设置页 runtime 简讯已显示 `path / resolvedTargetName`
   - 设置页 `Task Runtime Evidence` 最近样本简讯现还额外补上 `riskHint`，blocked 或失败样本可直接看到当前运行判定出来的风险提示
   - [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py) 现还额外验证了设置页 runtime 简讯已显示 `riskHint`
+  - `Task Runtime Evidence` Markdown / 导出链最近样本行现也已补上 `riskHint / verifyNote`，离线对账 blocked、失败或已完成验证样本时不必再只靠 `error / verifyMode` 猜测运行期上下文
+  - [verify_task_runtime_evidence_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_api.py) 现还额外验证了 `GET /api/task_runtime_evidence_markdown` 样本行已带 `riskHint / verifyNote`

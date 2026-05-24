@@ -87,7 +87,7 @@ def _runtime_probe_command_for_profile(profile: dict[str, object]) -> str:
     resolved_parent_id = str(profile.get("resolvedParentId") or "").strip()
     if resolved_parent_id:
         parts.append(f"--target-parent-id {resolved_parent_id}")
-    parts.extend(["--auto-temp-file", "--threshold-mb 1"])
+    parts.extend(["--auto-temp-file", "--threshold-mb 1", f"--evidence-dir tmp\\{provider_key}-runtime-probe-evidence"])
     return " ".join(parts)
 
 
@@ -111,7 +111,7 @@ def _fast_candidate_command_for_profile(profile: dict[str, object]) -> str:
         parts.append("--gcid YOUR_GCID")
     else:
         parts.append("--md5 auto")
-    parts.append("--auto-temp-file")
+    parts.extend(["--auto-temp-file", f"--evidence-dir tmp\\{provider_key}-fast-candidate-evidence"])
     return " ".join(parts)
 
 

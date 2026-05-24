@@ -50,6 +50,7 @@ See:
 - Evidence export and remediation docs for saved auth profiles
 - Task detail Markdown export via `GET /api/tasks/{id}/markdown` or `scripts/export_task_markdown.py --task-json <task-snapshot.json>`
 - Guangya live upload helper via `scripts/create_live_upload_task.py --evidence-dir <dir>` for refreshing latest auth validation/probe evidence and producing a fixed-file evidence bundle
+- Runtime probe and fast-candidate helpers now also support `--evidence-dir <dir>` for producing the same fixed-file evidence bundle shape
 
 ## Honest Boundaries
 

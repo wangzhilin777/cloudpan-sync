@@ -27,6 +27,8 @@ def main() -> None:
     original_create_task = task_runtime.create_task
     original_run_task = task_runtime.run_task
     original_get_profile = runtime_probe_script.get_profile
+    original_refresh_auth_evidence = runtime_probe_script.refresh_auth_profile_evidence
+    refresh_calls: list[dict[str, object]] = []
 
     def fake_create_task(payload: object) -> dict[str, object]:
         return {
@@ -80,12 +82,43 @@ def main() -> None:
             updatedAt="2026-05-25T00:00:00+00:00",
         )
 
+    def fake_refresh_auth_profile_evidence(
+        *,
+        profile: object,
+        page_size: int = 100,
+        dir_name: str = "",
+        persist: bool = True,
+        profile_view_builder=None,
+    ) -> dict[str, object]:
+        refresh_calls.append({"profileId": getattr(profile, "profileId", ""), "persist": persist})
+        profile_view = profile_view_builder(profile) if callable(profile_view_builder) else {}
+        return {
+            "profile": profile_view,
+            "latestValidation": {"ok": True, "summary": "validation ok"},
+            "latestProbe": {"ok": True, "summary": "probe ok"},
+            "summary": {
+                "profileReady": bool(profile_view.get("profileReady", True)),
+                "writeReady": bool(profile_view.get("writeReady", True)),
+                "validationOk": True,
+                "probeOk": True,
+                "resolvedParentId": str(profile_view.get("resolvedParentId") or ""),
+                "resolvedFileId": str(profile_view.get("resolvedFileId") or ""),
+            },
+        }
+
     task_runtime.create_task = fake_create_task
     task_runtime.run_task = fake_run_task
     runtime_probe_script.task_runtime.create_task = fake_create_task
     runtime_probe_script.task_runtime.run_task = fake_run_task
     runtime_probe_script.get_profile = fake_get_profile
+    runtime_probe_script.refresh_auth_profile_evidence = fake_refresh_auth_profile_evidence
     try:
+        evidence_dir = ROOT / "tmp" / "verify-runtime-probe-evidence"
+        if evidence_dir.exists():
+            for child in evidence_dir.iterdir():
+                if child.is_file():
+                    child.unlink()
+            evidence_dir.rmdir()
         stdout_buffer = io.StringIO()
         with contextlib.redirect_stdout(stdout_buffer):
             result = runtime_probe_script.main(
@@ -95,6 +128,8 @@ def main() -> None:
                     "--target-profile-id",
                     "ali-runtime-1",
                     "--auto-temp-file",
+                    "--evidence-dir",
+                    str(evidence_dir),
                 ]
             )
     finally:
@@ -103,8 +138,30 @@ def main() -> None:
         runtime_probe_script.task_runtime.create_task = original_create_task
         runtime_probe_script.task_runtime.run_task = original_run_task
         runtime_probe_script.get_profile = original_get_profile
+        runtime_probe_script.refresh_auth_profile_evidence = original_refresh_auth_evidence
 
     output = json.loads(stdout_buffer.getvalue())
+    task_json = evidence_dir / "task.json"
+    task_markdown = evidence_dir / "task.md"
+    auth_evidence = evidence_dir / "auth_evidence.md"
+    runtime_evidence = evidence_dir / "runtime_evidence.md"
+    real_evidence = evidence_dir / "real_evidence.md"
+    remediation = evidence_dir / "remediation.md"
+    evidence_titles_ok = all(
+        [
+            task_json.exists(),
+            task_markdown.exists(),
+            auth_evidence.exists(),
+            runtime_evidence.exists(),
+            real_evidence.exists(),
+            remediation.exists(),
+        ]
+    )
+    if evidence_dir.exists():
+        for child in evidence_dir.iterdir():
+            if child.is_file():
+                child.unlink()
+        evidence_dir.rmdir()
 
     print(
         json.dumps(
@@ -112,9 +169,13 @@ def main() -> None:
                 "exitCode": result,
                 "scriptEmittedTaskJson": output.get("taskId") == "task-runtime-1",
                 "scriptResolvedTargetParentId": output.get("resolvedTargetParentId") == "folder-demo",
+                "scriptEvidenceDirOutput": output.get("evidenceDir") == str(evidence_dir),
+                "scriptAuthEvidenceRefreshed": len(refresh_calls) == 1 and refresh_calls[0].get("profileId") == "ali-runtime-1",
+                "scriptEvidenceBundleCreated": evidence_titles_ok,
                 "scriptHasAutoTempFile": "--auto-temp-file" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasThresholdDefault": "--threshold-mb" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasTargetProfileArg": "--target-profile-id" in SCRIPT_PATH.read_text(encoding="utf-8"),
+                "scriptHasEvidenceDirArg": "--evidence-dir" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptProbeOnlyState": output.get("state") == "completed_probe_only" and ((output.get("summary") or {}).get("completionKind") == "probe_only"),
             },
             ensure_ascii=False,

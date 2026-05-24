@@ -26,8 +26,10 @@ SPEC.loader.exec_module(live_upload_script)
 
 def main() -> None:
     original_get_profile = live_upload_script.get_profile
+    original_refresh_auth_evidence = live_upload_script.refresh_auth_profile_evidence
     original_fast_check = task_runtime.fetch_guangya_live_fast_check
     original_upload = task_runtime.upload_guangya_local_file
+    refresh_calls: list[dict[str, object]] = []
 
     task_json = ROOT / "tmp" / "verify-live-upload-task.json"
     task_markdown = ROOT / "tmp" / "verify-live-upload-task.md"
@@ -104,7 +106,39 @@ def main() -> None:
             verifyPayload={"matchedItem": {"name": "cloudpan-sync-live-upload (1).bin"}},
         )
 
+    def fake_refresh_auth_profile_evidence(
+        *,
+        profile: object,
+        page_size: int = 100,
+        dir_name: str = "",
+        persist: bool = True,
+        profile_view_builder=None,
+    ) -> dict[str, object]:
+        refresh_calls.append(
+            {
+                "profileId": getattr(profile, "profileId", ""),
+                "pageSize": page_size,
+                "dirName": dir_name,
+                "persist": persist,
+            }
+        )
+        profile_view = profile_view_builder(profile) if callable(profile_view_builder) else {}
+        return {
+            "profile": profile_view,
+            "latestValidation": {"ok": True, "summary": "validation ok"},
+            "latestProbe": {"ok": True, "summary": "probe ok"},
+            "summary": {
+                "profileReady": bool(profile_view.get("profileReady", True)),
+                "writeReady": bool(profile_view.get("writeReady", True)),
+                "validationOk": True,
+                "probeOk": True,
+                "resolvedParentId": str(profile_view.get("resolvedParentId") or ""),
+                "resolvedFileId": str(profile_view.get("resolvedFileId") or ""),
+            },
+        }
+
     live_upload_script.get_profile = fake_get_profile
+    live_upload_script.refresh_auth_profile_evidence = fake_refresh_auth_profile_evidence
     task_runtime.fetch_guangya_live_fast_check = fake_fast_check
     task_runtime.upload_guangya_local_file = fake_upload
     live_upload_script.task_runtime.fetch_guangya_live_fast_check = fake_fast_check
@@ -136,6 +170,7 @@ def main() -> None:
             )
     finally:
         live_upload_script.get_profile = original_get_profile
+        live_upload_script.refresh_auth_profile_evidence = original_refresh_auth_evidence
         task_runtime.fetch_guangya_live_fast_check = original_fast_check
         task_runtime.upload_guangya_local_file = original_upload
         live_upload_script.task_runtime.fetch_guangya_live_fast_check = original_fast_check
@@ -163,6 +198,7 @@ def main() -> None:
                 "completionKind": ((output.get("summary") or {}).get("completionKind")) == "real_transfer",
                 "firstResultLive": ((((output.get("results") or [None])[0]) or {}).get("executionMode")) == "live",
                 "firstResultVerifyOk": bool((((((output.get("results") or [None])[0]) or {}).get("liveAttempt") or {}).get("verifyOk"))),
+                "authEvidenceRefreshed": len(refresh_calls) == 1 and refresh_calls[0].get("profileId") == "gy-live-1" and refresh_calls[0].get("persist") is True,
                 "jsonSavedState": task_payload.get("state") == "completed",
                 "jsonSavedVerifyMode": (((((task_payload.get("results") or [None])[0]) or {}).get("liveAttempt") or {}).get("verifyMode")) == "list_by_parent_name",
                 "markdownHasConflictAction": "conflictAction=`overwrite_downgraded_to_auto_rename`" in markdown,

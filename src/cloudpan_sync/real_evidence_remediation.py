@@ -144,6 +144,7 @@ def _next_step(
     create_dir_ok: bool,
     runtime_ok: bool,
     runtime_blocked_only: bool,
+    runtime_candidate_only: bool,
 ) -> str:
     if not provider_profiles:
         return f"先创建 `{provider_key}` 的 auth profile，再执行最小 validation 和 live probe。"
@@ -154,6 +155,8 @@ def _next_step(
     if not auth_ok or not list_ok or not metadata_ok or not create_dir_ok:
         return "对现有档案重跑 provider live probe，优先补齐 auth/list/metadata/create_dir 成功证据。"
     if not runtime_ok:
+        if runtime_candidate_only:
+            return "当前只有 fast-upload candidate 样本，尚未形成真实 rapid-upload/runtime 成功证据；请在保留候选样本的基础上继续跑真实任务。"
         if runtime_blocked_only:
             return "当前已有 blocked 样本但没有成功样本；请降低阈值、改用小文件或补齐写鉴权后再跑一次真实任务。"
         return "现有基础证据已齐，下一步用小文件、低并发跑一次真实任务并落 runtime 成功样本。"
@@ -189,6 +192,7 @@ def build_real_evidence_remediation_bundle(
             None,
         )
         runtime_blocked_only = bool(runtime_evidence.get("blockedCount")) and not bool(runtime_evidence.get("ok"))
+        runtime_candidate_only = bool(runtime_evidence.get("candidateCount")) and not bool(runtime_evidence.get("ok"))
         item_payload = {
             "providerKey": provider_key,
             "displayName": str(row.get("displayName") or provider_key),
@@ -241,6 +245,7 @@ def build_real_evidence_remediation_bundle(
                 create_dir_ok=bool(create_dir_evidence.get("ok")),
                 runtime_ok=bool(runtime_evidence.get("ok")),
                 runtime_blocked_only=runtime_blocked_only,
+                runtime_candidate_only=runtime_candidate_only,
             ),
         }
         items.append(item_payload)

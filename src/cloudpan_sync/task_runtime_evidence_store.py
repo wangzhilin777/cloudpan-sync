@@ -48,6 +48,8 @@ def latest_task_runtime_evidence() -> list[dict[str, object]]:
 def task_runtime_evidence_summary() -> dict[str, object]:
     latest = latest_task_runtime_evidence()
     blocked_rows = [row for row in latest if str(row.get("executionMode") or "") == "blocked"]
+    candidate_rows = [row for row in latest if bool(row.get("candidateOnly"))]
+    effective_rows = [row for row in latest if not bool(row.get("candidateOnly"))]
     return {
         "sampleCount": len(latest),
         "providerCount": len({str(row.get("providerKey") or "") for row in latest if str(row.get("providerKey") or "")}),
@@ -55,19 +57,27 @@ def task_runtime_evidence_summary() -> dict[str, object]:
         "successProviderCount": len(
             {
                 str(row.get("providerKey") or "")
-                for row in latest
+                for row in effective_rows
                 if str(row.get("providerKey") or "") and bool(row.get("success"))
             }
         ),
         "failedProviderCount": len(
             {
                 str(row.get("providerKey") or "")
-                for row in latest
+                for row in effective_rows
                 if str(row.get("providerKey") or "") and not bool(row.get("success"))
             }
         ),
-        "successCount": sum(1 for row in latest if bool(row.get("success"))),
-        "failedCount": sum(1 for row in latest if not bool(row.get("success"))),
+        "successCount": sum(1 for row in effective_rows if bool(row.get("success"))),
+        "failedCount": sum(1 for row in effective_rows if not bool(row.get("success"))),
+        "candidateProviderCount": len(
+            {
+                str(row.get("providerKey") or "")
+                for row in candidate_rows
+                if str(row.get("providerKey") or "")
+            }
+        ),
+        "candidateCount": len(candidate_rows),
         "blockedProviderCount": len(
             {
                 str(row.get("providerKey") or "")
@@ -113,6 +123,8 @@ def task_runtime_evidence_to_markdown(payload: dict[str, object]) -> str:
         f" `failedProviderCount={summary.get('failedProviderCount', 0)}`"
         f" `successCount={summary.get('successCount', 0)}`"
         f" `failedCount={summary.get('failedCount', 0)}`"
+        f" `candidateProviderCount={summary.get('candidateProviderCount', 0)}`"
+        f" `candidateCount={summary.get('candidateCount', 0)}`"
         f" `blockedProviderCount={summary.get('blockedProviderCount', 0)}`"
         f" `blockedCount={summary.get('blockedCount', 0)}`"
         f" `verifyOkCount={summary.get('verifyOkCount', 0)}`"
@@ -125,7 +137,7 @@ def task_runtime_evidence_to_markdown(payload: dict[str, object]) -> str:
         lines.append(
             f"- {item.get('providerKey', '')} profile={item.get('profileId', '')} path={item.get('path', '')} "
             f"mode={item.get('mode', '')} executionMode={item.get('executionMode', '')} "
-            f"success={item.get('success', False)} verifyOk={item.get('verifyOk', False)} "
+            f"success={item.get('success', False)} candidateOnly={item.get('candidateOnly', False)} verifyOk={item.get('verifyOk', False)} "
             f"verifyMode={item.get('verifyMode', '')} conflictAction={item.get('conflictAction', '')} "
             f"resolvedTargetName={item.get('resolvedTargetName', '')} riskHint={item.get('riskHint', '')} "
             f"verifyNote={item.get('verifyNote', '')} requiredAuth={','.join(item.get('requiredAuth', []) or [])} "

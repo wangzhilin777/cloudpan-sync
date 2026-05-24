@@ -60,6 +60,26 @@ def main() -> None:
                     "savedAt": "2026-05-25T00:00:00+00:00",
                 }
             )
+            task_runtime_evidence_store.save_task_runtime_evidence(
+                {
+                    "taskId": "task-3",
+                    "providerKey": "quark",
+                    "profileId": "quark-1",
+                    "path": "/movie.mkv",
+                    "mode": "quark_fast_upload_candidate",
+                    "executionMode": "probe",
+                    "candidateOnly": True,
+                    "success": True,
+                    "verifyOk": False,
+                    "verifyMode": "fingerprint_candidate",
+                    "verifyNote": "candidate only",
+                    "conflictPolicy": "auto_rename_new",
+                    "conflictAction": "",
+                    "resolvedTargetName": "movie.mkv",
+                    "riskHint": "",
+                    "savedAt": "2026-05-25T01:00:00+00:00",
+                }
+            )
             payload = task_runtime_evidence_store.build_task_runtime_evidence_payload()
             markdown = task_runtime_evidence_store.task_runtime_evidence_to_markdown(payload)
 
@@ -78,9 +98,10 @@ def main() -> None:
                         "firstLatestItem": ((payload.get("latestItems") or [None])[0]),
                         "markdownHasTitle": "# CloudPan Sync 任务运行真实样本报告" in markdown,
                         "markdownHasConflictHandledProviderCount": "conflictHandledProviderCount=1" in markdown,
-                        "markdownHasSuccessFailedProviderCount": "successProviderCount=1" in markdown and "failedProviderCount=1" in markdown,
+                        "markdownHasSuccessFailedProviderCount": "successProviderCount=1" in markdown and "failedProviderCount=1" in markdown and "candidateProviderCount=1" in markdown,
                         "markdownHasBlockedCounts": "blockedProviderCount=1" in markdown and "blockedCount=1" in markdown,
                         "markdownHasExecutionMode": "executionMode=blocked" in markdown and "executionMode=live" in markdown,
+                        "markdownHasCandidateOnly": "candidateOnly=True" in markdown and "candidateCount=1" in markdown,
                         "markdownHasRiskHint": "riskHint=fallback upload required" in markdown and "riskHint=download_upload_size_limit_exceeded" in markdown,
                         "markdownHasVerifyNote": "verifyNote=verified by list" in markdown and "verifyNote=blocked before verification" in markdown,
                         "apiSummary": api_payload.get("summary"),

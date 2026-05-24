@@ -95,6 +95,17 @@ def _runtime_profile_labels(
     return sorted(set(labels))
 
 
+def _candidate_runtime_profile_labels(
+    rows: list[dict[str, object]],
+    profile_map: dict[str, object],
+) -> list[str]:
+    labels: list[str] = []
+    for row in rows:
+        if bool(row.get("candidateOnly")):
+            labels.append(_profile_label(profile_map, str(row.get("profileId") or "")))
+    return sorted(set(labels))
+
+
 def build_real_evidence_report() -> dict[str, object]:
     display_map = _provider_display_map()
     notes_map = _provider_notes_map()
@@ -120,13 +131,16 @@ def build_real_evidence_report() -> dict[str, object]:
         provider_validations = [row for row in validations if str(row.get("providerKey") or "") == provider_key]
         provider_probes = [row for row in probes if str(row.get("providerKey") or "") == provider_key]
         provider_runtime_rows = [row for row in runtime_rows if str(row.get("providerKey") or "") == provider_key]
+        provider_runtime_effective_rows = [row for row in provider_runtime_rows if not bool(row.get("candidateOnly"))]
+        provider_runtime_candidate_rows = [row for row in provider_runtime_rows if bool(row.get("candidateOnly"))]
 
         auth_ok_labels = _ok_profile_labels_from_validations(provider_validations, profile_map)
         list_ok_labels = _ok_profile_labels_from_probe_kind(provider_probes, profile_map, "list")
         metadata_ok_labels = _ok_profile_labels_from_probe_kind(provider_probes, profile_map, "metadata")
         create_dir_ok_labels = _ok_profile_labels_from_probe_kind(provider_probes, profile_map, "create_dir")
-        runtime_ok_labels = _ok_profile_labels_from_runtime(provider_runtime_rows, profile_map)
-        runtime_failed_labels = _runtime_profile_labels(provider_runtime_rows, profile_map, success=False)
+        runtime_ok_labels = _ok_profile_labels_from_runtime(provider_runtime_effective_rows, profile_map)
+        runtime_failed_labels = _runtime_profile_labels(provider_runtime_effective_rows, profile_map, success=False)
+        runtime_candidate_labels = _candidate_runtime_profile_labels(provider_runtime_candidate_rows, profile_map)
 
         auth_ok = bool(auth_ok_labels)
         list_ok = bool(list_ok_labels)
@@ -136,6 +150,7 @@ def build_real_evidence_report() -> dict[str, object]:
         runtime_failed = bool(runtime_failed_labels)
         runtime_blocked = sum(1 for row in provider_runtime_rows if str(row.get("executionMode") or "") == "blocked")
         runtime_conflict_handled = sum(1 for row in provider_runtime_rows if str(row.get("conflictAction") or ""))
+        runtime_candidate = bool(runtime_candidate_labels)
 
         if auth_ok:
             auth_evidence_provider_count += 1
@@ -166,6 +181,8 @@ def build_real_evidence_report() -> dict[str, object]:
             gaps.append("缺少通过的 live create_dir 证据")
         if runtime_failed and not runtime_ok:
             gaps.append("已有 task runtime 失败样本，但尚无成功样本")
+        if runtime_candidate and not runtime_ok:
+            gaps.append("已有 fast-upload candidate 样本，但尚未记录到真实 rapid-upload/runtime 成功样本")
 
         items.append(
             {
@@ -197,20 +214,26 @@ def build_real_evidence_report() -> dict[str, object]:
                 "taskRuntimeEvidence": {
                     "ok": runtime_ok,
                     "sampleCount": len(provider_runtime_rows),
-                    "successCount": sum(1 for row in provider_runtime_rows if bool(row.get("success"))),
-                    "failedCount": sum(1 for row in provider_runtime_rows if not bool(row.get("success"))),
+                    "successCount": sum(1 for row in provider_runtime_effective_rows if bool(row.get("success"))),
+                    "failedCount": sum(1 for row in provider_runtime_effective_rows if not bool(row.get("success"))),
+                    "candidateCount": len(provider_runtime_candidate_rows),
                     "blockedCount": runtime_blocked,
                     "conflictHandledCount": runtime_conflict_handled,
                     "okProfileCount": len(runtime_ok_labels),
                     "profiles": runtime_ok_labels,
                     "failedProfiles": runtime_failed_labels,
+                    "candidateProfiles": runtime_candidate_labels,
                     "note": (
                         "当前已记录到任务运行阶段真实成功样本。"
                         if runtime_ok
                         else (
                             "当前已记录到任务运行阶段真实失败样本，但尚未出现成功样本。"
                             if runtime_failed
-                            else "当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。"
+                            else (
+                                "当前仅记录到 fast-upload candidate 样本，尚未出现真实 rapid-upload/runtime 成功样本。"
+                                if runtime_candidate
+                                else "当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。"
+                            )
                         )
                     ),
                 },
@@ -233,9 +256,11 @@ def build_real_evidence_report() -> dict[str, object]:
             "fullyVerifiedProviderCount": fully_verified_provider_count,
             "taskRuntimeEvidenceProviderCount": task_runtime_evidence_provider_count,
             "taskRuntimeFailedProviderCount": task_runtime_failed_provider_count,
+            "taskRuntimeCandidateProviderCount": sum(1 for item in items if int(((item.get("taskRuntimeEvidence") or {}).get("candidateCount", 0)) or 0) > 0),
             "taskRuntimeSampleCount": len(runtime_rows),
-            "taskRuntimeSuccessCount": sum(1 for row in runtime_rows if bool(row.get("success"))),
-            "taskRuntimeFailedCount": sum(1 for row in runtime_rows if not bool(row.get("success"))),
+            "taskRuntimeSuccessCount": sum(1 for row in runtime_rows if bool(row.get("success")) and not bool(row.get("candidateOnly"))),
+            "taskRuntimeFailedCount": sum(1 for row in runtime_rows if not bool(row.get("success")) and not bool(row.get("candidateOnly"))),
+            "taskRuntimeCandidateCount": sum(1 for row in runtime_rows if bool(row.get("candidateOnly"))),
             "taskRuntimeBlockedProviderCount": task_runtime_blocked_provider_count,
             "taskRuntimeBlockedCount": sum(1 for row in runtime_rows if str(row.get("executionMode") or "") == "blocked"),
             "taskRuntimeConflictHandledCount": task_runtime_conflict_handled_count,
@@ -266,9 +291,11 @@ def real_evidence_to_markdown(payload: dict[str, object]) -> str:
         f" `fully_verified={summary.get('fullyVerifiedProviderCount', 0)}`"
         f" `task_runtime={summary.get('taskRuntimeEvidenceProviderCount', 0)}`"
         f" `task_runtime_failed={summary.get('taskRuntimeFailedProviderCount', 0)}`"
+        f" `task_runtime_candidate={summary.get('taskRuntimeCandidateProviderCount', 0)}`"
         f" `runtime_samples={summary.get('taskRuntimeSampleCount', 0)}`"
         f" `runtime_success={summary.get('taskRuntimeSuccessCount', 0)}`"
         f" `runtime_failed={summary.get('taskRuntimeFailedCount', 0)}`"
+        f" `runtime_candidate={summary.get('taskRuntimeCandidateCount', 0)}`"
         f" `runtime_blocked_providers={summary.get('taskRuntimeBlockedProviderCount', 0)}`"
         f" `runtime_blocked={summary.get('taskRuntimeBlockedCount', 0)}`"
         f" `runtime_conflict_handled={summary.get('taskRuntimeConflictHandledCount', 0)}`"
@@ -301,6 +328,7 @@ def real_evidence_to_markdown(payload: dict[str, object]) -> str:
             f"samples={((row.get('taskRuntimeEvidence') or {}).get('sampleCount', 0))} "
             f"success={((row.get('taskRuntimeEvidence') or {}).get('successCount', 0))} "
             f"failed={((row.get('taskRuntimeEvidence') or {}).get('failedCount', 0))} "
+            f"candidate={((row.get('taskRuntimeEvidence') or {}).get('candidateCount', 0))} "
             f"blocked={((row.get('taskRuntimeEvidence') or {}).get('blockedCount', 0))} "
             f"conflictHandled={((row.get('taskRuntimeEvidence') or {}).get('conflictHandledCount', 0))} "
             f"note={str((row.get('taskRuntimeEvidence') or {}).get('note') or '')}"

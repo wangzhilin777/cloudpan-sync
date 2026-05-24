@@ -121,6 +121,8 @@ def main() -> None:
                 "firstRuntimeRow": rows[0] if rows else {},
                 "reportTaskRuntimeEvidence": provider_row.get("taskRuntimeEvidence"),
                 "reportSummary": report.get("summary"),
+                "candidateDoesNotCountAsRuntimeSuccess": not bool(((provider_row.get("taskRuntimeEvidence") or {}).get("ok"))),
+                "candidateCountPreserved": int(((provider_row.get("taskRuntimeEvidence") or {}).get("candidateCount", 0)) or 0) == 1,
             },
             ensure_ascii=False,
             indent=2,

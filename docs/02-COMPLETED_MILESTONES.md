@@ -140,6 +140,16 @@
   - [verify_create_live_upload_task_xunlei_pikpak.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task_xunlei_pikpak.py) 已验证 `xunlei / pikpak` 的 helper 证据包同时包含 `task.json / task.md / auth_evidence.md / runtime_evidence.md / real_evidence.md / remediation.md`
   - [verify_create_live_upload_task_quark_uc.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task_quark_uc.py) 已验证 `quark / uc` 的 helper 证据包也同样满足 6 份固定文件名与标题校验
 
+### 已完成补齐项 - `2026-05-25`（Real Evidence 导出链验证补齐）
+
+- 提交：`本次提交`
+- 完成范围：
+  - 已新增 [verify_export_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_report.py)，补齐 `export_real_evidence_report.py` 的落盘导出验证
+  - 该验证会直接跑导出脚本，把 `10-REAL_EVIDENCE_STATUS.md` 写到临时目录，并确认最终 Markdown 里真实保留 `runtime_success / runtime_failed / runtime_candidate / runtime_probe / runtime_blocked` 等 runtime 统计
+  - 同时也会继续校验 provider 级内容：既能看到 `guangya` 的 success 样本行，也能看到 `189cloud` 的 mixed runtime 行与 gap 文案，避免导出链只剩标题和总表
+- 当前验证证据：
+  - [verify_export_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_report.py) 已验证导出文件包含运行期 summary 统计、provider 级 runtime 明细和 gap 文案
+
 ### M1 - 独立项目骨架
 
 - 完成日期：`2026-05-23`

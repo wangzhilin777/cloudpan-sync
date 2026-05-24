@@ -59,7 +59,7 @@ def build_provider_research_index() -> list[dict[str, object]]:
             "authModes": ["web_login_capture", "manual_cookie"],
             "status": "researching",
             "lastVerifiedAt": today,
-            "notes": "share-based live list/metadata(MD5 via file/download) attempts are online from pc-api.uc.cn evidence, cookie-based create_dir attempts are now wired on the Quark PC drive API path, and task runtime can now also attempt rapid upload through upload/pre + update/hash + upload/finish when a usable local file plus md5/sha1 context is available; stable real online samples and ordinary upload chain are still pending.",
+            "notes": "share-based live list/metadata(MD5 via file/download) attempts are online from pc-api.uc.cn evidence, cookie-based create_dir attempts are now wired on the Quark PC drive API path, and task runtime can now also attempt upload/pre + update/hash rapid upload first and continue into upload/auth + multipart PUT + commit + upload/finish when hash miss occurs and a usable local file plus md5/sha1 context is available; stable real online samples are still pending, and the download_upload strategy still has not been upgraded into a direct local-file upload path.",
         },
         {
             "providerKey": "189cloud",
@@ -99,7 +99,7 @@ def build_provider_research_index() -> list[dict[str, object]]:
             "authModes": ["web_login_capture", "manual_cookie"],
             "status": "researching",
             "lastVerifiedAt": today,
-            "notes": "share-based live list/metadata(MD5 via file/download) attempts are online on the pc-api.uc.cn chain with saved cookie + pwdId, same-stack cookie-based create_dir attempts are now wired, and task runtime can now also attempt rapid upload through upload/pre + update/hash + upload/finish when a usable local file plus md5/sha1 context is available; stable real online samples and ordinary upload chain are still pending.",
+            "notes": "share-based live list/metadata(MD5 via file/download) attempts are online on the pc-api.uc.cn chain with saved cookie + pwdId, same-stack cookie-based create_dir attempts are now wired, and task runtime can now also attempt rapid upload through upload/pre + update/hash + upload/finish when a usable local file plus md5/sha1 context is available; stable real online samples are still pending, and hash-miss binary upload fallback is not yet wired on the UC branch.",
         },
         {
             "providerKey": "xunlei",

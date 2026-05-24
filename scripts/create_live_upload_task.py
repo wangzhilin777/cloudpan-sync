@@ -67,6 +67,15 @@ def _write_optional_text(path_text: str, content: str) -> str:
     return str(output_path)
 
 
+def _resolve_evidence_output_dir(path_text: str) -> Path | None:
+    output = str(path_text or "").strip()
+    if not output:
+        return None
+    output_path = Path(output)
+    output_path.mkdir(parents=True, exist_ok=True)
+    return output_path
+
+
 def _auth_evidence_markdown(profile_id: str, refresh: bool) -> str:
     profile = get_profile(profile_id)
     if profile is None:
@@ -104,6 +113,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--task-json-output", default="", help="Optional output path for the task JSON snapshot.")
     parser.add_argument("--markdown-output", default="", help="Optional output path for the task markdown snapshot.")
     parser.add_argument("--auth-evidence-output", default="", help="Optional output path for auth profile evidence markdown.")
+    parser.add_argument("--evidence-dir", default="", help="Optional output directory for the full evidence bundle.")
     parser.add_argument("--no-refresh-auth-evidence", action="store_true", help="Do not refresh auth validation/probe before exporting auth evidence.")
     parser.add_argument("--runtime-evidence-output", default="", help="Optional output path for runtime evidence markdown.")
     parser.add_argument("--real-evidence-output", default="", help="Optional output path for real evidence markdown.")
@@ -138,28 +148,48 @@ def main(argv: list[str] | None = None) -> int:
     task = task_runtime.create_task(payload)
     result = task_runtime.run_task(str(task.get("taskId") or ""))
 
+    evidence_dir = _resolve_evidence_output_dir(str(args.evidence_dir or "").strip())
     task_json_output = str(args.task_json_output or "").strip()
+    markdown_output_arg = str(args.markdown_output or "").strip()
+    auth_evidence_output_arg = str(args.auth_evidence_output or "").strip()
+    runtime_evidence_output_arg = str(args.runtime_evidence_output or "").strip()
+    real_evidence_output_arg = str(args.real_evidence_output or "").strip()
+    remediation_output_arg = str(args.remediation_output or "").strip()
+    if evidence_dir is not None:
+        if not task_json_output:
+            task_json_output = str(evidence_dir / "task.json")
+        if not markdown_output_arg:
+            markdown_output_arg = str(evidence_dir / "task.md")
+        if not auth_evidence_output_arg:
+            auth_evidence_output_arg = str(evidence_dir / "auth_evidence.md")
+        if not runtime_evidence_output_arg:
+            runtime_evidence_output_arg = str(evidence_dir / "runtime_evidence.md")
+        if not real_evidence_output_arg:
+            real_evidence_output_arg = str(evidence_dir / "real_evidence.md")
+        if not remediation_output_arg:
+            remediation_output_arg = str(evidence_dir / "remediation.md")
+
     if task_json_output:
         output_path = Path(task_json_output)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    markdown_output = _write_optional_text(str(args.markdown_output or "").strip(), task_runtime.task_to_markdown(result))
+    markdown_output = _write_optional_text(markdown_output_arg, task_runtime.task_to_markdown(result))
     refresh_auth_evidence = not bool(args.no_refresh_auth_evidence)
     auth_evidence_output = _write_optional_text(
-        str(args.auth_evidence_output or "").strip(),
+        auth_evidence_output_arg,
         _auth_evidence_markdown(target_profile_id, refresh_auth_evidence),
-    ) if str(args.auth_evidence_output or "").strip() else ""
+    ) if auth_evidence_output_arg else ""
     runtime_evidence_output = _write_optional_text(
-        str(args.runtime_evidence_output or "").strip(),
+        runtime_evidence_output_arg,
         task_runtime_evidence_to_markdown(build_task_runtime_evidence_payload()),
     )
     real_evidence_output = _write_optional_text(
-        str(args.real_evidence_output or "").strip(),
+        real_evidence_output_arg,
         real_evidence_to_markdown(build_real_evidence_report()),
     )
     remediation_output = _write_optional_text(
-        str(args.remediation_output or "").strip(),
+        remediation_output_arg,
         real_evidence_remediation_to_markdown(build_real_evidence_remediation_bundle()),
     )
 
@@ -176,6 +206,7 @@ def main(argv: list[str] | None = None) -> int:
         "localFile": str(file_path),
         "acknowledgedDownloadUpload": acknowledge_download_upload,
         "taskJsonOutput": task_json_output,
+        "evidenceDir": str(evidence_dir) if evidence_dir is not None else "",
         "markdownOutput": markdown_output,
         "refreshedAuthEvidence": refresh_auth_evidence,
         "authEvidenceOutput": auth_evidence_output,

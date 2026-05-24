@@ -49,7 +49,7 @@ See:
 - Frontend queue preview, task guard, acknowledgement flow, and task action state machine
 - Evidence export and remediation docs for saved auth profiles
 - Task detail Markdown export via `GET /api/tasks/{id}/markdown` or `scripts/export_task_markdown.py --task-json <task-snapshot.json>`
-- Guangya live upload helper via `scripts/create_live_upload_task.py` for refreshing latest auth validation/probe evidence and producing task snapshots plus auth/runtime/real/remediation evidence markdown
+- Guangya live upload helper via `scripts/create_live_upload_task.py --evidence-dir <dir>` for refreshing latest auth validation/probe evidence and producing a fixed-file evidence bundle
 
 ## Honest Boundaries
 

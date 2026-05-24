@@ -132,12 +132,7 @@ def _live_upload_command_for_profile(profile: dict[str, object]) -> str:
         [
             "--auto-temp-file",
             "--threshold-mb 1",
-            "--task-json-output tmp\\guangya-live-upload-task.json",
-            "--markdown-output tmp\\guangya-live-upload-task.md",
-            "--auth-evidence-output tmp\\guangya-live-auth-evidence.md",
-            "--runtime-evidence-output tmp\\guangya-live-runtime-evidence.md",
-            "--real-evidence-output tmp\\guangya-live-real-evidence.md",
-            "--remediation-output tmp\\guangya-live-remediation.md",
+            "--evidence-dir tmp\\guangya-live-evidence",
         ]
     )
     return " ".join(parts)

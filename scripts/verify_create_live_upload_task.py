@@ -37,9 +37,15 @@ def main() -> None:
     runtime_evidence = ROOT / "tmp" / "verify-live-runtime-evidence.md"
     real_evidence = ROOT / "tmp" / "verify-live-real-evidence.md"
     remediation = ROOT / "tmp" / "verify-live-remediation.md"
+    evidence_dir = ROOT / "tmp" / "verify-live-evidence-bundle"
     for path in (task_json, task_markdown, auth_evidence, runtime_evidence, real_evidence, remediation):
         if path.exists():
             path.unlink()
+    if evidence_dir.exists():
+        for child in evidence_dir.iterdir():
+            if child.is_file():
+                child.unlink()
+        evidence_dir.rmdir()
 
     def fake_get_profile(profile_id: str) -> AuthProfile | None:
         if profile_id != "gy-live-1":
@@ -154,18 +160,8 @@ def main() -> None:
                     "--auto-temp-file",
                     "--conflict-policy",
                     "overwrite_existing",
-                    "--task-json-output",
-                    str(task_json),
-                    "--markdown-output",
-                    str(task_markdown),
-                    "--auth-evidence-output",
-                    str(auth_evidence),
-                    "--runtime-evidence-output",
-                    str(runtime_evidence),
-                    "--real-evidence-output",
-                    str(real_evidence),
-                    "--remediation-output",
-                    str(remediation),
+                    "--evidence-dir",
+                    str(evidence_dir),
                 ]
             )
     finally:
@@ -177,6 +173,12 @@ def main() -> None:
         live_upload_script.task_runtime.upload_guangya_local_file = original_upload
 
     output = json.loads(stdout_buffer.getvalue())
+    task_json = evidence_dir / "task.json"
+    task_markdown = evidence_dir / "task.md"
+    auth_evidence = evidence_dir / "auth_evidence.md"
+    runtime_evidence = evidence_dir / "runtime_evidence.md"
+    real_evidence = evidence_dir / "real_evidence.md"
+    remediation = evidence_dir / "remediation.md"
     task_payload = json.loads(task_json.read_text(encoding="utf-8"))
     markdown = task_markdown.read_text(encoding="utf-8")
     auth_evidence_markdown = auth_evidence.read_text(encoding="utf-8")
@@ -187,12 +189,15 @@ def main() -> None:
     for path in (task_json, task_markdown, auth_evidence, runtime_evidence, real_evidence, remediation):
         if path.exists():
             path.unlink()
+    if evidence_dir.exists():
+        evidence_dir.rmdir()
 
     print(
         json.dumps(
             {
                 "exitCode": result,
                 "resolvedTargetParentId": output.get("resolvedTargetParentId") == "folder-live-1",
+                "evidenceDirOutput": output.get("evidenceDir") == str(evidence_dir),
                 "stateCompleted": output.get("state") == "completed",
                 "hasRealTransferSuccess": ((output.get("summary") or {}).get("hasRealTransferSuccess")) is True,
                 "completionKind": ((output.get("summary") or {}).get("completionKind")) == "real_transfer",
@@ -207,6 +212,11 @@ def main() -> None:
                 "runtimeEvidenceHasTitle": "# CloudPan Sync 任务运行真实样本报告" in runtime_evidence_markdown,
                 "realEvidenceHasTitle": "# CloudPan Sync 真实证据状态报告" in real_evidence_markdown,
                 "remediationHasTitle": "# CloudPan Sync 真实联调补救指南" in remediation_markdown,
+                "bundleUsesFixedFilenames": all(
+                    path.name in {"task.json", "task.md", "auth_evidence.md", "runtime_evidence.md", "real_evidence.md", "remediation.md"}
+                    for path in (task_json, task_markdown, auth_evidence, runtime_evidence, real_evidence, remediation)
+                ),
+                "scriptHasEvidenceDirArg": "--evidence-dir" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasMarkdownOutputArg": "--markdown-output" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasTaskJsonOutputArg": "--task-json-output" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasAuthEvidenceOutputArg": "--auth-evidence-output" in SCRIPT_PATH.read_text(encoding="utf-8"),

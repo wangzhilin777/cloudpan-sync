@@ -12,6 +12,20 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [auth_profile_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_remediation.py) 的补救 bundle 汇总现已继续补齐 `readyProfiles / needsFixProfiles / writeReadyProfiles / writeNeedsFixProfiles / needsSecretRefreshProfiles` 聚合明细，不再只返回几组 count
+  - 这次补齐后，[09-AUTH_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/09-AUTH_REMEDIATION_GUIDE.md) 现在会在顶部额外写出 `profileSummary` 行，直接汇总哪些 profile 已 ready、哪些仍需补救、哪些已具备写盘条件、哪些仍含占位 secret；当前真实仓库会明确显示 `ready=(none)`、`needsFix=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya`、`writeReady=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya`、`needsSecretRefresh=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya`
+  - 已同步补强 [verify_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_remediation_bundle.py)、[verify_export_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_remediation_bundle.py)、[verify_current_auth_remediation_bundle_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_remediation_bundle_sync.py)，把 synthetic bundle、导出 markdown 和当前仓库文档里的 `profileSummary` 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_remediation_bundle.py` 已验证 synthetic bundle/API/Markdown 当前会输出 `profileSummary`，并区分 `ready / needsFix / writeReady / writeNeedsFix / needsSecretRefresh`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_auth_remediation_bundle.py` 已验证导出的授权补救指南会写出 `profileSummary`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_auth_remediation_bundle_sync.py` 已验证当前仓库文档中的 `profileSummary` 与 `build_auth_remediation_bundle()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\export_auth_remediation_bundle.py` 已重导出当前 [09-AUTH_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/09-AUTH_REMEDIATION_GUIDE.md)
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_evidence.py) 的证据 bundle 汇总现已继续补齐 `profileReadyProfiles / writeReadyProfiles / validationOkProfiles / probeOkProfiles` 聚合明细，不再只返回 `profileReadyCount / writeReadyCount / validationOkCount / probeOkCount`
   - 这次补齐后，[08-AUTH_EVIDENCE_BUNDLE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/08-AUTH_EVIDENCE_BUNDLE.md) 现在会在顶部额外写出 `profileSummary` 行，直接汇总当前哪些 profile 已准备好、哪些 profile 已具备写盘条件、哪些 profile 已通过校验或探测；当前真实仓库会明确显示 `profileReady=(none)`、`writeReady=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya`、`validationOk=(none)`、`probeOk=(none)`
   - 已同步补强 [verify_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_evidence_bundle.py)、[verify_export_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_evidence_bundle.py)、[verify_current_auth_evidence_bundle_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_evidence_bundle_sync.py)，把 API bundle、导出 markdown 和当前仓库文档中的 `profileSummary` 一起锁进回归

@@ -106,6 +106,11 @@ def main() -> None:
                     "needsFixCount": summary.get("needsFixCount"),
                     "writeNeedsFixCount": summary.get("writeNeedsFixCount"),
                     "needsSecretRefreshCount": summary.get("needsSecretRefreshCount"),
+                    "readyProfiles": summary.get("readyProfiles"),
+                    "needsFixProfiles": summary.get("needsFixProfiles"),
+                    "writeReadyProfiles": summary.get("writeReadyProfiles"),
+                    "writeNeedsFixProfiles": summary.get("writeNeedsFixProfiles"),
+                    "needsSecretRefreshProfiles": summary.get("needsSecretRefreshProfiles"),
                     "markdownHasSummary": (
                         "- profileCount: `3`" in markdown
                         and "- readyCount: `1`" in markdown
@@ -113,6 +118,7 @@ def main() -> None:
                         and "- writeReadyCount: `2`" in markdown
                         and "- writeNeedsFixCount: `1`" in markdown
                         and "- needsSecretRefreshCount: `2`" in markdown
+                        and "- profileSummary: `ready=189-readonly-share` `needsFix=aliyun-bootstrap, smoke-guangya` `writeReady=aliyun-bootstrap, smoke-guangya` `writeNeedsFix=189-readonly-share` `needsSecretRefresh=aliyun-bootstrap, smoke-guangya`" in markdown
                     ),
                     "markdownHasGuangyaRecreateProbeCommand": (
                         "- placeholderSecretFieldHints: `token`" in smoke_guangya
@@ -133,6 +139,11 @@ def main() -> None:
                     "apiReadyCount": ((api_bundle.get("summary") or {}).get("readyCount")),
                     "apiWriteReadyCount": ((api_bundle.get("summary") or {}).get("writeReadyCount")),
                     "apiNeedsSecretRefreshCount": ((api_bundle.get("summary") or {}).get("needsSecretRefreshCount")),
+                    "apiReadyProfiles": ((api_bundle.get("summary") or {}).get("readyProfiles")),
+                    "apiNeedsFixProfiles": ((api_bundle.get("summary") or {}).get("needsFixProfiles")),
+                    "apiWriteReadyProfiles": ((api_bundle.get("summary") or {}).get("writeReadyProfiles")),
+                    "apiWriteNeedsFixProfiles": ((api_bundle.get("summary") or {}).get("writeNeedsFixProfiles")),
+                    "apiNeedsSecretRefreshProfiles": ((api_bundle.get("summary") or {}).get("needsSecretRefreshProfiles")),
                     "apiSummaryMatchesSyntheticScenario": (
                         ((api_bundle.get("summary") or {}).get("profileCount")) == 3
                         and ((api_bundle.get("summary") or {}).get("readyCount")) == 1
@@ -140,6 +151,11 @@ def main() -> None:
                         and ((api_bundle.get("summary") or {}).get("writeReadyCount")) == 2
                         and ((api_bundle.get("summary") or {}).get("writeNeedsFixCount")) == 1
                         and ((api_bundle.get("summary") or {}).get("needsSecretRefreshCount")) == 2
+                        and ((api_bundle.get("summary") or {}).get("readyProfiles")) == ["189-readonly-share"]
+                        and ((api_bundle.get("summary") or {}).get("needsFixProfiles")) == ["aliyun-bootstrap", "smoke-guangya"]
+                        and ((api_bundle.get("summary") or {}).get("writeReadyProfiles")) == ["aliyun-bootstrap", "smoke-guangya"]
+                        and ((api_bundle.get("summary") or {}).get("writeNeedsFixProfiles")) == ["189-readonly-share"]
+                        and ((api_bundle.get("summary") or {}).get("needsSecretRefreshProfiles")) == ["aliyun-bootstrap", "smoke-guangya"]
                     ),
                     "apiHasAliyunRecreateProbeCommand": bool(
                         next(
@@ -156,7 +172,8 @@ def main() -> None:
                     ),
                     "apiMarkdownHasTitle": "# 授权补救指南 / Auth Remediation Guide" in str(api_markdown.get("markdown", "")),
                     "apiMarkdownHasRecreateProbeCommand": "recommendedRecreateProbeCommand" in str(api_markdown.get("markdown", ""))
-                    and "placeholderSecretFieldHints: `token`" in str(api_markdown.get("markdown", "")),
+                    and "placeholderSecretFieldHints: `token`" in str(api_markdown.get("markdown", ""))
+                    and "profileSummary: `ready=189-readonly-share` `needsFix=aliyun-bootstrap, smoke-guangya` `writeReady=aliyun-bootstrap, smoke-guangya` `writeNeedsFix=189-readonly-share` `needsSecretRefresh=aliyun-bootstrap, smoke-guangya`" in str(api_markdown.get("markdown", "")),
                     "apiMarkdownHas189ReadonlyPatchCommand": "patch_189cloud_account_auth.py" in str(api_markdown.get("markdown", "")),
                 },
                 ensure_ascii=False,

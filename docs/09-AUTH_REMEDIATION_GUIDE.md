@@ -6,6 +6,7 @@
 - writeReadyCount: `3`
 - writeNeedsFixCount: `0`
 - needsSecretRefreshCount: `3`
+- profileSummary: `ready=(none)` `needsFix=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya` `writeReady=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya` `writeNeedsFix=(none)` `needsSecretRefresh=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya`
 
 ## 档案清单 / Profiles
 

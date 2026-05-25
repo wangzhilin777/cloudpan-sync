@@ -42,6 +42,7 @@ def main() -> None:
                     and f"- writeReadyCount: `{summary.get('writeReadyCount', 0)}`" in markdown
                     and f"- writeNeedsFixCount: `{summary.get('writeNeedsFixCount', 0)}`" in markdown
                     and f"- needsSecretRefreshCount: `{summary.get('needsSecretRefreshCount', 0)}`" in markdown
+                    and f"- profileSummary: `ready={', '.join(summary.get('readyProfiles', [])) or '(none)'}` `needsFix={', '.join(summary.get('needsFixProfiles', [])) or '(none)'}` `writeReady={', '.join(summary.get('writeReadyProfiles', [])) or '(none)'}` `writeNeedsFix={', '.join(summary.get('writeNeedsFixProfiles', [])) or '(none)'}` `needsSecretRefresh={', '.join(summary.get('needsSecretRefreshProfiles', [])) or '(none)'}`" in markdown
                 ),
                 "summaryShowsExpectedAuthRemediationCounts": (
                     summary.get("profileCount") == 3
@@ -50,6 +51,11 @@ def main() -> None:
                     and summary.get("writeReadyCount") == 3
                     and summary.get("writeNeedsFixCount") == 0
                     and summary.get("needsSecretRefreshCount") == 3
+                    and summary.get("readyProfiles") == []
+                    and summary.get("needsFixProfiles") == ["aliyun-bootstrap", "risk-smoke-guangya", "smoke-guangya"]
+                    and summary.get("writeReadyProfiles") == ["aliyun-bootstrap", "risk-smoke-guangya", "smoke-guangya"]
+                    and summary.get("writeNeedsFixProfiles") == []
+                    and summary.get("needsSecretRefreshProfiles") == ["aliyun-bootstrap", "risk-smoke-guangya", "smoke-guangya"]
                 ),
                 "hasSmokeGuangyaRecreateProbeCommand": (
                     "- placeholderSecretFieldHints: `token`" in smoke_guangya

@@ -79,6 +79,46 @@ def build_auth_remediation_bundle(*, profile_views: list[dict[str, object]]) -> 
                 "recommendedRecreateProbeCommand": recommended_recreate_probe_command,
             }
         )
+    ready_profiles = sorted(
+        {
+            str(item.get("displayName") or item.get("profileId") or "")
+            for item in items
+            if bool(item.get("profileReady"))
+            and str(item.get("displayName") or item.get("profileId") or "")
+        }
+    )
+    needs_fix_profiles = sorted(
+        {
+            str(item.get("displayName") or item.get("profileId") or "")
+            for item in items
+            if not bool(item.get("profileReady"))
+            and str(item.get("displayName") or item.get("profileId") or "")
+        }
+    )
+    write_ready_profiles = sorted(
+        {
+            str(item.get("displayName") or item.get("profileId") or "")
+            for item in items
+            if bool(item.get("writeReady", True))
+            and str(item.get("displayName") or item.get("profileId") or "")
+        }
+    )
+    write_needs_fix_profiles = sorted(
+        {
+            str(item.get("displayName") or item.get("profileId") or "")
+            for item in items
+            if not bool(item.get("writeReady", True))
+            and str(item.get("displayName") or item.get("profileId") or "")
+        }
+    )
+    needs_secret_refresh_profiles = sorted(
+        {
+            str(item.get("displayName") or item.get("profileId") or "")
+            for item in items
+            if bool(item.get("needsSecretRefresh"))
+            and str(item.get("displayName") or item.get("profileId") or "")
+        }
+    )
     return {
         "summary": {
             "profileCount": len(items),
@@ -87,6 +127,11 @@ def build_auth_remediation_bundle(*, profile_views: list[dict[str, object]]) -> 
             "writeReadyCount": sum(1 for item in items if bool(item.get("writeReady", True))),
             "writeNeedsFixCount": sum(1 for item in items if not bool(item.get("writeReady", True))),
             "needsSecretRefreshCount": sum(1 for item in items if bool(item.get("needsSecretRefresh"))),
+            "readyProfiles": ready_profiles,
+            "needsFixProfiles": needs_fix_profiles,
+            "writeReadyProfiles": write_ready_profiles,
+            "writeNeedsFixProfiles": write_needs_fix_profiles,
+            "needsSecretRefreshProfiles": needs_secret_refresh_profiles,
         },
         "items": items,
     }
@@ -104,6 +149,13 @@ def auth_remediation_bundle_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- writeReadyCount: `{summary.get('writeReadyCount', 0)}`")
     lines.append(f"- writeNeedsFixCount: `{summary.get('writeNeedsFixCount', 0)}`")
     lines.append(f"- needsSecretRefreshCount: `{summary.get('needsSecretRefreshCount', 0)}`")
+    lines.append(
+        f"- profileSummary: `ready={', '.join(summary.get('readyProfiles', [])) or '(none)'}` "
+        f"`needsFix={', '.join(summary.get('needsFixProfiles', [])) or '(none)'}` "
+        f"`writeReady={', '.join(summary.get('writeReadyProfiles', [])) or '(none)'}` "
+        f"`writeNeedsFix={', '.join(summary.get('writeNeedsFixProfiles', [])) or '(none)'}` "
+        f"`needsSecretRefresh={', '.join(summary.get('needsSecretRefreshProfiles', [])) or '(none)'}`"
+    )
     lines.append("")
     lines.append("## 档案清单 / Profiles")
     lines.append("")

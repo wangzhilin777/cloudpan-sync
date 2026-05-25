@@ -30,6 +30,11 @@ def main() -> None:
             "writeReadyCount": 1,
             "writeNeedsFixCount": 2,
             "needsSecretRefreshCount": 1,
+            "readyProfiles": ["Guangya Primary"],
+            "needsFixProfiles": ["189 Share Profile", "Aliyun Open"],
+            "writeReadyProfiles": ["Aliyun Open"],
+            "writeNeedsFixProfiles": ["189 Share Profile", "Guangya Primary"],
+            "needsSecretRefreshProfiles": ["Aliyun Open"],
         },
         "items": [
             {
@@ -114,7 +119,8 @@ def main() -> None:
                 and "- needsFixCount: `2`" in markdown
                 and "- writeReadyCount: `1`" in markdown
                 and "- writeNeedsFixCount: `2`" in markdown
-                and "- needsSecretRefreshCount: `1`" in markdown,
+                and "- needsSecretRefreshCount: `1`" in markdown
+                and "- profileSummary: `ready=Guangya Primary` `needsFix=189 Share Profile, Aliyun Open` `writeReady=Aliyun Open` `writeNeedsFix=189 Share Profile, Guangya Primary` `needsSecretRefresh=Aliyun Open`" in markdown,
                 "exportedHasAliyunRecreateProbeCommand": "### Aliyun Open [aliyundrive_open]" in markdown
                 and "- missingFieldHints: `domainId, driveId`" in markdown
                 and "- placeholderFieldHints: `token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token`" in markdown

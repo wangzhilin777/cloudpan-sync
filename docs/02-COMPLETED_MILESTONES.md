@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`首个缺口动作文案对齐现有档案状态`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `Real Evidence` 的 `firstRealEvidenceGap` 与 `Runtime Orphan Recovery` 的 `firstRuntimeOrphanGap` 继续往前收紧：当当前仓库已经存在可直接续做的档案时，这两处入口会明确展示 `Existing Profile / Existing Orphan Profile`，不再只停留在泛化的 `First Gap / First Match`
+  - 当前效果是：设置页 `first gap` 入口与前几轮已经补齐的顶部即时摘要、`latest action` 入口三者现在完全对齐，用户在 `already_exists / 已有现成档案` 场景下，从任何一个入口看到的都是“继续用现有档案补真实证据”，而不是混杂着不同层级的老文案
+  - 这次补齐仍然不直接增加新的真实在线样本，但继续减少了围绕 `P-REAL` 恢复链的理解歧义，让“先修哪个档案、当前是不是已经有档案可用”在设置页三处入口都说同一种话
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_settings_ui.py` 已验证 `firstRealEvidenceGap` 当前会按 `firstGapHasProfile` 使用 `Existing Profile / First Gap` 文案
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证 `firstRuntimeOrphanGap` 当前会按 `hasExistingProfile` 使用 `Existing Orphan Profile / First Match` 文案
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`首个缺口动作文案也对齐真实状态`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `Real Evidence` 的 `firstRealEvidenceGap` 与 `Runtime Orphan Recovery` 的 `firstRuntimeOrphanGap` 动作文案，从泛化的 `First Gap / First Match` 推进成会按“当前是否已有可用档案”区分真实状态

@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已进一步收口 synthetic 场景，让 `baidu_netdisk` 也真实进入 post-bootstrap 分支，而不是停留在“已建档不触发 helper”的旧状态
+  - 当前 bundle 验证里的 post-bootstrap 汇总已抬到 `5`，并且 `apiHasBaiduPostBootstrapRuntimeCommand` 现在是正向真覆盖，不再是反向占位式判断
+  - 这样 `baidu_netdisk` 这条 live-upload 型 post-bootstrap helper 现在同时被导出验证和 bundle 验证覆盖，和当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 保持一致
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 `apiHasBaiduPostBootstrapRuntimeCommand=true`
+  - 同一验证已验证 `apiHasPostBootstrapRuntimeSummary=true`，并把该 synthetic 场景下的 post-bootstrap 汇总锁到 `5`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已补强 synthetic 场景，不再只围绕旧的单个 post-bootstrap helper 走回归
   - 当前 bundle 验证已能同时覆盖 `189cloud` 的 fast-candidate 型 post-bootstrap helper，以及 `quark / xunlei / 123_open` 的 live-upload 型 post-bootstrap helper，并保留 `aliyundrive_open` 的 probe-only、`115_open` 的 candidate-only 路径
   - 这样 remediation bundle 的 API/Markdown 验证也和当前 helper 分流保持一致，不再出现“导出 verifier 已更新，但 bundle verifier 还在旧场景”的割裂

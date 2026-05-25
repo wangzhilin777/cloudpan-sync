@@ -143,14 +143,6 @@ def main() -> None:
             "resolvedParentId": "aliyun-root-0",
         },
         {
-            "profileId": "bd-rem-1",
-            "providerKey": "baidu_netdisk",
-            "displayName": "baidu-ready",
-            "profileReady": True,
-            "writeReady": True,
-            "resolvedParentId": "/",
-        },
-        {
             "profileId": "pp-rem-1",
             "providerKey": "pikpak",
             "displayName": "pikpak-ready",
@@ -261,7 +253,7 @@ def main() -> None:
                 "markdownHasNextStep": "nextStep:" in markdown,
                 "apiHasSummary": bool((api_bundle.get("summary") or {}).get("providerCount", 0) >= 0),
                 "apiHasRuntimeSuccessSummary": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")),
-                "apiHasPostBootstrapRuntimeSummary": ((api_bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 4,
+                "apiHasPostBootstrapRuntimeSummary": ((api_bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 5,
                 "apiHasGuangyaRuntimeSuccessCommand": bool(
                     next(
                         (
@@ -317,7 +309,7 @@ def main() -> None:
                         ),
                         None,
                     )
-                ) is False,
+                ),
                 "apiMarkdownHasTitle": "# CloudPan Sync 真实联调补救指南" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in str(api_markdown.get("markdown", "")),

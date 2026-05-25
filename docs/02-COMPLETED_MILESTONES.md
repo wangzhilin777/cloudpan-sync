@@ -10,6 +10,21 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充补救链按原档案恢复命令`
+- 完成范围：
+  - [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 现已把 `runtime_orphan` provider 的 `recommendedRecreateProbeCommand` 提升为优先恢复链路；当存在历史成功样本但当前仓库缺少对应 auth profile 时，会优先给出带原 `profileId` 的恢复命令，而不是只停留在泛化的 bootstrap
+  - 这次补齐后，[12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 对 `guangya / pikpak / uc` 三个 `runtimeOrphanOnly` provider 都会直接输出 `--profile-id gy-live-1 / pikpak-live-1 / uc-live-1` 的 `recommendedPrimaryCommand / recommendedRecreateProbeCommand`，并保留 provider-aware 的字段占位符，例如 `YOUR_REAL_PARENT_ID / YOUR_DEVICE_ID / YOUR_SHARE_PWD_ID`
+  - 当前补救链现在会更诚实地区分“恢复旧 profileId 以便重新验证”和“post-bootstrap runtime helper”；`guangya / pikpak / uc` 会优先提示先把原 orphan profile 恢复回当前仓库，再去补 auth/list/metadata/create_dir 证据，避免把历史 runtime success 误读成当前仓库已可复验完成
+  - 已同步补强 [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 与 [verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)，把 synthetic bundle、当前仓库 Markdown 和 API 输出里的 orphan-specific `recreate_probe` 命令、`providerSummary`、`runtimeOrphanOnly` 列表一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 synthetic remediation bundle/API/Markdown 当前会对 orphan provider 输出 `--profile-id gy-orphan / uc-orphan` 这类恢复命令，并保持 `recreate_probe` 主命令优先级
+  - `.\.venv\Scripts\python.exe scripts\export_real_evidence_remediation.py` 已重导出当前 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证导出的补救指南仍会输出 `primaryCommand / recreateProbe / conflictPolicy` 等现有汇总与分项字段
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前仓库文档中的 `gy-live-1 / pikpak-live-1 / uc-live-1` orphan 恢复命令与 `build_real_evidence_remediation_bundle()` 保持同步
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充运行样本脱节恢复指南`
 - 完成范围：
   - 已新增应用侧聚合模块 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py)，把当前 `runtime_orphan` 样本正式汇总成可消费的 `summary / items / markdown` 三种形态，不再只停留在 `Real Evidence` 与 `Remediation` 里的旁注

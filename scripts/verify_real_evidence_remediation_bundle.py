@@ -32,8 +32,8 @@ def main() -> None:
                 "listEvidence": {"ok": True},
                 "metadataEvidence": {"ok": True},
                 "createDirEvidence": {"ok": True},
-                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0},
-                "gaps": ["基础证据已齐，但尚未记录到真实 runtime 成功样本"],
+                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0, "orphanProfileCount": 1, "orphanProfiles": ["gy-orphan"]},
+                "gaps": ["基础证据已齐，但尚未记录到真实 runtime 成功样本", "已有 runtime 样本，但对应 auth profile 未保存在当前仓库"],
             },
             {
                 "providerKey": "189cloud",
@@ -114,6 +114,16 @@ def main() -> None:
                 "createDirEvidence": {"ok": True},
                 "taskRuntimeEvidence": {"ok": False, "blockedCount": 0},
                 "gaps": ["基础证据已齐，但尚未记录到真实 runtime 成功样本"],
+            },
+            {
+                "providerKey": "uc",
+                "displayName": "UC Drive",
+                "authEvidence": {"ok": True},
+                "listEvidence": {"ok": True},
+                "metadataEvidence": {"ok": True},
+                "createDirEvidence": {"ok": True},
+                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0, "orphanProfileCount": 1, "orphanProfiles": ["uc-orphan"]},
+                "gaps": ["已有 runtime 样本，但对应 auth profile 未保存在当前仓库"],
             },
         ]
     }
@@ -227,15 +237,15 @@ def main() -> None:
                 "summaryHasExpectedLiveUploadCount": ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == 1,
                 "summaryHasExpectedFastCandidateCount": ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == 2,
                 "summaryHasExpectedRuntimeSuccessCount": ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 2,
-                "summaryHasExpectedPostBootstrapCount": ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 5,
-                "summaryHasExpectedPrimaryCommandCount": ((bundle.get("summary") or {}).get("providersWithPrimaryCommand")) == 9,
-                "summaryHasExpectedRecreateProbeCount": ((bundle.get("summary") or {}).get("providersWithRecreateProbeCommand")) == 2,
-                "summaryHasExpectedOverwriteVariantCount": ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == 9,
-                "summaryHasExpectedConflictPolicyNoteCount": ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == 9,
+                "summaryHasExpectedPostBootstrapCount": ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 6,
+                "summaryHasExpectedPrimaryCommandCount": ((bundle.get("summary") or {}).get("providersWithPrimaryCommand")) == 10,
+                "summaryHasExpectedRecreateProbeCount": ((bundle.get("summary") or {}).get("providersWithRecreateProbeCommand")) == 3,
+                "summaryHasExpectedOverwriteVariantCount": ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == 10,
+                "summaryHasExpectedConflictPolicyNoteCount": ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == 10,
                 "summaryHasExpectedPostRefreshRuntimeCount": ((bundle.get("summary") or {}).get("providersWithPostRefreshRuntimeCommand")) == 0,
-                "summaryHasExpectedDeclaredConflictPoliciesCount": ((bundle.get("summary") or {}).get("providersWithDeclaredConflictPolicies")) == 7,
+                "summaryHasExpectedDeclaredConflictPoliciesCount": ((bundle.get("summary") or {}).get("providersWithDeclaredConflictPolicies")) == 8,
                 "summaryHasExpectedDirectOverwriteCount": ((bundle.get("summary") or {}).get("providersWithProviderManagedOverwrite")) == 1,
-                "summaryHasExpectedOverwriteDowngradeCount": ((bundle.get("summary") or {}).get("providersWithOverwriteDowngrade")) == 6,
+                "summaryHasExpectedOverwriteDowngradeCount": ((bundle.get("summary") or {}).get("providersWithOverwriteDowngrade")) == 7,
                 "summaryHasExpectedConflictUnsupportedCount": ((bundle.get("summary") or {}).get("providersWithConflictUnsupported")) == 1,
                 "providersBlockedOnly": ((bundle.get("summary") or {}).get("providersBlockedOnly")),
                 "providersCandidateOnly": ((bundle.get("summary") or {}).get("providersCandidateOnly")),
@@ -249,7 +259,8 @@ def main() -> None:
                 "providersBlockedOnlyList": ((bundle.get("summary") or {}).get("providersBlockedOnlyList")),
                 "providersCandidateOnlyList": ((bundle.get("summary") or {}).get("providersCandidateOnlyList")),
                 "providersProbeOnlyList": ((bundle.get("summary") or {}).get("providersProbeOnlyList")),
-                "markdownHasProviderSummary": "- providerSummary: `noProfiles=123_open, 189cloud, baidu_netdisk, quark, xunlei` `needAuth=123_open, 189cloud, baidu_netdisk, quark, xunlei` `needRuntime=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, xunlei` `recreateProbe=aliyundrive_open, guangya` `primaryCommand=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, xunlei` `overwriteVariant=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, xunlei` `blockedOnly=(none)` `candidateOnly=115_open` `probeOnly=aliyundrive_open`" in markdown,
+                "providersRuntimeOrphanOnlyList": ((bundle.get("summary") or {}).get("providersRuntimeOrphanOnlyList")),
+                "markdownHasProviderSummary": "- providerSummary: `noProfiles=123_open, 189cloud, baidu_netdisk, quark, uc, xunlei` `needAuth=123_open, 189cloud, baidu_netdisk, quark, xunlei` `needRuntime=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `recreateProbe=aliyundrive_open, guangya, uc` `primaryCommand=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `overwriteVariant=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `blockedOnly=(none)` `candidateOnly=115_open` `probeOnly=aliyundrive_open` `runtimeOrphanOnly=guangya, uc`" in markdown,
                 "markdownHasCreateCommand": "create_auth_profile_stub.py" in markdown,
                 "markdownHasBootstrapCommand": "recommendedBootstrapCommand" in markdown and "--probe" in markdown,
                 "guangyaHasPatchCommand": "patch_auth_profile_extra.py" in markdown,
@@ -269,7 +280,7 @@ def main() -> None:
                 "markdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown and "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown,
                 "markdownHasPrimaryCommand": "recommendedPrimaryCommand" in markdown and "label=recreate_probe" in markdown and "label=post_bootstrap_runtime" in markdown,
                 "markdownHasRecreateProbeCommand": "recommendedRecreateProbeCommand" in markdown and "placeholderSecretFieldHints: `token`" in markdown,
-                "markdownHasExpandedPostBootstrapHelpers": "tmp\\quark-post-bootstrap-runtime-evidence" in markdown and "tmp\\xunlei-post-bootstrap-runtime-evidence" in markdown and "tmp\\123_open-post-bootstrap-runtime-evidence" in markdown,
+                "markdownHasExpandedPostBootstrapHelpers": "tmp\\quark-post-bootstrap-runtime-evidence" in markdown and "tmp\\xunlei-post-bootstrap-runtime-evidence" in markdown and "tmp\\123_open-post-bootstrap-runtime-evidence" in markdown and "tmp\\uc-post-bootstrap-runtime-evidence" in markdown,
                 "postBootstrapCommandShowsConflictChoice": "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "markdownHasOverwriteVariantCommand": "recommendedOverwriteVariantCommand" in markdown and "--conflict-policy overwrite_existing" in markdown,
                 "markdownHasConflictPolicyNote": "conflictPolicyNote:" in markdown and "overwrite_existing" in markdown,
@@ -300,28 +311,29 @@ def main() -> None:
                 "markdownHasNextStep": "nextStep:" in markdown,
                 "apiHasSummary": bool((api_bundle.get("summary") or {}).get("providerCount", 0) >= 0),
                 "apiHasRuntimeSuccessSummary": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")),
-                "apiHasPostBootstrapRuntimeSummary": ((api_bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 5,
+                "apiHasPostBootstrapRuntimeSummary": ((api_bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 6,
                 "apiHasExpectedLiveUploadSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == 1,
                 "apiHasExpectedFastCandidateSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == 2,
                 "apiHasExpectedRuntimeSuccessSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 2,
-                "apiHasExpectedPrimaryCommandSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithPrimaryCommand")) == ((bundle.get("summary") or {}).get("providersWithPrimaryCommand")) == 9,
-                "apiHasExpectedRecreateProbeSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithRecreateProbeCommand")) == ((bundle.get("summary") or {}).get("providersWithRecreateProbeCommand")) == 2,
-                "apiHasExpectedOverwriteVariantSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == 9,
-                "apiHasExpectedConflictPolicyNoteSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == 9,
+                "apiHasExpectedPrimaryCommandSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithPrimaryCommand")) == ((bundle.get("summary") or {}).get("providersWithPrimaryCommand")) == 10,
+                "apiHasExpectedRecreateProbeSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithRecreateProbeCommand")) == ((bundle.get("summary") or {}).get("providersWithRecreateProbeCommand")) == 3,
+                "apiHasExpectedOverwriteVariantSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == 10,
+                "apiHasExpectedConflictPolicyNoteSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == 10,
                 "apiHasExpectedPostRefreshRuntimeSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithPostRefreshRuntimeCommand")) == ((bundle.get("summary") or {}).get("providersWithPostRefreshRuntimeCommand")) == 0,
-                "apiHasExpectedDeclaredConflictPoliciesSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithDeclaredConflictPolicies")) == ((bundle.get("summary") or {}).get("providersWithDeclaredConflictPolicies")) == 7,
+                "apiHasExpectedDeclaredConflictPoliciesSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithDeclaredConflictPolicies")) == ((bundle.get("summary") or {}).get("providersWithDeclaredConflictPolicies")) == 8,
                 "apiHasExpectedDirectOverwriteSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithProviderManagedOverwrite")) == ((bundle.get("summary") or {}).get("providersWithProviderManagedOverwrite")) == 1,
-                "apiHasExpectedOverwriteDowngradeSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithOverwriteDowngrade")) == ((bundle.get("summary") or {}).get("providersWithOverwriteDowngrade")) == 6,
+                "apiHasExpectedOverwriteDowngradeSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithOverwriteDowngrade")) == ((bundle.get("summary") or {}).get("providersWithOverwriteDowngrade")) == 7,
                 "apiHasExpectedConflictUnsupportedSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithConflictUnsupported")) == ((bundle.get("summary") or {}).get("providersWithConflictUnsupported")) == 1,
-                "apiHasExpectedProviderSummaryLists": ((api_bundle.get("summary") or {}).get("providersWithNoProfilesList")) == ["123_open", "189cloud", "baidu_netdisk", "quark", "xunlei"]
+                "apiHasExpectedProviderSummaryLists": ((api_bundle.get("summary") or {}).get("providersWithNoProfilesList")) == ["123_open", "189cloud", "baidu_netdisk", "quark", "uc", "xunlei"]
                 and ((api_bundle.get("summary") or {}).get("providersNeedingAuthEvidenceList")) == ["123_open", "189cloud", "baidu_netdisk", "quark", "xunlei"]
-                and ((api_bundle.get("summary") or {}).get("providersNeedingRuntimeSuccessList")) == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "guangya", "pikpak", "quark", "xunlei"]
-                and ((api_bundle.get("summary") or {}).get("providersWithRecreateProbeCommandList")) == ["aliyundrive_open", "guangya"]
-                and ((api_bundle.get("summary") or {}).get("providersWithPrimaryCommandList")) == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "guangya", "pikpak", "quark", "xunlei"]
-                and ((api_bundle.get("summary") or {}).get("providersWithOverwriteVariantCommandList")) == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "guangya", "pikpak", "quark", "xunlei"]
+                and ((api_bundle.get("summary") or {}).get("providersNeedingRuntimeSuccessList")) == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "guangya", "pikpak", "quark", "uc", "xunlei"]
+                and ((api_bundle.get("summary") or {}).get("providersWithRecreateProbeCommandList")) == ["aliyundrive_open", "guangya", "uc"]
+                and ((api_bundle.get("summary") or {}).get("providersWithPrimaryCommandList")) == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "guangya", "pikpak", "quark", "uc", "xunlei"]
+                and ((api_bundle.get("summary") or {}).get("providersWithOverwriteVariantCommandList")) == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "guangya", "pikpak", "quark", "uc", "xunlei"]
                 and ((api_bundle.get("summary") or {}).get("providersBlockedOnlyList")) == []
                 and ((api_bundle.get("summary") or {}).get("providersCandidateOnlyList")) == ["115_open"]
-                and ((api_bundle.get("summary") or {}).get("providersProbeOnlyList")) == ["aliyundrive_open"],
+                and ((api_bundle.get("summary") or {}).get("providersProbeOnlyList")) == ["aliyundrive_open"]
+                and ((api_bundle.get("summary") or {}).get("providersRuntimeOrphanOnlyList")) == ["guangya", "uc"],
                 "apiHasOverwriteVariantCommand": bool(
                     next(
                         (
@@ -408,6 +420,33 @@ def main() -> None:
                         None,
                     )
                 ),
+                "apiHasGuangyaOrphanRecreateProbeCommand": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "guangya"
+                            and str((row or {}).get("recommendedPrimaryCommandLabel") or "") == "recreate_probe"
+                            and "--profile-id gy-orphan" in str((row or {}).get("recommendedRecreateProbeCommand") or "")
+                            and "guangya-restore-gy-orphan" in str((row or {}).get("recommendedPrimaryCommand") or "")
+                        ),
+                        None,
+                    )
+                ),
+                "apiHasUcOrphanRecreateProbeCommand": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "uc"
+                            and str((row or {}).get("recommendedPrimaryCommandLabel") or "") == "recreate_probe"
+                            and "--profile-id uc-orphan" in str((row or {}).get("recommendedRecreateProbeCommand") or "")
+                            and "uc-restore-uc-orphan" in str((row or {}).get("recommendedPrimaryCommand") or "")
+                            and "runtimeOrphanOnly" in str(api_markdown.get("markdown", ""))
+                        ),
+                        None,
+                    )
+                ),
                 "apiHas189PrimaryBootstrapCommand": bool(
                     next(
                         (
@@ -477,7 +516,7 @@ def main() -> None:
                 "apiMarkdownHasOverwriteVariantCommand": "recommendedOverwriteVariantCommand" in str(api_markdown.get("markdown", "")) and "--conflict-policy overwrite_existing" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasConflictPolicyNote": "conflictPolicyNote:" in str(api_markdown.get("markdown", "")) and "overwrite_existing" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasConflictSupportRows": "conflictSupport:" in str(api_markdown.get("markdown", "")) and "providerConflictNotes:" in str(api_markdown.get("markdown", "")),
-                "apiMarkdownHasProviderSummary": "providerSummary: `noProfiles=123_open, 189cloud, baidu_netdisk, quark, xunlei` `needAuth=123_open, 189cloud, baidu_netdisk, quark, xunlei` `needRuntime=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, xunlei` `recreateProbe=aliyundrive_open, guangya` `primaryCommand=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, xunlei` `overwriteVariant=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, xunlei` `blockedOnly=(none)` `candidateOnly=115_open` `probeOnly=aliyundrive_open`" in str(api_markdown.get("markdown", "")),
+                "apiMarkdownHasProviderSummary": "providerSummary: `noProfiles=123_open, 189cloud, baidu_netdisk, quark, uc, xunlei` `needAuth=123_open, 189cloud, baidu_netdisk, quark, xunlei` `needRuntime=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `recreateProbe=aliyundrive_open, guangya, uc` `primaryCommand=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `overwriteVariant=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `blockedOnly=(none)` `candidateOnly=115_open` `probeOnly=aliyundrive_open` `runtimeOrphanOnly=guangya, uc`" in str(api_markdown.get("markdown", "")),
             },
             ensure_ascii=False,
             indent=2,

@@ -36,6 +36,8 @@ def main() -> None:
     xunlei = _section(markdown, "xunlei")
     pan123 = _section(markdown, "123_open")
     aliyun = _section(markdown, "aliyundrive_open")
+    uc = _section(markdown, "uc")
+    pikpak = _section(markdown, "pikpak")
 
     print(
         json.dumps(
@@ -54,14 +56,15 @@ def main() -> None:
                     and f"- providersWithPostRefreshRuntimeCommand: `{summary.get('providersWithPostRefreshRuntimeCommand', 0)}`" in markdown
                     and f"- providersWithRecreateProbeCommand: `{summary.get('providersWithRecreateProbeCommand', 0)}`" in markdown
                     and f"- providersWithPrimaryCommand: `{summary.get('providersWithPrimaryCommand', 0)}`" in markdown
-                    and f"- providerSummary: `noProfiles={', '.join(summary.get('providersWithNoProfilesList', [])) or '(none)'}` `needAuth={', '.join(summary.get('providersNeedingAuthEvidenceList', [])) or '(none)'}` `needRuntime={', '.join(summary.get('providersNeedingRuntimeSuccessList', [])) or '(none)'}` `recreateProbe={', '.join(summary.get('providersWithRecreateProbeCommandList', [])) or '(none)'}` `primaryCommand={', '.join(summary.get('providersWithPrimaryCommandList', [])) or '(none)'}` `overwriteVariant={', '.join(summary.get('providersWithOverwriteVariantCommandList', [])) or '(none)'}` `blockedOnly={', '.join(summary.get('providersBlockedOnlyList', [])) or '(none)'}` `candidateOnly={', '.join(summary.get('providersCandidateOnlyList', [])) or '(none)'}` `probeOnly={', '.join(summary.get('providersProbeOnlyList', [])) or '(none)'}`" in markdown
+                    and f"- providersRuntimeOrphanOnly: `{summary.get('providersRuntimeOrphanOnly', 0)}`" in markdown
+                    and f"- providerSummary: `noProfiles={', '.join(summary.get('providersWithNoProfilesList', [])) or '(none)'}` `needAuth={', '.join(summary.get('providersNeedingAuthEvidenceList', [])) or '(none)'}` `needRuntime={', '.join(summary.get('providersNeedingRuntimeSuccessList', [])) or '(none)'}` `recreateProbe={', '.join(summary.get('providersWithRecreateProbeCommandList', [])) or '(none)'}` `primaryCommand={', '.join(summary.get('providersWithPrimaryCommandList', [])) or '(none)'}` `overwriteVariant={', '.join(summary.get('providersWithOverwriteVariantCommandList', [])) or '(none)'}` `blockedOnly={', '.join(summary.get('providersBlockedOnlyList', [])) or '(none)'}` `candidateOnly={', '.join(summary.get('providersCandidateOnlyList', [])) or '(none)'}` `probeOnly={', '.join(summary.get('providersProbeOnlyList', [])) or '(none)'}` `runtimeOrphanOnly={', '.join(summary.get('providersRuntimeOrphanOnlyList', [])) or '(none)'}`" in markdown
                 ),
                 "summaryShowsExpectedRuntimeRemediationCounts": (
                     summary.get("providersNeedingRuntimeSuccess") == 7
                     and summary.get("providersWithPostBootstrapRuntimeCommand") == 6
                     and summary.get("providersWithPatchCommand") == 2
                     and summary.get("providersWithPatchProbeCommand") == 2
-                    and summary.get("providersWithRecreateProbeCommand") == 2
+                    and summary.get("providersWithRecreateProbeCommand") == 4
                     and summary.get("providersWithOverwriteVariantCommand") == 6
                     and summary.get("providersWithConflictPolicyNote") == 6
                     and summary.get("providersWithDeclaredConflictPolicies") == 8
@@ -75,12 +78,13 @@ def main() -> None:
                     and summary.get("providersWithNoProfilesList") == ["115_open", "123_open", "189cloud", "baidu_netdisk", "pikpak", "quark", "uc", "xunlei"]
                     and summary.get("providersNeedingAuthEvidenceList") == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "guangya", "pikpak", "quark", "uc", "xunlei"]
                     and summary.get("providersNeedingRuntimeSuccessList") == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "quark", "xunlei"]
-                    and summary.get("providersWithRecreateProbeCommandList") == ["aliyundrive_open", "guangya"]
+                    and summary.get("providersWithRecreateProbeCommandList") == ["aliyundrive_open", "guangya", "pikpak", "uc"]
                     and summary.get("providersWithPrimaryCommandList") == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "guangya", "pikpak", "quark", "uc", "xunlei"]
                     and summary.get("providersWithOverwriteVariantCommandList") == ["115_open", "123_open", "189cloud", "baidu_netdisk", "quark", "xunlei"]
                     and summary.get("providersBlockedOnlyList") == []
                     and summary.get("providersCandidateOnlyList") == []
                     and summary.get("providersProbeOnlyList") == []
+                    and summary.get("providersRuntimeOrphanOnlyList") == ["guangya", "pikpak", "uc"]
                 ),
                 "cloud115SectionKeepsFastPostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in cloud115
@@ -183,9 +187,25 @@ def main() -> None:
                     "recommendedRecreateProbeCommand" in guangya
                     and "recommendedPrimaryCommand" in guangya
                     and "label=recreate_probe" in guangya
-                    and "create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name smoke-guangya --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe" in guangya
+                    and "create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe" in guangya
                     and "placeholderSecretFieldHints: `token`" in guangya
                     and "recommendedPostRefreshRuntimeCommand" not in guangya
+                ),
+                "ucSectionUsesOrphanRecreateProbePath": (
+                    "runtimeOrphanProfiles: `uc-live-1`" in uc
+                    and "recommendedRecreateProbeCommand" in uc
+                    and "recommendedPrimaryCommand" in uc
+                    and "label=recreate_probe" in uc
+                    and "create_auth_profile_stub.py --profile-id uc-live-1 --provider-key uc --auth-mode manual_cookie --display-name uc-restore-uc-live-1 --cookie YOUR_COOKIE --set pwdId=YOUR_SHARE_PWD_ID --probe" in uc
+                    and "recommendedPostBootstrapRuntimeCommand" not in uc
+                ),
+                "pikpakSectionUsesOrphanRecreateProbePath": (
+                    "runtimeOrphanProfiles: `pikpak-live-1`" in pikpak
+                    and "recommendedRecreateProbeCommand" in pikpak
+                    and "recommendedPrimaryCommand" in pikpak
+                    and "label=recreate_probe" in pikpak
+                    and "create_auth_profile_stub.py --profile-id pikpak-live-1 --provider-key pikpak --auth-mode manual_token --display-name pikpak-restore-pikpak-live-1 --token YOUR_TOKEN --set deviceId=YOUR_DEVICE_ID --probe" in pikpak
+                    and "recommendedPostBootstrapRuntimeCommand" not in pikpak
                 ),
             },
             ensure_ascii=False,

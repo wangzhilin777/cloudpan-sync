@@ -241,6 +241,32 @@ def _bootstrap_command_for_provider(
     return f"{_create_command_for_provider(provider_key=provider_key, auth_modes=auth_modes, field_hints=field_hints)} --probe"
 
 
+def _orphan_recreate_probe_command_for_provider(
+    *,
+    provider_key: str,
+    orphan_profile_id: str,
+    auth_modes: list[str],
+    field_hints: list[str],
+) -> str:
+    profile_id = str(orphan_profile_id or "").strip()
+    if not profile_id:
+        return ""
+    auth_mode = _preferred_stub_auth_mode(provider_key, auth_modes)
+    display_name = f"{provider_key}-restore-{profile_id}"
+    del field_hints
+    base = recreate_probe_command_for_profile(
+        {
+            "providerKey": provider_key,
+            "authMode": auth_mode,
+            "displayName": display_name,
+        }
+    )
+    marker = "scripts\\create_auth_profile_stub.py "
+    if marker not in base:
+        return base
+    return base.replace(marker, f"{marker}--profile-id {profile_id} ", 1)
+
+
 def _profile_views() -> list[dict[str, object]]:
     return [auth_profile_view(profile) for profile in list_profiles()]
 
@@ -398,6 +424,13 @@ def build_real_evidence_remediation_bundle(
         runtime_candidate_only = bool(runtime_evidence.get("candidateCount")) and not bool(runtime_evidence.get("ok"))
         runtime_probe_only = bool(runtime_evidence.get("probeCount")) and not bool(runtime_evidence.get("ok"))
         runtime_orphan_only = int(runtime_evidence.get("orphanProfileCount", 0) or 0) > 0
+        runtime_orphan_profiles = [str(value or "").strip() for value in (runtime_evidence.get("orphanProfiles") or []) if str(value or "").strip()]
+        runtime_orphan_recreate_probe_command = _orphan_recreate_probe_command_for_provider(
+            provider_key=provider_key,
+            orphan_profile_id=runtime_orphan_profiles[0] if runtime_orphan_profiles else "",
+            auth_modes=provider_auth_modes(provider_key),
+            field_hints=capture_field_hints(provider_key),
+        )
         runtime_live_upload_command = _live_upload_command_for_profile(provider_profiles[0] if provider_profiles else {})
         runtime_success_command = _runtime_success_command_for_profile(provider_profiles[0] if provider_profiles else {})
         post_bootstrap_runtime_command = _post_bootstrap_runtime_command_for_provider(provider_key)
@@ -422,7 +455,7 @@ def build_real_evidence_remediation_bundle(
             "runtimeCandidateOnly": runtime_candidate_only,
             "runtimeProbeOnly": runtime_probe_only,
             "runtimeOrphanOnly": runtime_orphan_only,
-            "runtimeOrphanProfiles": list(runtime_evidence.get("orphanProfiles") or []),
+            "runtimeOrphanProfiles": runtime_orphan_profiles,
             "declaredConflictPolicies": list(conflict_snapshot.get("declaredConflictPolicies") or []),
             "supportsOverwrite": bool(conflict_snapshot.get("supportsOverwrite")),
             "supportsAutoRename": bool(conflict_snapshot.get("supportsAutoRename")),
@@ -440,9 +473,13 @@ def build_real_evidence_remediation_bundle(
                     if str(value or "")
                 }
             ),
-            "recommendedRecreateProbeCommand": recreate_probe_command_for_profile(profile_needing_patch or {})
-            if profile_needing_patch and bool(profile_needing_patch.get("needsSecretRefresh"))
-            else "",
+            "recommendedRecreateProbeCommand": runtime_orphan_recreate_probe_command
+            if runtime_orphan_recreate_probe_command
+            else (
+                recreate_probe_command_for_profile(profile_needing_patch or {})
+                if profile_needing_patch and bool(profile_needing_patch.get("needsSecretRefresh"))
+                else ""
+            ),
             "recommendedPatchCommand": _patch_command_for_profile(profile_needing_patch or {}),
             "recommendedPatchProbeCommand": _patch_probe_command_for_profile(profile_needing_patch or {}),
             "recommendedRefreshEvidenceCommand": _refresh_evidence_command_for_profile(provider_profiles[0] if provider_profiles else {})

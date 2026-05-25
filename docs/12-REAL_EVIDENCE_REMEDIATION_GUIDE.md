@@ -29,6 +29,7 @@
 - providersBlockedOnly: `0`
 - providersCandidateOnly: `0`
 - providersProbeOnly: `0`
+- providerSummary: `noProfiles=115_open, 123_open, 189cloud, baidu_netdisk, pikpak, quark, uc, xunlei` `needAuth=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `needRuntime=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, quark, xunlei` `recreateProbe=aliyundrive_open, guangya` `primaryCommand=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `overwriteVariant=115_open, 123_open, 189cloud, baidu_netdisk, quark, xunlei` `blockedOnly=(none)` `candidateOnly=(none)` `probeOnly=(none)`
 
 ## Provider 清单
 

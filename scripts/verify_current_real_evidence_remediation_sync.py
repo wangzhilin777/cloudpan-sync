@@ -54,6 +54,7 @@ def main() -> None:
                     and f"- providersWithPostRefreshRuntimeCommand: `{summary.get('providersWithPostRefreshRuntimeCommand', 0)}`" in markdown
                     and f"- providersWithRecreateProbeCommand: `{summary.get('providersWithRecreateProbeCommand', 0)}`" in markdown
                     and f"- providersWithPrimaryCommand: `{summary.get('providersWithPrimaryCommand', 0)}`" in markdown
+                    and f"- providerSummary: `noProfiles={', '.join(summary.get('providersWithNoProfilesList', [])) or '(none)'}` `needAuth={', '.join(summary.get('providersNeedingAuthEvidenceList', [])) or '(none)'}` `needRuntime={', '.join(summary.get('providersNeedingRuntimeSuccessList', [])) or '(none)'}` `recreateProbe={', '.join(summary.get('providersWithRecreateProbeCommandList', [])) or '(none)'}` `primaryCommand={', '.join(summary.get('providersWithPrimaryCommandList', [])) or '(none)'}` `overwriteVariant={', '.join(summary.get('providersWithOverwriteVariantCommandList', [])) or '(none)'}` `blockedOnly={', '.join(summary.get('providersBlockedOnlyList', [])) or '(none)'}` `candidateOnly={', '.join(summary.get('providersCandidateOnlyList', [])) or '(none)'}` `probeOnly={', '.join(summary.get('providersProbeOnlyList', [])) or '(none)'}`" in markdown
                 ),
                 "summaryShowsExpectedRuntimeRemediationCounts": (
                     summary.get("providersNeedingRuntimeSuccess") == 7
@@ -71,6 +72,15 @@ def main() -> None:
                     and summary.get("providersWithBootstrapCommand") == 8
                     and summary.get("providersWithPostRefreshRuntimeCommand") == 0
                     and summary.get("providersWithPrimaryCommand") == 10
+                    and summary.get("providersWithNoProfilesList") == ["115_open", "123_open", "189cloud", "baidu_netdisk", "pikpak", "quark", "uc", "xunlei"]
+                    and summary.get("providersNeedingAuthEvidenceList") == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "guangya", "pikpak", "quark", "uc", "xunlei"]
+                    and summary.get("providersNeedingRuntimeSuccessList") == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "quark", "xunlei"]
+                    and summary.get("providersWithRecreateProbeCommandList") == ["aliyundrive_open", "guangya"]
+                    and summary.get("providersWithPrimaryCommandList") == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "guangya", "pikpak", "quark", "uc", "xunlei"]
+                    and summary.get("providersWithOverwriteVariantCommandList") == ["115_open", "123_open", "189cloud", "baidu_netdisk", "quark", "xunlei"]
+                    and summary.get("providersBlockedOnlyList") == []
+                    and summary.get("providersCandidateOnlyList") == []
+                    and summary.get("providersProbeOnlyList") == []
                 ),
                 "cloud115SectionKeepsFastPostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in cloud115

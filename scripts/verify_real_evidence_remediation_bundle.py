@@ -240,6 +240,16 @@ def main() -> None:
                 "providersBlockedOnly": ((bundle.get("summary") or {}).get("providersBlockedOnly")),
                 "providersCandidateOnly": ((bundle.get("summary") or {}).get("providersCandidateOnly")),
                 "providersProbeOnly": ((bundle.get("summary") or {}).get("providersProbeOnly")),
+                "providersWithNoProfilesList": ((bundle.get("summary") or {}).get("providersWithNoProfilesList")),
+                "providersNeedingAuthEvidenceList": ((bundle.get("summary") or {}).get("providersNeedingAuthEvidenceList")),
+                "providersNeedingRuntimeSuccessList": ((bundle.get("summary") or {}).get("providersNeedingRuntimeSuccessList")),
+                "providersWithRecreateProbeCommandList": ((bundle.get("summary") or {}).get("providersWithRecreateProbeCommandList")),
+                "providersWithPrimaryCommandList": ((bundle.get("summary") or {}).get("providersWithPrimaryCommandList")),
+                "providersWithOverwriteVariantCommandList": ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommandList")),
+                "providersBlockedOnlyList": ((bundle.get("summary") or {}).get("providersBlockedOnlyList")),
+                "providersCandidateOnlyList": ((bundle.get("summary") or {}).get("providersCandidateOnlyList")),
+                "providersProbeOnlyList": ((bundle.get("summary") or {}).get("providersProbeOnlyList")),
+                "markdownHasProviderSummary": "- providerSummary: `noProfiles=123_open, 189cloud, baidu_netdisk, quark, xunlei` `needAuth=123_open, 189cloud, baidu_netdisk, quark, xunlei` `needRuntime=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, xunlei` `recreateProbe=aliyundrive_open, guangya` `primaryCommand=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, xunlei` `overwriteVariant=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, xunlei` `blockedOnly=(none)` `candidateOnly=115_open` `probeOnly=aliyundrive_open`" in markdown,
                 "markdownHasCreateCommand": "create_auth_profile_stub.py" in markdown,
                 "markdownHasBootstrapCommand": "recommendedBootstrapCommand" in markdown and "--probe" in markdown,
                 "guangyaHasPatchCommand": "patch_auth_profile_extra.py" in markdown,
@@ -303,6 +313,15 @@ def main() -> None:
                 "apiHasExpectedDirectOverwriteSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithProviderManagedOverwrite")) == ((bundle.get("summary") or {}).get("providersWithProviderManagedOverwrite")) == 1,
                 "apiHasExpectedOverwriteDowngradeSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithOverwriteDowngrade")) == ((bundle.get("summary") or {}).get("providersWithOverwriteDowngrade")) == 6,
                 "apiHasExpectedConflictUnsupportedSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithConflictUnsupported")) == ((bundle.get("summary") or {}).get("providersWithConflictUnsupported")) == 1,
+                "apiHasExpectedProviderSummaryLists": ((api_bundle.get("summary") or {}).get("providersWithNoProfilesList")) == ["123_open", "189cloud", "baidu_netdisk", "quark", "xunlei"]
+                and ((api_bundle.get("summary") or {}).get("providersNeedingAuthEvidenceList")) == ["123_open", "189cloud", "baidu_netdisk", "quark", "xunlei"]
+                and ((api_bundle.get("summary") or {}).get("providersNeedingRuntimeSuccessList")) == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "guangya", "pikpak", "quark", "xunlei"]
+                and ((api_bundle.get("summary") or {}).get("providersWithRecreateProbeCommandList")) == ["aliyundrive_open", "guangya"]
+                and ((api_bundle.get("summary") or {}).get("providersWithPrimaryCommandList")) == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "guangya", "pikpak", "quark", "xunlei"]
+                and ((api_bundle.get("summary") or {}).get("providersWithOverwriteVariantCommandList")) == ["115_open", "123_open", "189cloud", "aliyundrive_open", "baidu_netdisk", "guangya", "pikpak", "quark", "xunlei"]
+                and ((api_bundle.get("summary") or {}).get("providersBlockedOnlyList")) == []
+                and ((api_bundle.get("summary") or {}).get("providersCandidateOnlyList")) == ["115_open"]
+                and ((api_bundle.get("summary") or {}).get("providersProbeOnlyList")) == ["aliyundrive_open"],
                 "apiHasOverwriteVariantCommand": bool(
                     next(
                         (
@@ -458,6 +477,7 @@ def main() -> None:
                 "apiMarkdownHasOverwriteVariantCommand": "recommendedOverwriteVariantCommand" in str(api_markdown.get("markdown", "")) and "--conflict-policy overwrite_existing" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasConflictPolicyNote": "conflictPolicyNote:" in str(api_markdown.get("markdown", "")) and "overwrite_existing" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasConflictSupportRows": "conflictSupport:" in str(api_markdown.get("markdown", "")) and "providerConflictNotes:" in str(api_markdown.get("markdown", "")),
+                "apiMarkdownHasProviderSummary": "providerSummary: `noProfiles=123_open, 189cloud, baidu_netdisk, quark, xunlei` `needAuth=123_open, 189cloud, baidu_netdisk, quark, xunlei` `needRuntime=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, xunlei` `recreateProbe=aliyundrive_open, guangya` `primaryCommand=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, xunlei` `overwriteVariant=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, xunlei` `blockedOnly=(none)` `candidateOnly=115_open` `probeOnly=aliyundrive_open`" in str(api_markdown.get("markdown", "")),
             },
             ensure_ascii=False,
             indent=2,

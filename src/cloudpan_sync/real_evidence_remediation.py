@@ -520,6 +520,70 @@ def build_real_evidence_remediation_bundle(
         item_payload["recommendedPrimaryCommand"] = primary_command
         items.append(item_payload)
 
+    providers_with_no_profiles = sorted(
+        {
+            str(item.get("providerKey") or "")
+            for item in items
+            if int(item.get("profileCount") or 0) == 0 and str(item.get("providerKey") or "")
+        }
+    )
+    providers_needing_auth_evidence = sorted(
+        {
+            str(item.get("providerKey") or "")
+            for item in items
+            if bool(item.get("needsAuthEvidence")) and str(item.get("providerKey") or "")
+        }
+    )
+    providers_needing_runtime_success = sorted(
+        {
+            str(item.get("providerKey") or "")
+            for item in items
+            if bool(item.get("needsRuntimeSuccess")) and str(item.get("providerKey") or "")
+        }
+    )
+    providers_with_recreate_probe_command = sorted(
+        {
+            str(item.get("providerKey") or "")
+            for item in items
+            if str(item.get("recommendedRecreateProbeCommand") or "") and str(item.get("providerKey") or "")
+        }
+    )
+    providers_with_primary_command = sorted(
+        {
+            str(item.get("providerKey") or "")
+            for item in items
+            if str(item.get("recommendedPrimaryCommand") or "") and str(item.get("providerKey") or "")
+        }
+    )
+    providers_with_overwrite_variant_command = sorted(
+        {
+            str(item.get("providerKey") or "")
+            for item in items
+            if str(item.get("recommendedOverwriteVariantCommand") or "") and str(item.get("providerKey") or "")
+        }
+    )
+    providers_blocked_only = sorted(
+        {
+            str(item.get("providerKey") or "")
+            for item in items
+            if bool(item.get("runtimeBlockedOnly")) and str(item.get("providerKey") or "")
+        }
+    )
+    providers_candidate_only = sorted(
+        {
+            str(item.get("providerKey") or "")
+            for item in items
+            if bool(item.get("runtimeCandidateOnly")) and str(item.get("providerKey") or "")
+        }
+    )
+    providers_probe_only = sorted(
+        {
+            str(item.get("providerKey") or "")
+            for item in items
+            if bool(item.get("runtimeProbeOnly")) and str(item.get("providerKey") or "")
+        }
+    )
+
     return {
         "summary": {
             "providerCount": len(items),
@@ -556,6 +620,15 @@ def build_real_evidence_remediation_bundle(
             "providersBlockedOnly": sum(1 for item in items if bool(item.get("runtimeBlockedOnly"))),
             "providersCandidateOnly": sum(1 for item in items if bool(item.get("runtimeCandidateOnly"))),
             "providersProbeOnly": sum(1 for item in items if bool(item.get("runtimeProbeOnly"))),
+            "providersWithNoProfilesList": providers_with_no_profiles,
+            "providersNeedingAuthEvidenceList": providers_needing_auth_evidence,
+            "providersNeedingRuntimeSuccessList": providers_needing_runtime_success,
+            "providersWithRecreateProbeCommandList": providers_with_recreate_probe_command,
+            "providersWithPrimaryCommandList": providers_with_primary_command,
+            "providersWithOverwriteVariantCommandList": providers_with_overwrite_variant_command,
+            "providersBlockedOnlyList": providers_blocked_only,
+            "providersCandidateOnlyList": providers_candidate_only,
+            "providersProbeOnlyList": providers_probe_only,
         },
         "items": items,
     }
@@ -595,6 +668,17 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersBlockedOnly: `{summary.get('providersBlockedOnly', 0)}`")
     lines.append(f"- providersCandidateOnly: `{summary.get('providersCandidateOnly', 0)}`")
     lines.append(f"- providersProbeOnly: `{summary.get('providersProbeOnly', 0)}`")
+    lines.append(
+        f"- providerSummary: `noProfiles={', '.join(summary.get('providersWithNoProfilesList', [])) or '(none)'}` "
+        f"`needAuth={', '.join(summary.get('providersNeedingAuthEvidenceList', [])) or '(none)'}` "
+        f"`needRuntime={', '.join(summary.get('providersNeedingRuntimeSuccessList', [])) or '(none)'}` "
+        f"`recreateProbe={', '.join(summary.get('providersWithRecreateProbeCommandList', [])) or '(none)'}` "
+        f"`primaryCommand={', '.join(summary.get('providersWithPrimaryCommandList', [])) or '(none)'}` "
+        f"`overwriteVariant={', '.join(summary.get('providersWithOverwriteVariantCommandList', [])) or '(none)'}` "
+        f"`blockedOnly={', '.join(summary.get('providersBlockedOnlyList', [])) or '(none)'}` "
+        f"`candidateOnly={', '.join(summary.get('providersCandidateOnlyList', [])) or '(none)'}` "
+        f"`probeOnly={', '.join(summary.get('providersProbeOnlyList', [])) or '(none)'}`"
+    )
     lines.append("")
     lines.append("## Provider 清单")
     lines.append("")

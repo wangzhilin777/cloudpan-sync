@@ -12,6 +12,20 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的补救 summary 现已继续补齐 `providersWithNoProfilesList / providersNeedingAuthEvidenceList / providersNeedingRuntimeSuccessList / providersWithRecreateProbeCommandList / providersWithPrimaryCommandList / providersWithOverwriteVariantCommandList / providersBlockedOnlyList / providersCandidateOnlyList / providersProbeOnlyList` 聚合明细，不再只剩一组 count
+  - 这次补齐后，[12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 现在会在顶部额外写出 `providerSummary` 行，直接汇总哪些 provider 还没档案、哪些仍缺 auth、哪些还缺 runtime success、哪些当前走 `recreate_probe`、哪些已有主命令/覆盖变体，以及当前是否存在 `blocked-only / candidate-only / probe-only` provider；当前真实仓库会明确显示 `noProfiles=115_open, 123_open, 189cloud, baidu_netdisk, pikpak, quark, uc, xunlei`、`needRuntime=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, quark, xunlei`、`recreateProbe=aliyundrive_open, guangya`
+  - 已同步补强 [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py)、[verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)、[verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)，把 synthetic bundle、导出 markdown 和当前仓库文档里的 `providerSummary` 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 synthetic bundle/API/Markdown 当前会输出 `providerSummary`，并区分 `noProfiles / needAuth / needRuntime / recreateProbe / primaryCommand / overwriteVariant / blockedOnly / candidateOnly / probeOnly`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证导出的真实联调补救指南会写出 `providerSummary`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前仓库文档中的 `providerSummary` 与 `build_real_evidence_remediation_bundle()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\export_real_evidence_remediation.py` 已重导出当前 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md)
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [auth_profile_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_remediation.py) 的补救 bundle 汇总现已继续补齐 `readyProfiles / needsFixProfiles / writeReadyProfiles / writeNeedsFixProfiles / needsSecretRefreshProfiles` 聚合明细，不再只返回几组 count
   - 这次补齐后，[09-AUTH_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/09-AUTH_REMEDIATION_GUIDE.md) 现在会在顶部额外写出 `profileSummary` 行，直接汇总哪些 profile 已 ready、哪些仍需补救、哪些已具备写盘条件、哪些仍含占位 secret；当前真实仓库会明确显示 `ready=(none)`、`needsFix=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya`、`writeReady=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya`、`needsSecretRefresh=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya`
   - 已同步补强 [verify_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_remediation_bundle.py)、[verify_export_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_remediation_bundle.py)、[verify_current_auth_remediation_bundle_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_remediation_bundle_sync.py)，把 synthetic bundle、导出 markdown 和当前仓库文档里的 `profileSummary` 一起锁进回归

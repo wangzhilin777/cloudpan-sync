@@ -48,11 +48,20 @@ def main() -> None:
                 "providersWithProviderManagedOverwrite": 0,
                 "providersWithOverwriteDowngrade": 5,
                 "providersWithConflictUnsupported": 2,
-                "providersWithCreateCommand": 0,
-                "providersWithBootstrapCommand": 0,
+            "providersWithCreateCommand": 0,
+            "providersWithBootstrapCommand": 0,
             "providersBlockedOnly": 0,
             "providersCandidateOnly": 1,
             "providersProbeOnly": 0,
+            "providersWithNoProfilesList": [],
+            "providersNeedingAuthEvidenceList": [],
+            "providersNeedingRuntimeSuccessList": ["115_open", "123_open", "189cloud", "baidu_netdisk", "guangya", "quark"],
+            "providersWithRecreateProbeCommandList": ["guangya"],
+            "providersWithPrimaryCommandList": ["115_open", "123_open", "189cloud", "baidu_netdisk", "guangya", "quark"],
+            "providersWithOverwriteVariantCommandList": ["115_open", "123_open", "189cloud", "baidu_netdisk", "guangya", "quark"],
+            "providersBlockedOnlyList": [],
+            "providersCandidateOnlyList": ["115_open"],
+            "providersProbeOnlyList": [],
         },
         "items": [
             {
@@ -329,6 +338,7 @@ def main() -> None:
                 "exportedHasDeclaredConflictPolicySummary": "providersWithDeclaredConflictPolicies: `5`" in markdown,
                 "exportedHasOverwriteDowngradeSummary": "providersWithOverwriteDowngrade: `5`" in markdown,
                 "exportedHasConflictUnsupportedSummary": "providersWithConflictUnsupported: `2`" in markdown,
+                "exportedHasProviderSummary": "- providerSummary: `noProfiles=(none)` `needAuth=(none)` `needRuntime=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `recreateProbe=guangya` `primaryCommand=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `overwriteVariant=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `blockedOnly=(none)` `candidateOnly=115_open` `probeOnly=(none)`" in markdown,
                 "exportedHasLiveRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown
                 and r"tmp\guangya-live-evidence" in markdown,
                 "exportedHasFastRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown

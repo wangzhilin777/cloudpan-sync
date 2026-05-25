@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补强孤儿重建已存在档案续做校验`
+- 完成范围：
+  - 已把 [verify_runtime_orphan_recreate_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_api.py) 从“第二次 `Recreate Stub` 只校验 `already_exists` 和 `recommendedRefreshEvidenceCommand`”推进成会继续锁定 orphan 恢复链的 `refresh / runtimeProbe / runtimeSuccess / overwriteVariant`
+  - 当前脚本会在 `guangya` 的 `runtime_orphan_recovery/recreate_profile` 第二次命中 `already_exists` 时，明确校验返回体继续带出基于现有 `orphanProfileId` 的续做命令链，而不是只剩一句静态提示
+  - 同时已把这个 verifier 的 `TestClient` 生命周期改成上下文托管，避免它和前面 `create_profile` 那条一样在回归后遗留项目 `.venv` `python` 进程
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_api.py` 已验证 `stub_created` 与 `already_exists` 两条路径都成立，且 `already_exists` 当前必须继续返回 orphan 恢复的 refresh/probe/runtime/overwrite 续做命令链
+  - 同条顺序检查结果已确认 `POST_RUN_PROCESSES=[]`，说明本轮 verifier 运行后无项目 `.venv` `python` 残留进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`孤儿重建已存在档案时留在当前续做面板`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里的 `recreateRuntimeOrphanProfile()` 从“无论 `stub_created` 还是 `already_exists` 都自动跳去授权页并填表”推进成只在真正按缺失的 orphanProfileId 新建出 stub 时才切到 `Auth`

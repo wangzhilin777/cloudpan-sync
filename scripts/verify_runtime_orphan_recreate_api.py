@@ -39,26 +39,34 @@ def main() -> None:
         runtime_orphan_recovery.list_profiles = original_profiles
         try:
             app = webapp.create_app()
-            client = TestClient(app)
-
-            anonymous = client.post(
-                "/api/runtime_orphan_recovery/recreate_profile",
-                json={"providerKey": "guangya", "orphanProfileId": "gy-orphan-api"},
-            )
-            client.post("/api/login", json={"password": webapp.ADMIN_PASSWORD})
-            created = client.post(
-                "/api/runtime_orphan_recovery/recreate_profile",
-                json={"providerKey": "guangya", "orphanProfileId": "gy-orphan-api"},
-            )
-            created_payload = created.json() if created.status_code == 200 else {}
-            created_profile = get_profile("gy-orphan-api")
-            orphan_after = client.get("/api/runtime_orphan_recovery").json()
-            auth_profiles = client.get("/api/auth/profiles").json()
-            recreated_again = client.post(
-                "/api/runtime_orphan_recovery/recreate_profile",
-                json={"providerKey": "guangya", "orphanProfileId": "gy-orphan-api"},
-            )
-            recreated_again_payload = recreated_again.json() if recreated_again.status_code == 200 else {}
+            with TestClient(app) as client:
+                anonymous = client.post(
+                    "/api/runtime_orphan_recovery/recreate_profile",
+                    json={"providerKey": "guangya", "orphanProfileId": "gy-orphan-api"},
+                )
+                client.post("/api/login", json={"password": webapp.ADMIN_PASSWORD})
+                created = client.post(
+                    "/api/runtime_orphan_recovery/recreate_profile",
+                    json={"providerKey": "guangya", "orphanProfileId": "gy-orphan-api"},
+                )
+                created_payload = created.json() if created.status_code == 200 else {}
+                created_profile = get_profile("gy-orphan-api")
+                orphan_after = client.get("/api/runtime_orphan_recovery").json()
+                auth_profiles = client.get("/api/auth/profiles").json()
+                recreated_again = client.post(
+                    "/api/runtime_orphan_recovery/recreate_profile",
+                    json={"providerKey": "guangya", "orphanProfileId": "gy-orphan-api"},
+                )
+                recreated_again_payload = recreated_again.json() if recreated_again.status_code == 200 else {}
+                expected_refresh = ".\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --profile-id gy-orphan-api --write"
+                expected_runtime_probe = (
+                    ".\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py "
+                    "--target-provider guangya --target-profile-id gy-orphan-api"
+                )
+                expected_runtime_success = (
+                    ".\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py "
+                    "--target-provider guangya --target-profile-id gy-orphan-api"
+                )
 
             print(
                 json.dumps(
@@ -95,7 +103,12 @@ def main() -> None:
                             recreated_again.status_code == 200
                             and recreated_again_payload.get("status") == "already_exists"
                             and recreated_again_payload.get("created") is False
-                            and "patch_and_probe_auth_profile.py --profile-id gy-orphan-api --write" in str(recreated_again_payload.get("recommendedRefreshEvidenceCommand") or "")
+                            and str(recreated_again_payload.get("recommendedBootstrapCommand") or "") == ""
+                            and str(recreated_again_payload.get("recommendedRefreshEvidenceCommand") or "") == expected_refresh
+                            and expected_runtime_probe in str(recreated_again_payload.get("recommendedRuntimeProbeCommand") or "")
+                            and expected_runtime_success in str(recreated_again_payload.get("recommendedRuntimeSuccessCommand") or "")
+                            and "--conflict-policy overwrite_existing"
+                            in str(recreated_again_payload.get("recommendedOverwriteVariantCommand") or "")
                         ),
                         "dataDirContainsSingleProfile": len(list_profiles()) == 1,
                     },

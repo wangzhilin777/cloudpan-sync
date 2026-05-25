@@ -52,9 +52,22 @@ def main() -> None:
                     and summary.get("partialKeys") == ["M4", "M5"]
                     and summary.get("todoKeys") == ["P-REAL"]
                 ),
-                "m4SectionStillPartial": "- 状态：`partial`" in m4 and "仍缺稳定的真实在线联调成功样本" in m4,
-                "m5SectionStillPartial": "- 状态：`partial`" in m5 and "仍缺真实在线成功样本" in m5,
-                "prealSectionStillTodo": "- 状态：`todo`" in preal and "当前仍缺足够的真实成功样本来收敛 P-REAL" in preal,
+                "m4SectionStillPartial": (
+                    "- 状态：`partial`" in m4
+                    and "仍缺稳定的真实在线联调成功样本" in m4
+                    and "runtime_orphan" in m4
+                    and "gy-live-1" in m4
+                ),
+                "m5SectionStillPartial": (
+                    "- 状态：`partial`" in m5
+                    and "仍缺真实在线成功样本" in m5
+                    and "runtime_orphan" in m5
+                    and "pikpak / uc" in m5
+                ),
+                "prealSectionStillTodo": (
+                    "- 状态：`todo`" in preal
+                    and "当前 `guangya / uc / pikpak` 的 runtime success 样本都属于 auth profile 已脱节的 `runtime_orphan` 记录" in preal
+                ),
                 "markdownExplainsFeatureFormula": "featureCompletionPercent" in markdown and "M1-M7" in markdown,
                 "markdownExplainsStrictFormula": "strictCompletionPercent" in markdown and "P-REAL" in markdown,
             },

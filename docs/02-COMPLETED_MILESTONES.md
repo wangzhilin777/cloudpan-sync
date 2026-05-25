@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充计划审计脱节阻塞说明`
+- 完成范围：
+  - [plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/plan_audit.py) 现已把 `M4 / M5 / P-REAL` 的缺口说明继续对齐到当前真实证据状态，不再只笼统写“缺真实成功样本”，而是明确写出 `runtime_orphan` 阻塞：`guangya` 的 `gy-live-1`、以及 `pikpak / uc` 的历史 runtime success 记录虽然存在，但对应 auth profile 当前并不在仓库内，因此不能当作可复验完成证据
+  - 这次补齐后，[04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md) 会在 `M4 / M5 / P-REAL` 三段里直接解释为什么 `strictCompletionPercent` 仍停在 `75.0`：不是“完全没样本”，而是现有 `guangya / uc / pikpak` 样本都落在 `runtime_orphan` 场景，缺少当前仓库可复验的 auth profile
+  - 已同步补强 [verify_current_plan_audit_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_plan_audit_sync.py) 与 [verify_export_plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_plan_audit.py)，把当前仓库文档与 synthetic 导出里的 `runtime_orphan / auth profile 脱节` 解释一起锁进回归，同时保持 `85.7 / 75.0` 两个百分比口径不变
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_plan_audit.py` 已验证导出的计划审计报告会写出 `runtime_orphan` 与 `auth profile 脱节` 说明
+  - `.\.venv\Scripts\python.exe scripts\verify_current_plan_audit_sync.py` 已验证当前仓库 [04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md) 中的 `M4 / M5 / P-REAL` 阻塞说明与 `run_plan_audit()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\verify_plan_audit_progress.py` 已验证 `featureCompletionPercent=85.7` 与 `strictCompletionPercent=75.0` 口径未被这次说明性补丁改乱
+  - `.\.venv\Scripts\python.exe scripts\export_plan_audit.py` 已重导出当前 [04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md)
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充真实证据运行样本脱节诊断`
 - 完成范围：
   - [real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_report.py) 现已补齐 `taskRuntimeOrphanProviderCount / taskRuntimeOrphanProfileCount / taskRuntimeOrphanProviders / taskRuntimeOrphanProfiles` 聚合明细，并在逐 provider 的 `taskRuntimeEvidence` 里继续写出 `orphanProfiles / orphanProfileCount`，不再把“已有 runtime 成功样本但当前仓库里没有对应 auth profile”混成普通成功

@@ -19,12 +19,16 @@ def main() -> None:
                 and 'refreshBtn.textContent = "Refresh Latest Stub"' in app_js
                 and 'probeBtn.textContent = "Probe Latest Stub"' in app_js
                 and 'captureBtn.textContent = "Open Capture For Latest Stub"' in app_js,
+                "jsCreateFollowupUsesAccurateLabels": 'focus: followupIsExisting ? "Focus Existing Profile" : "Focus Created Stub"' in app_js
+                and 'refresh: followupIsExisting ? "Refresh Existing Profile" : "Refresh Created Stub"' in app_js
+                and 'probe: followupIsExisting ? "Probe Existing Profile" : "Probe Created Stub"' in app_js
+                and 'capture: followupIsExisting ? "Open Capture For Existing Profile" : "Open Capture For Created Stub"' in app_js,
                 "jsSummaryFollowupDetectsBootstrapChain": "data?.recommendedBootstrapCommand" in app_js
                 and "data?.recommendedPostBootstrapRuntimeCommand" in app_js,
-                "jsSummaryFollowupReusesDirectActions": 'focusBtn.textContent = "Focus Recreated Stub"' in app_js
-                and 'refreshBtn.textContent = "Refresh Recreated Stub"' in app_js
-                and 'probeBtn.textContent = "Probe Recreated Stub"' in app_js
-                and 'captureBtn.textContent = "Open Capture For Recreated Stub"' in app_js,
+                "jsSummaryFollowupReusesDirectActions": "focusBtn.textContent = followupLabels.focus;" in app_js
+                and "refreshBtn.textContent = followupLabels.refresh;" in app_js
+                and "probeBtn.textContent = followupLabels.probe;" in app_js
+                and "captureBtn.textContent = followupLabels.capture;" in app_js,
             },
             ensure_ascii=False,
             indent=2,

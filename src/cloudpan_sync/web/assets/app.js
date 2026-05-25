@@ -465,6 +465,20 @@ function setAuthValidationSummary(data, title = "Latest Auth Result") {
 
   const followupProfileId = (data?.item?.profileId || row?.profileId || data?.profileId || "").trim();
   const followupProviderKey = (data?.item?.providerKey || row?.providerKey || data?.providerKey || "").trim();
+  const followupIsExisting = data?.created === false && data?.status === "already_exists";
+  const followupLabels = title === "Runtime Orphan Stub"
+    ? {
+      focus: followupIsExisting ? "Focus Existing Orphan Profile" : "Focus Recreated Stub",
+      refresh: followupIsExisting ? "Refresh Existing Orphan Profile" : "Refresh Recreated Stub",
+      probe: followupIsExisting ? "Probe Existing Orphan Profile" : "Probe Recreated Stub",
+      capture: followupIsExisting ? "Open Capture For Existing Orphan Profile" : "Open Capture For Recreated Stub",
+    }
+    : {
+      focus: followupIsExisting ? "Focus Existing Profile" : "Focus Created Stub",
+      refresh: followupIsExisting ? "Refresh Existing Profile" : "Refresh Created Stub",
+      probe: followupIsExisting ? "Probe Existing Profile" : "Probe Created Stub",
+      capture: followupIsExisting ? "Open Capture For Existing Profile" : "Open Capture For Created Stub",
+    };
   const hasOrphanFollowup = Boolean(
     followupProfileId
       && (
@@ -481,20 +495,20 @@ function setAuthValidationSummary(data, title = "Latest Auth Result") {
     actions.className = "row-actions";
     const focusBtn = document.createElement("button");
     focusBtn.className = "ghost";
-    focusBtn.textContent = "Focus Recreated Stub";
+    focusBtn.textContent = followupLabels.focus;
     focusBtn.addEventListener("click", () => focusAuthRemediationProfile(followupProfileId));
     actions.appendChild(focusBtn);
 
     const refreshBtn = document.createElement("button");
     refreshBtn.className = "ghost";
-    refreshBtn.textContent = "Refresh Recreated Stub";
+    refreshBtn.textContent = followupLabels.refresh;
     refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(followupProfileId));
     actions.appendChild(refreshBtn);
 
     if (followupProviderKey && liveProbeProviderSet.has(followupProviderKey) && data?.recommendedRuntimeProbeCommand) {
       const probeBtn = document.createElement("button");
       probeBtn.className = "ghost";
-      probeBtn.textContent = "Probe Recreated Stub";
+      probeBtn.textContent = followupLabels.probe;
       probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(followupProfileId));
       actions.appendChild(probeBtn);
     }
@@ -502,7 +516,7 @@ function setAuthValidationSummary(data, title = "Latest Auth Result") {
     if (followupProviderKey) {
       const captureBtn = document.createElement("button");
       captureBtn.className = "ghost";
-      captureBtn.textContent = "Open Capture For Recreated Stub";
+      captureBtn.textContent = followupLabels.capture;
       captureBtn.addEventListener("click", () => openCaptureGuideForProvider(followupProviderKey));
       actions.appendChild(captureBtn);
     }

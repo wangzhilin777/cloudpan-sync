@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补救摘要动作文案对齐真实状态`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里的 `setAuthValidationSummary()` follow-up 按钮文案从统一的 `Recreated Stub`，推进成会按 `title + created/status` 区分真实状态
+  - 当前 `Create Stub` 路径会明确区分 `Focus/Refresh/Probe/Open Capture For Created Stub` 与 `...Existing Profile`；`Runtime Orphan Stub` 路径会明确区分 `...Recreated Stub` 与 `...Existing Orphan Profile`
+  - 这次补齐虽然不直接增加新的真实样本，但把我们前几轮已经补好的续做链解释得更准确：用户在 `already_exists` 场景下不再看到误导性的“Recreated Stub”按钮文案，更容易在当前面板里理解自己接下来是在继续用现有档案补 `P-REAL`，还是刚新建了一个 stub
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_followup_ui.py` 已验证 `Create Stub` 摘要 follow-up 当前会按 `created/already_exists` 使用 `Created Stub / Existing Profile` 文案
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_followup_ui.py` 已验证 `Runtime Orphan Stub` 摘要 follow-up 当前会按 `created/already_exists` 使用 `Recreated Stub / Existing Orphan Profile` 文案
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补强孤儿重建已存在档案续做校验`
 - 完成范围：
   - 已把 [verify_runtime_orphan_recreate_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_api.py) 从“第二次 `Recreate Stub` 只校验 `already_exists` 和 `recommendedRefreshEvidenceCommand`”推进成会继续锁定 orphan 恢复链的 `refresh / runtimeProbe / runtimeSuccess / overwriteVariant`

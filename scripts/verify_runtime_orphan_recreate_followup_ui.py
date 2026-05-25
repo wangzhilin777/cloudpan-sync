@@ -20,10 +20,14 @@ def main() -> None:
                 and "data?.recommendedOverwriteVariantCommand" in app_js,
                 "jsStoresLatestOrphanAction": "state.lastRuntimeOrphanAction = data;" in app_js,
                 "jsOnlyAutoJumpsWhenOrphanStubCreated": 'if (data?.created === true && recreated) {' in app_js,
-                "jsHasOrphanFollowupActions": 'focusBtn.textContent = "Focus Recreated Stub"' in app_js
-                and 'refreshBtn.textContent = "Refresh Recreated Stub"' in app_js
-                and 'probeBtn.textContent = "Probe Recreated Stub"' in app_js
-                and 'captureBtn.textContent = "Open Capture For Recreated Stub"' in app_js,
+                "jsOrphanFollowupUsesAccurateLabels": 'focus: followupIsExisting ? "Focus Existing Orphan Profile" : "Focus Recreated Stub"' in app_js
+                and 'refresh: followupIsExisting ? "Refresh Existing Orphan Profile" : "Refresh Recreated Stub"' in app_js
+                and 'probe: followupIsExisting ? "Probe Existing Orphan Profile" : "Probe Recreated Stub"' in app_js
+                and 'capture: followupIsExisting ? "Open Capture For Existing Orphan Profile" : "Open Capture For Recreated Stub"' in app_js,
+                "jsHasOrphanFollowupActions": 'focusBtn.textContent = followupLabels.focus;' in app_js
+                and 'refreshBtn.textContent = followupLabels.refresh;' in app_js
+                and 'probeBtn.textContent = followupLabels.probe;' in app_js
+                and 'captureBtn.textContent = followupLabels.capture;' in app_js,
                 "jsLatestOrphanActionStaysInSettings": "latestRuntimeOrphanAction=" in app_js
                 and 'focusBtn.textContent = "Focus Latest Orphan Stub"' in app_js
                 and 'refreshBtn.textContent = "Refresh Latest Orphan Stub"' in app_js

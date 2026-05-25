@@ -49,6 +49,7 @@ const state = {
   providerLiveProbeMeta: { historyCount: 0, summary: null },
   taskRuntimeEvidence: [],
   taskRuntimeEvidenceMeta: { historyCount: 0, summary: null },
+  runtimeOrphanRecovery: null,
   tasks: [],
   taskPlanPreview: null,
 };
@@ -1014,6 +1015,15 @@ async function loadRealEvidenceRemediationSummary() {
   renderSettingsPanel();
 }
 
+async function loadRuntimeOrphanRecoverySummary() {
+  if (!state.loggedIn) {
+    return;
+  }
+  const data = await fetchJson("/api/runtime_orphan_recovery");
+  state.runtimeOrphanRecovery = data;
+  renderSettingsPanel();
+}
+
 async function loadLiveValidations() {
   if (!state.loggedIn) {
     return;
@@ -1749,6 +1759,7 @@ function renderSettingsPanel() {
   const realEvidenceList = document.getElementById("settingsRealEvidenceList");
   const realEvidenceRemediationList = document.getElementById("settingsRealEvidenceRemediationList");
   const taskRuntimeEvidenceList = document.getElementById("settingsTaskRuntimeEvidenceList");
+  const runtimeOrphanRecoveryList = document.getElementById("settingsRuntimeOrphanRecoveryList");
   const auditList = document.getElementById("settingsAuditList");
   sessionList.innerHTML = "";
   validationList.innerHTML = "";
@@ -1760,6 +1771,7 @@ function renderSettingsPanel() {
   realEvidenceList.innerHTML = "";
   realEvidenceRemediationList.innerHTML = "";
   taskRuntimeEvidenceList.innerHTML = "";
+  runtimeOrphanRecoveryList.innerHTML = "";
   auditList.innerHTML = "";
 
   const sessionRows = [
@@ -1932,6 +1944,27 @@ function renderSettingsPanel() {
     taskRuntimeEvidenceList.appendChild(li);
   }
 
+  const orphanRecoverySummary = state.runtimeOrphanRecovery?.summary || {};
+  const orphanRecoveryItems = state.runtimeOrphanRecovery?.items || [];
+  const orphanRecoveryRows = [
+    `providers=${orphanRecoverySummary.providerCount || 0}, orphanProfiles=${orphanRecoverySummary.orphanProfileCount || 0}, runtimeSamples=${orphanRecoverySummary.runtimeSampleCount || 0}, providersWithSavedProfiles=${orphanRecoverySummary.providersWithSavedProfiles || 0}, providersWithoutSavedProfiles=${orphanRecoverySummary.providersWithoutSavedProfiles || 0}`,
+    `orphanProviders=${(orphanRecoverySummary.orphanProviders || []).join("/") || "(none)"}, orphanProfilesList=${(orphanRecoverySummary.orphanProfiles || []).join("/") || "(none)"}`,
+    `savedProfileProviders=${(orphanRecoverySummary.providersWithSavedProfilesList || []).join("/") || "(none)"}, missingProfileProviders=${(orphanRecoverySummary.providersWithoutSavedProfilesList || []).join("/") || "(none)"}`,
+  ];
+  for (const row of orphanRecoveryRows) {
+    const li = document.createElement("li");
+    li.textContent = row;
+    runtimeOrphanRecoveryList.appendChild(li);
+  }
+  for (const item of orphanRecoveryItems.slice(0, 3)) {
+    const li = document.createElement("li");
+    const authModes = (item.suggestedAuthModes || []).join("/") || "(none)";
+    const fieldHints = (item.requiredFieldHints || []).slice(0, 2).join(" | ");
+    const existingProfiles = (item.existingProviderProfileNames || []).join("/") || "(none)";
+    li.textContent = `${item.providerKey || "(unknown)"}: orphanProfileId=${item.orphanProfileId || "(none)"}, sampleCount=${item.sampleCount || 0}, authModes=${authModes}, preferredAuthMode=${item.preferredAuthMode || "(none)"}, existingProfiles=${existingProfiles}${fieldHints ? `, hints=${fieldHints}` : ""}${item.webLoginUrl ? `, login=${item.webLoginUrl}` : ""}${item.recommendedCreateCommand ? `, recreate=${item.recommendedCreateCommand}` : ""}`;
+    runtimeOrphanRecoveryList.appendChild(li);
+  }
+
   const audit = state.auditSummary || {};
   const auditRows = [
     `done=${audit.done || 0}`,
@@ -1986,6 +2019,7 @@ async function onLogout() {
   state.realEvidenceRemediation = null;
   state.taskRuntimeEvidence = [];
   state.taskRuntimeEvidenceMeta = { historyCount: 0, summary: null };
+  state.runtimeOrphanRecovery = null;
   state.providerResearch = [];
   state.statusMatrix = null;
   state.auditSummary = null;
@@ -2011,6 +2045,7 @@ async function refreshProtectedData() {
     loadRealEvidenceSummary(),
     loadRealEvidenceRemediationSummary(),
     loadTaskRuntimeEvidence(),
+    loadRuntimeOrphanRecoverySummary(),
     loadAuditSummary(),
   ]);
 }

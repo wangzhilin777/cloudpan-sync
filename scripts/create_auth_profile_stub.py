@@ -64,6 +64,7 @@ def main() -> None:
     parser.add_argument("--provider-key", required=True, help="Provider key, such as guangya or aliyundrive_open.")
     parser.add_argument("--auth-mode", required=True, help="Auth mode, such as manual_token or manual_cookie.")
     parser.add_argument("--display-name", default="", help="Display name. Defaults to providerKey-authMode.")
+    parser.add_argument("--profile-id", default="", help="Optional explicit profileId. Useful when recreating a historical runtime profile.")
     parser.add_argument("--token", default="", help="Optional token value.")
     parser.add_argument("--cookie", default="", help="Optional cookie value.")
     parser.add_argument("--set", dest="extra", action="append", default=[], help="Extra field in key=value form.")
@@ -82,7 +83,11 @@ def main() -> None:
         cookie=str(args.cookie or "").strip(),
         extra=_parse_extra(list(args.extra or [])),
     )
-    profile = save_profile(payload)
+    profile_id_override = str(args.profile_id or "").strip()
+    if profile_id_override:
+        profile = save_profile(payload, profile_id_override=profile_id_override)
+    else:
+        profile = save_profile(payload)
     result: dict[str, object] = {
         "profileId": profile.profileId,
         "providerKey": profile.providerKey,

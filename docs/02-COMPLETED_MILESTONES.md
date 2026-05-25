@@ -10,6 +10,25 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充运行样本脱节恢复指南`
+- 完成范围：
+  - 已新增应用侧聚合模块 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py)，把当前 `runtime_orphan` 样本正式汇总成可消费的 `summary / items / markdown` 三种形态，不再只停留在 `Real Evidence` 与 `Remediation` 里的旁注
+  - 这次补齐后，[13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 会直接列出当前 `gy-live-1 / pikpak-live-1 / uc-live-1` 三条 orphan profile，对每条样本给出 `provider / latestSavedAt / runtimeModes / verifyModes / existingProviderProfiles / suggestedAuthModes / recommendedCreateCommand`
+  - 已补齐按原 `profileId` 重建 stub 的底层能力；这次补齐后，[create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 现已支持 `--profile-id`，配合 [auth_store.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_store.py) 的 `profile_id_override` 保存逻辑，可以显式把历史 runtime success 对应的 `profileId` 恢复回当前仓库，而不是只能新建一个完全无关的新 id
+  - 已新增 [webapp.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/webapp.py) 接口 `GET /api/runtime_orphan_recovery` 与 `GET /api/runtime_orphan_recovery_markdown`，登录后可直接在产品内读取 orphan recovery 汇总与 Markdown
+  - 设置页现已新增 `Runtime Orphan Recovery` 面板；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在设置页直接显示 `providerCount / orphanProfileCount / runtimeSampleCount / providersWithSavedProfiles / providersWithoutSavedProfiles`，并附带 `orphanProviders / orphanProfilesList / savedProfileProviders / missingProfileProviders` 以及逐 orphan profile 的 `preferredAuthMode / existingProfiles / recreate` 命令摘要
+  - 已新增并补强对应校验脚本：[verify_runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery.py)、[verify_export_runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_runtime_orphan_recovery.py)、[verify_current_runtime_orphan_recovery_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_runtime_orphan_recovery_sync.py)、[verify_runtime_orphan_recovery_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery_settings_ui.py)、[verify_create_auth_profile_stub_profile_id.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_auth_profile_stub_profile_id.py)
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_auth_profile_stub_profile_id.py` 已验证 `create_auth_profile_stub.py` 当前会把 `--profile-id` 传到 `save_profile(..., profile_id_override=...)`，并保留请求的 `profileId`
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery.py` 已验证 synthetic orphan recovery payload、Markdown 和 API 当前都会输出 `--profile-id gy-orphan / uc-orphan` 这类恢复命令
+  - `.\.venv\Scripts\python.exe scripts\verify_export_runtime_orphan_recovery.py` 已验证导出的 orphan recovery 指南会写出 `orphanSummary` 与 `recommendedCreateCommand`
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证设置页当前含 `Runtime Orphan Recovery` 面板，并会加载与展示对应 summary/command 字段
+  - `.\.venv\Scripts\python.exe scripts\export_runtime_orphan_recovery.py` 已重导出当前 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_current_runtime_orphan_recovery_sync.py` 已验证当前仓库文档中的 `gy-live-1 / pikpak-live-1 / uc-live-1` 与 `build_runtime_orphan_recovery()` 保持同步
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充计划审计脱节阻塞说明`
 - 完成范围：
   - [plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/plan_audit.py) 现已把 `M4 / M5 / P-REAL` 的缺口说明继续对齐到当前真实证据状态，不再只笼统写“缺真实成功样本”，而是明确写出 `runtime_orphan` 阻塞：`guangya` 的 `gy-live-1`、以及 `pikpak / uc` 的历史 runtime success 记录虽然存在，但对应 auth profile 当前并不在仓库内，因此不能当作可复验完成证据

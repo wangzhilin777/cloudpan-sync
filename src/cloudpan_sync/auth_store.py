@@ -43,10 +43,10 @@ def list_profiles() -> list[AuthProfile]:
     return [AuthProfile.model_validate(row) for row in _read_rows()]
 
 
-def build_profile(payload: AuthProfileInput) -> AuthProfile:
+def build_profile(payload: AuthProfileInput, profile_id_override: str = "") -> AuthProfile:
     now = _now_iso()
     return AuthProfile(
-        profileId=str(uuid4()),
+        profileId=str(profile_id_override or uuid4()),
         providerKey=payload.providerKey,
         authMode=payload.authMode,
         displayName=payload.displayName,
@@ -84,10 +84,38 @@ def build_updated_profile(existing: AuthProfile, payload: AuthProfileInput) -> A
     )
 
 
-def save_profile(payload: AuthProfileInput) -> AuthProfile:
+def save_profile(payload: AuthProfileInput, profile_id_override: str = "") -> AuthProfile:
     rows = _read_rows()
-    profile = build_profile(payload)
-    rows.append(profile.model_dump())
+    override = str(profile_id_override or "").strip()
+    if override:
+        existing = None
+        for row in rows:
+            if str(row.get("profileId") or "") == override:
+                existing = AuthProfile.model_validate(row)
+                break
+        if existing is None:
+            profile = build_profile(payload, profile_id_override=override)
+            rows.append(profile.model_dump())
+        else:
+            now = _now_iso()
+            profile = AuthProfile(
+                profileId=override,
+                providerKey=payload.providerKey,
+                authMode=payload.authMode,
+                displayName=payload.displayName,
+                token=payload.token.strip(),
+                cookie=payload.cookie.strip(),
+                extra={k: str(v) for k, v in payload.extra.items()},
+                status=existing.status,
+                lastError=existing.lastError,
+                createdAt=existing.createdAt,
+                updatedAt=now,
+            )
+            rows = [row for row in rows if str(row.get("profileId") or "") != override]
+            rows.append(profile.model_dump())
+    else:
+        profile = build_profile(payload)
+        rows.append(profile.model_dump())
     _write_rows(rows)
     return profile
 

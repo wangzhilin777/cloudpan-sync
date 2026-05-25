@@ -78,6 +78,7 @@ from .task_runtime_evidence_store import (
     build_task_runtime_evidence_payload,
     task_runtime_evidence_to_markdown,
 )
+from .runtime_orphan_recovery import build_runtime_orphan_recovery, runtime_orphan_recovery_to_markdown
 from .tianyi_live import fetch_tianyi_live_list, fetch_tianyi_live_metadata, fetch_tianyi_create_folder
 from .task_runtime import (
     acknowledge_task_risk,
@@ -353,6 +354,19 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=401, detail="please_login_first")
         data = build_task_runtime_evidence_payload()
         return {"markdown": task_runtime_evidence_to_markdown(data)}
+
+    @app.get("/api/runtime_orphan_recovery")
+    def runtime_orphan_recovery(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        return build_runtime_orphan_recovery()
+
+    @app.get("/api/runtime_orphan_recovery_markdown")
+    def runtime_orphan_recovery_markdown(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        data = build_runtime_orphan_recovery()
+        return {"markdown": runtime_orphan_recovery_to_markdown(data)}
 
     @app.post("/api/providers/live_probe_profile")
     def provider_live_probe_profile(payload: ProviderLiveProbeRequest, request: Request) -> dict[str, object]:

@@ -120,6 +120,93 @@ def _extra_stub_fields(field_hints: list[str], auth_mode: str) -> dict[str, str]
     return extra
 
 
+def _refresh_evidence_command(provider_key: str, profile_id: str) -> str:
+    del provider_key
+    target = str(profile_id or "").strip()
+    if not target:
+        return ""
+    return f".\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --profile-id {target} --write"
+
+
+def _runtime_probe_command(provider_key: str, profile_id: str) -> str:
+    provider = str(provider_key or "").strip()
+    target = str(profile_id or "").strip()
+    if not provider or not target:
+        return ""
+    return " ".join(
+        [
+            ".\\.venv\\Scripts\\python.exe",
+            "scripts\\create_runtime_probe_task.py",
+            f"--target-provider {provider}",
+            f"--target-profile-id {target}",
+            "--auto-temp-file",
+            "--threshold-mb 1",
+            "--conflict-policy auto_rename_new",
+            f"--evidence-dir tmp\\{provider}-runtime-orphan-probe-evidence",
+        ]
+    )
+
+
+def _fast_candidate_command(provider_key: str, profile_id: str) -> str:
+    provider = str(provider_key or "").strip()
+    target = str(profile_id or "").strip()
+    if not provider or not target or provider == "guangya":
+        return ""
+    parts = [
+        ".\\.venv\\Scripts\\python.exe",
+        "scripts\\create_fast_upload_candidate_task.py",
+        f"--target-provider {provider}",
+        f"--target-profile-id {target}",
+    ]
+    if provider == "115_open":
+        parts.append("--sha1 auto")
+    elif provider in {"xunlei", "pikpak"}:
+        parts.append("--gcid YOUR_GCID")
+    else:
+        parts.append("--md5 auto")
+    parts.extend(
+        [
+            "--auto-temp-file",
+            "--conflict-policy auto_rename_new",
+            f"--evidence-dir tmp\\{provider}-runtime-orphan-success-evidence",
+        ]
+    )
+    return " ".join(parts)
+
+
+def _live_upload_command(provider_key: str, profile_id: str) -> str:
+    provider = str(provider_key or "").strip()
+    target = str(profile_id or "").strip()
+    if not provider or not target or provider not in {"guangya", "aliyundrive_open", "123_open", "baidu_netdisk", "xunlei", "pikpak", "quark", "uc"}:
+        return ""
+    return " ".join(
+        [
+            ".\\.venv\\Scripts\\python.exe",
+            "scripts\\create_live_upload_task.py",
+            f"--target-provider {provider}",
+            f"--target-profile-id {target}",
+            "--auto-temp-file",
+            "--threshold-mb 1",
+            "--conflict-policy auto_rename_new",
+            f"--evidence-dir tmp\\{provider}-runtime-orphan-success-evidence",
+        ]
+    )
+
+
+def _runtime_success_command(provider_key: str, profile_id: str) -> str:
+    live_command = _live_upload_command(provider_key, profile_id)
+    if live_command:
+        return live_command
+    return _fast_candidate_command(provider_key, profile_id)
+
+
+def _overwrite_variant_command(command: str) -> str:
+    text = str(command or "").strip()
+    if not text or "--conflict-policy auto_rename_new" not in text:
+        return ""
+    return text.replace("--conflict-policy auto_rename_new", "--conflict-policy overwrite_existing", 1)
+
+
 def build_runtime_orphan_recovery() -> dict[str, object]:
     runtime_rows = latest_task_runtime_evidence()
     saved_profiles = list_profiles()
@@ -153,6 +240,9 @@ def build_runtime_orphan_recovery() -> dict[str, object]:
         conflict_actions = sorted({str(row.get("conflictAction") or "") for row in rows if str(row.get("conflictAction") or "")})
         latest_saved_at = max((str(row.get("savedAt") or "") for row in rows if str(row.get("savedAt") or "")), default="")
         command = _command_with_field_hints(provider_key, profile_id, preferred_auth_mode, field_hints)
+        refresh_command = _refresh_evidence_command(provider_key, profile_id)
+        runtime_probe_command = _runtime_probe_command(provider_key, profile_id)
+        runtime_success_command = _runtime_success_command(provider_key, profile_id)
         items.append(
             {
                 "providerKey": provider_key,
@@ -175,6 +265,10 @@ def build_runtime_orphan_recovery() -> dict[str, object]:
                 "existingProviderProfileIds": [str(profile.profileId or "") for profile in same_provider_profiles if str(profile.profileId or "")],
                 "existingProviderProfileNames": [str(profile.displayName or profile.profileId or "") for profile in same_provider_profiles],
                 "recommendedCreateCommand": command,
+                "recommendedRefreshEvidenceCommand": refresh_command,
+                "recommendedRuntimeProbeCommand": runtime_probe_command,
+                "recommendedRuntimeSuccessCommand": runtime_success_command,
+                "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command),
                 "nextStep": "先按原 runtime profileId 重建一个可复验 auth profile stub，再用真实凭证补字段并重跑 validation / live probe；只有这样，这条历史 runtime success 样本才有机会重新变成当前仓库可复验的证据。",
                 "note": "这一步只是把历史 runtime success 样本对应的 profileId 恢复回当前仓库，不会自动把样本算成新的真实完成证据；仍需后续用真实凭证重新验证。",
             }
@@ -210,12 +304,19 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
 
     existing = get_profile(profile_id)
     if existing is not None:
+        refresh_command = _refresh_evidence_command(provider, profile_id)
+        runtime_probe_command = _runtime_probe_command(provider, profile_id)
+        runtime_success_command = _runtime_success_command(provider, profile_id)
         return {
             "ok": True,
             "created": False,
             "status": "already_exists",
             "message": "The orphan profileId is already present in the current repository; edit it directly and continue revalidation.",
             "item": auth_profile_view(existing),
+            "recommendedRefreshEvidenceCommand": refresh_command,
+            "recommendedRuntimeProbeCommand": runtime_probe_command,
+            "recommendedRuntimeSuccessCommand": runtime_success_command,
+            "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command),
         }
 
     payload = build_runtime_orphan_recovery()
@@ -244,6 +345,9 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
         ),
         profile_id_override=profile_id,
     )
+    refresh_command = _refresh_evidence_command(provider, profile_id)
+    runtime_probe_command = _runtime_probe_command(provider, profile_id)
+    runtime_success_command = _runtime_success_command(provider, profile_id)
     return {
         "ok": True,
         "created": True,
@@ -252,6 +356,10 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
         "item": auth_profile_view(profile),
         "requiredFieldHints": list(target_item.get("requiredFieldHints") or []),
         "recommendedCreateCommand": str(target_item.get("recommendedCreateCommand") or ""),
+        "recommendedRefreshEvidenceCommand": refresh_command,
+        "recommendedRuntimeProbeCommand": runtime_probe_command,
+        "recommendedRuntimeSuccessCommand": runtime_success_command,
+        "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command),
         "nextStep": str(target_item.get("nextStep") or ""),
     }
 
@@ -308,6 +416,14 @@ def runtime_orphan_recovery_to_markdown(payload: dict[str, object]) -> str:
         lines.append(f"- nextStep: {item.get('nextStep', '')}")
         lines.append(f"- note: {item.get('note', '')}")
         lines.append(f"- recommendedCreateCommand: `{item.get('recommendedCreateCommand', '')}`")
+        if item.get("recommendedRefreshEvidenceCommand"):
+            lines.append(f"- recommendedRefreshEvidenceCommand: `{item.get('recommendedRefreshEvidenceCommand', '')}`")
+        if item.get("recommendedRuntimeProbeCommand"):
+            lines.append(f"- recommendedRuntimeProbeCommand: `{item.get('recommendedRuntimeProbeCommand', '')}`")
+        if item.get("recommendedRuntimeSuccessCommand"):
+            lines.append(f"- recommendedRuntimeSuccessCommand: `{item.get('recommendedRuntimeSuccessCommand', '')}`")
+        if item.get("recommendedOverwriteVariantCommand"):
+            lines.append(f"- recommendedOverwriteVariantCommand: `{item.get('recommendedOverwriteVariantCommand', '')}`")
         lines.append("")
     if not payload.get("items"):
         lines.append("- none")

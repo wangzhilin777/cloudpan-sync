@@ -2937,7 +2937,7 @@ function renderSettingsPanel() {
     const fieldHints = (item.requiredFieldHints || []).slice(0, 2).join(" | ");
     const existingProfiles = (item.existingProviderProfileNames || []).join("/") || "(none)";
     const copy = document.createElement("span");
-    copy.textContent = `${item.providerKey || "(unknown)"}: orphanProfileId=${item.orphanProfileId || "(none)"}, sampleCount=${item.sampleCount || 0}, authModes=${authModes}, preferredAuthMode=${item.preferredAuthMode || "(none)"}, existingProfiles=${existingProfiles}${fieldHints ? `, hints=${fieldHints}` : ""}${item.webLoginUrl ? `, login=${item.webLoginUrl}` : ""}${item.recommendedCreateCommand ? `, recreate=${item.recommendedCreateCommand}` : ""}`;
+    copy.textContent = `${item.providerKey || "(unknown)"}: orphanProfileId=${item.orphanProfileId || "(none)"}, sampleCount=${item.sampleCount || 0}, authModes=${authModes}, preferredAuthMode=${item.preferredAuthMode || "(none)"}, existingProfiles=${existingProfiles}${fieldHints ? `, hints=${fieldHints}` : ""}${item.webLoginUrl ? `, login=${item.webLoginUrl}` : ""}${item.recommendedCreateCommand ? `, recreate=${item.recommendedCreateCommand}` : ""}${item.recommendedRefreshEvidenceCommand ? `, refresh=${item.recommendedRefreshEvidenceCommand}` : ""}${item.recommendedRuntimeProbeCommand ? `, runtimeProbe=${item.recommendedRuntimeProbeCommand}` : ""}${item.recommendedRuntimeSuccessCommand ? `, runtimeSuccess=${item.recommendedRuntimeSuccessCommand}` : ""}${item.recommendedOverwriteVariantCommand ? `, overwriteVariant=${item.recommendedOverwriteVariantCommand}` : ""}`;
     li.appendChild(copy);
     const actions = document.createElement("span");
     actions.className = "row-actions";
@@ -2959,7 +2959,7 @@ function renderSettingsPanel() {
     const li = document.createElement("li");
     const copy = document.createElement("span");
     const existingProfiles = (firstRuntimeOrphanGap.existingProviderProfileNames || []).join("/") || "(none)";
-    copy.textContent = `${firstRuntimeOrphanGap.providerKey || "(unknown)"}: orphanProfileId=${firstRuntimeOrphanGap.orphanProfileId || "(none)"}, sampleCount=${firstRuntimeOrphanGap.sampleCount || 0}, preferredAuthMode=${firstRuntimeOrphanGap.preferredAuthMode || "(none)"}, existingProfiles=${existingProfiles}, nextStep=${firstRuntimeOrphanGap.nextStep || "(none)"}`;
+    copy.textContent = `${firstRuntimeOrphanGap.providerKey || "(unknown)"}: orphanProfileId=${firstRuntimeOrphanGap.orphanProfileId || "(none)"}, sampleCount=${firstRuntimeOrphanGap.sampleCount || 0}, preferredAuthMode=${firstRuntimeOrphanGap.preferredAuthMode || "(none)"}, existingProfiles=${existingProfiles}, nextStep=${firstRuntimeOrphanGap.nextStep || "(none)"}${firstRuntimeOrphanGap.recommendedRuntimeSuccessCommand ? `, runtimeSuccess=${firstRuntimeOrphanGap.recommendedRuntimeSuccessCommand}` : ""}`;
     li.appendChild(copy);
     const actions = document.createElement("span");
     actions.className = "row-actions";

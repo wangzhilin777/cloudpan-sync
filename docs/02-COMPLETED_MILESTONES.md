@@ -10,6 +10,21 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充运行孤儿恢复后续命令链`
+- 完成范围：
+  - 已把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 从“只告诉你如何按原 `profileId` 重建 stub”推进成“重建之后下一步该怎么继续补真实证据”也一并带出；这次补齐后，每条 orphan item 不再只有 `recommendedCreateCommand`，还会同步输出 `recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand / recommendedRuntimeSuccessCommand / recommendedOverwriteVariantCommand`
+  - 当前链路会直接围绕 `runtime_orphan` 这个阻塞 `M4 / M5 / P-REAL` 的真实缺口工作：例如 `guangya / uc / pikpak` 这类历史 runtime success 但当前仓库缺 profile 的场景，现在不再只停留在“先重建一个 stub”，而是会继续明确给出“重建后该先 refresh evidence，再 probe，最后跑哪条 runtime success 命令”的连续恢复路径
+  - [recreate_runtime_orphan_profile](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 返回的 API payload 也已同步补齐这些后续命令；因此从应用内触发 orphan stub 重建后，不只是拿到一个空壳档案，而是能立即知道接下来该跑哪条 refresh/probe/runtime helper，进一步缩短把历史 orphan 样本重新拉回“当前仓库可复验”的操作链
+  - 设置页 `Runtime Orphan Recovery` 面板的摘要现也会把这些后续命令带出来；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 不再只显示 `recreate=`，还会同步展示 `refresh= / runtimeProbe= / runtimeSuccess= / overwriteVariant=`，让 orphan 恢复区不再停在“只会重建”
+  - 这次补齐比继续做外围 helper 更贴近当前严格口径的真实阻塞，因为它直接把审计里点名的 `runtime_orphan` 缺口，从“重建 stub 后还要自己猜下一步”推进成“恢复后续命令链完整可见”，更接近把历史成功样本重新拉回当前仓库的可复验闭环
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery.py` 已验证 orphan recovery payload / markdown / API 当前会同时输出 `recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand / recommendedRuntimeSuccessCommand / recommendedOverwriteVariantCommand`
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_api.py` 已验证从应用内重建 orphan stub 后，响应里也会带出对应的 refresh/probe/runtime follow-up 命令，重复调用 `already_exists` 时同样保留这组命令
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证设置页 `Runtime Orphan Recovery` 当前会展示 `refresh= / runtimeProbe= / runtimeSuccess= / overwriteVariant=` 这些命令摘要，且原有 `Recreate Stub / Open Capture / Focus First Match / Refresh First Match / Probe First Match` 动作未回退
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充秒传候选脚本自动带出补救默认值`
 - 完成范围：
   - 已把 [create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 从“必须手工传完整 `target-provider / target-profile-id / parent-id / sha1|md5|gcid / auto-temp-file / conflict-policy / evidence-dir` 参数”推进成可直接从 `real_evidence_remediation` 推荐命令带起；这次补齐后，脚本新增 `--from-remediation-provider`

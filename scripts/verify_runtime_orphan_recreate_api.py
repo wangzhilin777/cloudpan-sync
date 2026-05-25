@@ -72,6 +72,9 @@ def main() -> None:
                             and (created_payload.get("item") or {}).get("providerKey") == "guangya"
                             and "parentId" in ((created_payload.get("item") or {}).get("extra") or {})
                             and "token" in ((created_payload.get("item") or {}).get("placeholderSecretFieldHints") or [])
+                            and "patch_and_probe_auth_profile.py --profile-id gy-orphan-api --write" in str(created_payload.get("recommendedRefreshEvidenceCommand") or "")
+                            and "create_runtime_probe_task.py --target-provider guangya --target-profile-id gy-orphan-api" in str(created_payload.get("recommendedRuntimeProbeCommand") or "")
+                            and "create_live_upload_task.py --target-provider guangya --target-profile-id gy-orphan-api" in str(created_payload.get("recommendedRuntimeSuccessCommand") or "")
                         ),
                         "storedProfileUsesRequestedId": (
                             created_profile is not None
@@ -92,6 +95,7 @@ def main() -> None:
                             recreated_again.status_code == 200
                             and recreated_again_payload.get("status") == "already_exists"
                             and recreated_again_payload.get("created") is False
+                            and "patch_and_probe_auth_profile.py --profile-id gy-orphan-api --write" in str(recreated_again_payload.get("recommendedRefreshEvidenceCommand") or "")
                         ),
                         "dataDirContainsSingleProfile": len(list_profiles()) == 1,
                     },

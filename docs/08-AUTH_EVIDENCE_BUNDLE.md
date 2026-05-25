@@ -1,8 +1,8 @@
 # Auth Evidence Bundle
 
-- profileCount: `2`
-- profileReadyCount: `0`
-- writeReadyCount: `2`
+- profileCount: `3`
+- profileReadyCount: `1`
+- writeReadyCount: `3`
 - validationOkCount: `0`
 - probeOkCount: `0`
 
@@ -31,3 +31,12 @@
 - missingFieldHints: `extra.parentId (aliases: parent_id/parentFileId/dirId/pid)`
 - latestValidation: `Guangya live list requires parentId in request or auth profile extra.parentId.`
 - latestProbe: `Guangya live list requires parentId in request or auth profile extra.parentId.`
+
+### aliyun-bootstrap [aliyundrive_open]
+- profileId: `22173a49-2206-4da8-8624-9bab7bbbe64b`
+- profileReady: `True`
+- writeReady: `True`
+- validationOk: `False`
+- probeOk: `False`
+- resolvedParentId: `root`
+- resolvedFileId: ``

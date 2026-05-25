@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增 [scripts/verify_current_auth_evidence_bundle_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_evidence_bundle_sync.py)，直接锁住当前 [docs/08-AUTH_EVIDENCE_BUNDLE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/08-AUTH_EVIDENCE_BUNDLE.md) 的当前 auth evidence 口径
+  - 当前这条校验会同时核对 summary 和 profile 分段，确保 `profileCount=3`、`profileReadyCount=1`、`writeReadyCount=3`、`validationOkCount=0`、`probeOkCount=0` 持续与当前本地 auth evidence bundle 一致
+  - 同时还锁住两条 `guangya` smoke profile 的 `missing_parent_id` 缺口口径，以及 `aliyun-bootstrap` 当前已写入 `resolvedParentId=root` 且 `profileReady/writeReady=True`
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_auth_evidence_bundle.py` 已验证 auth evidence bundle 导出链仍正常
+  - `.\.venv\Scripts\python.exe scripts\verify_current_auth_evidence_bundle_sync.py` 已验证 `summaryHasCurrentAuthEvidenceCounts=true`、`summaryShowsExpectedAuthEvidenceCounts=true`
+  - 同一验证已锁住 `hasSmokeGuangyaProfile=true`、`hasRiskSmokeGuangyaProfile=true`、`hasAliyunBootstrapProfile=true`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增 [scripts/verify_current_auth_live_validation_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_live_validation_report_sync.py)，直接锁住当前 [docs/03-AUTH_LIVE_VALIDATION_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/03-AUTH_LIVE_VALIDATION_REPORT.md) 的当前 validation 口径
   - 当前这条校验会同时核对 summary 和 latest/history 分段，确保 `totalRecords=4`、`latestProfileCount=2`、`latestOkCount=0`、`latestFailedCount=2`、`latestProviders=guangya` 持续与本地已保存 validation 记录一致
   - 同时还锁住两条 latest `guangya` row 继续保持 `profile_incomplete / missing_parent_id` 口径，以及 recent history 里的 `checkCount=1` 记录数

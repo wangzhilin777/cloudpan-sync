@@ -23,11 +23,11 @@ SPEC.loader.exec_module(export_script)
 
 def main() -> None:
     synthetic_payload = {
-        "summary": {
-            "providerCount": 6,
-            "providersWithNoProfiles": 0,
-            "providersNeedingAuthEvidence": 0,
-            "providersNeedingListEvidence": 0,
+            "summary": {
+                "providerCount": 6,
+                "providersWithNoProfiles": 0,
+                "providersNeedingAuthEvidence": 0,
+                "providersNeedingListEvidence": 0,
             "providersNeedingMetadataEvidence": 0,
             "providersNeedingCreateDirEvidence": 0,
             "providersNeedingRuntimeSuccess": 6,
@@ -36,11 +36,12 @@ def main() -> None:
             "providersWithRefreshEvidenceCommand": 0,
             "providersWithRuntimeProbeCommand": 0,
             "providersWithLiveUploadCommand": 4,
-            "providersWithFastCandidateCommand": 1,
-            "providersWithRuntimeSuccessCommand": 2,
-            "providersWithPostBootstrapRuntimeCommand": 6,
-            "providersWithCreateCommand": 0,
-            "providersWithBootstrapCommand": 0,
+                "providersWithFastCandidateCommand": 1,
+                "providersWithRuntimeSuccessCommand": 2,
+                "providersWithPostBootstrapRuntimeCommand": 6,
+                "providersWithOverwriteVariantCommand": 6,
+                "providersWithCreateCommand": 0,
+                "providersWithBootstrapCommand": 0,
             "providersBlockedOnly": 0,
             "providersCandidateOnly": 1,
             "providersProbeOnly": 0,
@@ -245,6 +246,7 @@ def main() -> None:
                 "exportedHasFastCandidateSummary": "providersWithFastCandidateCommand: `1`" in markdown,
                 "exportedHasRuntimeSuccessSummary": "providersWithRuntimeSuccessCommand: `2`" in markdown,
                 "exportedHasPostBootstrapRuntimeSummary": "providersWithPostBootstrapRuntimeCommand: `6`" in markdown,
+                "exportedHasOverwriteVariantSummary": "providersWithOverwriteVariantCommand: `6`" in markdown,
                 "exportedHasLiveRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown
                 and r"tmp\guangya-live-evidence" in markdown,
                 "exportedHasFastRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown

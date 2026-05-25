@@ -12,6 +12,20 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的 remediation summary 已新增 `providersWithOverwriteVariantCommand`
+  - 这样 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 和设置页 remediation summary 现在不止能逐条看到 overwrite 变体命令，还能直接汇总当前有多少 provider 已经具备这类显式覆盖模式 helper
+  - 当前真实仓库导出的 remediation summary 已明确量化为 `providersWithOverwriteVariantCommand=6`；synthetic verifier 覆盖的更广场景则锁到 `9`
+  - 对应 verifier 也已同步补强：[scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py)、[scripts/verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)、[scripts/verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)、[scripts/verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 synthetic summary 中 `providersWithOverwriteVariantCommand=9`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证导出 Markdown 会写出 `providersWithOverwriteVariantCommand: 6`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前仓库导出的 remediation summary 与 `providersWithOverwriteVariantCommand=6` 一致
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证设置页会显示 `overwriteVariantCommands=${remediationSummary.providersWithOverwriteVariantCommand || 0}`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 已新增 `recommendedOverwriteVariantCommand`
   - 当前 remediation provider 只要已经暴露 `recommendedRuntimeSuccessCommand / recommendedPostBootstrapRuntimeCommand / recommendedLiveUploadCommand / recommendedFastCandidateCommand / recommendedRuntimeProbeCommand` 里的任一种 helper，就会额外生成一条 `overwrite_existing` 变体命令，用户不再需要手改原命令里的 `--conflict-policy`
   - 这样 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 和设置页 remediation 面板里，现在同时能看到默认 `auto_rename_new` 命令、显式 `overwrite_existing` 变体命令，以及 provider 不支持覆盖时会诚实降级/提示的说明

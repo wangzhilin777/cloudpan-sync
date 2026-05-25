@@ -25,6 +25,7 @@ def main() -> None:
                 "jsRemediationSummaryShowsFastCandidateCount": "fastCandidateCommands=${remediationSummary.providersWithFastCandidateCommand || 0}" in app_js,
                 "jsRemediationSummaryShowsRuntimeSuccessCount": "runtimeSuccessCommands=${remediationSummary.providersWithRuntimeSuccessCommand || 0}" in app_js,
                 "jsRemediationSummaryShowsPostBootstrapCount": "postBootstrapRuntimeCommands=${remediationSummary.providersWithPostBootstrapRuntimeCommand || 0}" in app_js,
+                "jsRemediationSummaryShowsOverwriteVariantCount": "overwriteVariantCommands=${remediationSummary.providersWithOverwriteVariantCommand || 0}" in app_js,
                 "jsRemediationRowsShowLiveUploadCommand": "liveUpload=${item.recommendedLiveUploadCommand}" in app_js,
                 "jsRemediationRowsShowFastCandidateCommand": "fastCandidate=${item.recommendedFastCandidateCommand}" in app_js,
                 "jsRemediationRowsShowRuntimeSuccessCommand": "runtimeSuccess=${item.recommendedRuntimeSuccessCommand}" in app_js,

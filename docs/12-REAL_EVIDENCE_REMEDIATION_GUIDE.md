@@ -15,6 +15,7 @@
 - providersWithFastCandidateCommand: `0`
 - providersWithRuntimeSuccessCommand: `0`
 - providersWithPostBootstrapRuntimeCommand: `6`
+- providersWithOverwriteVariantCommand: `6`
 - providersWithCreateCommand: `8`
 - providersWithBootstrapCommand: `8`
 - providersBlockedOnly: `0`

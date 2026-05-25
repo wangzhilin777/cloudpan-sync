@@ -27,6 +27,9 @@ def main() -> None:
                 "jsAuthListKeepsEvidenceAction": 'refresh: "Refresh Existing Profile"' in app_js
                 and 'evidenceBtn.textContent = authListLabels.refresh;' in app_js
                 and 'evidenceBtn.addEventListener("click", () => showAuthEvidence(item));' in app_js,
+                "jsAuthListHasExistingProfileProbeAction": 'probe: "Probe Existing Profile"' in app_js
+                and 'probeBtn.textContent = authListLabels.probe;' in app_js
+                and 'probeBtn.addEventListener("click", () => probeProviderLive(item));' in app_js,
             },
             ensure_ascii=False,
             indent=2,

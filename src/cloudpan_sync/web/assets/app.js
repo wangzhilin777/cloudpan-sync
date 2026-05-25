@@ -1015,6 +1015,7 @@ function renderAuthList() {
     const authListLabels = {
       refresh: "Refresh Existing Profile",
       capture: "Open Capture For Existing Profile",
+      probe: "Probe Existing Profile",
     };
     const validateBtn = document.createElement("button");
     validateBtn.className = "ghost";
@@ -1043,7 +1044,7 @@ function renderAuthList() {
     if (liveProbeProviderSet.has(item.providerKey)) {
       const probeBtn = document.createElement("button");
       probeBtn.className = "ghost";
-      probeBtn.textContent = t("auth.live_probe");
+      probeBtn.textContent = authListLabels.probe;
       probeBtn.addEventListener("click", () => probeProviderLive(item));
       actions.appendChild(probeBtn);
     }

@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`授权主列表探测动作也对齐现成档案语义`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里授权主列表现有档案行的 live probe 动作，从通用的 `auth.live_probe` 按钮口径推进成明确的 `Probe Existing Profile`
+  - 当前效果是：授权主列表里一条现成档案的 `Refresh / Probe / Capture` 三类恢复动作现在都统一表达“围绕当前已有档案继续补证据/探测/抓取”，不再只剩 probe 还保留泛化语义
+  - 这次补齐把 auth profile 行级入口进一步收成完整一致的一组现成档案动作，也继续减少用户在基础档案列表和 `P-REAL` 恢复链之间来回切换时的理解断层
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_profile_actions_ui.py` 已验证授权主列表当前会使用 `Probe Existing Profile` 文案，并保留原有 `probeProviderLive(item)` 绑定
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`授权主列表动作也对齐现成档案语义`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里授权主列表每个现有档案行的 `Refresh Evidence / Open Capture` 动作，推进成明确的 `Refresh Existing Profile / Open Capture For Existing Profile`

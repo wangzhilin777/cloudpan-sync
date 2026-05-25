@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [verify_create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_auth_profile_stub.py) 已从“只验证能建出档案”补强为覆盖 `--probe / --evidence-output / CLOUDPAN_SYNC_DATA_DIR`
+  - 当前 `create_auth_profile_stub.py` 这条 helper 不再只验证最基础的保存动作，还会锁住“建档案后立刻刷新 validation/probe 证据并输出单档案 Markdown”这条真实取证起手路径
+  - 这样 `recommendedCreateCommand / recommendedBootstrapCommand` 对应的两个落地阶段现在都有更贴近真实使用方式的回归保护
+- 当前验证证据：
+  - [verify_create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_auth_profile_stub.py) 已验证环境变量 `CLOUDPAN_SYNC_DATA_DIR` 会被消费，且 `domainId / driveId` 等 extra 字段会随建档案结果一起写入输出 JSON
+  - 同一验证已锁住 `--probe` 返回的 evidence 摘要，以及 `--evidence-output` 会真实落出 `Auth Profile Evidence` Markdown 文件
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - `real_evidence_remediation.py` 现已新增 `recommendedPostBootstrapRuntimeCommand` 与 `providersWithPostBootstrapRuntimeCommand`：针对 `115_open / 189cloud` 这类“当前还没 profile、但后续一定还要补 runtime success”的 provider，补救指南不再只停在 `create_auth_profile_stub.py --probe`
   - 当前 `Real Evidence Remediation` 会在“先建档案/跑 probe”之后，继续直接给出下一条占位式 runtime helper，提示用户在拿到真实 `profileId` 后如何立刻进入 `create_fast_upload_candidate_task.py` 收集真实 runtime 样本
   - settings 页 remediation 简讯、Markdown 导出与 API bundle 现在都已同步带出这条字段，真实取证准备链路从“建档案”延伸到了“建完后怎么继续跑 runtime”

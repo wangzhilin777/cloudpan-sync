@@ -122,9 +122,11 @@ def main() -> None:
                 "profileId": "gy-rem-1",
                 "providerKey": "guangya",
                 "displayName": "smoke-guangya",
-                "profileReady": True,
+                "profileReady": False,
                 "writeReady": True,
                 "resolvedParentId": "gy-parent-1",
+                "needsSecretRefresh": True,
+                "placeholderSecretFieldHints": ["token"],
             },
         {
             "profileId": "115-rem-1",
@@ -138,9 +140,11 @@ def main() -> None:
             "profileId": "ali-rem-1",
             "providerKey": "aliyundrive_open",
             "displayName": "aliyun-ready",
-            "profileReady": True,
+            "profileReady": False,
             "writeReady": True,
             "resolvedParentId": "aliyun-root-0",
+            "needsSecretRefresh": True,
+            "placeholderSecretFieldHints": ["token"],
         },
         {
             "profileId": "pp-rem-1",
@@ -205,6 +209,7 @@ def main() -> None:
                 "providersWithBootstrapCommand": ((bundle.get("summary") or {}).get("providersWithBootstrapCommand")),
                 "providersWithPatchCommand": ((bundle.get("summary") or {}).get("providersWithPatchCommand")),
                 "providersWithPatchProbeCommand": ((bundle.get("summary") or {}).get("providersWithPatchProbeCommand")),
+                "providersWithRecreateProbeCommand": ((bundle.get("summary") or {}).get("providersWithRecreateProbeCommand")),
                 "providersWithRefreshEvidenceCommand": ((bundle.get("summary") or {}).get("providersWithRefreshEvidenceCommand")),
                 "providersWithPostRefreshRuntimeCommand": ((bundle.get("summary") or {}).get("providersWithPostRefreshRuntimeCommand")),
                 "providersWithRuntimeProbeCommand": ((bundle.get("summary") or {}).get("providersWithRuntimeProbeCommand")),
@@ -219,11 +224,12 @@ def main() -> None:
                 "providersWithProviderManagedOverwrite": ((bundle.get("summary") or {}).get("providersWithProviderManagedOverwrite")),
                 "providersWithOverwriteDowngrade": ((bundle.get("summary") or {}).get("providersWithOverwriteDowngrade")),
                 "providersWithConflictUnsupported": ((bundle.get("summary") or {}).get("providersWithConflictUnsupported")),
-                "summaryHasExpectedLiveUploadCount": ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == 3,
-                "summaryHasExpectedFastCandidateCount": ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == 3,
-                "summaryHasExpectedRuntimeSuccessCount": ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 4,
+                "summaryHasExpectedLiveUploadCount": ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == 1,
+                "summaryHasExpectedFastCandidateCount": ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == 2,
+                "summaryHasExpectedRuntimeSuccessCount": ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 2,
                 "summaryHasExpectedPostBootstrapCount": ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 5,
                 "summaryHasExpectedPrimaryCommandCount": ((bundle.get("summary") or {}).get("providersWithPrimaryCommand")) == 9,
+                "summaryHasExpectedRecreateProbeCount": ((bundle.get("summary") or {}).get("providersWithRecreateProbeCommand")) == 2,
                 "summaryHasExpectedOverwriteVariantCount": ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == 9,
                 "summaryHasExpectedConflictPolicyNoteCount": ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == 9,
                 "summaryHasExpectedPostRefreshRuntimeCount": ((bundle.get("summary") or {}).get("providersWithPostRefreshRuntimeCommand")) == 0,
@@ -238,20 +244,21 @@ def main() -> None:
                 "markdownHasBootstrapCommand": "recommendedBootstrapCommand" in markdown and "--probe" in markdown,
                 "guangyaHasPatchCommand": "patch_auth_profile_extra.py" in markdown,
                 "guangyaHasPatchProbeCommand": "patch_and_probe_auth_profile.py" in markdown,
-                "markdownHasRefreshEvidenceCommand": "recommendedRefreshEvidenceCommand" in markdown and "--profile-id" in markdown,
+                "markdownHasRefreshEvidenceCommand": "recommendedRefreshEvidenceCommand" not in markdown,
                 "markdownHasPostRefreshRuntimeCommand": "recommendedPostRefreshRuntimeCommand" not in markdown,
                 "markdownHasRuntimeProbeCommand": "recommendedRuntimeProbeCommand" in markdown and "create_runtime_probe_task.py" in markdown,
                 "runtimeProbeCommandCarriesResolvedParent": "--target-parent-id 115-root-1" in markdown and "--evidence-dir tmp\\115_open-runtime-probe-evidence" in markdown,
                 "runtimeProbeCommandShowsConflictChoice": "--target-provider 115_open" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "markdownHasLiveUploadCommand": "recommendedLiveUploadCommand" in markdown and "create_live_upload_task.py" in markdown,
-                "liveUploadCommandCarriesResolvedParent": "--target-parent-id gy-parent-1" in markdown and "--evidence-dir tmp\\guangya-live-evidence" in markdown,
-                "liveUploadCommandShowsConflictChoice": "tmp\\guangya-live-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
+                "liveUploadCommandCarriesResolvedParent": "--target-provider pikpak" in markdown and "--evidence-dir tmp\\pikpak-live-evidence" in markdown,
+                "liveUploadCommandShowsConflictChoice": "tmp\\pikpak-live-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "markdownHasFastCandidateCommand": "recommendedFastCandidateCommand" in markdown and "create_fast_upload_candidate_task.py" in markdown,
                 "fastCandidateCommandCarriesResolvedParent": "--target-parent-id 115-root-1" in markdown and "--evidence-dir tmp\\115_open-fast-candidate-evidence" in markdown,
                 "fastCandidateCommandShowsConflictChoice": "tmp\\115_open-fast-candidate-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "markdownHasRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown,
                 "markdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown and "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown,
-                "markdownHasPrimaryCommand": "recommendedPrimaryCommand" in markdown and "label=runtime_probe" in markdown and "label=post_bootstrap_runtime" in markdown,
+                "markdownHasPrimaryCommand": "recommendedPrimaryCommand" in markdown and "label=recreate_probe" in markdown and "label=post_bootstrap_runtime" in markdown,
+                "markdownHasRecreateProbeCommand": "recommendedRecreateProbeCommand" in markdown and "placeholderSecretFieldHints: `token`" in markdown,
                 "markdownHasExpandedPostBootstrapHelpers": "tmp\\quark-post-bootstrap-runtime-evidence" in markdown and "tmp\\xunlei-post-bootstrap-runtime-evidence" in markdown and "tmp\\123_open-post-bootstrap-runtime-evidence" in markdown,
                 "postBootstrapCommandShowsConflictChoice": "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "markdownHasOverwriteVariantCommand": "recommendedOverwriteVariantCommand" in markdown and "--conflict-policy overwrite_existing" in markdown,
@@ -260,7 +267,7 @@ def main() -> None:
                 "markdownHasConflictSupportRows": "conflictSupport:" in markdown and "providerConflictNotes:" in markdown,
                 "postBootstrapNextStepMentionsRuntimeFollowup": "189cloud" in markdown and "post-bootstrap runtime helper" in markdown and "runtime success" in markdown,
                 "runtimeSuccessFallsBackToFastHelper": "115_open" in markdown and "tmp\\115_open-fast-candidate-evidence" in markdown,
-                "runtimeSuccessUsesLiveHelperWhenAvailable": "guangya" in markdown and "tmp\\guangya-live-evidence" in markdown,
+                "runtimeSuccessUsesLiveHelperWhenAvailable": "pikpak" in markdown and "tmp\\pikpak-live-evidence" in markdown,
                 "markdownHasCandidateOnlyFlag": "runtimeCandidateOnly=True" in markdown,
                 "markdownHasProbeOnlyFlag": "runtimeProbeOnly=True" in markdown,
                 "probeOnlyKeepsRuntimeCommand": "123_open" in markdown and "create_runtime_probe_task.py" in markdown,
@@ -284,10 +291,11 @@ def main() -> None:
                 "apiHasSummary": bool((api_bundle.get("summary") or {}).get("providerCount", 0) >= 0),
                 "apiHasRuntimeSuccessSummary": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")),
                 "apiHasPostBootstrapRuntimeSummary": ((api_bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 5,
-                "apiHasExpectedLiveUploadSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == 3,
-                "apiHasExpectedFastCandidateSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == 3,
-                "apiHasExpectedRuntimeSuccessSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 4,
+                "apiHasExpectedLiveUploadSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == 1,
+                "apiHasExpectedFastCandidateSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == 2,
+                "apiHasExpectedRuntimeSuccessSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 2,
                 "apiHasExpectedPrimaryCommandSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithPrimaryCommand")) == ((bundle.get("summary") or {}).get("providersWithPrimaryCommand")) == 9,
+                "apiHasExpectedRecreateProbeSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithRecreateProbeCommand")) == ((bundle.get("summary") or {}).get("providersWithRecreateProbeCommand")) == 2,
                 "apiHasExpectedOverwriteVariantSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == 9,
                 "apiHasExpectedConflictPolicyNoteSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == 9,
                 "apiHasExpectedPostRefreshRuntimeSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithPostRefreshRuntimeCommand")) == ((bundle.get("summary") or {}).get("providersWithPostRefreshRuntimeCommand")) == 0,
@@ -346,7 +354,7 @@ def main() -> None:
                         (
                             row
                             for row in (api_bundle.get("items") or [])
-                            if str((row or {}).get("providerKey") or "") == "guangya"
+                            if str((row or {}).get("providerKey") or "") == "pikpak"
                             and "create_live_upload_task.py" in str((row or {}).get("recommendedRuntimeSuccessCommand") or "")
                             and "--conflict-policy auto_rename_new" in str((row or {}).get("recommendedRuntimeSuccessCommand") or "")
                         ),
@@ -359,8 +367,24 @@ def main() -> None:
                             row
                             for row in (api_bundle.get("items") or [])
                             if str((row or {}).get("providerKey") or "") == "guangya"
-                            and str((row or {}).get("recommendedPrimaryCommandLabel") or "") == "runtime_probe"
-                            and "create_runtime_probe_task.py" in str((row or {}).get("recommendedPrimaryCommand") or "")
+                            and str((row or {}).get("recommendedPrimaryCommandLabel") or "") == "recreate_probe"
+                            and "create_auth_profile_stub.py" in str((row or {}).get("recommendedPrimaryCommand") or "")
+                            and bool((row or {}).get("needsSecretRefresh"))
+                            and "token" in ",".join((row or {}).get("placeholderSecretFieldHints") or [])
+                        ),
+                        None,
+                    )
+                ),
+                "apiHasAliyunRecreateProbeCommand": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "aliyundrive_open"
+                            and str((row or {}).get("recommendedPrimaryCommandLabel") or "") == "recreate_probe"
+                            and "create_auth_profile_stub.py" in str((row or {}).get("recommendedRecreateProbeCommand") or "")
+                            and bool((row or {}).get("needsSecretRefresh"))
+                            and "token" in ",".join((row or {}).get("placeholderSecretFieldHints") or [])
                         ),
                         None,
                     )
@@ -429,7 +453,8 @@ def main() -> None:
                 "apiMarkdownHasTitle": "# CloudPan Sync 真实联调补救指南" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in str(api_markdown.get("markdown", "")),
-                "apiMarkdownHasPrimaryCommand": "recommendedPrimaryCommand" in str(api_markdown.get("markdown", "")) and "label=runtime_probe" in str(api_markdown.get("markdown", "")) and "label=post_bootstrap_runtime" in str(api_markdown.get("markdown", "")),
+                "apiMarkdownHasPrimaryCommand": "recommendedPrimaryCommand" in str(api_markdown.get("markdown", "")) and "label=recreate_probe" in str(api_markdown.get("markdown", "")) and "label=post_bootstrap_runtime" in str(api_markdown.get("markdown", "")),
+                "apiMarkdownHasRecreateProbeCommand": "recommendedRecreateProbeCommand" in str(api_markdown.get("markdown", "")) and "placeholderSecretFieldHints: `token`" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasOverwriteVariantCommand": "recommendedOverwriteVariantCommand" in str(api_markdown.get("markdown", "")) and "--conflict-policy overwrite_existing" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasConflictPolicyNote": "conflictPolicyNote:" in str(api_markdown.get("markdown", "")) and "overwrite_existing" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasConflictSupportRows": "conflictSupport:" in str(api_markdown.get("markdown", "")) and "providerConflictNotes:" in str(api_markdown.get("markdown", "")),

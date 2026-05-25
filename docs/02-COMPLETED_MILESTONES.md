@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 的 synthetic bundle/API/Markdown 回归现已把 `recreate_probe` 这条新分支正式锁进来，不再只覆盖旧的 `runtime_probe / post_bootstrap_runtime / refresh_evidence` 路径
+  - synthetic profile 现会显式模拟 `guangya / aliyundrive_open` 处于 `profileReady=False + needsSecretRefresh=True + placeholderSecretFieldHints=[token]` 的状态，并据此验证 summary 会产出 `providersWithRecreateProbeCommand=2`
+  - 同一条 verifier 现在还会继续验证 Markdown 与 API 明细里都能看到 `recommendedRecreateProbeCommand / placeholderSecretFieldHints / recommendedPrimaryCommandLabel=recreate_probe`，避免后续再出现“真实 current sync 已对齐，但 synthetic bundle 回归没覆盖到”的空档
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 当前已验证 bundle summary、Markdown 导出和 API 返回里，`providersWithRecreateProbeCommand`、`recommendedRecreateProbeCommand`、`placeholderSecretFieldHints` 与 `recommendedPrimaryCommandLabel=recreate_probe` 都已同步成立
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 的 remediation 输出现已补齐 `needsSecretRefresh / placeholderSecretFieldHints / recommendedRecreateProbeCommand`，当新建出来的 profile 仍是 smoke/demo 凭证时，helper 返回结果不再只会给旧的 refresh 路径
   - [scripts/patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_and_probe_auth_profile.py) 的 remediation 输出现也与其他 helper 对齐，已同步回出 `recommendedPrimaryCommandLabel / recommendedPrimaryCommand / recommendedRecreateProbeCommand / needsSecretRefresh / placeholderSecretFieldHints`
   - 这样“建档后 probe”与“补字段后 probe”两条 helper 现在都能直接把“当前其实应该先换真 token/cookie 再 probe”这类结论连同命令一起带回，不再出现 docs/UI 已经切到 `recreate_probe`，但 helper JSON 还是旧 follow-up 字段的割裂

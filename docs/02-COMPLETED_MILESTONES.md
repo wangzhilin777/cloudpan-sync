@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充真实上传脚本自动带出补救默认值`
+- 完成范围：
+  - 已把 [create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py) 从“必须手工传完整 `target-provider / target-profile-id / parent-id / auto-temp-file / threshold / conflict-policy / evidence-dir` 参数”推进成可直接从 `real_evidence_remediation` 推荐命令带起；这次补齐后，脚本新增 `--from-remediation-provider`
+  - 当前能力会直接读取 `recommendedLiveUploadCommand`，必要时也可回退读取 `recommendedRuntimeSuccessCommand / recommendedPrimaryCommand` 里的同脚本命令，自动解析出 `targetProvider / targetProfileId / targetParentId / autoTempFile / thresholdMB / conflictPolicy / evidenceDir / acknowledgeDownloadUpload` 这些默认值；因此继续补 `P-REAL` 时，不再需要每次先复制一整条 `create_live_upload_task.py ...` 命令，再手工拆成参数重输
+  - 对于 remediation 已经明确给出 live upload 或 runtime success 命令的 provider，现在可直接执行 `--from-remediation-provider <provider>`；脚本会自动带出目标档案、目标目录、默认临时文件、证据输出目录和下载上传风险确认默认值，而显式传入的 `--target-parent-id / --no-acknowledge-download-upload` 等参数仍保持最高优先级
+  - 这次补齐把真实证据恢复链从“UI/Markdown 告诉你 live upload 推荐命令是什么”往前推进成“真实上传 helper 自己就能吃下推荐默认值”，和前面已补齐的 `create_auth_profile_stub.py`、`patch_and_probe_auth_profile.py`、`create_runtime_probe_task.py` 连成更完整的 helper 闭环
+  - 已新增 [verify_create_live_upload_task_defaults.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task_defaults.py)，并保留现有 [verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py) 回归，锁住默认 target/profile/parent/evidence-dir/acknowledge 继承与显式覆盖优先级
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_live_upload_task.py` 已验证原有 live upload helper 产出 task/evidence bundle/runtime success/remediation followup 未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_create_live_upload_task_defaults.py` 已验证 `--from-remediation-provider` 会正确带出默认 `targetProvider / targetProfileId / targetParentId / autoTempFile / thresholdMB / conflictPolicy / evidenceDir / acknowledgeDownloadUpload`，且显式覆盖参数仍优先生效
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充运行探针脚本自动带出补救默认值`
 - 完成范围：
   - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py) 从“必须手工传完整 `target-provider / target-profile-id / parent-id / auto-temp-file / evidence-dir` 参数”推进成可直接从 `real_evidence_remediation` 推荐命令带起；这次补齐后，脚本新增 `--from-remediation-provider`

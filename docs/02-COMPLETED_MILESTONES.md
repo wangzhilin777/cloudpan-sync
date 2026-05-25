@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增独立导出验证脚本 [verify_export_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_remediation_bundle.py)，把 `09-AUTH_REMEDIATION_GUIDE.md` 的摘要统计、profile 级缺口、只读写阻断说明与推荐 patch 命令锁进回归
+  - 当前 auth remediation bundle 导出链现在也具备与 `auth evidence bundle / auth live validation / live probe / plan audit / provider status / real evidence / task runtime` 同级的独立 export verifier
+  - 这条验证同时覆盖了“普通缺字段修补”和“189Cloud share 只读补救”两类补救路径，避免导出链只锁最简单的 remediation 文案
+- 当前验证证据：
+  - [verify_export_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_remediation_bundle.py) 已验证导出文件包含 `profileCount / readyCount / needsFixCount / writeReadyCount / writeNeedsFixCount`
+  - 同一验证已锁住 `aliyundrive_open` 的 `missingFieldHints + recommendedPatchCommand`，以及 `189cloud` 的 `writeMissingFieldHints / writeBlockerNote / recommendedPatchCommand`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增独立导出验证脚本 [verify_export_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_evidence_bundle.py)，把 `08-AUTH_EVIDENCE_BUNDLE.md` 的摘要统计、profile 行、鉴权缺口提示、写阻断说明与 latest validation/probe 摘要锁进回归
   - 当前 auth evidence bundle 导出链现在也具备与 `auth live validation / live probe / plan audit / provider status / real evidence / task runtime` 同级的独立 export verifier，不再只靠人工打开 Markdown 对账
   - 这条验证同时覆盖“可写成功档案”和“只读受阻档案”两类代表性场景，避免导出链只锁 happy path

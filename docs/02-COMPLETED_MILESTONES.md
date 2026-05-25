@@ -12,6 +12,19 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [docs/06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 已按当前 `task_runtime_evidence_store` 重新导出，回收了旧矩阵把 runtime 统计高估到 `6` 的过期口径
+  - 当前 matrix 顶部 summary 已与当前真实 evidence 状态重新一致：`taskRuntimeEvidenceProviderCount / taskRuntimeSampleCount / taskRuntimeSuccessCount / taskRuntimeConflictHandledProviderCount / taskRuntimeConflictHandledCount` 现都收敛到 `3`
+  - 已新增 [scripts/verify_current_provider_status_matrix_runtime_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_provider_status_matrix_runtime_sync.py)，直接锁住当前导出的 `docs/06` 只能把 `guangya / uc / pikpak` 视为 runtime success provider，并确认 `aliyundrive_open / quark / baidu_netdisk / 123_open` 当前仍是 `0`
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\export_provider_status_matrix.py` 已重导出当前 [docs/06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_export_provider_status_matrix.py` 已验证 matrix 导出链仍正常
+  - `.\.venv\Scripts\python.exe scripts\verify_current_provider_status_matrix_runtime_sync.py` 已验证 `summaryHasCurrentRuntimeCounts=true`、`summaryShowsThreeRuntimeSuccessProviders=true`
+  - 同一验证已锁住 `guangya / uc / pikpak` 的 success 行，以及 `aliyundrive_open / quark / baidu_netdisk / 123_open` 的 no-success 行
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已把 remediation bundle 里四类 helper summary 从“只打印当前值”补成显式 expected-count 断言
   - 当前 bundle 验证现在会单独锁住 `providersWithLiveUploadCommand=3`、`providersWithFastCandidateCommand=3`、`providersWithRuntimeSuccessCommand=4`、`providersWithPostBootstrapRuntimeCommand=5`，并继续校验 API 返回 summary 与 bundle 本体一致
   - [scripts/verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py) 也同步补上导出 Markdown 的 `providersWithLiveUploadCommand=4` 与 `providersWithFastCandidateCommand=1` 计数断言，不再只盯 runtime/post-bootstrap 两项

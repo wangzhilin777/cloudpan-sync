@@ -755,19 +755,24 @@ def create_remediation_profile(provider_key: str) -> dict[str, object]:
     if int(target_item.get("profileCount") or 0) > 0:
         existing_id = str((target_item.get("profileIds") or [""])[0] or "")
         existing = get_profile(existing_id) if existing_id else None
+        existing_view = auth_profile_view(existing) if existing is not None else None
+        refresh_command = _refresh_evidence_command_for_profile(existing_view or {})
+        runtime_probe_command = _runtime_probe_command_for_profile(existing_view or {})
+        runtime_success_command = _runtime_success_command_for_profile(existing_view or {})
         return {
             "ok": True,
             "created": False,
             "status": "already_exists",
             "message": "This provider already has a saved auth profile in the current repository; edit that profile directly and continue remediation.",
-            "item": auth_profile_view(existing) if existing is not None else None,
+            "item": existing_view,
             "nextStep": str(target_item.get("nextStep") or ""),
             "recommendedBootstrapCommand": str(target_item.get("recommendedBootstrapCommand") or ""),
-            "recommendedRefreshEvidenceCommand": str(target_item.get("recommendedRefreshEvidenceCommand") or ""),
-            "recommendedRuntimeProbeCommand": str(target_item.get("recommendedRuntimeProbeCommand") or ""),
-            "recommendedRuntimeSuccessCommand": str(target_item.get("recommendedRuntimeSuccessCommand") or ""),
+            "recommendedRefreshEvidenceCommand": refresh_command or str(target_item.get("recommendedRefreshEvidenceCommand") or ""),
+            "recommendedRuntimeProbeCommand": runtime_probe_command or str(target_item.get("recommendedRuntimeProbeCommand") or ""),
+            "recommendedRuntimeSuccessCommand": runtime_success_command or str(target_item.get("recommendedRuntimeSuccessCommand") or ""),
             "recommendedPostBootstrapRuntimeCommand": str(target_item.get("recommendedPostBootstrapRuntimeCommand") or ""),
-            "recommendedOverwriteVariantCommand": str(target_item.get("recommendedOverwriteVariantCommand") or ""),
+            "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command)
+            or str(target_item.get("recommendedOverwriteVariantCommand") or ""),
         }
 
     auth_modes = list(target_item.get("recommendedAuthModes") or [])
@@ -785,20 +790,25 @@ def create_remediation_profile(provider_key: str) -> dict[str, object]:
             extra=extra,
         )
     )
+    profile_view = auth_profile_view(profile)
+    refresh_command = _refresh_evidence_command_for_profile(profile_view)
+    runtime_probe_command = _runtime_probe_command_for_profile(profile_view)
+    runtime_success_command = _runtime_success_command_for_profile(profile_view)
     return {
         "ok": True,
         "created": True,
         "status": "stub_created",
         "message": "A placeholder auth profile stub was created for this provider. Fill the real credentials, then rerun validation/live probe before using it for runtime evidence recovery.",
-        "item": auth_profile_view(profile),
+        "item": profile_view,
         "requiredFieldHints": field_hints,
         "recommendedCreateCommand": str(target_item.get("recommendedCreateCommand") or ""),
         "recommendedBootstrapCommand": str(target_item.get("recommendedBootstrapCommand") or ""),
-        "recommendedRefreshEvidenceCommand": str(target_item.get("recommendedRefreshEvidenceCommand") or ""),
-        "recommendedRuntimeProbeCommand": str(target_item.get("recommendedRuntimeProbeCommand") or ""),
-        "recommendedRuntimeSuccessCommand": str(target_item.get("recommendedRuntimeSuccessCommand") or ""),
+        "recommendedRefreshEvidenceCommand": refresh_command or str(target_item.get("recommendedRefreshEvidenceCommand") or ""),
+        "recommendedRuntimeProbeCommand": runtime_probe_command or str(target_item.get("recommendedRuntimeProbeCommand") or ""),
+        "recommendedRuntimeSuccessCommand": runtime_success_command or str(target_item.get("recommendedRuntimeSuccessCommand") or ""),
         "recommendedPostBootstrapRuntimeCommand": str(target_item.get("recommendedPostBootstrapRuntimeCommand") or ""),
-        "recommendedOverwriteVariantCommand": str(target_item.get("recommendedOverwriteVariantCommand") or ""),
+        "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command)
+        or str(target_item.get("recommendedOverwriteVariantCommand") or ""),
         "nextStep": str(target_item.get("nextStep") or ""),
     }
 

@@ -10,6 +10,21 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充补救已存在档案续做命令`
+- 完成范围：
+  - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 里的 `create_remediation_profile()` 再往前推进一步：此前 `stub_created` 路径已能回后续命令，但 `already_exists` 基本还是空壳；这次补齐后，当 provider 当前仓库里已经有档案时，接口会优先按现有 profile 直接带出 `recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand / recommendedRuntimeSuccessCommand / recommendedOverwriteVariantCommand`
+  - 当前效果是：用户在应用内点 `Create Stub` 时，即使当前 provider 已不再是“无 profile”状态，而是命中 `already_exists`，结果摘要也不再停在一句“去编辑现有档案”；它现在会继续给出围绕当前 profile 的 refresh/probe/runtime 命令链，让应用内续做路径保持连续
+  - 这次补齐把“create-profile 第二次点到 already_exists -> 用户还要自己回设置页找现有 profile 的后续动作”的流程，推进成“already_exists -> 结果摘要仍直接承接现有 profile 的 follow-up 动作”，进一步减少围绕 `M4 / M5 / P-REAL` 收敛时的来回跳转
+  - 已补强 [verify_real_evidence_remediation_create_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_api.py)，并保留 [verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)、[verify_real_evidence_remediation_create_refreshes_views.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_refreshes_views.py)、[verify_real_evidence_remediation_create_followup_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_followup_ui.py) 回归，锁住 create-profile 的 API/结果摘要/strict 面板刷新三段一致性
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_api.py` 已验证 `stub_created` 与 `already_exists` 两条路径当前都会返回可继续续做的命令或 nextStep 口径，其中 `already_exists` 不再只返回静态提示
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证设置页 `Real Evidence Remediation` 面板原有命令摘要、动作绑定和汇总字段未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_refreshes_views.py` 已验证 `createRemediationProfile()` 当前仍会同步刷新 `loadRealEvidenceSummary / loadTaskRuntimeEvidence / loadAuditSummary`
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_followup_ui.py` 已验证 `Remediation Stub` 结果摘要当前仍会识别 bootstrap/post-bootstrap follow-up，并继续复用现有动作按钮
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充补救建档后续动作与严格面板刷新`
 - 完成范围：
   - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 里的 `create_remediation_profile()` 从“只返回 stub 本身和 create/bootstrap 命令”推进成会同步带出 `recommendedPostBootstrapRuntimeCommand / recommendedOverwriteVariantCommand` 等后续链路字段；对于“当前仓库还没有 profile，先建一个 stub 再继续补证据”的 provider，不再只停留在建档这一步

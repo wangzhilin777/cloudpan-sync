@@ -40,6 +40,7 @@ def main() -> None:
                 "providersWithRuntimeSuccessCommand": 2,
                 "providersWithPostBootstrapRuntimeCommand": 6,
                 "providersWithOverwriteVariantCommand": 6,
+                "providersWithConflictPolicyNote": 6,
                 "providersWithCreateCommand": 0,
                 "providersWithBootstrapCommand": 0,
             "providersBlockedOnly": 0,
@@ -247,6 +248,7 @@ def main() -> None:
                 "exportedHasRuntimeSuccessSummary": "providersWithRuntimeSuccessCommand: `2`" in markdown,
                 "exportedHasPostBootstrapRuntimeSummary": "providersWithPostBootstrapRuntimeCommand: `6`" in markdown,
                 "exportedHasOverwriteVariantSummary": "providersWithOverwriteVariantCommand: `6`" in markdown,
+                "exportedHasConflictPolicyNoteSummary": "providersWithConflictPolicyNote: `6`" in markdown,
                 "exportedHasLiveRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown
                 and r"tmp\guangya-live-evidence" in markdown,
                 "exportedHasFastRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown

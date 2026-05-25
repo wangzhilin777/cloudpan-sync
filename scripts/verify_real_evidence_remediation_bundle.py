@@ -212,11 +212,13 @@ def main() -> None:
                 "providersWithRuntimeSuccessCommand": ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")),
                 "providersWithPostBootstrapRuntimeCommand": ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")),
                 "providersWithOverwriteVariantCommand": ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")),
+                "providersWithConflictPolicyNote": ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")),
                 "summaryHasExpectedLiveUploadCount": ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == 3,
                 "summaryHasExpectedFastCandidateCount": ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == 3,
                 "summaryHasExpectedRuntimeSuccessCount": ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 4,
                 "summaryHasExpectedPostBootstrapCount": ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 5,
                 "summaryHasExpectedOverwriteVariantCount": ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == 9,
+                "summaryHasExpectedConflictPolicyNoteCount": ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == 9,
                 "providersBlockedOnly": ((bundle.get("summary") or {}).get("providersBlockedOnly")),
                 "providersCandidateOnly": ((bundle.get("summary") or {}).get("providersCandidateOnly")),
                 "providersProbeOnly": ((bundle.get("summary") or {}).get("providersProbeOnly")),
@@ -270,6 +272,7 @@ def main() -> None:
                 "apiHasExpectedFastCandidateSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == 3,
                 "apiHasExpectedRuntimeSuccessSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 4,
                 "apiHasExpectedOverwriteVariantSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == 9,
+                "apiHasExpectedConflictPolicyNoteSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == 9,
                 "apiHasOverwriteVariantCommand": bool(
                     next(
                         (

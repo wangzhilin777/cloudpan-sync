@@ -436,6 +436,7 @@ def build_real_evidence_remediation_bundle(
             "providersWithRuntimeSuccessCommand": sum(1 for item in items if str(item.get("recommendedRuntimeSuccessCommand") or "")),
             "providersWithPostBootstrapRuntimeCommand": sum(1 for item in items if str(item.get("recommendedPostBootstrapRuntimeCommand") or "")),
             "providersWithOverwriteVariantCommand": sum(1 for item in items if str(item.get("recommendedOverwriteVariantCommand") or "")),
+            "providersWithConflictPolicyNote": sum(1 for item in items if str(item.get("conflictPolicyNote") or "")),
             "providersWithCreateCommand": sum(1 for item in items if str(item.get("recommendedCreateCommand") or "")),
             "providersWithBootstrapCommand": sum(1 for item in items if str(item.get("recommendedBootstrapCommand") or "")),
             "providersBlockedOnly": sum(1 for item in items if bool(item.get("runtimeBlockedOnly"))),
@@ -467,6 +468,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersWithRuntimeSuccessCommand: `{summary.get('providersWithRuntimeSuccessCommand', 0)}`")
     lines.append(f"- providersWithPostBootstrapRuntimeCommand: `{summary.get('providersWithPostBootstrapRuntimeCommand', 0)}`")
     lines.append(f"- providersWithOverwriteVariantCommand: `{summary.get('providersWithOverwriteVariantCommand', 0)}`")
+    lines.append(f"- providersWithConflictPolicyNote: `{summary.get('providersWithConflictPolicyNote', 0)}`")
     lines.append(f"- providersWithCreateCommand: `{summary.get('providersWithCreateCommand', 0)}`")
     lines.append(f"- providersWithBootstrapCommand: `{summary.get('providersWithBootstrapCommand', 0)}`")
     lines.append(f"- providersBlockedOnly: `{summary.get('providersBlockedOnly', 0)}`")

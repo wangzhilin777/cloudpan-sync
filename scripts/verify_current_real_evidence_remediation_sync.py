@@ -43,6 +43,7 @@ def main() -> None:
                     f"- providersNeedingRuntimeSuccess: `{summary.get('providersNeedingRuntimeSuccess', 0)}`" in markdown
                     and f"- providersWithPostBootstrapRuntimeCommand: `{summary.get('providersWithPostBootstrapRuntimeCommand', 0)}`" in markdown
                     and f"- providersWithOverwriteVariantCommand: `{summary.get('providersWithOverwriteVariantCommand', 0)}`" in markdown
+                    and f"- providersWithConflictPolicyNote: `{summary.get('providersWithConflictPolicyNote', 0)}`" in markdown
                     and f"- providersWithCreateCommand: `{summary.get('providersWithCreateCommand', 0)}`" in markdown
                     and f"- providersWithBootstrapCommand: `{summary.get('providersWithBootstrapCommand', 0)}`" in markdown
                 ),
@@ -50,6 +51,7 @@ def main() -> None:
                     summary.get("providersNeedingRuntimeSuccess") == 7
                     and summary.get("providersWithPostBootstrapRuntimeCommand") == 6
                     and summary.get("providersWithOverwriteVariantCommand") == 6
+                    and summary.get("providersWithConflictPolicyNote") == 6
                     and summary.get("providersWithCreateCommand") == 8
                     and summary.get("providersWithBootstrapCommand") == 8
                 ),

@@ -12,6 +12,24 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 这轮不是只补文档，而是先真实执行了 `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --write`，实际补到了一条新的线上失败证据：当前 `aliyundrive_open` 档案会在 live list 阶段收到 `http_error:404`
+  - 基于这次真实联调结果，已把 [src/cloudpan_sync/auth_profile_view.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_view.py) 补成可识别占位凭证/占位字段，当前会把 `tok-demo / tok_smoke / domain-demo / drive-demo` 这类 smoke/demo 值当成真实缺口暴露到 `missingFieldHints` 与 `placeholderFieldHints`
+  - [src/cloudpan_sync/auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_evidence.py) 和 [src/cloudpan_sync/auth_profile_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_remediation.py) 已同步把 `placeholderFieldHints` 导出到证据 Markdown / remediation Markdown，不再把这类假档案误写成“已 ready”
+  - 当前真实导出的 [docs/08-AUTH_EVIDENCE_BUNDLE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/08-AUTH_EVIDENCE_BUNDLE.md) 已从 `profileReadyCount=1` 收紧为 `0`；[docs/09-AUTH_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/09-AUTH_REMEDIATION_GUIDE.md) 已从 `readyCount=1` 收紧为 `0`；`aliyun-bootstrap` 现在会明确提示必须先替换真实 `token/domainId/driveId`
+  - 这次真实联调新增的失败记录也已经回写并重导出 [docs/03-AUTH_LIVE_VALIDATION_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/03-AUTH_LIVE_VALIDATION_REPORT.md)、[docs/05-PROVIDER_LIVE_PROBE_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/05-PROVIDER_LIVE_PROBE_REPORT.md) 和 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md)，当前 remediation 也已把 `aliyundrive_open` 从“refresh evidence”收紧成“先 patch 真实字段”
+  - 对应 verifier 已同步补强：[scripts/verify_auth_profile_readiness.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_readiness.py)、[scripts/verify_export_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_evidence_bundle.py)、[scripts/verify_export_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_remediation_bundle.py)、[scripts/verify_current_auth_evidence_bundle_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_evidence_bundle_sync.py)、[scripts/verify_current_auth_remediation_bundle_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_remediation_bundle_sync.py)、[scripts/verify_current_auth_live_validation_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_live_validation_report_sync.py)、[scripts/verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --write --evidence-output tmp\aliyundrive_open-auth-evidence-live.md` 已实际产出一条新的 `aliyundrive_open` 线上失败证据，错误为 `http_error:404`
+  - `.\.venv\Scripts\python.exe scripts\export_auth_evidence_bundle.py`、`scripts\export_auth_remediation_bundle.py`、`scripts\export_auth_live_validation_report.py`、`scripts\export_live_probe_report.py`、`scripts\export_real_evidence_remediation.py` 已重导出当前真实文档
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_profile_readiness.py` 已验证占位值会把 Guangya / Aliyun smoke 档案判成 not ready，而真实字段的 Aliyun profile 仍可保持 ready
+  - `.\.venv\Scripts\python.exe scripts\verify_export_auth_evidence_bundle.py`、`scripts\verify_export_auth_remediation_bundle.py` 已验证导出链会保留 `placeholderFieldHints`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_auth_evidence_bundle_sync.py`、`scripts\verify_current_auth_remediation_bundle_sync.py`、`scripts\verify_current_auth_live_validation_report_sync.py`、`scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前仓库真实导出文档与新的占位值/失败证据口径一致
+  - 本轮启动的项目 `.venv` `python` verifier 与联调进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 现在会为每个 provider 统一计算 `recommendedPrimaryCommand` 和 `recommendedPrimaryCommandLabel`，把当前最值得先跑的一条补救命令结构化输出出来
   - 当前优先级已经落到真实 bundle：例如 `guangya` 会先指向 `patch_and_probe_auth_profile.py`，`aliyundrive_open` 会先指向 `recommendedRefreshEvidenceCommand`，而 `115_open / quark / 189cloud / baidu_netdisk / xunlei / 123_open` 这类无现成 profile 的 provider，会直接把首条 `post-bootstrap runtime` helper 作为主命令给出
   - [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 与设置页 remediation 面板已同步展示 `providersWithPrimaryCommand` 汇总，以及逐 provider 的 `recommendedPrimaryCommand` / `label=...`，从“看一堆候选命令”进一步变成“直接抄当前首选下一条”

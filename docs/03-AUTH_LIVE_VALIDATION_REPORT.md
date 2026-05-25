@@ -1,10 +1,10 @@
 # CloudPan Sync Auth Live Validation Report
 
-- totalRecords: `4`
-- latestProfileCount: `2`
+- totalRecords: `5`
+- latestProfileCount: `3`
 - latestOkCount: `0`
-- latestFailedCount: `2`
-- latestProviders: `guangya`
+- latestFailedCount: `3`
+- latestProviders: `aliyundrive_open, guangya`
 
 ## Latest By Profile
 
@@ -21,6 +21,13 @@
 - mode: `profile_incomplete`
 - summary: `Guangya live list requires parentId in request or auth profile extra.parentId.`
 - error: `missing_parent_id`
+
+### aliyundrive_open - aliyun-bootstrap
+- checkedAt: `2026-05-25T16:45:16.495503+00:00`
+- ok: `False` status: `404`
+- mode: `live_error`
+- summary: `Aliyun Drive Open live list reached the API but was rejected.`
+- error: `http_error:404`
 
 ## Recent History
 
@@ -54,4 +61,13 @@
 - mode: `profile_incomplete`
 - summary: `Guangya live list requires parentId in request or auth profile extra.parentId.`
 - error: `missing_parent_id`
+- checkCount: `1`
+
+### aliyundrive_open - aliyun-bootstrap
+- checkedAt: `2026-05-25T16:45:16.495503+00:00`
+- ok: `False` status: `404`
+- mode: `live_error`
+- probeArgs: `parentId=root` `fileId=`
+- summary: `Aliyun Drive Open live list reached the API but was rejected.`
+- error: `http_error:404`
 - checkCount: `1`

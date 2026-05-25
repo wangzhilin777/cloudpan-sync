@@ -33,6 +33,7 @@ def build_auth_remediation_bundle(*, profile_views: list[dict[str, object]]) -> 
                 "profileReady": profile_ready,
                 "writeReady": write_ready,
                 "missingFieldHints": missing,
+                "placeholderFieldHints": list(profile.get("placeholderFieldHints") or []),
                 "writeMissingFieldHints": list(profile.get("writeMissingFieldHints") or []),
                 "writeBlockerNote": str(profile.get("writeBlockerNote") or ""),
                 "resolvedParentId": str(profile.get("resolvedParentId") or ""),
@@ -77,6 +78,9 @@ def auth_remediation_bundle_to_markdown(payload: dict[str, object]) -> str:
         missing = list(row.get("missingFieldHints") or [])
         if missing:
             lines.append(f"- missingFieldHints: `{', '.join(missing)}`")
+        placeholder_missing = list(row.get("placeholderFieldHints") or [])
+        if placeholder_missing:
+            lines.append(f"- placeholderFieldHints: `{', '.join(placeholder_missing)}`")
         write_missing = list(row.get("writeMissingFieldHints") or [])
         if write_missing:
             lines.append(f"- writeMissingFieldHints: `{', '.join(write_missing)}`")

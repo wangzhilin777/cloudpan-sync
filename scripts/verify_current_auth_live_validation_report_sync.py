@@ -33,18 +33,21 @@ def main() -> None:
                     and f"- latestProviders: `{', '.join(summary.get('providerKeys', [])) or '(none)'}`" in markdown
                 ),
                 "summaryShowsExpectedValidationCounts": (
-                    len(rows) == 4
-                    and summary.get("profileCount") == 2
+                    len(rows) == 5
+                    and summary.get("profileCount") == 3
                     and summary.get("okCount") == 0
-                    and summary.get("failedCount") == 2
-                    and summary.get("providerKeys") == ["guangya"]
+                    and summary.get("failedCount") == 3
+                    and summary.get("providerKeys") == ["aliyundrive_open", "guangya"]
                 ),
-                "latestSectionKeepsTwoGuangyaRows": (
+                "latestSectionKeepsThreeLatestRows": (
                     _count(markdown, "### guangya -") >= 4
                     and _count(markdown, "- mode: `profile_incomplete`") >= 4
                     and _count(markdown, "- error: `missing_parent_id`") >= 4
+                    and "### aliyundrive_open - aliyun-bootstrap" in markdown
+                    and "- mode: `live_error`" in markdown
+                    and "- error: `http_error:404`" in markdown
                 ),
-                "latestRowsMatchLatestValidationCount": _count(markdown.split("## Recent History")[0], "### guangya -") == len(latest_rows),
+                "latestRowsMatchLatestValidationCount": _count(markdown.split("## Recent History")[0], "### ") == len(latest_rows),
                 "recentHistoryKeepsCheckCountRows": _count(markdown, "- checkCount: `1`") == len(rows),
             },
             ensure_ascii=False,

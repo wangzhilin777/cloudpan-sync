@@ -1,7 +1,7 @@
 # CloudPan Sync Provider Live Probe Report
 
-- GeneratedAt: `2026-05-25T13:47:17.002625+00:00`
-- Summary: providerCount=10, totalChecks=12, okChecks=12, failedChecks=0, profileProbeProviderCount=1, profileProbeOkCount=0, profileProbeFailedCount=1
+- GeneratedAt: `2026-05-25T16:48:11.419341+00:00`
+- Summary: providerCount=10, totalChecks=12, okChecks=12, failedChecks=0, profileProbeProviderCount=2, profileProbeOkCount=0, profileProbeFailedCount=2
 
 ## guangya - Guangya
 - web_login: ok=True status=200 url=https://guangyapan.com/ final=https://www.guangyapan.com/ error=
@@ -9,6 +9,7 @@
 
 ## aliyundrive_open - Aliyun Drive Open
 - official_docs: ok=True status=200 url=https://www.alipan.com/ final=https://www.alipan.com/ error=
+- profile_probe: ok=False mode=live_error checks=1 summary=Aliyun Drive Open live list reached the API but was rejected.
 
 ## 115_open - 115 Open
 - no-check: officialDocsUrl/webLoginUrl missing

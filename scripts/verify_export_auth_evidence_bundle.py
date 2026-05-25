@@ -58,6 +58,7 @@ def main() -> None:
                     "providerKey": "189cloud",
                     "displayName": "189 Share Profile",
                     "missingFieldHints": ["accessToken", "sessionKey"],
+                    "placeholderFieldHints": ["token looks like placeholder data; replace tok-demo with a real token"],
                     "writeMissingFieldHints": ["signature", "date"],
                     "writeBlockerNote": "当前 189Cloud share 档案仍为只读。",
                 },
@@ -122,6 +123,7 @@ def main() -> None:
                 and "- latestProbe: `list/create_dir checks passed`" in markdown,
                 "exportedHas189HintsAndBlocker": "### 189 Share Profile [189cloud]" in markdown
                 and "- missingFieldHints: `accessToken, sessionKey`" in markdown
+                and "- placeholderFieldHints: `token looks like placeholder data; replace tok-demo with a real token`" in markdown
                 and "- writeMissingFieldHints: `signature, date`" in markdown
                 and "- writeBlockerNote: 当前 189Cloud share 档案仍为只读。" in markdown
                 and "- latestValidation: `share auth readonly`" in markdown

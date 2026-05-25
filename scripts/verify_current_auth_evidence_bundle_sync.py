@@ -31,7 +31,7 @@ def main() -> None:
                 ),
                 "summaryShowsExpectedAuthEvidenceCounts": (
                     summary.get("profileCount") == 3
-                    and summary.get("profileReadyCount") == 1
+                    and summary.get("profileReadyCount") == 0
                     and summary.get("writeReadyCount") == 3
                     and summary.get("validationOkCount") == 0
                     and summary.get("probeOkCount") == 0
@@ -40,7 +40,9 @@ def main() -> None:
                     "### smoke-guangya [guangya]" in markdown
                     and "- profileReady: `False`" in markdown
                     and "- writeReady: `True`" in markdown
-                    and "- missingFieldHints: `extra.parentId (aliases: parent_id/parentFileId/dirId/pid)`" in markdown
+                    and "extra.parentId (aliases: parent_id/parentFileId/dirId/pid)" in markdown
+                    and "token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token" in markdown
+                    and "- placeholderFieldHints: `token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token`" in markdown
                 ),
                 "hasRiskSmokeGuangyaProfile": (
                     "### risk-smoke-guangya [guangya]" in markdown
@@ -49,9 +51,12 @@ def main() -> None:
                 ),
                 "hasAliyunBootstrapProfile": (
                     "### aliyun-bootstrap [aliyundrive_open]" in markdown
-                    and "- profileReady: `True`" in markdown
+                    and "- profileReady: `False`" in markdown
                     and "- writeReady: `True`" in markdown
                     and "- resolvedParentId: `root`" in markdown
+                    and "token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token" in markdown
+                    and "extra.domainId still uses placeholder data; replace domain-demo with a real domainId" in markdown
+                    and "extra.driveId still uses placeholder data; replace drive-demo with a real driveId" in markdown
                 ),
             },
             ensure_ascii=False,

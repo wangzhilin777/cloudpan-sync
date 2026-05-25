@@ -56,15 +56,17 @@ def main() -> None:
                 "summaryShowsExpectedRuntimeRemediationCounts": (
                     summary.get("providersNeedingRuntimeSuccess") == 7
                     and summary.get("providersWithPostBootstrapRuntimeCommand") == 6
-                    and summary.get("providersWithOverwriteVariantCommand") == 7
-                    and summary.get("providersWithConflictPolicyNote") == 7
+                    and summary.get("providersWithPatchCommand") == 2
+                    and summary.get("providersWithPatchProbeCommand") == 2
+                    and summary.get("providersWithOverwriteVariantCommand") == 6
+                    and summary.get("providersWithConflictPolicyNote") == 6
                     and summary.get("providersWithDeclaredConflictPolicies") == 8
                     and summary.get("providersWithProviderManagedOverwrite") == 1
                     and summary.get("providersWithOverwriteDowngrade") == 7
                     and summary.get("providersWithConflictUnsupported") == 1
                     and summary.get("providersWithCreateCommand") == 8
                     and summary.get("providersWithBootstrapCommand") == 8
-                    and summary.get("providersWithPostRefreshRuntimeCommand") == 1
+                    and summary.get("providersWithPostRefreshRuntimeCommand") == 0
                     and summary.get("providersWithPrimaryCommand") == 10
                 ),
                 "cloud115SectionKeepsFastPostBootstrapHelper": (
@@ -154,17 +156,17 @@ def main() -> None:
                     and "tmp\\123_open-post-bootstrap-runtime-evidence" in pan123
                 ),
                 "aliyunSectionKeepsRefreshEvidencePath": (
-                    "recommendedRefreshEvidenceCommand" in aliyun
-                    and "recommendedPostRefreshRuntimeCommand" in aliyun
+                    "recommendedPatchProbeCommand" in aliyun
                     and "recommendedPrimaryCommand" in aliyun
-                    and "label=refresh_evidence" in aliyun
+                    and "label=patch_probe" in aliyun
                     and "patch_and_probe_auth_profile.py" in aliyun
-                    and "create_live_upload_task.py" in aliyun
-                    and "recommendedOverwriteVariantCommand" in aliyun
-                    and "overwrite_existing" in aliyun
-                    and "conflictPolicyNote:" in aliyun
                     and "conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=supported` `auto_rename=supported`" in aliyun
                     and "providerConflictNotes:" in aliyun
+                    and "tok-demo" not in aliyun
+                    and "domain-demo" not in aliyun
+                    and "drive-demo" not in aliyun
+                    and "recommendedRefreshEvidenceCommand" not in aliyun
+                    and "recommendedPostRefreshRuntimeCommand" not in aliyun
                     and "recommendedPostBootstrapRuntimeCommand" not in aliyun
                 ),
             },

@@ -3,6 +3,18 @@ from __future__ import annotations
 from .auth_store import masked_profile
 
 
+PLACEHOLDER_VALUE_MARKERS = (
+    "your_",
+    "your-",
+    "demo",
+    "smoke",
+    "example",
+    "sample",
+    "test",
+    "placeholder",
+)
+
+
 def profile_extra_value(extra: dict[str, object], keys: list[str]) -> str:
     for key in keys:
         value = str(extra.get(key) or "").strip()
@@ -103,6 +115,39 @@ def profile_missing_field_hints(profile: object) -> list[str]:
     return missing
 
 
+def _looks_placeholder_value(value: object) -> bool:
+    text = str(value or "").strip().lower()
+    if not text:
+        return False
+    if text in {"your_value", "your_token", "your_cookie", "your_domain_id", "your_drive_id", "your_real_parent_id"}:
+        return True
+    return any(marker in text for marker in PLACEHOLDER_VALUE_MARKERS)
+
+
+def profile_placeholder_field_hints(profile: object) -> list[str]:
+    provider_key = str(getattr(profile, "providerKey", "") or "")
+    token = str(getattr(profile, "token", "") or "").strip()
+    cookie = str(getattr(profile, "cookie", "") or "").strip()
+    extra = getattr(profile, "extra", {}) or {}
+
+    hints: list[str] = []
+    if provider_key == "guangya" and _looks_placeholder_value(token):
+        hints.append("token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token")
+    if provider_key == "aliyundrive_open":
+        if _looks_placeholder_value(token):
+            hints.append("token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token")
+        if _looks_placeholder_value(extra.get("domainId")):
+            hints.append("extra.domainId still uses placeholder data; replace domain-demo with a real domainId")
+        if _looks_placeholder_value(extra.get("driveId")):
+            hints.append("extra.driveId still uses placeholder data; replace drive-demo with a real driveId")
+        return hints
+    if provider_key in {"quark", "uc", "115_open"} and _looks_placeholder_value(cookie):
+        hints.append("cookie looks like placeholder data; replace it with a real captured cookie")
+    if provider_key in {"xunlei", "pikpak", "123_open"} and _looks_placeholder_value(token):
+        hints.append("token looks like placeholder data; replace it with a real provider token")
+    return hints
+
+
 def profile_write_readiness(profile: object) -> tuple[bool, list[str], str]:
     provider_key = str(getattr(profile, "providerKey", "") or "")
     token = str(getattr(profile, "token", "") or "").strip()
@@ -133,10 +178,13 @@ def profile_write_readiness(profile: object) -> tuple[bool, list[str], str]:
 def auth_profile_view(profile: object) -> dict[str, object]:
     data = masked_profile(profile)
     missing = profile_missing_field_hints(profile)
+    placeholder_missing = profile_placeholder_field_hints(profile)
     resolved_parent_id, resolved_file_id = resolved_probe_defaults(profile)
     write_ready, write_missing, write_blocker_note = profile_write_readiness(profile)
-    data["missingFieldHints"] = missing
-    data["profileReady"] = not missing
+    data["missingFieldHints"] = missing + placeholder_missing
+    data["placeholderFieldHints"] = placeholder_missing
+    data["profileHasPlaceholderValues"] = bool(placeholder_missing)
+    data["profileReady"] = not (missing or placeholder_missing)
     data["resolvedParentId"] = resolved_parent_id
     data["resolvedFileId"] = resolved_file_id
     data["writeReady"] = write_ready

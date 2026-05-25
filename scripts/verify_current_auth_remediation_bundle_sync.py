@@ -31,14 +31,15 @@ def main() -> None:
                 ),
                 "summaryShowsExpectedAuthRemediationCounts": (
                     summary.get("profileCount") == 3
-                    and summary.get("readyCount") == 1
-                    and summary.get("needsFixCount") == 2
+                    and summary.get("readyCount") == 0
+                    and summary.get("needsFixCount") == 3
                     and summary.get("writeReadyCount") == 3
                     and summary.get("writeNeedsFixCount") == 0
                 ),
                 "hasSmokeGuangyaPatchCommand": (
                     "### smoke-guangya [guangya]" in markdown
-                    and "- missingFieldHints: `extra.parentId (aliases: parent_id/parentFileId/dirId/pid)`" in markdown
+                    and "extra.parentId (aliases: parent_id/parentFileId/dirId/pid)" in markdown
+                    and "token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token" in markdown
                     and "--profile-id 0318479d-4669-415f-9083-7aecc102bf90 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate" in markdown
                 ),
                 "hasRiskSmokeGuangyaPatchCommand": (
@@ -47,9 +48,10 @@ def main() -> None:
                 ),
                 "hasAliyunBootstrapReadyProfile": (
                     "### aliyun-bootstrap [aliyundrive_open]" in markdown
-                    and "- profileReady: `True`" in markdown
+                    and "- profileReady: `False`" in markdown
                     and "- writeReady: `True`" in markdown
                     and "- resolvedParentId: `root`" in markdown
+                    and "--profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write --revalidate" in markdown
                 ),
             },
             ensure_ascii=False,

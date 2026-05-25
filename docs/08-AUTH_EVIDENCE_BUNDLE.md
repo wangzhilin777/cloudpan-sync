@@ -1,7 +1,7 @@
 # Auth Evidence Bundle
 
 - profileCount: `3`
-- profileReadyCount: `1`
+- profileReadyCount: `0`
 - writeReadyCount: `3`
 - validationOkCount: `0`
 - probeOkCount: `0`
@@ -16,7 +16,8 @@
 - probeOk: `False`
 - resolvedParentId: ``
 - resolvedFileId: ``
-- missingFieldHints: `extra.parentId (aliases: parent_id/parentFileId/dirId/pid)`
+- missingFieldHints: `extra.parentId (aliases: parent_id/parentFileId/dirId/pid), token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token`
+- placeholderFieldHints: `token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token`
 - latestValidation: `Guangya live list requires parentId in request or auth profile extra.parentId.`
 - latestProbe: `Guangya live list requires parentId in request or auth profile extra.parentId.`
 
@@ -28,15 +29,20 @@
 - probeOk: `False`
 - resolvedParentId: ``
 - resolvedFileId: ``
-- missingFieldHints: `extra.parentId (aliases: parent_id/parentFileId/dirId/pid)`
+- missingFieldHints: `extra.parentId (aliases: parent_id/parentFileId/dirId/pid), token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token`
+- placeholderFieldHints: `token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token`
 - latestValidation: `Guangya live list requires parentId in request or auth profile extra.parentId.`
 - latestProbe: `Guangya live list requires parentId in request or auth profile extra.parentId.`
 
 ### aliyun-bootstrap [aliyundrive_open]
 - profileId: `22173a49-2206-4da8-8624-9bab7bbbe64b`
-- profileReady: `True`
+- profileReady: `False`
 - writeReady: `True`
 - validationOk: `False`
 - probeOk: `False`
 - resolvedParentId: `root`
 - resolvedFileId: ``
+- missingFieldHints: `token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token, extra.domainId still uses placeholder data; replace domain-demo with a real domainId, extra.driveId still uses placeholder data; replace drive-demo with a real driveId`
+- placeholderFieldHints: `token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token, extra.domainId still uses placeholder data; replace domain-demo with a real domainId, extra.driveId still uses placeholder data; replace drive-demo with a real driveId`
+- latestValidation: `Aliyun Drive Open live list reached the API but was rejected.`
+- latestProbe: `Aliyun Drive Open live list reached the API but was rejected.`

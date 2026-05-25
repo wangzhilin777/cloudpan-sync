@@ -7,18 +7,18 @@
 - providersNeedingMetadataEvidence: `10`
 - providersNeedingCreateDirEvidence: `10`
 - providersNeedingRuntimeSuccess: `7`
-- providersWithPatchCommand: `1`
-- providersWithPatchProbeCommand: `1`
-- providersWithRefreshEvidenceCommand: `1`
-- providersWithPostRefreshRuntimeCommand: `1`
+- providersWithPatchCommand: `2`
+- providersWithPatchProbeCommand: `2`
+- providersWithRefreshEvidenceCommand: `0`
+- providersWithPostRefreshRuntimeCommand: `0`
 - providersWithRuntimeProbeCommand: `0`
 - providersWithLiveUploadCommand: `0`
 - providersWithFastCandidateCommand: `0`
 - providersWithRuntimeSuccessCommand: `0`
 - providersWithPostBootstrapRuntimeCommand: `6`
 - providersWithPrimaryCommand: `10`
-- providersWithOverwriteVariantCommand: `7`
-- providersWithConflictPolicyNote: `7`
+- providersWithOverwriteVariantCommand: `6`
+- providersWithConflictPolicyNote: `6`
 - providersWithDeclaredConflictPolicies: `8`
 - providersWithProviderManagedOverwrite: `1`
 - providersWithOverwriteDowngrade: `7`
@@ -49,7 +49,7 @@
 
 ### aliyundrive_open - Aliyun Drive Open
 - profileCount: `1`
-- authReadyProfiles: `1`
+- authReadyProfiles: `0`
 - writeReadyProfiles: `1`
 - recommendedAuthModes: `official_oauth`
 - officialDocsUrl: https://www.alipan.com/
@@ -58,12 +58,10 @@
 - conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=supported` `auto_rename=supported` `supportsOverwrite=True` `supportsAutoRename=True` `overwriteBehavior=provider_managed`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - providerConflictNotes: 当前 Aliyun Drive Open 已接入任务运行阶段真实小文件上传；同名文件可按 overwrite_existing / auto_rename_new 显式选择。
-- nextStep: 对现有档案重跑 provider live probe，优先补齐 auth/list/metadata/create_dir 成功证据。
-- recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --write` `label=refresh_evidence`
-- recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --write`
-- recommendedPostRefreshRuntimeCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --target-parent-id root --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-live-evidence`
-- recommendedOverwriteVariantCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --target-parent-id root --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\aliyundrive_open-live-evidence`
-- conflictPolicyNote: 当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。
+- nextStep: 先补齐档案缺字段并重跑 validation / live probe，拿到 auth/list/metadata 最小成功证据。
+- recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write` `label=patch_probe`
+- recommendedPatchCommand: `.\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write --revalidate`
+- recommendedPatchProbeCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write`
 
 ### 115_open - 115 Open
 - profileCount: `0`

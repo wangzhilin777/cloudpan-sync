@@ -12,6 +12,19 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [provider_status_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/provider_status_matrix.py) 的导出矩阵现已继续补齐 `runtime_profiles` 明细，不再只展示 `task_runtime_samples / success / failed / candidate / probe / blocked / conflict_handled` 这些数字；当前会把每个 provider 的 runtime 成功/失败/candidate/probe 样本对应到具体 profile 名
+  - 这次补齐后，[docs/06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 现在除了继续量化 `guangya / uc / pikpak` 当前各有 `1` 条 runtime success 外，还能直接看出这些样本当前对应 `gy-live-1 / uc-live-1 / pikpak-live-1`；对 `115_open / 189cloud / aliyundrive_open / quark / baidu_netdisk / 123_open / xunlei` 这些仍无真实 runtime success 的 provider，也会明确保持 `success=(none) failed=(none) candidate=(none) probe=(none)`，避免矩阵只剩计数口径
+  - 已同步补强 [verify_export_provider_status_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_provider_status_matrix.py) 与 [verify_current_provider_status_matrix_runtime_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_provider_status_matrix_runtime_sync.py)，把 synthetic export 与当前仓库导出的 `runtime_profiles` 明细一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_provider_status_matrix.py` 已验证导出的矩阵 Markdown 当前会包含 `runtime_profiles` 行，并区分 `success / failed / candidate / probe` 对应的 profile
+  - `.\.venv\Scripts\python.exe scripts\verify_current_provider_status_matrix_runtime_sync.py` 已验证当前仓库矩阵中的 `guangya / uc / pikpak` runtime success profile 与 `build_status_matrix()` 同步，且无 runtime success 的 provider 继续保持空 profile 口径
+  - `.\.venv\Scripts\python.exe scripts\export_provider_status_matrix.py` 已重导出当前 [docs/06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md)
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_report.py) 的 markdown 渲染已继续补齐 `taskRuntimeProfiles` 明细，不再只展示 `samples / success / failed / candidate / probe / blocked / conflictHandled` 这类计数，当前会把同一 provider 的 `success / failed / candidate / probe` 样本档案名一起显式写进真实证据报告
   - 这次补齐后，[docs/10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 现在不仅能继续诚实展示 `guangya / uc / pikpak` 已有 runtime 成功样本，也能直接看出它们当前各自落到的是哪些已保存 profile；对 `115_open / 189cloud / xunlei / aliyundrive_open / quark / baidu_netdisk / 123_open` 这些仍无 runtime 成功样本的 provider，也会明确保持 `success=(none) failed=(none) candidate=(none) probe=(none)`，避免只剩数字、看不出具体档案分布
   - 已同步补强 [scripts/verify_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_report.py)、[scripts/verify_export_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_report.py)、[scripts/verify_current_real_evidence_status_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_status_sync.py)，把 API markdown、导出 markdown 和当前仓库文档里的 `taskRuntimeProfiles` 明细一起锁进回归，防止 `P-REAL` 追踪再次退回“只有汇总数字、没有样本名单”

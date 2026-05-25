@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from .auth_live_validate import list_live_validations
+from .auth_store import list_profiles
 from .planner import _resolve_conflict_support
 from .provider_live_probe_store import list_provider_live_probes
 from .provider_registry import build_provider_registry
@@ -62,6 +63,54 @@ def _runtime_summary_by_provider() -> dict[str, dict[str, int]]:
             bucket["task_runtime_blocked"] += 1
         if str(row.get("conflictAction") or ""):
             bucket["task_runtime_conflict_handled"] += 1
+    return result
+
+
+def _profile_map() -> dict[str, object]:
+    return {
+        str(profile.profileId or ""): profile
+        for profile in list_profiles()
+        if str(profile.profileId or "")
+    }
+
+
+def _profile_label(profile_map: dict[str, object], profile_id: str) -> str:
+    profile = profile_map.get(str(profile_id or ""))
+    if profile is None:
+        return str(profile_id or "")
+    return str(getattr(profile, "displayName", "") or getattr(profile, "profileId", "") or profile_id or "")
+
+
+def _runtime_profile_summary_by_provider(profile_map: dict[str, object]) -> dict[str, dict[str, list[str]]]:
+    result: dict[str, dict[str, list[str]]] = {}
+    for row in latest_task_runtime_evidence():
+        key = str(row.get("providerKey") or "")
+        if not key:
+            continue
+        bucket = result.setdefault(
+            key,
+            {
+                "task_runtime_success_profiles": [],
+                "task_runtime_failed_profiles": [],
+                "task_runtime_candidate_profiles": [],
+                "task_runtime_probe_profiles": [],
+            },
+        )
+        label = _profile_label(profile_map, str(row.get("profileId") or ""))
+        if not label:
+            continue
+        if bool(row.get("candidateOnly")):
+            bucket["task_runtime_candidate_profiles"].append(label)
+        elif bool(row.get("probeOnly")):
+            bucket["task_runtime_probe_profiles"].append(label)
+        elif bool(row.get("success")):
+            bucket["task_runtime_success_profiles"].append(label)
+        else:
+            bucket["task_runtime_failed_profiles"].append(label)
+
+    for bucket in result.values():
+        for field, labels in list(bucket.items()):
+            bucket[field] = sorted(set(str(label or "") for label in labels if str(label or "")))
     return result
 
 
@@ -149,9 +198,11 @@ def _conflict_support_snapshot(provider_key: str) -> dict[str, str]:
 def build_status_matrix() -> dict[str, object]:
     registry = {x.profile.providerKey: x.profile for x in build_provider_registry()}
     research = {str(x.get("providerKey") or ""): x for x in build_provider_research_index()}
+    profile_map = _profile_map()
     auth_ok = _latest_ok_by_provider()
     probe_rows = _latest_probe_by_provider()
     runtime_rows = _runtime_summary_by_provider()
+    runtime_profile_rows = _runtime_profile_summary_by_provider(profile_map)
     live_list_ready = {"guangya", "aliyundrive_open", "189cloud", "123_open", "115_open", "xunlei", "quark", "uc", "pikpak", "baidu_netdisk"}
     live_metadata_ready = {"guangya", "aliyundrive_open", "189cloud", "123_open", "115_open", "xunlei", "quark", "uc", "pikpak", "baidu_netdisk"}
     live_create_dir_ready = {"guangya", "aliyundrive_open", "189cloud", "123_open", "115_open", "xunlei", "pikpak", "baidu_netdisk", "quark", "uc"}
@@ -162,6 +213,7 @@ def build_status_matrix() -> dict[str, object]:
         auth_ready = bool(auth_ok.get(provider_key, False))
         probe = dict(probe_rows.get(provider_key) or {})
         runtime = dict(runtime_rows.get(provider_key) or {})
+        runtime_profiles = dict(runtime_profile_rows.get(provider_key) or {})
         runtime_track, runtime_track_note = _runtime_track_for_provider(provider_key)
         conflict_support = _conflict_support_snapshot(provider_key)
         live_probe_ok = bool(probe.get("ok"))
@@ -212,6 +264,10 @@ def build_status_matrix() -> dict[str, object]:
                 "task_runtime_probe": int(runtime.get("task_runtime_probe", 0) or 0),
                 "task_runtime_blocked": int(runtime.get("task_runtime_blocked", 0) or 0),
                 "task_runtime_conflict_handled": int(runtime.get("task_runtime_conflict_handled", 0) or 0),
+                "task_runtime_success_profiles": list(runtime_profiles.get("task_runtime_success_profiles", []) or []),
+                "task_runtime_failed_profiles": list(runtime_profiles.get("task_runtime_failed_profiles", []) or []),
+                "task_runtime_candidate_profiles": list(runtime_profiles.get("task_runtime_candidate_profiles", []) or []),
+                "task_runtime_probe_profiles": list(runtime_profiles.get("task_runtime_probe_profiles", []) or []),
                 "lastProbeMode": str(probe.get("mode") or ""),
                 "supportStatus": support_status,
             }
@@ -270,6 +326,11 @@ def build_status_matrix() -> dict[str, object]:
 
 def matrix_to_markdown(payload: dict[str, object]) -> str:
     summary = dict(payload.get("summary") or {})
+
+    def _profiles_text(values: object) -> str:
+        labels = [str(item or "") for item in list(values or []) if str(item or "")]
+        return ", ".join(labels) if labels else "(none)"
+
     lines: list[str] = []
     lines.append("# CloudPan Sync Provider Status Matrix")
     lines.append("")
@@ -287,6 +348,9 @@ def matrix_to_markdown(payload: dict[str, object]) -> str:
         )
         if item.get("task_runtime_track_note"):
             lines.append(f"|  | runtime_note |  |  |  |  |  |  | {str(item.get('task_runtime_track_note') or '').replace('|', '/')} |  |  |  |  |  |  |  |  |  |  |  |")
+        lines.append(
+            f"|  | runtime_profiles |  |  |  |  |  |  | success={_profiles_text(item.get('task_runtime_success_profiles', []))}; failed={_profiles_text(item.get('task_runtime_failed_profiles', []))}; candidate={_profiles_text(item.get('task_runtime_candidate_profiles', []))}; probe={_profiles_text(item.get('task_runtime_probe_profiles', []))} |  |  |  |  |  |  |  |  |  |  |  |"
+        )
         if item.get("overwrite_support_note"):
             lines.append(f"|  | overwrite_note |  |  |  |  |  |  |  |  |  |  |  |  |  |  | {str(item.get('overwrite_support_note') or '').replace('|', '/')} |  |  |  |")
         if item.get("auto_rename_support_note"):

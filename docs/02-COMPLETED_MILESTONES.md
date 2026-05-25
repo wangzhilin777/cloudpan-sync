@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增 [scripts/verify_auth_profile_masking.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_masking.py)，把计划文档里“授权信息脱敏显示”从已有功能描述补成独立可跑回归，不再只靠旧里程碑文字和零散脚本侧面证明
+  - 这条 verifier 当前会直接锁住 [auth_store.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_store.py) 的 `masked_profile()` 仍保持“长 token 保留前 4 后 2、中间脱敏”“长 cookie 保留前 6、中间脱敏”“过短 secret 统一折叠成 `***`”这三条口径，避免后续把真实 secret 直接漏回接口
+  - 同一条回归还会继续验证 [auth_profile_view.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_view.py) 与 `/api/auth/profiles` 返回仍会在脱敏后的基础上保留 `resolvedParentId / resolvedFileId`，并对 `tok-demo / domain-demo / drive-demo` 这类占位凭证继续给出 `placeholderFieldHints / placeholderSecretFieldHints / needsSecretRefresh`
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_profile_masking.py` 已验证 `masked_profile()`、`auth_profile_view()` 与 `/api/auth/profiles` 列表当前都会保留脱敏口径，并继续返回解析后的默认目录字段与占位 secret 提示
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增 [scripts/verify_api_plan_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_api_plan_bundle.py)，把计划文档 `API 测试` 段落里最核心的一组接口闭环独立收口，不再只把“登录保护 / 授权保存 / 授权验证 / provider registry / 任务 plan 创建 / 队列状态查询 / 同路径同名文件冲突策略保存与返回”分散在多条 verifier 里间接证明
   - 这条 verifier 当前会同时验证匿名态访问 [webapp.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/webapp.py) 的 `/api/auth/profiles`、`/api/tasks`、`/api/plan/mock` 会统一返回 `401 please_login_first`，错误密码登录会返回 `401 invalid_password`，正确登录后 `/api/session` 会切到 `loggedIn=true`，登出后恢复 `loggedIn=false`
   - 同一条回归还会锁住 `/api/providers` 返回的 provider registry 当前确实包含 `guangya / aliyundrive_open / quark` 等核心 provider，并继续保留 `conflictPolicies / supportsOverwrite / supportsAutoRename / overwriteBehavior` 这些计划相关能力字段

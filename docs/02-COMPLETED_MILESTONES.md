@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - `export_live_probe_report.py` 现已收口到统一的模块级 `ROOT` 输出路径，不再在 `main()` 里重新按 `__file__` 计算根目录；这样和仓库里其余导出脚本保持一致，也能被临时目录 verifier 稳定接管
+  - 已新增独立导出验证脚本 [verify_export_live_probe_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_live_probe_report.py)，把 `05-PROVIDER_LIVE_PROBE_REPORT.md` 的标题、摘要统计、provider 检查行以及 `profile_probe` 行锁进回归
+  - 当前 live probe 导出链现在不只依赖运行时人工查看，已经具备和 `plan audit / provider status / real evidence / task runtime` 同类的独立 export verifier
+- 当前验证证据：
+  - [verify_export_live_probe_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_live_probe_report.py) 已验证导出文件包含 `providerCount / totalChecks / okChecks / failedChecks / profileProbeProviderCount / profileProbeOkCount / profileProbeFailedCount`
+  - 同一验证已锁住 `guangya` 的 `official_docs / web_login` 检查行、`189cloud` 的失败型 `profile_probe` 行，以及 `115_open` 在 `checkCount=0` 时不会误写空 `profile_probe` 行
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - `xunlei` 的 `download_upload` 已从 `create_dir` 写探针升级为真实本地文件上传：运行期会复用现有 `create-by-hash -> resumable binary fallback` 链路，命中 hash miss 时继续完成二进制上传，而不是再退回 mock/download fallback
   - `pikpak` 的 `download_upload` 也已同样升级为真实本地文件上传：运行期会复用现有 `create-by-hash -> resumable binary fallback` 链路，命中 hash miss 时继续完成二进制上传
   - 两条链路现在都已补上同名文件冲突策略：`auto_rename_new` 可直接支持，`overwrite_existing` 会诚实降级为自动改名，并把 `resolvedTargetName / conflictAction` 写入任务结果与 `task_runtime_evidence`

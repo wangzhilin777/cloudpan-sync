@@ -12,8 +12,7 @@ from cloudpan_sync.live_probe import probe_to_markdown, run_live_probe
 
 
 def main() -> None:
-    root = Path(__file__).resolve().parents[1]
-    out = root / "docs" / "05-PROVIDER_LIVE_PROBE_REPORT.md"
+    out = ROOT / "docs" / "05-PROVIDER_LIVE_PROBE_REPORT.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(probe_to_markdown(run_live_probe()), encoding="utf-8")
     print(out)

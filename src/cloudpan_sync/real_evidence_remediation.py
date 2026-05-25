@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from .auth_profile_view import auth_profile_view
 from .auth_store import list_profiles
+from .planner import _resolve_conflict_support
 from .provider_auth_hints import capture_field_hints, capture_login_url, official_docs_url, provider_auth_modes
+from .provider_registry import get_provider_profile
 from .real_evidence_report import build_real_evidence_report
 
 
@@ -255,6 +257,27 @@ def _overwrite_variant_command(command: str) -> str:
     return text.replace("--conflict-policy auto_rename_new", "--conflict-policy overwrite_existing", 1)
 
 
+def _provider_conflict_snapshot(provider_key: str) -> dict[str, object]:
+    profile = get_provider_profile(provider_key)
+    overwrite_status, _ = _resolve_conflict_support(
+        conflict_policy="overwrite_existing",
+        provider_key=provider_key,
+    )
+    auto_rename_status, _ = _resolve_conflict_support(
+        conflict_policy="auto_rename_new",
+        provider_key=provider_key,
+    )
+    return {
+        "declaredConflictPolicies": list(getattr(profile, "conflictPolicies", []) or []),
+        "supportsOverwrite": bool(getattr(profile, "supportsOverwrite", False)),
+        "supportsAutoRename": bool(getattr(profile, "supportsAutoRename", False)),
+        "overwriteBehavior": str(getattr(profile, "overwriteBehavior", "") or ""),
+        "overwriteSupportStatus": overwrite_status,
+        "autoRenameSupportStatus": auto_rename_status,
+        "providerConflictNotes": str(getattr(profile, "conflictNotes", "") or ""),
+    }
+
+
 def _next_step(
     *,
     provider_key: str,
@@ -330,6 +353,7 @@ def build_real_evidence_remediation_bundle(
         runtime_live_upload_command = _live_upload_command_for_profile(provider_profiles[0] if provider_profiles else {})
         runtime_success_command = _runtime_success_command_for_profile(provider_profiles[0] if provider_profiles else {})
         post_bootstrap_runtime_command = _post_bootstrap_runtime_command_for_provider(provider_key)
+        conflict_snapshot = _provider_conflict_snapshot(provider_key)
         item_payload = {
             "providerKey": provider_key,
             "displayName": str(row.get("displayName") or provider_key),
@@ -349,6 +373,13 @@ def build_real_evidence_remediation_bundle(
             "runtimeBlockedOnly": runtime_blocked_only,
             "runtimeCandidateOnly": runtime_candidate_only,
             "runtimeProbeOnly": runtime_probe_only,
+            "declaredConflictPolicies": list(conflict_snapshot.get("declaredConflictPolicies") or []),
+            "supportsOverwrite": bool(conflict_snapshot.get("supportsOverwrite")),
+            "supportsAutoRename": bool(conflict_snapshot.get("supportsAutoRename")),
+            "overwriteBehavior": str(conflict_snapshot.get("overwriteBehavior") or ""),
+            "overwriteSupportStatus": str(conflict_snapshot.get("overwriteSupportStatus") or ""),
+            "autoRenameSupportStatus": str(conflict_snapshot.get("autoRenameSupportStatus") or ""),
+            "providerConflictNotes": str(conflict_snapshot.get("providerConflictNotes") or ""),
             "gaps": list(row.get("gaps") or []),
             "recommendedPatchCommand": _patch_command_for_profile(profile_needing_patch or {}),
             "recommendedPatchProbeCommand": _patch_probe_command_for_profile(profile_needing_patch or {}),
@@ -437,6 +468,15 @@ def build_real_evidence_remediation_bundle(
             "providersWithPostBootstrapRuntimeCommand": sum(1 for item in items if str(item.get("recommendedPostBootstrapRuntimeCommand") or "")),
             "providersWithOverwriteVariantCommand": sum(1 for item in items if str(item.get("recommendedOverwriteVariantCommand") or "")),
             "providersWithConflictPolicyNote": sum(1 for item in items if str(item.get("conflictPolicyNote") or "")),
+            "providersWithDeclaredConflictPolicies": sum(1 for item in items if list(item.get("declaredConflictPolicies") or [])),
+            "providersWithProviderManagedOverwrite": sum(1 for item in items if str(item.get("overwriteSupportStatus") or "") == "supported"),
+            "providersWithOverwriteDowngrade": sum(1 for item in items if str(item.get("overwriteSupportStatus") or "") == "downgrade_to_auto_rename"),
+            "providersWithConflictUnsupported": sum(
+                1
+                for item in items
+                if str(item.get("overwriteSupportStatus") or "") == "unsupported"
+                and str(item.get("autoRenameSupportStatus") or "") == "unsupported"
+            ),
             "providersWithCreateCommand": sum(1 for item in items if str(item.get("recommendedCreateCommand") or "")),
             "providersWithBootstrapCommand": sum(1 for item in items if str(item.get("recommendedBootstrapCommand") or "")),
             "providersBlockedOnly": sum(1 for item in items if bool(item.get("runtimeBlockedOnly"))),
@@ -469,6 +509,10 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersWithPostBootstrapRuntimeCommand: `{summary.get('providersWithPostBootstrapRuntimeCommand', 0)}`")
     lines.append(f"- providersWithOverwriteVariantCommand: `{summary.get('providersWithOverwriteVariantCommand', 0)}`")
     lines.append(f"- providersWithConflictPolicyNote: `{summary.get('providersWithConflictPolicyNote', 0)}`")
+    lines.append(f"- providersWithDeclaredConflictPolicies: `{summary.get('providersWithDeclaredConflictPolicies', 0)}`")
+    lines.append(f"- providersWithProviderManagedOverwrite: `{summary.get('providersWithProviderManagedOverwrite', 0)}`")
+    lines.append(f"- providersWithOverwriteDowngrade: `{summary.get('providersWithOverwriteDowngrade', 0)}`")
+    lines.append(f"- providersWithConflictUnsupported: `{summary.get('providersWithConflictUnsupported', 0)}`")
     lines.append(f"- providersWithCreateCommand: `{summary.get('providersWithCreateCommand', 0)}`")
     lines.append(f"- providersWithBootstrapCommand: `{summary.get('providersWithBootstrapCommand', 0)}`")
     lines.append(f"- providersBlockedOnly: `{summary.get('providersBlockedOnly', 0)}`")
@@ -496,8 +540,23 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             f"`metadata={row.get('needsMetadataEvidence', False)}` `create_dir={row.get('needsCreateDirEvidence', False)}` "
             f"`runtime={row.get('needsRuntimeSuccess', False)}` `runtimeBlockedOnly={row.get('runtimeBlockedOnly', False)}` `runtimeCandidateOnly={row.get('runtimeCandidateOnly', False)}` `runtimeProbeOnly={row.get('runtimeProbeOnly', False)}`"
         )
+        if row.get("declaredConflictPolicies"):
+            lines.append(
+                f"- conflictSupport: `declared={', '.join(row.get('declaredConflictPolicies') or [])}` "
+                f"`overwrite={row.get('overwriteSupportStatus', '')}` `auto_rename={row.get('autoRenameSupportStatus', '')}` "
+                f"`supportsOverwrite={row.get('supportsOverwrite', False)}` `supportsAutoRename={row.get('supportsAutoRename', False)}` "
+                f"`overwriteBehavior={row.get('overwriteBehavior', '')}`"
+            )
+        else:
+            lines.append(
+                f"- conflictSupport: `declared=(none)` `overwrite={row.get('overwriteSupportStatus', '')}` "
+                f"`auto_rename={row.get('autoRenameSupportStatus', '')}` `supportsOverwrite={row.get('supportsOverwrite', False)}` "
+                f"`supportsAutoRename={row.get('supportsAutoRename', False)}` `overwriteBehavior={row.get('overwriteBehavior', '')}`"
+            )
         if row.get("gaps"):
             lines.append(f"- gaps: {', '.join(row.get('gaps') or [])}")
+        if row.get("providerConflictNotes"):
+            lines.append(f"- providerConflictNotes: {row.get('providerConflictNotes', '')}")
         lines.append(f"- nextStep: {row.get('nextStep', '')}")
         if row.get("recommendedCreateCommand"):
             lines.append(f"- recommendedCreateCommand: `{row.get('recommendedCreateCommand', '')}`")

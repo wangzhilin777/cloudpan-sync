@@ -8,6 +8,22 @@
 
 ## 里程碑清单
 
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
+  - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的 remediation bundle 现已补出 provider 级冲突能力快照：`declaredConflictPolicies / overwriteSupportStatus / autoRenameSupportStatus / overwriteBehavior / providerConflictNotes`
+  - [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 现在不只告诉用户“命令可改成 `overwrite_existing`”，还会明确写出当前 provider 是真支持直接覆盖、会诚实降级成自动改名，还是仍未声明为可安全支持
+  - 顶部 summary 也新增了结构化汇总计数：`providersWithDeclaredConflictPolicies=8`、`providersWithProviderManagedOverwrite=1`、`providersWithOverwriteDowngrade=7`、`providersWithConflictUnsupported=1`
+  - 设置页 remediation 面板也已同步展示这些 provider 级冲突能力字段和汇总计数，后续做真实联调时，不需要再来回翻状态矩阵才能判断该选 `overwrite_existing` 还是 `auto_rename_new`
+  - 对应 verifier 已同步补强：[scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py)、[scripts/verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)、[scripts/verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)、[scripts/verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 synthetic bundle/API/Markdown 同步带出新的冲突能力结构字段与 `7 / 1 / 6 / 1` 计数口径
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证导出 Markdown 会写出新的冲突能力汇总与 provider 分段说明
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证设置页会显示 `directOverwrite / overwriteDowngrade / conflictUnsupported` 汇总，以及 `conflictDeclared / overwriteSupport / autoRenameSupport / providerConflictNotes` 行文案
+  - `.\.venv\Scripts\python.exe scripts\export_real_evidence_remediation.py` 已重导出当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前仓库导出的真实 remediation 指南与 `8 / 1 / 7 / 1` 当前计数一致，并锁住 `115_open / quark / 189cloud / baidu_netdisk / xunlei / 123_open / aliyundrive_open` 的冲突支持分流说明
+
 ### 已完成补齐项 - `2026-05-25`
 
 - 提交：`本次提交`

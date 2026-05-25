@@ -44,6 +44,10 @@ def main() -> None:
                     and f"- providersWithPostBootstrapRuntimeCommand: `{summary.get('providersWithPostBootstrapRuntimeCommand', 0)}`" in markdown
                     and f"- providersWithOverwriteVariantCommand: `{summary.get('providersWithOverwriteVariantCommand', 0)}`" in markdown
                     and f"- providersWithConflictPolicyNote: `{summary.get('providersWithConflictPolicyNote', 0)}`" in markdown
+                    and f"- providersWithDeclaredConflictPolicies: `{summary.get('providersWithDeclaredConflictPolicies', 0)}`" in markdown
+                    and f"- providersWithProviderManagedOverwrite: `{summary.get('providersWithProviderManagedOverwrite', 0)}`" in markdown
+                    and f"- providersWithOverwriteDowngrade: `{summary.get('providersWithOverwriteDowngrade', 0)}`" in markdown
+                    and f"- providersWithConflictUnsupported: `{summary.get('providersWithConflictUnsupported', 0)}`" in markdown
                     and f"- providersWithCreateCommand: `{summary.get('providersWithCreateCommand', 0)}`" in markdown
                     and f"- providersWithBootstrapCommand: `{summary.get('providersWithBootstrapCommand', 0)}`" in markdown
                 ),
@@ -52,6 +56,10 @@ def main() -> None:
                     and summary.get("providersWithPostBootstrapRuntimeCommand") == 6
                     and summary.get("providersWithOverwriteVariantCommand") == 6
                     and summary.get("providersWithConflictPolicyNote") == 6
+                    and summary.get("providersWithDeclaredConflictPolicies") == 8
+                    and summary.get("providersWithProviderManagedOverwrite") == 1
+                    and summary.get("providersWithOverwriteDowngrade") == 7
+                    and summary.get("providersWithConflictUnsupported") == 1
                     and summary.get("providersWithCreateCommand") == 8
                     and summary.get("providersWithBootstrapCommand") == 8
                 ),
@@ -63,6 +71,8 @@ def main() -> None:
                     and "--conflict-policy overwrite_existing" in cloud115
                     and "conflictPolicyNote:" in cloud115
                     and "overwrite_existing" in cloud115
+                    and "conflictSupport: `declared=(none)` `overwrite=unsupported` `auto_rename=probe_only_runtime_write_check`" in cloud115
+                    and "providerConflictNotes:" in cloud115
                     and "tmp\\115_open-post-bootstrap-runtime-evidence" in cloud115
                 ),
                 "quarkSectionUsesLivePostBootstrapHelper": (
@@ -73,6 +83,8 @@ def main() -> None:
                     and "--conflict-policy overwrite_existing" in quark
                     and "conflictPolicyNote:" in quark
                     and "overwrite_existing" in quark
+                    and "conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=downgrade_to_auto_rename` `auto_rename=supported`" in quark
+                    and "providerConflictNotes:" in quark
                     and "tmp\\quark-post-bootstrap-runtime-evidence" in quark
                 ),
                 "cloud189SectionKeepsFastPostBootstrapHelper": (
@@ -83,6 +95,8 @@ def main() -> None:
                     and "--conflict-policy overwrite_existing" in cloud189
                     and "conflictPolicyNote:" in cloud189
                     and "overwrite_existing" in cloud189
+                    and "conflictSupport: `declared=(none)` `overwrite=unsupported` `auto_rename=unsupported`" in cloud189
+                    and "providerConflictNotes:" in cloud189
                     and "tmp\\189cloud-post-bootstrap-runtime-evidence" in cloud189
                 ),
                 "baiduSectionUsesLivePostBootstrapHelper": (
@@ -93,6 +107,8 @@ def main() -> None:
                     and "--conflict-policy overwrite_existing" in baidu
                     and "conflictPolicyNote:" in baidu
                     and "overwrite_existing" in baidu
+                    and "conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=downgrade_to_auto_rename` `auto_rename=supported`" in baidu
+                    and "providerConflictNotes:" in baidu
                     and "tmp\\baidu_netdisk-post-bootstrap-runtime-evidence" in baidu
                 ),
                 "xunleiSectionUsesLivePostBootstrapHelper": (
@@ -103,6 +119,8 @@ def main() -> None:
                     and "--conflict-policy overwrite_existing" in xunlei
                     and "conflictPolicyNote:" in xunlei
                     and "overwrite_existing" in xunlei
+                    and "conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=downgrade_to_auto_rename` `auto_rename=supported`" in xunlei
+                    and "providerConflictNotes:" in xunlei
                     and "tmp\\xunlei-post-bootstrap-runtime-evidence" in xunlei
                 ),
                 "pan123SectionUsesLivePostBootstrapHelper": (
@@ -113,11 +131,15 @@ def main() -> None:
                     and "--conflict-policy overwrite_existing" in pan123
                     and "conflictPolicyNote:" in pan123
                     and "overwrite_existing" in pan123
+                    and "conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=downgrade_to_auto_rename` `auto_rename=supported`" in pan123
+                    and "providerConflictNotes:" in pan123
                     and "tmp\\123_open-post-bootstrap-runtime-evidence" in pan123
                 ),
                 "aliyunSectionKeepsRefreshEvidencePath": (
                     "recommendedRefreshEvidenceCommand" in aliyun
                     and "patch_and_probe_auth_profile.py" in aliyun
+                    and "conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=supported` `auto_rename=supported`" in aliyun
+                    and "providerConflictNotes:" in aliyun
                     and "recommendedPostBootstrapRuntimeCommand" not in aliyun
                 ),
             },

@@ -213,12 +213,20 @@ def main() -> None:
                 "providersWithPostBootstrapRuntimeCommand": ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")),
                 "providersWithOverwriteVariantCommand": ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")),
                 "providersWithConflictPolicyNote": ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")),
+                "providersWithDeclaredConflictPolicies": ((bundle.get("summary") or {}).get("providersWithDeclaredConflictPolicies")),
+                "providersWithProviderManagedOverwrite": ((bundle.get("summary") or {}).get("providersWithProviderManagedOverwrite")),
+                "providersWithOverwriteDowngrade": ((bundle.get("summary") or {}).get("providersWithOverwriteDowngrade")),
+                "providersWithConflictUnsupported": ((bundle.get("summary") or {}).get("providersWithConflictUnsupported")),
                 "summaryHasExpectedLiveUploadCount": ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == 3,
                 "summaryHasExpectedFastCandidateCount": ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == 3,
                 "summaryHasExpectedRuntimeSuccessCount": ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 4,
                 "summaryHasExpectedPostBootstrapCount": ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 5,
                 "summaryHasExpectedOverwriteVariantCount": ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == 9,
                 "summaryHasExpectedConflictPolicyNoteCount": ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == 9,
+                "summaryHasExpectedDeclaredConflictPoliciesCount": ((bundle.get("summary") or {}).get("providersWithDeclaredConflictPolicies")) == 7,
+                "summaryHasExpectedDirectOverwriteCount": ((bundle.get("summary") or {}).get("providersWithProviderManagedOverwrite")) == 1,
+                "summaryHasExpectedOverwriteDowngradeCount": ((bundle.get("summary") or {}).get("providersWithOverwriteDowngrade")) == 6,
+                "summaryHasExpectedConflictUnsupportedCount": ((bundle.get("summary") or {}).get("providersWithConflictUnsupported")) == 1,
                 "providersBlockedOnly": ((bundle.get("summary") or {}).get("providersBlockedOnly")),
                 "providersCandidateOnly": ((bundle.get("summary") or {}).get("providersCandidateOnly")),
                 "providersProbeOnly": ((bundle.get("summary") or {}).get("providersProbeOnly")),
@@ -242,6 +250,8 @@ def main() -> None:
                 "postBootstrapCommandShowsConflictChoice": "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "markdownHasOverwriteVariantCommand": "recommendedOverwriteVariantCommand" in markdown and "--conflict-policy overwrite_existing" in markdown,
                 "markdownHasConflictPolicyNote": "conflictPolicyNote:" in markdown and "overwrite_existing" in markdown,
+                "markdownHasConflictSupportSummary": "providersWithProviderManagedOverwrite" in markdown and "providersWithOverwriteDowngrade" in markdown and "providersWithConflictUnsupported" in markdown,
+                "markdownHasConflictSupportRows": "conflictSupport:" in markdown and "providerConflictNotes:" in markdown,
                 "postBootstrapNextStepMentionsRuntimeFollowup": "189cloud" in markdown and "post-bootstrap runtime helper" in markdown and "runtime success" in markdown,
                 "runtimeSuccessFallsBackToFastHelper": "115_open" in markdown and "tmp\\115_open-fast-candidate-evidence" in markdown,
                 "runtimeSuccessUsesLiveHelperWhenAvailable": "guangya" in markdown and "tmp\\guangya-live-evidence" in markdown,
@@ -273,6 +283,10 @@ def main() -> None:
                 "apiHasExpectedRuntimeSuccessSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 4,
                 "apiHasExpectedOverwriteVariantSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == 9,
                 "apiHasExpectedConflictPolicyNoteSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == 9,
+                "apiHasExpectedDeclaredConflictPoliciesSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithDeclaredConflictPolicies")) == ((bundle.get("summary") or {}).get("providersWithDeclaredConflictPolicies")) == 7,
+                "apiHasExpectedDirectOverwriteSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithProviderManagedOverwrite")) == ((bundle.get("summary") or {}).get("providersWithProviderManagedOverwrite")) == 1,
+                "apiHasExpectedOverwriteDowngradeSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithOverwriteDowngrade")) == ((bundle.get("summary") or {}).get("providersWithOverwriteDowngrade")) == 6,
+                "apiHasExpectedConflictUnsupportedSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithConflictUnsupported")) == ((bundle.get("summary") or {}).get("providersWithConflictUnsupported")) == 1,
                 "apiHasOverwriteVariantCommand": bool(
                     next(
                         (
@@ -291,6 +305,30 @@ def main() -> None:
                             for row in (api_bundle.get("items") or [])
                             if str((row or {}).get("providerKey") or "") == "guangya"
                             and "overwrite_existing" in str((row or {}).get("conflictPolicyNote") or "")
+                        ),
+                        None,
+                    )
+                ),
+                "apiHasAliyunDirectOverwriteStatus": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "aliyundrive_open"
+                            and str((row or {}).get("overwriteSupportStatus") or "") == "supported"
+                            and "overwrite_existing" in ",".join((row or {}).get("declaredConflictPolicies") or [])
+                        ),
+                        None,
+                    )
+                ),
+                "apiHas115ConflictProbeOnlyStatus": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "115_open"
+                            and str((row or {}).get("overwriteSupportStatus") or "") == "unsupported"
+                            and str((row or {}).get("autoRenameSupportStatus") or "") == "probe_only_runtime_write_check"
                         ),
                         None,
                     )
@@ -361,6 +399,7 @@ def main() -> None:
                 "apiMarkdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasOverwriteVariantCommand": "recommendedOverwriteVariantCommand" in str(api_markdown.get("markdown", "")) and "--conflict-policy overwrite_existing" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasConflictPolicyNote": "conflictPolicyNote:" in str(api_markdown.get("markdown", "")) and "overwrite_existing" in str(api_markdown.get("markdown", "")),
+                "apiMarkdownHasConflictSupportRows": "conflictSupport:" in str(api_markdown.get("markdown", "")) and "providerConflictNotes:" in str(api_markdown.get("markdown", "")),
             },
             ensure_ascii=False,
             indent=2,

@@ -92,6 +92,8 @@ def auth_profile_evidence_to_markdown(payload: dict[str, object]) -> str:
         lines.append(f"- missingFieldHints: `{', '.join(profile.get('missingFieldHints', []))}`")
     if profile.get("placeholderFieldHints"):
         lines.append(f"- placeholderFieldHints: `{', '.join(profile.get('placeholderFieldHints', []))}`")
+    if profile.get("placeholderSecretFieldHints"):
+        lines.append(f"- placeholderSecretFieldHints: `{', '.join(profile.get('placeholderSecretFieldHints', []))}`")
     if profile.get("writeMissingFieldHints"):
         lines.append(f"- writeMissingFieldHints: `{', '.join(profile.get('writeMissingFieldHints', []))}`")
     if profile.get("writeBlockerNote"):
@@ -210,6 +212,8 @@ def auth_evidence_bundle_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- missingFieldHints: `{', '.join(profile.get('missingFieldHints', []))}`")
         if profile.get("placeholderFieldHints"):
             lines.append(f"- placeholderFieldHints: `{', '.join(profile.get('placeholderFieldHints', []))}`")
+        if profile.get("placeholderSecretFieldHints"):
+            lines.append(f"- placeholderSecretFieldHints: `{', '.join(profile.get('placeholderSecretFieldHints', []))}`")
         if profile.get("writeMissingFieldHints"):
             lines.append(f"- writeMissingFieldHints: `{', '.join(profile.get('writeMissingFieldHints', []))}`")
         if profile.get("writeBlockerNote"):

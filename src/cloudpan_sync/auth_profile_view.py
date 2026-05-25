@@ -148,6 +148,26 @@ def profile_placeholder_field_hints(profile: object) -> list[str]:
     return hints
 
 
+def profile_placeholder_secret_field_hints(profile: object) -> list[str]:
+    provider_key = str(getattr(profile, "providerKey", "") or "")
+    token = str(getattr(profile, "token", "") or "").strip()
+    cookie = str(getattr(profile, "cookie", "") or "").strip()
+    extra = getattr(profile, "extra", {}) or {}
+
+    hints: list[str] = []
+    if provider_key == "guangya" and _looks_placeholder_value(token):
+        hints.append("token")
+    if provider_key == "aliyundrive_open" and _looks_placeholder_value(token):
+        hints.append("token")
+    if provider_key in {"quark", "uc", "115_open"} and _looks_placeholder_value(cookie):
+        hints.append("cookie")
+    if provider_key in {"xunlei", "pikpak", "123_open"} and _looks_placeholder_value(token):
+        hints.append("token")
+    if provider_key == "189cloud" and _looks_placeholder_value(extra.get("accessToken")):
+        hints.append("extra.accessToken")
+    return hints
+
+
 def profile_write_readiness(profile: object) -> tuple[bool, list[str], str]:
     provider_key = str(getattr(profile, "providerKey", "") or "")
     token = str(getattr(profile, "token", "") or "").strip()
@@ -179,10 +199,13 @@ def auth_profile_view(profile: object) -> dict[str, object]:
     data = masked_profile(profile)
     missing = profile_missing_field_hints(profile)
     placeholder_missing = profile_placeholder_field_hints(profile)
+    placeholder_secret_missing = profile_placeholder_secret_field_hints(profile)
     resolved_parent_id, resolved_file_id = resolved_probe_defaults(profile)
     write_ready, write_missing, write_blocker_note = profile_write_readiness(profile)
     data["missingFieldHints"] = missing + placeholder_missing
     data["placeholderFieldHints"] = placeholder_missing
+    data["placeholderSecretFieldHints"] = placeholder_secret_missing
+    data["needsSecretRefresh"] = bool(placeholder_secret_missing)
     data["profileHasPlaceholderValues"] = bool(placeholder_missing)
     data["profileReady"] = not (missing or placeholder_missing)
     data["resolvedParentId"] = resolved_parent_id

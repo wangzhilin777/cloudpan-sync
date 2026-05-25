@@ -12,6 +12,22 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [src/cloudpan_sync/auth_profile_view.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_view.py) 现已把“占位 secret 字段”和“普通缺字段”拆开：会额外给出 `placeholderSecretFieldHints` 与 `needsSecretRefresh`，把 `tok-demo / tok_smoke`、以及需要真实 `cookie/accessToken` 的场景单独标成“必须先换真凭证”
+  - [src/cloudpan_sync/auth_profile_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_remediation.py) 已新增 `recommendedRecreateProbeCommand`，对这类仍含占位 secret 的档案，不再继续误导成“只 patch extra 就行”，而是明确改成“重建或补真凭证后直接 probe”
+  - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 已把这条逻辑同步抬到 provider 级 remediation：`guangya` 与 `aliyundrive_open` 当前主命令已从旧的 `patch_probe / refresh_evidence` 切成 `recreate_probe`，summary 也新增 `providersWithRecreateProbeCommand`
+  - [src/cloudpan_sync/auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_evidence.py) 与当前导出的 [docs/08-AUTH_EVIDENCE_BUNDLE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/08-AUTH_EVIDENCE_BUNDLE.md)、[docs/09-AUTH_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/09-AUTH_REMEDIATION_GUIDE.md)、[docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 已同步写出 `placeholderSecretFieldHints / needsSecretRefreshCount / recommendedRecreateProbeCommand / providersWithRecreateProbeCommand`
+  - 对应 verifier 已同步补强：[scripts/verify_current_auth_evidence_bundle_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_evidence_bundle_sync.py)、[scripts/verify_export_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_evidence_bundle.py)、[scripts/verify_current_auth_remediation_bundle_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_remediation_bundle_sync.py)、[scripts/verify_export_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_remediation_bundle.py)、[scripts/verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\export_auth_evidence_bundle.py`、`scripts\export_auth_remediation_bundle.py`、`scripts\export_real_evidence_remediation.py` 已重导出当前真实文档，实际写出了 `needsSecretRefreshCount=3` 与 `providersWithRecreateProbeCommand=2`
+  - [docs/09-AUTH_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/09-AUTH_REMEDIATION_GUIDE.md) 当前已把 `smoke-guangya / risk-smoke-guangya / aliyun-bootstrap` 改成 `recommendedRecreateProbeCommand`，不再继续输出旧的 patch-only 命令
+  - [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 当前已把 `guangya / aliyundrive_open` 的 `recommendedPrimaryCommandLabel` 切成 `recreate_probe`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_auth_evidence_bundle_sync.py`、`scripts\verify_export_auth_evidence_bundle.py`、`scripts\verify_current_auth_remediation_bundle_sync.py`、`scripts\verify_export_auth_remediation_bundle.py`、`scripts\verify_current_real_evidence_remediation_sync.py` 已验证这条“先换真 secret 再 probe”的新口径已同步到当前文档/导出链
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - 这轮不是只补文档，而是先真实执行了 `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --write`，实际补到了一条新的线上失败证据：当前 `aliyundrive_open` 档案会在 live list 阶段收到 `http_error:404`
   - 基于这次真实联调结果，已把 [src/cloudpan_sync/auth_profile_view.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_view.py) 补成可识别占位凭证/占位字段，当前会把 `tok-demo / tok_smoke / domain-demo / drive-demo` 这类 smoke/demo 值当成真实缺口暴露到 `missingFieldHints` 与 `placeholderFieldHints`
   - [src/cloudpan_sync/auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_evidence.py) 和 [src/cloudpan_sync/auth_profile_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_remediation.py) 已同步把 `placeholderFieldHints` 导出到证据 Markdown / remediation Markdown，不再把这类假档案误写成“已 ready”

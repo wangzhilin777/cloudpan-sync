@@ -29,6 +29,7 @@ def main() -> None:
     markdown = (ROOT / "docs" / "12-REAL_EVIDENCE_REMEDIATION_GUIDE.md").read_text(encoding="utf-8")
 
     cloud115 = _section(markdown, "115_open")
+    guangya = _section(markdown, "guangya")
     quark = _section(markdown, "quark")
     cloud189 = _section(markdown, "189cloud")
     baidu = _section(markdown, "baidu_netdisk")
@@ -51,6 +52,7 @@ def main() -> None:
                     and f"- providersWithCreateCommand: `{summary.get('providersWithCreateCommand', 0)}`" in markdown
                     and f"- providersWithBootstrapCommand: `{summary.get('providersWithBootstrapCommand', 0)}`" in markdown
                     and f"- providersWithPostRefreshRuntimeCommand: `{summary.get('providersWithPostRefreshRuntimeCommand', 0)}`" in markdown
+                    and f"- providersWithRecreateProbeCommand: `{summary.get('providersWithRecreateProbeCommand', 0)}`" in markdown
                     and f"- providersWithPrimaryCommand: `{summary.get('providersWithPrimaryCommand', 0)}`" in markdown
                 ),
                 "summaryShowsExpectedRuntimeRemediationCounts": (
@@ -58,6 +60,7 @@ def main() -> None:
                     and summary.get("providersWithPostBootstrapRuntimeCommand") == 6
                     and summary.get("providersWithPatchCommand") == 2
                     and summary.get("providersWithPatchProbeCommand") == 2
+                    and summary.get("providersWithRecreateProbeCommand") == 2
                     and summary.get("providersWithOverwriteVariantCommand") == 6
                     and summary.get("providersWithConflictPolicyNote") == 6
                     and summary.get("providersWithDeclaredConflictPolicies") == 8
@@ -155,19 +158,24 @@ def main() -> None:
                     and "providerConflictNotes:" in pan123
                     and "tmp\\123_open-post-bootstrap-runtime-evidence" in pan123
                 ),
-                "aliyunSectionKeepsRefreshEvidencePath": (
-                    "recommendedPatchProbeCommand" in aliyun
+                "aliyunSectionUsesRecreateProbePath": (
+                    "recommendedRecreateProbeCommand" in aliyun
                     and "recommendedPrimaryCommand" in aliyun
-                    and "label=patch_probe" in aliyun
-                    and "patch_and_probe_auth_profile.py" in aliyun
-                    and "conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=supported` `auto_rename=supported`" in aliyun
-                    and "providerConflictNotes:" in aliyun
+                    and "label=recreate_probe" in aliyun
+                    and "create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name aliyun-bootstrap --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe" in aliyun
+                    and "placeholderSecretFieldHints: `token`" in aliyun
                     and "tok-demo" not in aliyun
-                    and "domain-demo" not in aliyun
-                    and "drive-demo" not in aliyun
                     and "recommendedRefreshEvidenceCommand" not in aliyun
                     and "recommendedPostRefreshRuntimeCommand" not in aliyun
                     and "recommendedPostBootstrapRuntimeCommand" not in aliyun
+                ),
+                "guangyaSectionUsesRecreateProbePath": (
+                    "recommendedRecreateProbeCommand" in guangya
+                    and "recommendedPrimaryCommand" in guangya
+                    and "label=recreate_probe" in guangya
+                    and "create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name smoke-guangya --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe" in guangya
+                    and "placeholderSecretFieldHints: `token`" in guangya
+                    and "recommendedPostRefreshRuntimeCommand" not in guangya
                 ),
             },
             ensure_ascii=False,

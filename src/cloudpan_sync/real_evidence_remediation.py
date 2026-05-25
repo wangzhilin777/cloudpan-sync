@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .auth_profile_remediation import recreate_probe_command_for_profile
 from .auth_profile_view import auth_profile_view
 from .auth_store import list_profiles
 from .planner import _resolve_conflict_support
@@ -320,6 +321,8 @@ def _next_step(
                 f"拿到真实 profileId 后立刻继续跑 post-bootstrap runtime helper，补第一条 runtime success 样本。{conflict_suffix}".strip()
             )
         return f"先创建 `{provider_key}` 的 auth profile，再执行最小 validation 和 live probe。"
+    if any(bool(profile.get("needsSecretRefresh")) for profile in provider_profiles):
+        return "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。"
     if any(not bool(profile.get("profileReady")) for profile in provider_profiles):
         return "先补齐档案缺字段并重跑 validation / live probe，拿到 auth/list/metadata 最小成功证据。"
     if any(not bool(profile.get("writeReady", True)) for profile in provider_profiles) and (not create_dir_ok or not runtime_ok):
@@ -341,6 +344,7 @@ def _next_step(
 
 def _recommended_primary_command(item_payload: dict[str, object]) -> tuple[str, str]:
     candidates = [
+        ("recreate_probe", str(item_payload.get("recommendedRecreateProbeCommand") or "")),
         ("patch_probe", str(item_payload.get("recommendedPatchProbeCommand") or "")),
         ("refresh_evidence", str(item_payload.get("recommendedRefreshEvidenceCommand") or "")),
         ("post_refresh_runtime", str(item_payload.get("recommendedPostRefreshRuntimeCommand") or "")),
@@ -421,6 +425,18 @@ def build_real_evidence_remediation_bundle(
             "autoRenameSupportStatus": str(conflict_snapshot.get("autoRenameSupportStatus") or ""),
             "providerConflictNotes": str(conflict_snapshot.get("providerConflictNotes") or ""),
             "gaps": list(row.get("gaps") or []),
+            "needsSecretRefresh": any(bool(profile.get("needsSecretRefresh")) for profile in provider_profiles),
+            "placeholderSecretFieldHints": sorted(
+                {
+                    str(value or "")
+                    for profile in provider_profiles
+                    for value in (profile.get("placeholderSecretFieldHints") or [])
+                    if str(value or "")
+                }
+            ),
+            "recommendedRecreateProbeCommand": recreate_probe_command_for_profile(profile_needing_patch or {})
+            if profile_needing_patch and bool(profile_needing_patch.get("needsSecretRefresh"))
+            else "",
             "recommendedPatchCommand": _patch_command_for_profile(profile_needing_patch or {}),
             "recommendedPatchProbeCommand": _patch_probe_command_for_profile(profile_needing_patch or {}),
             "recommendedRefreshEvidenceCommand": _refresh_evidence_command_for_profile(provider_profiles[0] if provider_profiles else {})
@@ -515,6 +531,7 @@ def build_real_evidence_remediation_bundle(
             "providersNeedingRuntimeSuccess": sum(1 for item in items if bool(item.get("needsRuntimeSuccess"))),
             "providersWithPatchCommand": sum(1 for item in items if str(item.get("recommendedPatchCommand") or "")),
             "providersWithPatchProbeCommand": sum(1 for item in items if str(item.get("recommendedPatchProbeCommand") or "")),
+            "providersWithRecreateProbeCommand": sum(1 for item in items if str(item.get("recommendedRecreateProbeCommand") or "")),
             "providersWithRefreshEvidenceCommand": sum(1 for item in items if str(item.get("recommendedRefreshEvidenceCommand") or "")),
             "providersWithPostRefreshRuntimeCommand": sum(1 for item in items if str(item.get("recommendedPostRefreshRuntimeCommand") or "")),
             "providersWithRuntimeProbeCommand": sum(1 for item in items if str(item.get("recommendedRuntimeProbeCommand") or "")),
@@ -558,6 +575,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersNeedingRuntimeSuccess: `{summary.get('providersNeedingRuntimeSuccess', 0)}`")
     lines.append(f"- providersWithPatchCommand: `{summary.get('providersWithPatchCommand', 0)}`")
     lines.append(f"- providersWithPatchProbeCommand: `{summary.get('providersWithPatchProbeCommand', 0)}`")
+    lines.append(f"- providersWithRecreateProbeCommand: `{summary.get('providersWithRecreateProbeCommand', 0)}`")
     lines.append(f"- providersWithRefreshEvidenceCommand: `{summary.get('providersWithRefreshEvidenceCommand', 0)}`")
     lines.append(f"- providersWithPostRefreshRuntimeCommand: `{summary.get('providersWithPostRefreshRuntimeCommand', 0)}`")
     lines.append(f"- providersWithRuntimeProbeCommand: `{summary.get('providersWithRuntimeProbeCommand', 0)}`")
@@ -614,6 +632,8 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             )
         if row.get("gaps"):
             lines.append(f"- gaps: {', '.join(row.get('gaps') or [])}")
+        if row.get("placeholderSecretFieldHints"):
+            lines.append(f"- placeholderSecretFieldHints: `{', '.join(row.get('placeholderSecretFieldHints') or [])}`")
         if row.get("providerConflictNotes"):
             lines.append(f"- providerConflictNotes: {row.get('providerConflictNotes', '')}")
         lines.append(f"- nextStep: {row.get('nextStep', '')}")
@@ -630,6 +650,8 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedPatchCommand: `{row.get('recommendedPatchCommand', '')}`")
         if row.get("recommendedPatchProbeCommand"):
             lines.append(f"- recommendedPatchProbeCommand: `{row.get('recommendedPatchProbeCommand', '')}`")
+        if row.get("recommendedRecreateProbeCommand"):
+            lines.append(f"- recommendedRecreateProbeCommand: `{row.get('recommendedRecreateProbeCommand', '')}`")
         if row.get("recommendedRefreshEvidenceCommand"):
             lines.append(f"- recommendedRefreshEvidenceCommand: `{row.get('recommendedRefreshEvidenceCommand', '')}`")
         if row.get("recommendedPostRefreshRuntimeCommand"):

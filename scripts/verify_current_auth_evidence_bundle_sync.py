@@ -43,6 +43,7 @@ def main() -> None:
                     and "extra.parentId (aliases: parent_id/parentFileId/dirId/pid)" in markdown
                     and "token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token" in markdown
                     and "- placeholderFieldHints: `token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token`" in markdown
+                    and "- placeholderSecretFieldHints: `token`" in markdown
                 ),
                 "hasRiskSmokeGuangyaProfile": (
                     "### risk-smoke-guangya [guangya]" in markdown
@@ -57,6 +58,7 @@ def main() -> None:
                     and "token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token" in markdown
                     and "extra.domainId still uses placeholder data; replace domain-demo with a real domainId" in markdown
                     and "extra.driveId still uses placeholder data; replace drive-demo with a real driveId" in markdown
+                    and "- placeholderSecretFieldHints: `token`" in markdown
                 ),
             },
             ensure_ascii=False,

@@ -18,6 +18,7 @@
 - resolvedFileId: ``
 - missingFieldHints: `extra.parentId (aliases: parent_id/parentFileId/dirId/pid), token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token`
 - placeholderFieldHints: `token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token`
+- placeholderSecretFieldHints: `token`
 - latestValidation: `Guangya live list requires parentId in request or auth profile extra.parentId.`
 - latestProbe: `Guangya live list requires parentId in request or auth profile extra.parentId.`
 
@@ -31,6 +32,7 @@
 - resolvedFileId: ``
 - missingFieldHints: `extra.parentId (aliases: parent_id/parentFileId/dirId/pid), token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token`
 - placeholderFieldHints: `token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token`
+- placeholderSecretFieldHints: `token`
 - latestValidation: `Guangya live list requires parentId in request or auth profile extra.parentId.`
 - latestProbe: `Guangya live list requires parentId in request or auth profile extra.parentId.`
 
@@ -44,5 +46,6 @@
 - resolvedFileId: ``
 - missingFieldHints: `token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token, extra.domainId still uses placeholder data; replace domain-demo with a real domainId, extra.driveId still uses placeholder data; replace drive-demo with a real driveId`
 - placeholderFieldHints: `token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token, extra.domainId still uses placeholder data; replace domain-demo with a real domainId, extra.driveId still uses placeholder data; replace drive-demo with a real driveId`
+- placeholderSecretFieldHints: `token`
 - latestValidation: `Aliyun Drive Open live list reached the API but was rejected.`
 - latestProbe: `Aliyun Drive Open live list reached the API but was rejected.`

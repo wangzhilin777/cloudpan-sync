@@ -29,6 +29,7 @@ def main() -> None:
             "needsFixCount": 2,
             "writeReadyCount": 1,
             "writeNeedsFixCount": 2,
+            "needsSecretRefreshCount": 1,
         },
         "items": [
             {
@@ -54,9 +55,12 @@ def main() -> None:
                 "resolvedFileId": "",
                 "missingFieldHints": ["domainId", "driveId"],
                 "placeholderFieldHints": ["token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token"],
+                "placeholderSecretFieldHints": ["token"],
+                "needsSecretRefresh": True,
                 "writeMissingFieldHints": [],
                 "writeBlockerNote": "",
-                "recommendedPatchCommand": ".\\.venv\\Scripts\\python.exe scripts\\patch_auth_profile_extra.py --profile-id ali-1 --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write --revalidate",
+                "recommendedPatchCommand": "",
+                "recommendedRecreateProbeCommand": ".\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name Aliyun Open --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe",
             },
             {
                 "profileId": "189-share",
@@ -109,11 +113,13 @@ def main() -> None:
                 and "- readyCount: `1`" in markdown
                 and "- needsFixCount: `2`" in markdown
                 and "- writeReadyCount: `1`" in markdown
-                and "- writeNeedsFixCount: `2`" in markdown,
-                "exportedHasAliyunPatchCommand": "### Aliyun Open [aliyundrive_open]" in markdown
+                and "- writeNeedsFixCount: `2`" in markdown
+                and "- needsSecretRefreshCount: `1`" in markdown,
+                "exportedHasAliyunRecreateProbeCommand": "### Aliyun Open [aliyundrive_open]" in markdown
                 and "- missingFieldHints: `domainId, driveId`" in markdown
                 and "- placeholderFieldHints: `token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token`" in markdown
-                and "- recommendedPatchCommand: `.\\.venv\\Scripts\\python.exe scripts\\patch_auth_profile_extra.py --profile-id ali-1 --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write --revalidate`"
+                and "- placeholderSecretFieldHints: `token`" in markdown
+                and "- recommendedRecreateProbeCommand: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name Aliyun Open --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe`"
                 in markdown,
                 "exportedHas189ReadonlyDetails": "### 189 Share Profile [189cloud]" in markdown
                 and "- writeMissingFieldHints: `signature, date`" in markdown

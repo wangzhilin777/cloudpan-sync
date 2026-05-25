@@ -18,13 +18,48 @@ def _patch_command_for_profile(profile: dict[str, object]) -> str:
     return f"{base} --set key=value --write --revalidate"
 
 
+def recreate_probe_command_for_profile(profile: dict[str, object]) -> str:
+    provider_key = str(profile.get("providerKey") or "")
+    auth_mode = str(profile.get("authMode") or "")
+    display_name = str(profile.get("displayName") or f"{provider_key}-{auth_mode}").strip()
+    base = f".\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --provider-key {provider_key} --auth-mode {auth_mode} --display-name {display_name}"
+
+    if auth_mode == "manual_cookie":
+        base = f"{base} --cookie YOUR_COOKIE"
+    elif auth_mode in {"manual_token", "official_oauth"}:
+        base = f"{base} --token YOUR_TOKEN"
+
+    if provider_key == "guangya":
+        return f"{base} --set parentId=YOUR_REAL_PARENT_ID --probe"
+    if provider_key == "aliyundrive_open":
+        return f"{base} --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe"
+    if provider_key == "189cloud":
+        return f"{base} --set shareCode=YOUR_SHARE_CODE --set accessCode=YOUR_ACCESS_CODE --probe"
+    if provider_key == "115_open":
+        return f"{base} --set parentId=YOUR_PARENT_ID --probe"
+    if provider_key in {"quark", "uc"}:
+        return f"{base} --set pwdId=YOUR_SHARE_PWD_ID --probe"
+    if provider_key == "xunlei":
+        return f"{base} --set deviceId=YOUR_DEVICE_ID --probe"
+    if provider_key == "pikpak":
+        return f"{base} --set deviceId=YOUR_DEVICE_ID --probe"
+    if provider_key == "123_open":
+        return f"{base} --set parentFileId=YOUR_PARENT_FILE_ID --probe"
+    if provider_key == "baidu_netdisk":
+        return f"{base} --set fileId=YOUR_FILE_ID --probe"
+    return f"{base} --probe"
+
+
 def build_auth_remediation_bundle(*, profile_views: list[dict[str, object]]) -> dict[str, object]:
     items: list[dict[str, object]] = []
     for profile in profile_views:
         missing = list(profile.get("missingFieldHints") or [])
         profile_ready = bool(profile.get("profileReady"))
         write_ready = bool(profile.get("writeReady", True))
+        needs_secret_refresh = bool(profile.get("needsSecretRefresh"))
         needs_patch = (not profile_ready) or (not write_ready)
+        recommended_patch_command = _patch_command_for_profile(profile) if (needs_patch and not needs_secret_refresh) else ""
+        recommended_recreate_probe_command = recreate_probe_command_for_profile(profile) if needs_secret_refresh else ""
         items.append(
             {
                 "profileId": str(profile.get("profileId") or ""),
@@ -34,11 +69,14 @@ def build_auth_remediation_bundle(*, profile_views: list[dict[str, object]]) -> 
                 "writeReady": write_ready,
                 "missingFieldHints": missing,
                 "placeholderFieldHints": list(profile.get("placeholderFieldHints") or []),
+                "placeholderSecretFieldHints": list(profile.get("placeholderSecretFieldHints") or []),
+                "needsSecretRefresh": needs_secret_refresh,
                 "writeMissingFieldHints": list(profile.get("writeMissingFieldHints") or []),
                 "writeBlockerNote": str(profile.get("writeBlockerNote") or ""),
                 "resolvedParentId": str(profile.get("resolvedParentId") or ""),
                 "resolvedFileId": str(profile.get("resolvedFileId") or ""),
-                "recommendedPatchCommand": _patch_command_for_profile(profile) if needs_patch else "",
+                "recommendedPatchCommand": recommended_patch_command,
+                "recommendedRecreateProbeCommand": recommended_recreate_probe_command,
             }
         )
     return {
@@ -48,6 +86,7 @@ def build_auth_remediation_bundle(*, profile_views: list[dict[str, object]]) -> 
             "needsFixCount": sum(1 for item in items if not bool(item.get("profileReady"))),
             "writeReadyCount": sum(1 for item in items if bool(item.get("writeReady", True))),
             "writeNeedsFixCount": sum(1 for item in items if not bool(item.get("writeReady", True))),
+            "needsSecretRefreshCount": sum(1 for item in items if bool(item.get("needsSecretRefresh"))),
         },
         "items": items,
     }
@@ -64,6 +103,7 @@ def auth_remediation_bundle_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- needsFixCount: `{summary.get('needsFixCount', 0)}`")
     lines.append(f"- writeReadyCount: `{summary.get('writeReadyCount', 0)}`")
     lines.append(f"- writeNeedsFixCount: `{summary.get('writeNeedsFixCount', 0)}`")
+    lines.append(f"- needsSecretRefreshCount: `{summary.get('needsSecretRefreshCount', 0)}`")
     lines.append("")
     lines.append("## 档案清单 / Profiles")
     lines.append("")
@@ -81,6 +121,9 @@ def auth_remediation_bundle_to_markdown(payload: dict[str, object]) -> str:
         placeholder_missing = list(row.get("placeholderFieldHints") or [])
         if placeholder_missing:
             lines.append(f"- placeholderFieldHints: `{', '.join(placeholder_missing)}`")
+        placeholder_secret_missing = list(row.get("placeholderSecretFieldHints") or [])
+        if placeholder_secret_missing:
+            lines.append(f"- placeholderSecretFieldHints: `{', '.join(placeholder_secret_missing)}`")
         write_missing = list(row.get("writeMissingFieldHints") or [])
         if write_missing:
             lines.append(f"- writeMissingFieldHints: `{', '.join(write_missing)}`")
@@ -88,5 +131,7 @@ def auth_remediation_bundle_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- writeBlockerNote: {row.get('writeBlockerNote', '')}")
         if row.get("recommendedPatchCommand"):
             lines.append(f"- recommendedPatchCommand: `{row.get('recommendedPatchCommand', '')}`")
+        if row.get("recommendedRecreateProbeCommand"):
+            lines.append(f"- recommendedRecreateProbeCommand: `{row.get('recommendedRecreateProbeCommand', '')}`")
         lines.append("")
     return "\n".join(lines).strip() + "\n"

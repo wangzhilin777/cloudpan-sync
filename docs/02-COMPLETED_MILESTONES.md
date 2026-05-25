@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/verify_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_remediation_bundle.py) 现在已把 auth remediation synthetic bundle/API/Markdown 回归正式切到当前的 secret-refresh / recreate-probe 口径，不再保留已经过时的 `patch_auth_profile_extra.py` 旧期待
+  - verifier 当前会同时锁住 synthetic summary 计数、`smoke-guangya` 与 `aliyun-bootstrap` 的 `recommendedRecreateProbeCommand`、`placeholderSecretFieldHints=[token]`，以及 `189-readonly-share` 仍应继续保留账号写授权补丁命令
+  - 这样授权补救链路现在除了 current sync verifier、export verifier 之外，连独立 synthetic bundle verifier 也已经把“先换真 secret 再 probe”和“189 只读档案仍需 patch 写鉴权”这两条现行分流一起锁住了
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_remediation_bundle.py` 已验证当前 synthetic bundle summary、Markdown 和 API 返回会同时满足 `needsSecretRefreshCount=2`、Guangya/Aliyun 的 `recommendedRecreateProbeCommand`，以及 189 的 `patch_189cloud_account_auth.py` 写鉴权补救命令
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py) 现已把 `recreate_probe` 这条导出分支锁进回归，不再只验证旧的 `post_refresh_runtime / bootstrap` 主命令标签
   - synthetic export payload 现在会显式模拟 `guangya` 处于 `needsSecretRefresh=True`、`placeholderSecretFieldHints=[token]` 的场景，并验证导出的 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 中会写出 `providersWithRecreateProbeCommand`、`recommendedRecreateProbeCommand` 与 `placeholderSecretFieldHints`
   - 这样 `real_evidence_remediation` 现在不仅有 current sync verifier 和 synthetic bundle verifier，连独立 export verifier 也已经把新补救路径覆盖到了

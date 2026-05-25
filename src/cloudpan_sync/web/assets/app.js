@@ -2412,6 +2412,29 @@ function renderSettingsPanel() {
     li.textContent = row;
     authRemediationList.appendChild(li);
   }
+  const firstAuthRemediationGap = (state.authRemediationBundle?.items || []).find((item) => item?.needsFix || item?.writeNeedsFix || item?.needsSecretRefresh) || null;
+  if (firstAuthRemediationGap) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    const missing = (firstAuthRemediationGap.missingFieldHints || []).join(" | ");
+    const writeMissing = (firstAuthRemediationGap.writeMissingFieldHints || []).join(" | ");
+    copy.textContent = `${firstAuthRemediationGap.displayName || firstAuthRemediationGap.profileId || "(unknown)"} [${firstAuthRemediationGap.providerKey || "(unknown)"}]: profileReady=${Boolean(firstAuthRemediationGap.profileReady)}, writeReady=${Boolean(firstAuthRemediationGap.writeReady)}${missing ? `, missing=${missing}` : ""}${writeMissing ? `, writeMissing=${writeMissing}` : ""}, needsSecretRefresh=${Boolean(firstAuthRemediationGap.needsSecretRefresh)}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    const focusBtn = document.createElement("button");
+    focusBtn.className = "ghost";
+    focusBtn.textContent = "Focus First Fix";
+    focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstAuthRemediationGap.profileId));
+    actions.appendChild(focusBtn);
+    const captureBtn = document.createElement("button");
+    captureBtn.className = "ghost";
+    captureBtn.textContent = "Open Capture First Fix";
+    captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstAuthRemediationGap.providerKey || ""));
+    actions.appendChild(captureBtn);
+    li.appendChild(actions);
+    authRemediationList.appendChild(li);
+  }
   const authRemediationItems = state.authRemediationBundle?.items || [];
   for (const item of authRemediationItems.slice(0, 3)) {
     const li = document.createElement("li");

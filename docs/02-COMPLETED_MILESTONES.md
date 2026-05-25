@@ -10,6 +10,19 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充授权补救首个修复直接跳转`
+- 完成范围：
+  - 已把设置页里的 `Auth Remediation Guide` 从“展示 ready/needsFix 汇总加最近几条档案行内动作”推进成可直接跳转首个最该修的档案；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在补救区块下方额外渲染首个 `needsFix / writeNeedsFix / needsSecretRefresh` 的档案，并直接带出 `Focus First Fix / Open Capture First Fix`
+  - 当前动作会直接复用授权页顶部 `Remediation Guide` 的同一套 first-fix 判定逻辑，因此设置页里看到的第一条最该修档案与授权页顶部保持一致；用户现在可以直接从设置页回到该档案的授权表单，或者立刻打开网页登录抓取引导，不必再切回授权页顶部重新定位
+  - 这次补齐把“设置页能看见 auth remediation 汇总，但下一条最该修哪条档案还要自己翻最近几条或切到别处判断”的流程，推进成“看到首个修复项 -> 直接跳转 -> 继续修”的更短闭环，也让设置页 auth remediation 面板和其他 first-gap/first-fix 面板的交互节奏保持一致
+  - 已同步补强 [verify_auth_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_settings_ui.py)，把 `Focus First Fix / Open Capture First Fix` 的文案与绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_settings_ui.py` 已验证设置页 `Auth Remediation Guide` 当前包含首个修复项动作按钮和对应绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充授权证据首个缺口直接补救`
 - 完成范围：
   - 已把设置页里的 `Auth Evidence Bundle` 从“只展示 profileReady/writeReady/validationOk/probeOk 汇总”推进成可直接跳转首个授权证据缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在授权证据区块下方额外渲染首个 `profileReady=false / writeReady=false / validationOk=false / probeOk=false` 的档案，并直接带出 `Focus First Gap / Refresh First Gap / Open Capture First Gap`

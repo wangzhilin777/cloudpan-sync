@@ -37,6 +37,11 @@ def main() -> None:
                 and "validationOkProfiles=" in app_js
                 and "probeOkProfiles=" in app_js,
                 "jsRenderSettingsUsesAuthRemediation": "const authRemediationSummary = state.authRemediationBundle?.summary || {};" in app_js
+                and 'const firstAuthRemediationGap = (state.authRemediationBundle?.items || []).find((item) => item?.needsFix || item?.writeNeedsFix || item?.needsSecretRefresh) || null;' in app_js
+                and 'focusBtn.textContent = "Focus First Fix"' in app_js
+                and 'captureBtn.textContent = "Open Capture First Fix"' in app_js
+                and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstAuthRemediationGap.profileId));' in app_js
+                and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstAuthRemediationGap.providerKey || ""));' in app_js
                 and "readyProfiles=" in app_js
                 and "needsFixProfiles=" in app_js
                 and "writeNeedsFixProfiles=" in app_js

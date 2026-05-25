@@ -13,7 +13,7 @@ def main() -> None:
         json.dumps(
             {
                 "htmlHasRuntimeOrphanRecoveryPanel": "settingsRuntimeOrphanRecoveryList" in html and "Runtime Orphan Recovery" in html,
-                "jsHasRuntimeOrphanRecoveryState": "runtimeOrphanRecovery: null" in app_js,
+                "jsHasRuntimeOrphanRecoveryState": "runtimeOrphanRecovery: null" in app_js and "lastRuntimeOrphanAction: null" in app_js,
                 "jsHasRuntimeOrphanRecoveryLoader": 'async function loadRuntimeOrphanRecoverySummary()' in app_js and 'fetchJson("/api/runtime_orphan_recovery")' in app_js,
                 "jsHasRuntimeOrphanRecoveryRecreateAction": 'async function recreateRuntimeOrphanProfile(providerKey, orphanProfileId)' in app_js and 'fetchJson("/api/runtime_orphan_recovery/recreate_profile"' in app_js and 'recreateBtn.textContent = "Recreate Stub"' in app_js,
                 "jsHasRuntimeOrphanRecoveryCaptureAction": 'captureBtn.textContent = "Open Capture"' in app_js and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));' in app_js,
@@ -29,8 +29,8 @@ def main() -> None:
                 and 'recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(firstRuntimeOrphanGap.providerKey, firstRuntimeOrphanGap.orphanProfileId));' in app_js
                 and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstRuntimeOrphanGap.providerKey || ""));' in app_js,
                 "jsRefreshProtectedDataLoadsRuntimeOrphanRecovery": "loadRuntimeOrphanRecoverySummary()," in app_js,
-                "jsLogoutClearsRuntimeOrphanRecovery": "state.runtimeOrphanRecovery = null;" in app_js,
-                "jsSettingsRenderUsesRuntimeOrphanRecovery": "const orphanRecoverySummary = state.runtimeOrphanRecovery?.summary || {};" in app_js and "orphanProfilesList=" in app_js and "recreate=" in app_js and "refresh=" in app_js and "runtimeProbe=" in app_js and "runtimeSuccess=" in app_js and "overwriteVariant=" in app_js and 'recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(item.providerKey, item.orphanProfileId));' in app_js and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));' in app_js,
+                "jsLogoutClearsRuntimeOrphanRecovery": "state.runtimeOrphanRecovery = null;" in app_js and "state.lastRuntimeOrphanAction = null;" in app_js,
+                "jsSettingsRenderUsesRuntimeOrphanRecovery": "const orphanRecoverySummary = state.runtimeOrphanRecovery?.summary || {};" in app_js and "latestRuntimeOrphanAction=" in app_js and "orphanProfilesList=" in app_js and "recreate=" in app_js and "refresh=" in app_js and "runtimeProbe=" in app_js and "runtimeSuccess=" in app_js and "overwriteVariant=" in app_js and 'recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(item.providerKey, item.orphanProfileId));' in app_js and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));' in app_js,
             },
             ensure_ascii=False,
             indent=2,

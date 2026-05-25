@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`孤儿重建已存在档案时留在当前续做面板`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里的 `recreateRuntimeOrphanProfile()` 从“无论 `stub_created` 还是 `already_exists` 都自动跳去授权页并填表”推进成只在真正按缺失的 orphanProfileId 新建出 stub 时才切到 `Auth`
+  - 对于 `runtime_orphan_recovery/recreate_profile` 已经返回的 `already_exists` 续做命令链，现在前端会把结果存进 `state.lastRuntimeOrphanAction`，并在设置页 `Runtime Orphan Recovery` 区域新增最近一次 orphan 动作摘要，直接承接 `refresh / runtimeProbe / runtimeSuccess / overwriteVariant`
+  - 当前效果是：看到 `guangya / uc / pikpak` 这类 orphan 缺口后，如果当前仓库其实已经有可用档案，点 `Recreate Stub` 不会再把人强制带走，而是会留在当前恢复面板继续点 `Focus / Refresh / Probe / Open Capture`，和前面刚收好的 `Create Stub` 路径保持一致
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_followup_ui.py` 已验证前端当前会记录 `state.lastRuntimeOrphanAction`、仅在 `data.created === true` 时自动跳转，并在设置页保留 `Latest Orphan Stub` 一组续做按钮
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证 `Runtime Orphan Recovery` 面板当前已纳入 latest orphan 动作摘要，且登出会同步清理 `state.lastRuntimeOrphanAction`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`登出时清理最近补救动作状态`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 新增出来的 `state.lastRemediationAction` 接入登出清理流程，不再只清 `realEvidenceRemediation` 主数据而把最近一次 `Create Stub` 的补救结果留在前端会话里

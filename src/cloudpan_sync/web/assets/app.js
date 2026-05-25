@@ -52,6 +52,7 @@ const state = {
   taskRuntimeEvidence: [],
   taskRuntimeEvidenceMeta: { historyCount: 0, summary: null },
   runtimeOrphanRecovery: null,
+  lastRuntimeOrphanAction: null,
   authCaptureGuide: null,
   authCaptureParseResult: null,
   tasks: [],
@@ -1297,6 +1298,7 @@ async function recreateRuntimeOrphanProfile(providerKey, orphanProfileId) {
     method: "POST",
     body: JSON.stringify({ providerKey, orphanProfileId }),
   });
+  state.lastRuntimeOrphanAction = data;
   setAuthValidationSummary(data, "Runtime Orphan Stub");
   await Promise.all([
     loadAuthProfiles(),
@@ -1311,7 +1313,7 @@ async function recreateRuntimeOrphanProfile(providerKey, orphanProfileId) {
     loadAuditSummary(),
   ]);
   const recreated = (state.authProfiles || []).find((item) => item.profileId === orphanProfileId);
-  if (recreated) {
+  if (data?.created === true && recreated) {
     fillAuthForm(recreated);
     state.activeTab = "nav.auth";
     render();
@@ -3014,6 +3016,7 @@ function renderSettingsPanel() {
 
   const orphanRecoverySummary = state.runtimeOrphanRecovery?.summary || {};
   const orphanRecoveryItems = state.runtimeOrphanRecovery?.items || [];
+  const lastRuntimeOrphanAction = state.lastRuntimeOrphanAction || null;
   const orphanRecoveryRows = [
     `providers=${orphanRecoverySummary.providerCount || 0}, orphanProfiles=${orphanRecoverySummary.orphanProfileCount || 0}, runtimeSamples=${orphanRecoverySummary.runtimeSampleCount || 0}, providersWithSavedProfiles=${orphanRecoverySummary.providersWithSavedProfiles || 0}, providersWithoutSavedProfiles=${orphanRecoverySummary.providersWithoutSavedProfiles || 0}`,
     `orphanProviders=${(orphanRecoverySummary.orphanProviders || []).join("/") || "(none)"}, orphanProfilesList=${(orphanRecoverySummary.orphanProfiles || []).join("/") || "(none)"}`,
@@ -3022,6 +3025,43 @@ function renderSettingsPanel() {
   for (const row of orphanRecoveryRows) {
     const li = document.createElement("li");
     li.textContent = row;
+    runtimeOrphanRecoveryList.appendChild(li);
+  }
+  if (lastRuntimeOrphanAction?.status) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    const latestProfile = lastRuntimeOrphanAction.item || null;
+    copy.textContent = `latestRuntimeOrphanAction=${lastRuntimeOrphanAction.status || "(unknown)"}, provider=${latestProfile?.providerKey || "(unknown)"}, profileId=${latestProfile?.profileId || "(none)"}, nextStep=${lastRuntimeOrphanAction.nextStep || "(none)"}${lastRuntimeOrphanAction.recommendedRefreshEvidenceCommand ? `, refresh=${lastRuntimeOrphanAction.recommendedRefreshEvidenceCommand}` : ""}${lastRuntimeOrphanAction.recommendedRuntimeProbeCommand ? `, runtimeProbe=${lastRuntimeOrphanAction.recommendedRuntimeProbeCommand}` : ""}${lastRuntimeOrphanAction.recommendedRuntimeSuccessCommand ? `, runtimeSuccess=${lastRuntimeOrphanAction.recommendedRuntimeSuccessCommand}` : ""}${lastRuntimeOrphanAction.recommendedOverwriteVariantCommand ? `, overwriteVariant=${lastRuntimeOrphanAction.recommendedOverwriteVariantCommand}` : ""}`;
+    li.appendChild(copy);
+    if (latestProfile?.profileId || latestProfile?.providerKey) {
+      const actions = document.createElement("span");
+      actions.className = "row-actions";
+      if (latestProfile?.profileId) {
+        const focusBtn = document.createElement("button");
+        focusBtn.className = "ghost";
+        focusBtn.textContent = "Focus Latest Orphan Stub";
+        focusBtn.addEventListener("click", () => focusAuthRemediationProfile(latestProfile.profileId));
+        actions.appendChild(focusBtn);
+        const refreshBtn = document.createElement("button");
+        refreshBtn.className = "ghost";
+        refreshBtn.textContent = "Refresh Latest Orphan Stub";
+        refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(latestProfile.profileId));
+        actions.appendChild(refreshBtn);
+        if (liveProbeProviderSet.has(latestProfile.providerKey)) {
+          const probeBtn = document.createElement("button");
+          probeBtn.className = "ghost";
+          probeBtn.textContent = "Probe Latest Orphan Stub";
+          probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(latestProfile.profileId));
+          actions.appendChild(probeBtn);
+        }
+      }
+      const captureBtn = document.createElement("button");
+      captureBtn.className = "ghost";
+      captureBtn.textContent = "Open Capture For Latest Orphan Stub";
+      captureBtn.addEventListener("click", () => openCaptureGuideForProvider(latestProfile?.providerKey || ""));
+      actions.appendChild(captureBtn);
+      li.appendChild(actions);
+    }
     runtimeOrphanRecoveryList.appendChild(li);
   }
   for (const item of orphanRecoveryItems.slice(0, 3)) {
@@ -3184,6 +3224,7 @@ async function onLogout() {
   state.taskRuntimeEvidence = [];
   state.taskRuntimeEvidenceMeta = { historyCount: 0, summary: null };
   state.runtimeOrphanRecovery = null;
+  state.lastRuntimeOrphanAction = null;
   state.providerResearch = [];
   state.statusMatrix = null;
   state.auditSummary = null;

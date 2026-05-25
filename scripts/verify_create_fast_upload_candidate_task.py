@@ -135,6 +135,27 @@ def main() -> None:
                     str(evidence_dir),
                 ]
             )
+
+        second_stdout = io.StringIO()
+        with contextlib.redirect_stdout(second_stdout):
+            second_result = fast_candidate_script.main(
+                [
+                    "--target-provider",
+                    "115_open",
+                    "--target-profile-id",
+                    "115-fast-1",
+                    "--target-parent-id",
+                    "manual-fast-parent",
+                    "--auto-temp-file",
+                    "--sha1",
+                    "auto",
+                    "--task-json-output",
+                    str(ROOT / "tmp" / "verify-fast-candidate-task.json"),
+                    "--no-refresh-auth-evidence",
+                    "--auth-evidence-output",
+                    str(ROOT / "tmp" / "verify-fast-candidate-auth-evidence.md"),
+                ]
+            )
     finally:
         task_runtime.create_task = original_create_task
         task_runtime.run_task = original_run_task
@@ -144,6 +165,7 @@ def main() -> None:
         fast_candidate_script.refresh_auth_profile_evidence = original_refresh_auth_evidence
 
     output = json.loads(stdout_buffer.getvalue())
+    second_output = json.loads(second_stdout.getvalue())
     source_entry = ((output.get("sourceEntries") or [{}])[0]) if output.get("sourceEntries") else {}
     task_json = evidence_dir / "task.json"
     task_markdown = evidence_dir / "task.md"
@@ -166,16 +188,29 @@ def main() -> None:
             if child.is_file():
                 child.unlink()
         evidence_dir.rmdir()
+    second_task_json = ROOT / "tmp" / "verify-fast-candidate-task.json"
+    second_auth_evidence = ROOT / "tmp" / "verify-fast-candidate-auth-evidence.md"
+    second_outputs_ok = second_task_json.exists() and second_auth_evidence.exists()
+    if second_task_json.exists():
+        second_task_json.unlink()
+    if second_auth_evidence.exists():
+        second_auth_evidence.unlink()
 
     print(
         json.dumps(
             {
                 "exitCode": result,
+                "secondExitCode": second_result,
                 "scriptEmittedTaskJson": output.get("taskId") == "task-fast-candidate-1",
                 "scriptResolvedTargetParentId": output.get("resolvedTargetParentId") == "115-root",
                 "scriptEvidenceDirOutput": output.get("evidenceDir") == str(evidence_dir),
                 "scriptAuthEvidenceRefreshed": len(refresh_calls) == 1 and refresh_calls[0].get("profileId") == "115-fast-1",
                 "scriptEvidenceBundleCreated": evidence_titles_ok,
+                "scriptExplicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-fast-parent",
+                "scriptNoRefreshSkipsAuthRefresh": len(refresh_calls) == 1 and second_output.get("refreshedAuthEvidence") is False,
+                "scriptExplicitOutputsCreated": second_outputs_ok
+                and second_output.get("taskJsonOutput") == str(second_task_json)
+                and second_output.get("authEvidenceOutput") == str(second_auth_evidence),
                 "scriptRequiredFastInputs": output.get("requiredFastInputs") == ["sha1", "size"],
                 "scriptAutoComputedSha1": bool(source_entry.get("sha1")),
                 "scriptHasAutoTempFile": "--auto-temp-file" in SCRIPT_PATH.read_text(encoding="utf-8"),

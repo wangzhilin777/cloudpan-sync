@@ -1012,6 +1012,10 @@ function renderAuthList() {
 
     const actions = document.createElement("div");
     actions.className = "row-actions";
+    const authListLabels = {
+      refresh: "Refresh Existing Profile",
+      capture: "Open Capture For Existing Profile",
+    };
     const validateBtn = document.createElement("button");
     validateBtn.className = "ghost";
     validateBtn.textContent = "Validate";
@@ -1022,7 +1026,7 @@ function renderAuthList() {
     editBtn.addEventListener("click", () => fillAuthForm(item));
     const evidenceBtn = document.createElement("button");
     evidenceBtn.className = "ghost";
-    evidenceBtn.textContent = "Refresh Evidence";
+    evidenceBtn.textContent = authListLabels.refresh;
     evidenceBtn.addEventListener("click", () => showAuthEvidence(item));
     const needsCaptureHelp = Boolean(
       (Array.isArray(item.missingFieldHints) && item.missingFieldHints.length)
@@ -1032,7 +1036,7 @@ function renderAuthList() {
     if (needsCaptureHelp) {
       const captureBtn = document.createElement("button");
       captureBtn.className = "ghost";
-      captureBtn.textContent = "Open Capture";
+      captureBtn.textContent = authListLabels.capture;
       captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));
       actions.appendChild(captureBtn);
     }

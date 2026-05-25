@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`授权主列表动作也对齐现成档案语义`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里授权主列表每个现有档案行的 `Refresh Evidence / Open Capture` 动作，推进成明确的 `Refresh Existing Profile / Open Capture For Existing Profile`
+  - 当前效果是：授权主列表既然展示的就是当前仓库里已经存在的档案，用户在这里看到的动作现在也会直接表达“继续围绕现成档案补证据/开抓取指引”，不再和前面已经统一好的 remediation / queue / pending / runtime 入口形成语义断层
+  - 这次补齐把最基础的 auth profile 行级入口也纳入同一套恢复语言体系，继续收紧从档案列表直接回到 `P-REAL` 修复链路时的理解成本
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_profile_actions_ui.py` 已验证授权主列表当前会使用 `Refresh Existing Profile / Open Capture For Existing Profile` 文案，并保留原有 `showAuthEvidence(item)` 与 `openCaptureGuideForProvider(item.providerKey)` 绑定
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`孤儿恢复列表捕获入口也对齐现成档案语义`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Runtime Orphan Recovery` 逐条样本行的 capture 动作，从泛化的 `Open Capture` 推进成在已命中现成 orphan 对应档案时明确使用 `Open Capture For Existing Orphan Profile`

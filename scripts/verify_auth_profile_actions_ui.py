@@ -21,9 +21,11 @@ def main() -> None:
                 and "item.needsSecretRefresh" in app_js
                 and "item.writeReady === false" in app_js
                 and "item.missingFieldHints" in app_js,
-                "jsAuthListHasOpenCaptureAction": 'captureBtn.textContent = "Open Capture"' in app_js
+                "jsAuthListHasOpenCaptureAction": 'capture: "Open Capture For Existing Profile"' in app_js
+                and 'captureBtn.textContent = authListLabels.capture;' in app_js
                 and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));' in app_js,
-                "jsAuthListKeepsEvidenceAction": 'evidenceBtn.textContent = "Refresh Evidence"' in app_js
+                "jsAuthListKeepsEvidenceAction": 'refresh: "Refresh Existing Profile"' in app_js
+                and 'evidenceBtn.textContent = authListLabels.refresh;' in app_js
                 and 'evidenceBtn.addEventListener("click", () => showAuthEvidence(item));' in app_js,
             },
             ensure_ascii=False,

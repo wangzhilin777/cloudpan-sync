@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充网盘状态首个缺口直接补救`
+- 完成范围：
+  - 已把设置页里的 `Provider Status Matrix` 从“只展示 provider 汇总数字和 provider 列表状态”推进成可直接跳转首个 provider 缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在状态矩阵区块下方额外渲染首个未满足 `auth/list/metadata/create_dir/fast_check/live_probe/runtime_track` 条件的 provider
+  - 当前动作会直接复用现有的 `appendProviderRecoveryActions()`；因此当首个 provider 还没达到更完整的状态矩阵条件时，可以直接在这里触发 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture / Create Stub`，不再需要先切到 provider 页或真实证据补救页重新找同一条 provider
+  - 这次补齐把“状态矩阵能看出哪家 provider 还没准备好，但还要自己再跳别的面板找动作”的流程，推进成“看首个缺口 provider -> 直接点动作 -> 继续修”的更短闭环，也让设置页这块更贴近 `M4 / M5 / P-REAL` 的真实推进需要
+  - 已同步补强 [verify_provider_status_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_status_settings_ui.py)，把首个缺口 provider 的识别与 `appendProviderRecoveryActions()` 绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_status_settings_ui.py` 已验证 `Provider Status Matrix` 当前包含首个缺口 provider 识别与恢复动作绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证状态矩阵区复用的 `appendProviderRecoveryActions()` 底层补救链未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充审计首个缺口直接定位`
 - 完成范围：
   - 已把设置页里的 `Audit` 从“只展示 done/partial/todo 与双口径百分比汇总”推进成可直接定位首个未完成里程碑；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 不再只保留 `summary`，还会把 `/api/plan/audit` 返回的 `items` 保存在前端状态里，并在审计区块下方额外渲染首个 `status != done` 的里程碑

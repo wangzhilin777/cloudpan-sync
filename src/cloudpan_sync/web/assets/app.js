@@ -2420,6 +2420,31 @@ function renderSettingsPanel() {
     li.textContent = row;
     providerStatusList.appendChild(li);
   }
+  const firstProviderStatusGap =
+    (state.statusMatrix?.items || []).find(
+      (item) =>
+        !item.auth_ready ||
+        !item.list_ready ||
+        !item.metadata_ready ||
+        !item.create_dir_ready ||
+        !item.fast_check ||
+        !item.live_probe_ok ||
+        (item.task_runtime_blocked || 0) > 0 ||
+        item.task_runtime_track !== "runtime_success"
+    ) || null;
+  if (firstProviderStatusGap) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    copy.textContent = `${firstProviderStatusGap.providerKey || "(unknown)"}: support=${firstProviderStatusGap.supportStatus || "unknown"}, auth=${Boolean(firstProviderStatusGap.auth_ready)}, list=${Boolean(firstProviderStatusGap.list_ready)}, metadata=${Boolean(firstProviderStatusGap.metadata_ready)}, create_dir=${Boolean(firstProviderStatusGap.create_dir_ready)}, fast_check=${Boolean(firstProviderStatusGap.fast_check)}, live_probe_ok=${Boolean(firstProviderStatusGap.live_probe_ok)}, runtime_track=${firstProviderStatusGap.task_runtime_track || "runtime_planned"}, blocked=${firstProviderStatusGap.task_runtime_blocked || 0}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    appendProviderRecoveryActions(actions, firstProviderStatusGap.providerKey);
+    if (actions.childNodes.length > 0) {
+      li.appendChild(actions);
+    }
+    providerStatusList.appendChild(li);
+  }
 
   const localAdapterSummary = state.localLiveAdapterVerification?.summary || {};
   const localAdapterItems = state.localLiveAdapterVerification?.items || [];

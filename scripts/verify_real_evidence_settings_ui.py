@@ -21,10 +21,10 @@ def main() -> None:
                 "jsHasRealEvidenceLoader": 'async function loadRealEvidenceSummary()' in app_js and 'fetchJson("/api/real_evidence")' in app_js,
                 "jsRefreshProtectedDataLoadsRealEvidence": 'loadRealEvidenceSummary(),' in app_js,
                 "jsHasRealEvidenceFirstGapActions": 'const firstRealEvidenceGap = (state.realEvidenceRemediation?.items || []).find((item) => item?.nextStep) || null;' in app_js
-                and 'focusBtn.textContent = "Focus First Gap"' in app_js
-                and 'refreshBtn.textContent = "Refresh First Gap"' in app_js
-                and 'probeBtn.textContent = "Run First Probe"' in app_js
-                and 'captureBtn.textContent = "Open Capture First Gap"' in app_js
+                and 'focus: firstGapHasProfile ? "Focus Existing Profile" : "Focus First Gap"' in app_js
+                and 'refresh: firstGapHasProfile ? "Refresh Existing Profile" : "Refresh First Gap"' in app_js
+                and 'probe: firstGapHasProfile ? "Probe Existing Profile" : "Run First Probe"' in app_js
+                and 'capture: firstGapHasProfile ? "Open Capture For Existing Profile" : "Open Capture First Gap"' in app_js
                 and 'createBtn.textContent = "Create Stub First Gap"' in app_js
                 and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(profileId));' in app_js
                 and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(profileId));' in app_js

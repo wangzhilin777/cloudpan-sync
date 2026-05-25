@@ -1133,6 +1133,30 @@ async function loadRealEvidenceRemediationSummary() {
   renderSettingsPanel();
 }
 
+async function createRemediationProfile(providerKey) {
+  const data = await fetchJson("/api/real_evidence_remediation/create_profile", {
+    method: "POST",
+    body: JSON.stringify({ providerKey }),
+  });
+  setAuthValidationSummary(data, "Remediation Stub");
+  await Promise.all([
+    loadAuthProfiles(),
+    loadRealEvidenceRemediationSummary(),
+    loadAuthEvidenceBundleSummary(),
+    loadAuthRemediationSummary(),
+    loadLiveValidations(),
+    loadStatusMatrix(),
+  ]);
+  const profile = data?.item || null;
+  const createdProfileId = profile?.profileId || "";
+  const createdProfile = (state.authProfiles || []).find((item) => item.profileId === createdProfileId);
+  if (createdProfile) {
+    fillAuthForm(createdProfile);
+    state.activeTab = "nav.auth";
+    render();
+  }
+}
+
 async function loadRuntimeOrphanRecoverySummary() {
   if (!state.loggedIn) {
     return;
@@ -2112,7 +2136,19 @@ function renderSettingsPanel() {
     const loginUrl = item.webLoginUrl || item.officialDocsUrl || "";
     const fieldHints = (item.requiredFieldHints || []).slice(0, 2).join(" | ");
     const placeholderSecretHints = (item.placeholderSecretFieldHints || []).join("/") || "";
-    li.textContent = `${item.providerKey || "(unknown)"}: profiles=${item.profileCount || 0}, authModes=${authModes}, nextStep=${item.nextStep}, blockedOnly=${Boolean(item.runtimeBlockedOnly)}, candidateOnly=${Boolean(item.runtimeCandidateOnly)}, probeOnly=${Boolean(item.runtimeProbeOnly)}, runtimeOrphanOnly=${Boolean(item.runtimeOrphanOnly)}, needsSecretRefresh=${Boolean(item.needsSecretRefresh)}, conflictDeclared=${(item.declaredConflictPolicies || []).join("/") || "(none)"}, overwriteSupport=${item.overwriteSupportStatus || "unknown"}, autoRenameSupport=${item.autoRenameSupportStatus || "unknown"}, overwriteBehavior=${item.overwriteBehavior || "unknown"}${loginUrl ? `, login=${loginUrl}` : ""}${fieldHints ? `, hints=${fieldHints}` : ""}${placeholderSecretHints ? `, placeholderSecretHints=${placeholderSecretHints}` : ""}${(item.runtimeOrphanProfiles || []).length ? `, runtimeOrphanProfiles=${(item.runtimeOrphanProfiles || []).join("/")}` : ""}${item.providerConflictNotes ? `, providerConflictNotes=${item.providerConflictNotes}` : ""}${item.recommendedPrimaryCommand ? `, primary=${item.recommendedPrimaryCommand}` : ""}${item.recommendedPrimaryCommandLabel ? `, primaryLabel=${item.recommendedPrimaryCommandLabel}` : ""}${item.recommendedCreateCommand ? `, create=${item.recommendedCreateCommand}` : ""}${item.recommendedBootstrapCommand ? `, bootstrap=${item.recommendedBootstrapCommand}` : ""}${item.recommendedPatchCommand ? `, patch=${item.recommendedPatchCommand}` : ""}${item.recommendedPatchProbeCommand ? `, patchProbe=${item.recommendedPatchProbeCommand}` : ""}${item.recommendedRecreateProbeCommand ? `, recreateProbe=${item.recommendedRecreateProbeCommand}` : ""}${item.recommendedRefreshEvidenceCommand ? `, refresh=${item.recommendedRefreshEvidenceCommand}` : ""}${item.recommendedPostRefreshRuntimeCommand ? `, postRefreshRuntime=${item.recommendedPostRefreshRuntimeCommand}` : ""}${item.recommendedRuntimeProbeCommand ? `, runtime=${item.recommendedRuntimeProbeCommand}` : ""}${item.recommendedLiveUploadCommand ? `, liveUpload=${item.recommendedLiveUploadCommand}` : ""}${item.recommendedFastCandidateCommand ? `, fastCandidate=${item.recommendedFastCandidateCommand}` : ""}${item.recommendedRuntimeSuccessCommand ? `, runtimeSuccess=${item.recommendedRuntimeSuccessCommand}` : ""}${item.recommendedPostBootstrapRuntimeCommand ? `, postBootstrapRuntime=${item.recommendedPostBootstrapRuntimeCommand}` : ""}${item.recommendedOverwriteVariantCommand ? `, overwriteVariant=${item.recommendedOverwriteVariantCommand}` : ""}${item.conflictPolicyNote ? `, conflictPolicyNote=${item.conflictPolicyNote}` : ""}`;
+    const copy = document.createElement("span");
+    copy.textContent = `${item.providerKey || "(unknown)"}: profiles=${item.profileCount || 0}, authModes=${authModes}, nextStep=${item.nextStep}, blockedOnly=${Boolean(item.runtimeBlockedOnly)}, candidateOnly=${Boolean(item.runtimeCandidateOnly)}, probeOnly=${Boolean(item.runtimeProbeOnly)}, runtimeOrphanOnly=${Boolean(item.runtimeOrphanOnly)}, needsSecretRefresh=${Boolean(item.needsSecretRefresh)}, conflictDeclared=${(item.declaredConflictPolicies || []).join("/") || "(none)"}, overwriteSupport=${item.overwriteSupportStatus || "unknown"}, autoRenameSupport=${item.autoRenameSupportStatus || "unknown"}, overwriteBehavior=${item.overwriteBehavior || "unknown"}${loginUrl ? `, login=${loginUrl}` : ""}${fieldHints ? `, hints=${fieldHints}` : ""}${placeholderSecretHints ? `, placeholderSecretHints=${placeholderSecretHints}` : ""}${(item.runtimeOrphanProfiles || []).length ? `, runtimeOrphanProfiles=${(item.runtimeOrphanProfiles || []).join("/")}` : ""}${item.providerConflictNotes ? `, providerConflictNotes=${item.providerConflictNotes}` : ""}${item.recommendedPrimaryCommand ? `, primary=${item.recommendedPrimaryCommand}` : ""}${item.recommendedPrimaryCommandLabel ? `, primaryLabel=${item.recommendedPrimaryCommandLabel}` : ""}${item.recommendedCreateCommand ? `, create=${item.recommendedCreateCommand}` : ""}${item.recommendedBootstrapCommand ? `, bootstrap=${item.recommendedBootstrapCommand}` : ""}${item.recommendedPatchCommand ? `, patch=${item.recommendedPatchCommand}` : ""}${item.recommendedPatchProbeCommand ? `, patchProbe=${item.recommendedPatchProbeCommand}` : ""}${item.recommendedRecreateProbeCommand ? `, recreateProbe=${item.recommendedRecreateProbeCommand}` : ""}${item.recommendedRefreshEvidenceCommand ? `, refresh=${item.recommendedRefreshEvidenceCommand}` : ""}${item.recommendedPostRefreshRuntimeCommand ? `, postRefreshRuntime=${item.recommendedPostRefreshRuntimeCommand}` : ""}${item.recommendedRuntimeProbeCommand ? `, runtime=${item.recommendedRuntimeProbeCommand}` : ""}${item.recommendedLiveUploadCommand ? `, liveUpload=${item.recommendedLiveUploadCommand}` : ""}${item.recommendedFastCandidateCommand ? `, fastCandidate=${item.recommendedFastCandidateCommand}` : ""}${item.recommendedRuntimeSuccessCommand ? `, runtimeSuccess=${item.recommendedRuntimeSuccessCommand}` : ""}${item.recommendedPostBootstrapRuntimeCommand ? `, postBootstrapRuntime=${item.recommendedPostBootstrapRuntimeCommand}` : ""}${item.recommendedOverwriteVariantCommand ? `, overwriteVariant=${item.recommendedOverwriteVariantCommand}` : ""}${item.conflictPolicyNote ? `, conflictPolicyNote=${item.conflictPolicyNote}` : ""}`;
+    li.appendChild(copy);
+    if (item.recommendedCreateCommand) {
+      const actions = document.createElement("span");
+      actions.className = "row-actions";
+      const createBtn = document.createElement("button");
+      createBtn.className = "ghost";
+      createBtn.textContent = "Create Stub";
+      createBtn.addEventListener("click", () => createRemediationProfile(item.providerKey));
+      actions.appendChild(createBtn);
+      li.appendChild(actions);
+    }
     realEvidenceRemediationList.appendChild(li);
   }
 

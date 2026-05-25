@@ -112,6 +112,10 @@ class RuntimeOrphanRecreateRequest(BaseModel):
     orphanProfileId: str
 
 
+class RemediationCreateProfileRequest(BaseModel):
+    providerKey: str
+
+
 class TaskCreateRequest(BaseModel):
     sourceProvider: str
     targetProvider: str

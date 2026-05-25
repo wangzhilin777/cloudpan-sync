@@ -10,6 +10,22 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充补救面板一键创建档案`
+- 完成范围：
+  - 已补齐 `Real Evidence Remediation` 的应用内创建动作；这次补齐后，[real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 不再只会为 `noProfiles` provider 输出 `recommendedCreateCommand / recommendedBootstrapCommand`，还可以直接在应用侧按 `providerKey` 创建一个 placeholder auth stub
+  - 当前创建链会按 provider 自动带出最小占位字段：例如 `aliyundrive_open` 会预填 `YOUR_TOKEN + domainId + driveId`，`quark / uc` 会预填 `YOUR_COOKIE + pwdId`，`189cloud` 会预填 `shareCode / accessCode / accessToken / signature / date` 等必需占位项，避免“创建后还是空白表单”
+  - [webapp.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/webapp.py) 现已新增 `POST /api/real_evidence_remediation/create_profile`，登录后可直接从设置页补救面板触发创建；若当前 provider 已经存在保存档案，接口会诚实返回 `already_exists`，不会重复写入第二份同类 stub
+  - 设置页 `Real Evidence Remediation` 面板现已从“只展示 create 命令”推进成“可直接点按钮创建”；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会为带 `recommendedCreateCommand` 的 provider 渲染 `Create Stub` 按钮，点击后直接调 `/api/real_evidence_remediation/create_profile`，刷新 auth/remediation/status 摘要，并自动切到授权页把新建的档案载入表单
+  - 这次补齐后，`Real Evidence Remediation` 与前一轮的 `Runtime Orphan Recovery` 形成了两条应用内恢复闭环：`noProfiles -> Create Stub -> 补真凭证`，`runtimeOrphan -> Recreate Stub -> 补真凭证`，不再只停留在 shell 命令层
+  - 已新增 [verify_real_evidence_remediation_create_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_api.py)，并同步补强 [verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)，把匿名拦截、创建 stub、重复调用 `already_exists`、设置页按钮和前端绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_api.py` 已验证匿名访问 `/api/real_evidence_remediation/create_profile` 会被拦截，登录后可直接为 `aliyundrive_open` 创建 placeholder stub，且会保留 `domainId / driveId` 占位字段；重复调用则返回 `already_exists`
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证设置页当前包含 `createRemediationProfile()`、`/api/real_evidence_remediation/create_profile` 调用与 `Create Stub` 按钮绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证原有 remediation bundle/API/Markdown 口径未回退，`recommendedCreateCommand / recommendedBootstrapCommand / recommendedPrimaryCommand` 等字段仍保持同步
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充运行样本脱节一键重建`
 - 完成范围：
   - 已补齐应用侧恢复动作；这次补齐后，[runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 不再只会汇总 `runtime_orphan` 样本和给出 shell 命令，还能直接按 `providerKey + orphanProfileId` 重建一个带原 `profileId` 的 placeholder auth stub

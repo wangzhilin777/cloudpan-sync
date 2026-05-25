@@ -43,7 +43,7 @@ from .baidu_netdisk_live import fetch_baidu_create_dir, fetch_baidu_live_list, f
 from .auth import build_session_token, verify_session_token
 from .config import ADMIN_PASSWORD, SESSION_COOKIE
 from .i18n import MESSAGES, messages_for
-from .models import AuthLiveValidateRequest, AuthProfileInput, CaptureParseRequest, ConflictPolicy, RuntimeOrphanRecreateRequest, SourceEntry
+from .models import AuthLiveValidateRequest, AuthProfileInput, CaptureParseRequest, ConflictPolicy, RemediationCreateProfileRequest, RuntimeOrphanRecreateRequest, SourceEntry
 from .models import TaskActionRequest, TaskCreateRequest
 from .pan115_open_live import fetch_115_open_create_folder, fetch_115_open_live_list, fetch_115_open_live_metadata
 from .pan123_open_live import fetch_123_open_create_folder, fetch_123_open_live_list, fetch_123_open_live_metadata
@@ -64,7 +64,7 @@ from .local_live_adapter_verification import (
     local_live_adapter_verification_to_markdown,
 )
 from .provider_status_matrix import build_status_matrix, matrix_to_markdown
-from .real_evidence_remediation import build_real_evidence_remediation_bundle, real_evidence_remediation_to_markdown
+from .real_evidence_remediation import build_real_evidence_remediation_bundle, create_remediation_profile, real_evidence_remediation_to_markdown
 from .real_evidence_report import build_real_evidence_report, real_evidence_to_markdown
 from .provider_live_probe import run_provider_live_probe
 from .provider_live_probe_store import (
@@ -342,6 +342,18 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=401, detail="please_login_first")
         bundle = build_real_evidence_remediation_bundle()
         return {"markdown": real_evidence_remediation_to_markdown(bundle)}
+
+    @app.post("/api/real_evidence_remediation/create_profile")
+    def real_evidence_remediation_create_profile(payload: RemediationCreateProfileRequest, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        result = create_remediation_profile(payload.providerKey)
+        if not bool(result.get("ok")):
+            error = str(result.get("error") or "real_evidence_remediation_create_failed")
+            if error == "provider_not_found":
+                raise HTTPException(status_code=404, detail=error)
+            raise HTTPException(status_code=400, detail=error)
+        return result
 
     @app.get("/api/task_runtime_evidence")
     def task_runtime_evidence(request: Request) -> dict[str, object]:

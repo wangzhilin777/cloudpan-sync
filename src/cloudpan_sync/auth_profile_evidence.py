@@ -138,6 +138,38 @@ def build_auth_evidence_bundle(
         build_auth_profile_evidence(profile=profile, profile_view=profile_view_builder(profile))
         for profile in profiles
     ]
+    profile_ready_profiles = sorted(
+        {
+            str(((item.get("profile") or {}).get("displayName") or (item.get("profile") or {}).get("profileId") or ""))
+            for item in items
+            if bool((item.get("summary") or {}).get("profileReady"))
+            and str(((item.get("profile") or {}).get("displayName") or (item.get("profile") or {}).get("profileId") or ""))
+        }
+    )
+    write_ready_profiles = sorted(
+        {
+            str(((item.get("profile") or {}).get("displayName") or (item.get("profile") or {}).get("profileId") or ""))
+            for item in items
+            if bool((item.get("summary") or {}).get("writeReady", True))
+            and str(((item.get("profile") or {}).get("displayName") or (item.get("profile") or {}).get("profileId") or ""))
+        }
+    )
+    validation_ok_profiles = sorted(
+        {
+            str(((item.get("profile") or {}).get("displayName") or (item.get("profile") or {}).get("profileId") or ""))
+            for item in items
+            if bool((item.get("summary") or {}).get("validationOk"))
+            and str(((item.get("profile") or {}).get("displayName") or (item.get("profile") or {}).get("profileId") or ""))
+        }
+    )
+    probe_ok_profiles = sorted(
+        {
+            str(((item.get("profile") or {}).get("displayName") or (item.get("profile") or {}).get("profileId") or ""))
+            for item in items
+            if bool((item.get("summary") or {}).get("probeOk"))
+            and str(((item.get("profile") or {}).get("displayName") or (item.get("profile") or {}).get("profileId") or ""))
+        }
+    )
     return {
         "summary": {
             "profileCount": len(items),
@@ -145,6 +177,10 @@ def build_auth_evidence_bundle(
             "writeReadyCount": sum(1 for item in items if bool((item.get("summary") or {}).get("writeReady", True))),
             "validationOkCount": sum(1 for item in items if bool((item.get("summary") or {}).get("validationOk"))),
             "probeOkCount": sum(1 for item in items if bool((item.get("summary") or {}).get("probeOk"))),
+            "profileReadyProfiles": profile_ready_profiles,
+            "writeReadyProfiles": write_ready_profiles,
+            "validationOkProfiles": validation_ok_profiles,
+            "probeOkProfiles": probe_ok_profiles,
         },
         "items": items,
     }
@@ -191,6 +227,12 @@ def auth_evidence_bundle_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- writeReadyCount: `{summary.get('writeReadyCount', 0)}`")
     lines.append(f"- validationOkCount: `{summary.get('validationOkCount', 0)}`")
     lines.append(f"- probeOkCount: `{summary.get('probeOkCount', 0)}`")
+    lines.append(
+        f"- profileSummary: `profileReady={', '.join(summary.get('profileReadyProfiles', [])) or '(none)'}` "
+        f"`writeReady={', '.join(summary.get('writeReadyProfiles', [])) or '(none)'}` "
+        f"`validationOk={', '.join(summary.get('validationOkProfiles', [])) or '(none)'}` "
+        f"`probeOk={', '.join(summary.get('probeOkProfiles', [])) or '(none)'}`"
+    )
     lines.append("")
     lines.append("## Profiles")
     lines.append("")

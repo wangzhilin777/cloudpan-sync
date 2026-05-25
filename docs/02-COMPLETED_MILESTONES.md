@@ -12,6 +12,20 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_evidence.py) 的证据 bundle 汇总现已继续补齐 `profileReadyProfiles / writeReadyProfiles / validationOkProfiles / probeOkProfiles` 聚合明细，不再只返回 `profileReadyCount / writeReadyCount / validationOkCount / probeOkCount`
+  - 这次补齐后，[08-AUTH_EVIDENCE_BUNDLE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/08-AUTH_EVIDENCE_BUNDLE.md) 现在会在顶部额外写出 `profileSummary` 行，直接汇总当前哪些 profile 已准备好、哪些 profile 已具备写盘条件、哪些 profile 已通过校验或探测；当前真实仓库会明确显示 `profileReady=(none)`、`writeReady=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya`、`validationOk=(none)`、`probeOk=(none)`
+  - 已同步补强 [verify_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_evidence_bundle.py)、[verify_export_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_evidence_bundle.py)、[verify_current_auth_evidence_bundle_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_evidence_bundle_sync.py)，把 API bundle、导出 markdown 和当前仓库文档中的 `profileSummary` 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_evidence_bundle.py` 已验证 synthetic API/bundle 当前会输出 `profileSummary`，并区分 `profileReady / writeReady / validationOk / probeOk`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_auth_evidence_bundle.py` 已验证导出的授权证据档案会写出 `profileSummary`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_auth_evidence_bundle_sync.py` 已验证当前仓库文档中的 `profileSummary` 与 `build_auth_evidence_bundle()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\export_auth_evidence_bundle.py` 已重导出当前 [08-AUTH_EVIDENCE_BUNDLE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/08-AUTH_EVIDENCE_BUNDLE.md)
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [provider_live_probe_store.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/provider_live_probe_store.py) 的 summary 现已继续补齐 `okProfiles / failedProfiles`，不再只返回 `profileCount / okCount / failedCount / providerKeys`
   - [live_probe.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/live_probe.py) 生成的 [05-PROVIDER_LIVE_PROBE_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/05-PROVIDER_LIVE_PROBE_REPORT.md) 现在会额外写出 `profileProbeProfiles` 聚合行，直接汇总当前 `profile_probe` 成功/失败对应的 profile；当前真实仓库已明确显示 `ok=(none)` 与 `failed=22173a49-2206-4da8-8624-9bab7bbbe64b, gy-patch-probe-1`
   - 已同步补强 [verify_export_live_probe_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_live_probe_report.py)、[verify_live_probe_provider_summary_alignment.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_live_probe_provider_summary_alignment.py)、新增 [verify_current_live_probe_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_live_probe_report_sync.py)，并把 [verify_live_result_list_apis.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_live_result_list_apis.py)、[verify_auth_live_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_live_validation.py) 的 probe summary 断言一起补到 `okProfiles / failedProfiles`

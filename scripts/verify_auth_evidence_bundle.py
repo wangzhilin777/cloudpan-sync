@@ -136,7 +136,12 @@ def main() -> None:
                 {
                     "summary": bundle.get("summary", {}),
                     "apiProfileCount": ((api_bundle.get("summary") or {}).get("profileCount")),
+                    "apiProfileSummaryReadyProfiles": (api_bundle.get("summary") or {}).get("profileReadyProfiles"),
+                    "apiProfileSummaryWriteReadyProfiles": (api_bundle.get("summary") or {}).get("writeReadyProfiles"),
+                    "apiProfileSummaryValidationOkProfiles": (api_bundle.get("summary") or {}).get("validationOkProfiles"),
+                    "apiProfileSummaryProbeOkProfiles": (api_bundle.get("summary") or {}).get("probeOkProfiles"),
                     "apiMarkdownHasTitle": "# Auth Evidence Bundle" in str(api_markdown.get("markdown", "")),
+                    "apiMarkdownHasProfileSummary": "profileSummary:" in str(api_markdown.get("markdown", "")) and "`writeReady=gy-missing, gy-ok`" in str(api_markdown.get("markdown", "")),
                     "markdownHasMissingProfile": "gy-missing" in markdown,
                 },
                 ensure_ascii=False,

@@ -5,6 +5,7 @@
 - writeReadyCount: `3`
 - validationOkCount: `0`
 - probeOkCount: `0`
+- profileSummary: `profileReady=(none)` `writeReady=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya` `validationOk=(none)` `probeOk=(none)`
 
 ## Profiles
 

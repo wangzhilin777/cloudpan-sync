@@ -29,6 +29,10 @@ def main() -> None:
             "writeReadyCount": 1,
             "validationOkCount": 1,
             "probeOkCount": 1,
+            "profileReadyProfiles": ["Guangya Primary"],
+            "writeReadyProfiles": ["Guangya Primary"],
+            "validationOkProfiles": ["Guangya Primary"],
+            "probeOkProfiles": ["Guangya Primary"],
         },
         "items": [
             {
@@ -116,7 +120,8 @@ def main() -> None:
                 and "- profileReadyCount: `1`" in markdown
                 and "- writeReadyCount: `1`" in markdown
                 and "- validationOkCount: `1`" in markdown
-                and "- probeOkCount: `1`" in markdown,
+                and "- probeOkCount: `1`" in markdown
+                and "- profileSummary: `profileReady=Guangya Primary` `writeReady=Guangya Primary` `validationOk=Guangya Primary` `probeOk=Guangya Primary`" in markdown,
                 "exportedHasGuangyaProfile": "### Guangya Primary [guangya]" in markdown
                 and "- profileId: `gy-1`" in markdown
                 and "- resolvedParentId: `root-gy`" in markdown

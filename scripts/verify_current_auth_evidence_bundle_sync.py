@@ -28,6 +28,7 @@ def main() -> None:
                     and f"- writeReadyCount: `{summary.get('writeReadyCount', 0)}`" in markdown
                     and f"- validationOkCount: `{summary.get('validationOkCount', 0)}`" in markdown
                     and f"- probeOkCount: `{summary.get('probeOkCount', 0)}`" in markdown
+                    and f"- profileSummary: `profileReady={', '.join(summary.get('profileReadyProfiles', [])) or '(none)'}` `writeReady={', '.join(summary.get('writeReadyProfiles', [])) or '(none)'}` `validationOk={', '.join(summary.get('validationOkProfiles', [])) or '(none)'}` `probeOk={', '.join(summary.get('probeOkProfiles', [])) or '(none)'}`" in markdown
                 ),
                 "summaryShowsExpectedAuthEvidenceCounts": (
                     summary.get("profileCount") == 3
@@ -35,6 +36,10 @@ def main() -> None:
                     and summary.get("writeReadyCount") == 3
                     and summary.get("validationOkCount") == 0
                     and summary.get("probeOkCount") == 0
+                    and summary.get("profileReadyProfiles") == []
+                    and summary.get("writeReadyProfiles") == ["aliyun-bootstrap", "risk-smoke-guangya", "smoke-guangya"]
+                    and summary.get("validationOkProfiles") == []
+                    and summary.get("probeOkProfiles") == []
                 ),
                 "hasSmokeGuangyaProfile": (
                     "### smoke-guangya [guangya]" in markdown

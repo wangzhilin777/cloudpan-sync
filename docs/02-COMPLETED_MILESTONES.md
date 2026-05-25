@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补救已存在档案时留在当前续做面板`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里的 `createRemediationProfile()` 从“无论 `stub_created` 还是 `already_exists` 都自动跳去授权页并填表”推进成只在真正新建 stub 时才切到 `Auth`
+  - 对于我们这几轮刚补齐的 `already_exists` 续做命令链，现在前端会把返回结果存进 `state.lastRemediationAction`，并在设置页 `Real Evidence Remediation` 区域新增最近一次动作摘要，直接承接 `refresh / runtimeProbe / runtimeSuccess / overwriteVariant` 这些 follow-up，而不是再次强制把人带离当前面板
+  - 当前效果是：从 `M4 / M5 / P-REAL` 相关缺口列表里点 `Create Stub`，如果命中的是“当前仓库已存在 profile”，用户会继续停留在当前设置页上下文里，同时仍然可以直接点 `Focus / Refresh / Probe / Open Capture` 这些动作，减少围绕同一 provider 的来回切页
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_followup_ui.py` 已验证前端当前会记录 `state.lastRemediationAction`、仅在 `data.created === true` 时自动跳转，并在设置页保留 `Latest Stub` 一组续做按钮
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证 `Real Evidence Remediation` 面板原有摘要、命令展示与动作绑定未回退
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`清理补救建档回归残留进程`
 - 完成范围：
   - 已把 [verify_real_evidence_remediation_create_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_api.py) 的 `TestClient` 生命周期从裸实例改成上下文托管，避免脚本在临时数据目录里跑完后还残留项目 `.venv` `python` 解释器进程

@@ -42,6 +42,7 @@ const state = {
   realEvidenceReport: null,
   realEvidenceSummary: null,
   realEvidenceRemediation: null,
+  lastRemediationAction: null,
   authProfiles: [],
   authEditingProfileId: "",
   liveValidations: [],
@@ -1243,6 +1244,7 @@ async function createRemediationProfile(providerKey) {
     method: "POST",
     body: JSON.stringify({ providerKey }),
   });
+  state.lastRemediationAction = data;
   setAuthValidationSummary(data, "Remediation Stub");
   await Promise.all([
     loadAuthProfiles(),
@@ -1258,7 +1260,7 @@ async function createRemediationProfile(providerKey) {
   const profile = data?.item || null;
   const createdProfileId = profile?.profileId || "";
   const createdProfile = (state.authProfiles || []).find((item) => item.profileId === createdProfileId);
-  if (createdProfile) {
+  if (data?.created === true && createdProfile) {
     fillAuthForm(createdProfile);
     state.activeTab = "nav.auth";
     render();
@@ -2804,6 +2806,44 @@ function renderSettingsPanel() {
 
   const remediationSummary = state.realEvidenceRemediation?.summary || {};
   const remediationItems = state.realEvidenceRemediation?.items || [];
+  const lastRemediationAction = state.lastRemediationAction || null;
+  if (lastRemediationAction?.status) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    const latestProfile = lastRemediationAction.item || null;
+    copy.textContent = `latestRemediationAction=${lastRemediationAction.status || "(unknown)"}, provider=${latestProfile?.providerKey || "(unknown)"}, profileId=${latestProfile?.profileId || "(none)"}, nextStep=${lastRemediationAction.nextStep || "(none)"}${lastRemediationAction.recommendedRefreshEvidenceCommand ? `, refresh=${lastRemediationAction.recommendedRefreshEvidenceCommand}` : ""}${lastRemediationAction.recommendedRuntimeProbeCommand ? `, runtimeProbe=${lastRemediationAction.recommendedRuntimeProbeCommand}` : ""}${lastRemediationAction.recommendedRuntimeSuccessCommand ? `, runtimeSuccess=${lastRemediationAction.recommendedRuntimeSuccessCommand}` : ""}${lastRemediationAction.recommendedOverwriteVariantCommand ? `, overwriteVariant=${lastRemediationAction.recommendedOverwriteVariantCommand}` : ""}`;
+    li.appendChild(copy);
+    if (latestProfile?.profileId || latestProfile?.providerKey) {
+      const actions = document.createElement("span");
+      actions.className = "row-actions";
+      if (latestProfile?.profileId) {
+        const focusBtn = document.createElement("button");
+        focusBtn.className = "ghost";
+        focusBtn.textContent = "Focus Latest Stub";
+        focusBtn.addEventListener("click", () => focusAuthRemediationProfile(latestProfile.profileId));
+        actions.appendChild(focusBtn);
+        const refreshBtn = document.createElement("button");
+        refreshBtn.className = "ghost";
+        refreshBtn.textContent = "Refresh Latest Stub";
+        refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(latestProfile.profileId));
+        actions.appendChild(refreshBtn);
+        if (liveProbeProviderSet.has(latestProfile.providerKey)) {
+          const probeBtn = document.createElement("button");
+          probeBtn.className = "ghost";
+          probeBtn.textContent = "Probe Latest Stub";
+          probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(latestProfile.profileId));
+          actions.appendChild(probeBtn);
+        }
+      }
+      const captureBtn = document.createElement("button");
+      captureBtn.className = "ghost";
+      captureBtn.textContent = "Open Capture For Latest Stub";
+      captureBtn.addEventListener("click", () => openCaptureGuideForProvider(latestProfile?.providerKey || ""));
+      actions.appendChild(captureBtn);
+      li.appendChild(actions);
+    }
+    realEvidenceRemediationList.appendChild(li);
+  }
   const remediationRows = [
     `providers=${remediationSummary.providerCount || 0}, noProfiles=${remediationSummary.providersWithNoProfiles || 0}, createCommands=${remediationSummary.providersWithCreateCommand || 0}, bootstrapCommands=${remediationSummary.providersWithBootstrapCommand || 0}, patchCommands=${remediationSummary.providersWithPatchCommand || 0}, patchProbeCommands=${remediationSummary.providersWithPatchProbeCommand || 0}, recreateProbeCommands=${remediationSummary.providersWithRecreateProbeCommand || 0}, refreshEvidenceCommands=${remediationSummary.providersWithRefreshEvidenceCommand || 0}, postRefreshRuntimeCommands=${remediationSummary.providersWithPostRefreshRuntimeCommand || 0}, runtimeProbeCommands=${remediationSummary.providersWithRuntimeProbeCommand || 0}, liveUploadCommands=${remediationSummary.providersWithLiveUploadCommand || 0}, fastCandidateCommands=${remediationSummary.providersWithFastCandidateCommand || 0}, runtimeSuccessCommands=${remediationSummary.providersWithRuntimeSuccessCommand || 0}, postBootstrapRuntimeCommands=${remediationSummary.providersWithPostBootstrapRuntimeCommand || 0}, primaryCommands=${remediationSummary.providersWithPrimaryCommand || 0}, overwriteVariantCommands=${remediationSummary.providersWithOverwriteVariantCommand || 0}, conflictPolicyNotes=${remediationSummary.providersWithConflictPolicyNote || 0}, declaredConflictPolicies=${remediationSummary.providersWithDeclaredConflictPolicies || 0}, directOverwrite=${remediationSummary.providersWithProviderManagedOverwrite || 0}, overwriteDowngrade=${remediationSummary.providersWithOverwriteDowngrade || 0}, conflictUnsupported=${remediationSummary.providersWithConflictUnsupported || 0}, blockedOnly=${remediationSummary.providersBlockedOnly || 0}, candidateOnly=${remediationSummary.providersCandidateOnly || 0}, probeOnly=${remediationSummary.providersProbeOnly || 0}`,
     `needAuth=${remediationSummary.providersNeedingAuthEvidence || 0}, needList=${remediationSummary.providersNeedingListEvidence || 0}, needMetadata=${remediationSummary.providersNeedingMetadataEvidence || 0}, needCreateDir=${remediationSummary.providersNeedingCreateDirEvidence || 0}, needRuntime=${remediationSummary.providersNeedingRuntimeSuccess || 0}`,

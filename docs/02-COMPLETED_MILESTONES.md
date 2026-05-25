@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增独立导出验证脚本 [verify_export_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_evidence_bundle.py)，把 `08-AUTH_EVIDENCE_BUNDLE.md` 的摘要统计、profile 行、鉴权缺口提示、写阻断说明与 latest validation/probe 摘要锁进回归
+  - 当前 auth evidence bundle 导出链现在也具备与 `auth live validation / live probe / plan audit / provider status / real evidence / task runtime` 同级的独立 export verifier，不再只靠人工打开 Markdown 对账
+  - 这条验证同时覆盖“可写成功档案”和“只读受阻档案”两类代表性场景，避免导出链只锁 happy path
+- 当前验证证据：
+  - [verify_export_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_evidence_bundle.py) 已验证导出文件包含 `profileCount / profileReadyCount / writeReadyCount / validationOkCount / probeOkCount`
+  - 同一验证已锁住 `guangya` 的 ready profile 行，以及 `189cloud` 的 `missingFieldHints / writeMissingFieldHints / writeBlockerNote / latestValidation / latestProbe`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - `export_auth_live_validation_report.py` 现已统一使用模块级 `ROOT` 输出 `docs/03-AUTH_LIVE_VALIDATION_REPORT.md`，不再在 `main()` 内重复按 `__file__` 计算根目录；这样和其余导出脚本保持一致，也能被临时目录 verifier 稳定接管
   - 已新增独立导出验证脚本 [verify_export_auth_live_validation_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_live_validation_report.py)，把 auth live validation 导出链的标题、摘要、Latest By Profile 和 Recent History 关键字段锁进回归
   - 当前 auth live validation 报告导出链现在也具备与 `plan audit / provider status / real evidence / task runtime / live probe` 同级的独立 export verifier

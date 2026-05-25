@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/verify_current_real_evidence_status_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_status_sync.py) 已继续补强，不再只校验 [docs/10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 的 `task_runtime / runtime_samples / runtime_success / runtime_conflict_handled` 汇总口径
+  - 这条 current-sync verifier 现在还会继续锁住 `task_runtime_failed / task_runtime_candidate / task_runtime_probe / runtime_failed / runtime_candidate / runtime_probe / runtime_blocked_providers / runtime_blocked` 这些更容易漂移的真实证据字段，防止 `P-REAL` 状态摘要只更新一半
+  - 同一条回归当前还会逐 provider 核对 `guangya / uc / pikpak` 仍保持 `samples=1 success=1` 的 runtime 成功样本口径，以及 `115_open / 189cloud / xunlei / aliyundrive_open / quark / baidu_netdisk / 123_open` 这些 provider 仍然诚实保持 `samples=0 success=0 ...` 和“当前尚未记录到任务运行阶段真实成功样本”的未完成提示
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_status_sync.py` 已验证 `docs/10-REAL_EVIDENCE_STATUS.md` 当前不仅 summary 统计与 `build_real_evidence_report()` 一致，provider 级 runtime 成功/未成功分布与 TODO 提示文案也保持同步
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 里的待处理区现已从普通标题 + 列表改成真实 `details/summary` 折叠结构，新增 `pendingDetails / pendingSummary / pendingFoldHint / pendingSummaryMeta / pending-fold-body`，终于把计划文档 UI smoke 里的 `待处理折叠` 真正落成页面能力
   - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 现会继续绑定 `panel.pending.fold_hint` 文案，并在 `renderPendingList()` 里根据当前 `state.tasks` 实时刷新 `tasks=... , pending=...` 摘要；没有待处理项时会自动折起，有待处理项时自动展开
   - [app.css](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.css) 也已补上 `pending-fold` 样式与 `展开 / 收起` 状态文案；[i18n.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/i18n.py) 同步新增 `panel.pending.fold_hint` 的中英文文案

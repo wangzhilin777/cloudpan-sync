@@ -31,6 +31,9 @@ def main() -> None:
     guangya = _section(markdown, "guangya")
     uc = _section(markdown, "uc")
     pikpak = _section(markdown, "pikpak")
+    cloud115 = _section(markdown, "115_open")
+    cloud189 = _section(markdown, "189cloud")
+    xunlei = _section(markdown, "xunlei")
     aliyun = _section(markdown, "aliyundrive_open")
     quark = _section(markdown, "quark")
     baidu = _section(markdown, "baidu_netdisk")
@@ -41,22 +44,50 @@ def main() -> None:
             {
                 "summaryHasCurrentRuntimeCounts": (
                     f"`task_runtime={summary.get('taskRuntimeEvidenceProviderCount', 0)}`" in markdown
+                    and f"`task_runtime_failed={summary.get('taskRuntimeFailedProviderCount', 0)}`" in markdown
+                    and f"`task_runtime_candidate={summary.get('taskRuntimeCandidateProviderCount', 0)}`" in markdown
+                    and f"`task_runtime_probe={summary.get('taskRuntimeProbeProviderCount', 0)}`" in markdown
                     and f"`runtime_samples={summary.get('taskRuntimeSampleCount', 0)}`" in markdown
                     and f"`runtime_success={summary.get('taskRuntimeSuccessCount', 0)}`" in markdown
+                    and f"`runtime_failed={summary.get('taskRuntimeFailedCount', 0)}`" in markdown
+                    and f"`runtime_candidate={summary.get('taskRuntimeCandidateCount', 0)}`" in markdown
+                    and f"`runtime_probe={summary.get('taskRuntimeProbeCount', 0)}`" in markdown
+                    and f"`runtime_blocked_providers={summary.get('taskRuntimeBlockedProviderCount', 0)}`" in markdown
+                    and f"`runtime_blocked={summary.get('taskRuntimeBlockedCount', 0)}`" in markdown
                     and f"`runtime_conflict_handled={summary.get('taskRuntimeConflictHandledCount', 0)}`" in markdown
                 ),
-                "summaryShowsThreeRuntimeSuccessProviders": (
+                "summaryShowsCurrentRuntimeDistribution": (
                     summary.get("taskRuntimeEvidenceProviderCount") == 3
+                    and summary.get("taskRuntimeFailedProviderCount") == 0
+                    and summary.get("taskRuntimeCandidateProviderCount") == 0
+                    and summary.get("taskRuntimeProbeProviderCount") == 0
                     and summary.get("taskRuntimeSampleCount") == 3
                     and summary.get("taskRuntimeSuccessCount") == 3
+                    and summary.get("taskRuntimeFailedCount") == 0
+                    and summary.get("taskRuntimeCandidateCount") == 0
+                    and summary.get("taskRuntimeProbeCount") == 0
+                    and summary.get("taskRuntimeBlockedProviderCount") == 0
+                    and summary.get("taskRuntimeBlockedCount") == 0
+                    and summary.get("taskRuntimeConflictHandledCount") == 3
                 ),
                 "guangyaSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in guangya,
                 "ucSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in uc,
                 "pikpakSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in pikpak,
+                "cloud115SectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in cloud115,
+                "cloud189SectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in cloud189,
+                "xunleiSectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in xunlei,
                 "aliyunSectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in aliyun,
                 "quarkSectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in quark,
                 "baiduSectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in baidu,
                 "pan123SectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in pan123,
+                "noRuntimeSuccessSectionsKeepTodoNote": (
+                    "当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。" in cloud115
+                    and "当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。" in cloud189
+                    and "当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。" in xunlei
+                    and "当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。" in aliyun
+                    and "当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。" in quark
+                    and "当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理." not in markdown
+                ),
             },
             ensure_ascii=False,
             indent=2,

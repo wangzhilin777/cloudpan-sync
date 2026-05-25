@@ -32,6 +32,7 @@ def main() -> None:
                     and f"- latestFailedCount: `{summary.get('failedCount', 0)}`" in markdown
                     and f"- latestProviders: `{', '.join(summary.get('providerKeys', [])) or '(none)'}`" in markdown
                     and f"- latestProfiles: `ok={', '.join(summary.get('okProfiles', [])) or '(none)'}` `failed={', '.join(summary.get('failedProfiles', [])) or '(none)'}`" in markdown
+                    and f"- profileSummary: `ok_providers={', '.join(summary.get('okProviderKeys', [])) or '(none)'}` `failed_providers={', '.join(summary.get('failedProviderKeys', [])) or '(none)'}` `failed_modes={', '.join(summary.get('failedModes', [])) or '(none)'}`" in markdown
                 ),
                 "summaryShowsExpectedValidationCounts": (
                     len(rows) == 5
@@ -40,6 +41,9 @@ def main() -> None:
                     and summary.get("failedCount") == 3
                     and summary.get("okProfiles") == []
                     and summary.get("failedProfiles") == ["aliyun-bootstrap", "risk-smoke-guangya", "smoke-guangya"]
+                    and summary.get("okProviderKeys") == []
+                    and summary.get("failedProviderKeys") == ["aliyundrive_open", "guangya"]
+                    and summary.get("failedModes") == ["live_error", "profile_incomplete"]
                     and summary.get("providerKeys") == ["aliyundrive_open", "guangya"]
                 ),
                 "latestSectionKeepsThreeLatestRows": (

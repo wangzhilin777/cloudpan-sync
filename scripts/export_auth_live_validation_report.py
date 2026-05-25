@@ -29,6 +29,11 @@ def main() -> None:
         f"- latestProfiles: `ok={', '.join(summary.get('okProfiles', [])) or '(none)'}` "
         f"`failed={', '.join(summary.get('failedProfiles', [])) or '(none)'}`"
     )
+    lines.append(
+        f"- profileSummary: `ok_providers={', '.join(summary.get('okProviderKeys', [])) or '(none)'}` "
+        f"`failed_providers={', '.join(summary.get('failedProviderKeys', [])) or '(none)'}` "
+        f"`failed_modes={', '.join(summary.get('failedModes', [])) or '(none)'}`"
+    )
     lines.append("")
     lines.append("## Latest By Profile")
     lines.append("")

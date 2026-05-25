@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充授权联调报告聚合明细`
+- 完成范围：
+  - [auth_live_validate.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_live_validate.py) 的 summary 现已继续补齐 `okProviderKeys / failedProviderKeys / failedModes` 聚合明细，不再只返回 `okProfiles / failedProfiles / providerKeys` 这几组字段
+  - 这次补齐后，[03-AUTH_LIVE_VALIDATION_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/03-AUTH_LIVE_VALIDATION_REPORT.md) 现在会在顶部额外写出 `profileSummary` 行，直接汇总最新 auth live validation 中哪些 provider 当前通过、哪些 provider 当前失败，以及失败主要落在哪些 mode；当前真实仓库会明确显示 `ok_providers=(none)`、`failed_providers=aliyundrive_open, guangya`、`failed_modes=live_error, profile_incomplete`
+  - 已同步补强 [export_auth_live_validation_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_auth_live_validation_report.py)、[verify_export_auth_live_validation_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_live_validation_report.py)、[verify_current_auth_live_validation_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_live_validation_report_sync.py)、[verify_auth_live_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_live_validation.py)，把导出 markdown、当前仓库文档和 API summary 里的 `okProviderKeys / failedProviderKeys / failedModes` 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_live_validation.py` 已验证 API summary 当前会返回 `okProviderKeys / failedProviderKeys / failedModes`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_auth_live_validation_report.py` 已验证导出的 auth live validation 报告会写出 `profileSummary`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_auth_live_validation_report_sync.py` 已验证当前仓库文档中的 `profileSummary` 与 `live_validation_summary()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\export_auth_live_validation_report.py` 已重导出当前 [03-AUTH_LIVE_VALIDATION_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/03-AUTH_LIVE_VALIDATION_REPORT.md)
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充真实证据状态聚合明细`
 - 完成范围：
   - [real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_report.py) 的 summary 现已继续补齐 `authEvidenceProviders / listEvidenceProviders / metadataEvidenceProviders / createDirEvidenceProviders / fullyVerifiedProviders / taskRuntimeEvidenceProviders / taskRuntimeFailedProviders / taskRuntimeCandidateProviders / taskRuntimeProbeProviders / taskRuntimeBlockedProviders` 聚合明细，不再只返回各类 provider count

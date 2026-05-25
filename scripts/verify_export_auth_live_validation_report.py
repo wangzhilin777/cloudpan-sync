@@ -57,6 +57,9 @@ def main() -> None:
         "failedCount": 1,
         "okProfiles": ["Guangya"],
         "failedProfiles": ["Tianyi 189Cloud"],
+        "okProviderKeys": ["guangya"],
+        "failedProviderKeys": ["189cloud"],
+        "failedModes": ["share_probe"],
         "providerKeys": ["guangya", "189cloud"],
     }
 
@@ -93,7 +96,8 @@ def main() -> None:
                 and "- latestOkCount: `1`" in markdown
                 and "- latestFailedCount: `1`" in markdown
                 and "- latestProviders: `guangya, 189cloud`" in markdown
-                and "- latestProfiles: `ok=Guangya` `failed=Tianyi 189Cloud`" in markdown,
+                and "- latestProfiles: `ok=Guangya` `failed=Tianyi 189Cloud`" in markdown
+                and "- profileSummary: `ok_providers=guangya` `failed_providers=189cloud` `failed_modes=share_probe`" in markdown,
                 "exportedHasLatestRows": "## Latest By Profile" in markdown
                 and "### guangya - Guangya" in markdown
                 and "- mode: `cookie_refresh`" in markdown

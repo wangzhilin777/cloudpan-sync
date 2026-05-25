@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py) 已从旧口径补强到当前 remediation 导出能力，不再只验证单个 `189cloud` post-bootstrap helper
+  - 当前导出验证已覆盖 `providersWithPostBootstrapRuntimeCommand = 6` 的摘要口径，并同时锁住 `quark / baidu_netdisk / xunlei / 123_open` 这几条新的 live-helper 型 post-bootstrap runtime 命令
+  - 这样 `export_real_evidence_remediation.py` 不再落后于当前代码与文档状态，后续如果 post-bootstrap runtime 覆盖面回退，导出链会第一时间报出来
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证导出文件包含 `providersWithPostBootstrapRuntimeCommand: 6`
+  - 同一验证还已锁住 `tmp\\quark-post-bootstrap-runtime-evidence`、`tmp\\baidu_netdisk-post-bootstrap-runtime-evidence`、`tmp\\xunlei-post-bootstrap-runtime-evidence`、`tmp\\123_open-post-bootstrap-runtime-evidence`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 已把 `recommendedPostBootstrapRuntimeCommand` 从只覆盖 `115_open / 189cloud` 扩到更多已接真实上传链路但当前仍缺 runtime success 的 provider
   - 当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 里的 post-bootstrap runtime helper 数量已从 `2` 提升到 `6`，新增覆盖 `quark / baidu_netdisk / xunlei / 123_open`；其中 `115_open / 189cloud` 继续保留 fast-candidate helper，其余新覆盖 provider 直接给 live-upload helper
   - 这样“先建档并 probe，再继续补第一条 runtime success”不再只对两家成立，首批 runtime 缺口更大的几家现在也都有更短的落地命令，离 `P-REAL` 更近了一步

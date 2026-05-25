@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增 [scripts/verify_current_auth_live_validation_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_live_validation_report_sync.py)，直接锁住当前 [docs/03-AUTH_LIVE_VALIDATION_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/03-AUTH_LIVE_VALIDATION_REPORT.md) 的当前 validation 口径
+  - 当前这条校验会同时核对 summary 和 latest/history 分段，确保 `totalRecords=4`、`latestProfileCount=2`、`latestOkCount=0`、`latestFailedCount=2`、`latestProviders=guangya` 持续与本地已保存 validation 记录一致
+  - 同时还锁住两条 latest `guangya` row 继续保持 `profile_incomplete / missing_parent_id` 口径，以及 recent history 里的 `checkCount=1` 记录数
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_auth_live_validation_report.py` 已验证 auth live validation 报告导出链仍正常
+  - `.\.venv\Scripts\python.exe scripts\verify_current_auth_live_validation_report_sync.py` 已验证 `summaryHasCurrentValidationCounts=true`、`summaryShowsExpectedValidationCounts=true`
+  - 同一验证已锁住 `latestSectionKeepsTwoGuangyaRows=true`、`latestRowsMatchLatestValidationCount=true`、`recentHistoryKeepsCheckCountRows=true`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [src/cloudpan_sync/live_probe.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/live_probe.py) 已修正 provider live probe 报告的 summary 口径，不再把同一 provider 下多条 saved profile probe 历史条目误算进最终 provider 级 summary
   - 现在 `run_live_probe()` 会按最终导出的 provider 行重新汇总 `profileProbeProviderCount / profileProbeOkCount / profileProbeFailedCount`，从而与 [docs/05-PROVIDER_LIVE_PROBE_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/05-PROVIDER_LIVE_PROBE_REPORT.md) 的 markdown 分段保持同一口径
   - 已新增 [scripts/verify_live_probe_provider_summary_alignment.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_live_probe_provider_summary_alignment.py)，专门锁住“同一 provider 存在多条 latest profile probe 时，summary 只能按 provider 计 1 条，并采用该 provider 最后一条 probe 内容写入 markdown”

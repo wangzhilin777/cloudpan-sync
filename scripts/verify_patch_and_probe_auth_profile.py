@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 import importlib.util
+import io
 import sys
+from contextlib import redirect_stdout
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -12,6 +14,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from cloudpan_sync import auth_live_validate, provider_live_probe
+from cloudpan_sync import auth_profile_evidence
 from cloudpan_sync.auth_profile_patch import configure_data_dir
 from cloudpan_sync.provider_live_probe_store import list_provider_live_probes
 from fastapi.encoders import jsonable_encoder
@@ -54,6 +57,9 @@ def main() -> None:
 
         original_validate = auth_live_validate.validate_profile_object
         original_probe = provider_live_probe.run_provider_live_probe
+        original_evidence_validate = auth_profile_evidence.validate_profile_object
+        original_evidence_probe = auth_profile_evidence.run_provider_live_probe
+        probe_calls: list[dict[str, object]] = []
 
         def fake_validate(profile: object) -> dict[str, object]:
             return {
@@ -74,6 +80,15 @@ def main() -> None:
             }
 
         def fake_probe(profile_id: str, parent_id: str = "", file_id: str = "", page_size: int = 100, dir_name: str = "") -> dict[str, object]:
+            probe_calls.append(
+                {
+                    "profileId": profile_id,
+                    "parentId": parent_id,
+                    "fileId": file_id,
+                    "pageSize": page_size,
+                    "dirName": dir_name,
+                }
+            )
             return {
                 "ok": True,
                 "profileId": profile_id,
@@ -92,39 +107,65 @@ def main() -> None:
 
         auth_live_validate.validate_profile_object = fake_validate
         provider_live_probe.run_provider_live_probe = fake_probe
+        auth_profile_evidence.validate_profile_object = fake_validate
+        auth_profile_evidence.run_provider_live_probe = fake_probe
         patch_and_probe_script.validate_profile_object = fake_validate
         patch_and_probe_script.run_provider_live_probe = fake_probe
         evidence_path = data_dir / "profile-evidence.md"
         try:
-            patch_and_probe_script.main(
-                [
-                    "--profile-id",
-                    "gy-patch-probe-1",
-                    "--set",
-                    "parentId=dir-100",
-                    "--set",
-                    "fileId=file-9",
-                    "--dir-name",
-                    "verify-dir",
-                    "--write",
-                    "--data-dir",
-                    str(data_dir),
-                    "--evidence-output",
-                    str(evidence_path),
-                ]
-            )
-            patch_and_probe_script.main(
-                [
-                    "--profile-id",
-                    "gy-patch-probe-1",
-                    "--write",
-                    "--data-dir",
-                    str(data_dir),
-                ]
-            )
+            first_stdout = io.StringIO()
+            with redirect_stdout(first_stdout):
+                patch_and_probe_script.main(
+                    [
+                        "--profile-id",
+                        "gy-patch-probe-1",
+                        "--set",
+                        "parentId=dir-100",
+                        "--set",
+                        "fileId=file-9",
+                        "--dir-name",
+                        "verify-dir",
+                        "--page-size",
+                        "7",
+                        "--write",
+                        "--data-dir",
+                        str(data_dir),
+                        "--evidence-output",
+                        str(evidence_path),
+                    ]
+                )
+            first_payload = json.loads(first_stdout.getvalue())
+
+            second_stdout = io.StringIO()
+            with redirect_stdout(second_stdout):
+                patch_and_probe_script.main(
+                    [
+                        "--profile-id",
+                        "gy-patch-probe-1",
+                        "--write",
+                        "--data-dir",
+                        str(data_dir),
+                    ]
+                )
+            second_payload = json.loads(second_stdout.getvalue())
+
+            missing_error = ""
+            try:
+                patch_and_probe_script.main(
+                    [
+                        "--profile-id",
+                        "missing-profile",
+                        "--data-dir",
+                        str(data_dir),
+                    ]
+                )
+            except SystemExit as exc:
+                missing_error = str(exc)
         finally:
             auth_live_validate.validate_profile_object = original_validate
             provider_live_probe.run_provider_live_probe = original_probe
+            auth_profile_evidence.validate_profile_object = original_evidence_validate
+            auth_profile_evidence.run_provider_live_probe = original_evidence_probe
             patch_and_probe_script.validate_profile_object = original_validate
             patch_and_probe_script.run_provider_live_probe = original_probe
 
@@ -146,9 +187,21 @@ def main() -> None:
                     "probeCount": len(probes),
                     "latestProbeSummary": probe.get("summary", ""),
                     "latestProbeChecks": [item.get("kind", "") for item in probe.get("checks", [])],
+                    "probeCallHasDirNameAndPageSize": len(probe_calls) >= 1
+                    and probe_calls[0].get("dirName") == "verify-dir"
+                    and probe_calls[0].get("pageSize") == 7
+                    and probe_calls[0].get("parentId") == "dir-100"
+                    and probe_calls[0].get("fileId") == "file-9",
+                    "firstJsonHasOutputAndWriteFlag": first_payload.get("written") is True
+                    and first_payload.get("evidenceOutput") == str(evidence_path.resolve())
+                    and dict(first_payload.get("validation") or {}).get("summary") == "validation ok"
+                    and dict(first_payload.get("probe") or {}).get("summary") == "probe ok",
+                    "secondJsonRefreshOnlyStillWrites": second_payload.get("written") is True
+                    and dict(second_payload.get("extra") or {}).get("parentId") == "dir-100",
                     "refreshOnlyStillWorked": len(validations) >= 2 and len(probes) >= 1,
                     "evidenceFileExists": evidence_path.exists(),
                     "evidenceHasProfileId": "`gy-patch-probe-1`" in evidence_path.read_text(encoding="utf-8"),
+                    "missingProfileRaises": missing_error == "profile_not_found: missing-profile",
                 },
                 ensure_ascii=False,
                 indent=2,

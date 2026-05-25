@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [verify_patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_and_probe_auth_profile.py) 已从“验证能补字段并刷新一条 probe”补强为同时覆盖 `--dir-name / --page-size` 透传、CLI JSON 输出，以及缺失 profile 的诚实报错
+  - 当前 `patch_and_probe_auth_profile.py` 这条 helper 不再只锁 happy path，还会验证“补字段并立即留证”和“零补字段仅刷新证据”两条实际使用路径
+  - 这样 `recommendedPatchProbeCommand / recommendedRefreshEvidenceCommand` 对应的两类落地动作现在都有更完整的回归保护
+- 当前验证证据：
+  - [verify_patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_and_probe_auth_profile.py) 已验证 `dirName=verify-dir / pageSize=7` 会真实透传到 live probe 调用，且首轮 CLI JSON 会带 `written / validation / probe / evidenceOutput`
+  - 同一验证已锁住“零补字段仅刷新证据”仍可工作，以及缺失 profile 时会抛出 `profile_not_found: missing-profile`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [verify_create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_auth_profile_stub.py) 已从“只验证能建出档案”补强为覆盖 `--probe / --evidence-output / CLOUDPAN_SYNC_DATA_DIR`
   - 当前 `create_auth_profile_stub.py` 这条 helper 不再只验证最基础的保存动作，还会锁住“建档案后立刻刷新 validation/probe 证据并输出单档案 Markdown”这条真实取证起手路径
   - 这样 `recommendedCreateCommand / recommendedBootstrapCommand` 对应的两个落地阶段现在都有更贴近真实使用方式的回归保护

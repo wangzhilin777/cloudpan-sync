@@ -20,6 +20,17 @@ def main() -> None:
                 "jsHasLocalAdapterVerificationState": "localLiveAdapterVerification: null" in app_js,
                 "jsHasLocalAdapterVerificationLoader": 'async function loadLocalLiveAdapterVerificationSummary()' in app_js and 'fetchJson("/api/local_live_adapter_verification")' in app_js,
                 "jsRefreshProtectedDataLoadsLocalAdapterVerification": "loadLocalLiveAdapterVerificationSummary()," in app_js,
+                "jsHasLocalAdapterFirstGapActions": 'const firstLocalAdapterGap =' in app_js
+                and 'focusBtn.textContent = "Focus First Gap"' in app_js
+                and 'refreshBtn.textContent = "Refresh First Gap"' in app_js
+                and 'probeBtn.textContent = "Run First Probe"' in app_js
+                and 'captureBtn.textContent = "Open Capture First Gap"' in app_js
+                and 'createBtn.textContent = "Create Stub First Gap"' in app_js
+                and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedProfile.profileId));' in app_js
+                and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedProfile.profileId));' in app_js
+                and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedProfile.profileId));' in app_js
+                and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstLocalAdapterGap.providerKey || ""));' in app_js
+                and 'createBtn.addEventListener("click", () => createRemediationProfile(firstLocalAdapterGap.providerKey || ""));' in app_js,
                 "jsRenderSettingsUsesLocalAdapterVerification": "const localAdapterSummary = state.localLiveAdapterVerification?.summary || {};" in app_js
                 and "allOkProviders=" in app_js
                 and "md5ReadyProviders=" in app_js

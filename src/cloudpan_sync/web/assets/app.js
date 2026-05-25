@@ -2378,6 +2378,67 @@ function renderSettingsPanel() {
     li.textContent = `${item.providerKey || "(unknown)"}: list=${Boolean(item.list_ok)}, metadata=${Boolean(item.metadata_ok)}, create=${Boolean(item.create_ok)}, md5=${item.metadata_md5 || "(none)"}, gcid=${item.metadata_gcid || "(none)"}, createMode=${item.create_mode || "(none)"}, probeChecks=${item.probeChecksReady || 0}, matrix=list:${Boolean(matrixRow.list_ready)}/metadata:${Boolean(matrixRow.metadata_ready)}/create:${Boolean(matrixRow.create_dir_ready)}/probe:${Boolean(matrixRow.live_probe_ok)}`;
     localAdapterVerificationList.appendChild(li);
   }
+  const firstLocalAdapterGap =
+    localAdapterItems.find((item) => {
+      const matrixRow = item.matrixRow || {};
+      return (
+        !item.list_ok ||
+        !item.metadata_ok ||
+        !item.create_ok ||
+        !item.metadata_md5 ||
+        !item.metadata_gcid ||
+        (item.probeChecksReady || 0) < 3 ||
+        !matrixRow.list_ready ||
+        !matrixRow.metadata_ready ||
+        !matrixRow.create_dir_ready ||
+        !matrixRow.live_probe_ok
+      );
+    }) || null;
+  if (firstLocalAdapterGap) {
+    const matrixRow = firstLocalAdapterGap.matrixRow || {};
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    copy.textContent = `${firstLocalAdapterGap.providerKey || "(unknown)"}: list=${Boolean(firstLocalAdapterGap.list_ok)}, metadata=${Boolean(firstLocalAdapterGap.metadata_ok)}, create=${Boolean(firstLocalAdapterGap.create_ok)}, md5=${firstLocalAdapterGap.metadata_md5 || "(none)"}, gcid=${firstLocalAdapterGap.metadata_gcid || "(none)"}, probeChecks=${firstLocalAdapterGap.probeChecksReady || 0}, matrix=list:${Boolean(matrixRow.list_ready)}/metadata:${Boolean(matrixRow.metadata_ready)}/create:${Boolean(matrixRow.create_dir_ready)}/probe:${Boolean(matrixRow.live_probe_ok)}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    const matchedProfile = (state.authProfiles || []).find((profile) => profile.providerKey === firstLocalAdapterGap.providerKey);
+    const remediationItem =
+      (state.realEvidenceRemediation?.items || []).find((item) => item.providerKey === firstLocalAdapterGap.providerKey) || null;
+    if (matchedProfile) {
+      const focusBtn = document.createElement("button");
+      focusBtn.className = "ghost";
+      focusBtn.textContent = "Focus First Gap";
+      focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedProfile.profileId));
+      actions.appendChild(focusBtn);
+      const refreshBtn = document.createElement("button");
+      refreshBtn.className = "ghost";
+      refreshBtn.textContent = "Refresh First Gap";
+      refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedProfile.profileId));
+      actions.appendChild(refreshBtn);
+      if (liveProbeProviderSet.has(firstLocalAdapterGap.providerKey)) {
+        const probeBtn = document.createElement("button");
+        probeBtn.className = "ghost";
+        probeBtn.textContent = "Run First Probe";
+        probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedProfile.profileId));
+        actions.appendChild(probeBtn);
+      }
+    }
+    const captureBtn = document.createElement("button");
+    captureBtn.className = "ghost";
+    captureBtn.textContent = "Open Capture First Gap";
+    captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstLocalAdapterGap.providerKey || ""));
+    actions.appendChild(captureBtn);
+    if (remediationItem?.recommendedCreateCommand) {
+      const createBtn = document.createElement("button");
+      createBtn.className = "ghost";
+      createBtn.textContent = "Create Stub First Gap";
+      createBtn.addEventListener("click", () => createRemediationProfile(firstLocalAdapterGap.providerKey || ""));
+      actions.appendChild(createBtn);
+    }
+    li.appendChild(actions);
+    localAdapterVerificationList.appendChild(li);
+  }
 
   const realEvidence = state.realEvidenceSummary || {};
   const realEvidenceRows = [

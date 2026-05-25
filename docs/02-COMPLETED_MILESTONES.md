@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充本地适配器验证首个缺口直接跳转`
+- 完成范围：
+  - 已把设置页里的 `Local Live Adapter Verification` 从“只展示本地 stub 校验统计和前三条 provider 摘要”推进成可直接跳转首个缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在本地适配器验证区块下方额外渲染首个未满足 `list / metadata / create / md5 / gcid / probeChecks / matrix` 条件的 provider，并直接带出 `Focus First Gap / Refresh First Gap / Run First Probe / Open Capture First Gap / Create Stub First Gap`
+  - 当前动作会直接复用该 provider 在授权档案与 `realEvidenceRemediation` 里的现有补救链路；如果该 provider 已有档案，就可以直接聚焦到授权表单、刷新 evidence、重跑 live probe；如果当前还缺档案或需要重新抓取，则可以直接打开网页登录抓取引导，或在支持场景下创建 placeholder stub
+  - 这次补齐把“本地适配器验证能告诉你哪家 provider 在 stub/matrix 维度还没就绪，但还要自己再切去别的面板修”的流程，推进成“看验证面板 -> 直接跳第一个缺口 -> 开始修”的更短闭环，也让设置页里这块和前面几组补救面板的交互节奏保持一致
+  - 已同步补强 [verify_local_live_adapter_verification_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_local_live_adapter_verification_settings_ui.py)，把 `Focus First Gap / Refresh First Gap / Run First Probe / Open Capture First Gap / Create Stub First Gap` 的文案与绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_local_live_adapter_verification_settings_ui.py` 已验证 `Local Live Adapter Verification` 当前包含首个缺口动作按钮和对应绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证本地适配器验证区复用的 `refreshRealEvidenceRemediationProfile()`、`probeRealEvidenceRemediationProfile()`、`createRemediationProfile()` 链路未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充真实证据首个缺口直接跳转`
 - 完成范围：
   - 已把设置页的 `Real Evidence` 从“只展示 provider 级统计和 runtime 汇总”推进成可直接跳转第一个缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在 `Real Evidence` 区块下方额外渲染首个 `nextStep` provider，并直接带出 `Focus First Gap / Refresh First Gap / Run First Probe / Open Capture First Gap / Create Stub First Gap`

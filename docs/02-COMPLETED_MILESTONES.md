@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增独立导出验证脚本 [verify_export_local_live_adapter_verification.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_local_live_adapter_verification.py)，把 `07-LOCAL_LIVE_ADAPTER_VERIFICATION.md` 这条本地 live adapter 导出链锁进回归
+  - 当前 local live adapter 报告现在不只验证文件存在，还覆盖了顶部“stub 验证、不等同真实在线成功”的提示文案、provider 分段、Probe Checks 与 Matrix Rows 聚合结果
+  - 这样本地 adapter 验证报告也已补齐为独立 export verifier，不再只依赖 `verify_provider_live_adapters.py` 本身的 JSON 输出人工对账
+- 当前验证证据：
+  - [verify_export_local_live_adapter_verification.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_local_live_adapter_verification.py) 已验证导出文件包含标题和两条提示文案
+  - 同一验证已锁住 `guangya / 189cloud` 的 provider 行、`Probe Checks` 摘要以及 `Matrix Rows` 中的 readiness / live_probe_ok 聚合结果
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增独立验证脚本 [verify_export_auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_profile_evidence.py)，把 `export_auth_profile_evidence.py` 这条单 profile CLI 导出链锁进回归
   - 当前 auth profile evidence 入口现在不只验证“能不能跑”，还覆盖了 `--data-dir` 配置、`--output` 文件导出，以及 profile 缺失时的诚实报错
   - 至此 `auth` 相关几条主要导出链已全部具备独立 verifier：`auth live validation / auth evidence bundle / auth remediation bundle / auth profile evidence`

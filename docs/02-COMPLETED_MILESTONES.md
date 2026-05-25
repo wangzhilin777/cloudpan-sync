@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`任务列表与待处理入口也对齐现成档案语义`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `renderTaskList()` 与 `renderPendingList()` 的恢复动作，从泛化的 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture` 推进成在已匹配到现成目标档案时统一使用 `Existing Profile` 语义
+  - 当前效果是：用户不管是在 `传输队列` 还是 `待处理` 面板里看到同一个目标 provider，只要当前仓库已经有可直接续做的档案，就会明确看到 `Focus/Refresh/Probe/Open Capture For Existing Profile`，不再和前面已经补齐好的 remediation/provider/task preview 入口形成文案断层
+  - 这次补齐把执行侧最后两处主要恢复入口也并到同一套“现成档案续做”语言体系里，继续减少围绕 `P-REAL` 修复链路的理解跳变
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_list_runtime_ui.py` 已验证 `renderTaskList()` 与 `renderPendingList()` 当前都会在命中现成档案时绑定 `Existing Profile` 语义动作，并保留未命中档案时的兜底 `Open Capture`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`提供方与任务预览入口也对齐现成档案语义`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `Provider` 面板的 `appendProviderRecoveryActions()` 与新建任务预览 `renderTaskPlanPreview()` 里的 target profile 恢复动作，从泛化的 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture` 推进成在已有目标档案时统一使用 `Existing Profile` 语义

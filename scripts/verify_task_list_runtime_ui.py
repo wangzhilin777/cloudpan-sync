@@ -32,10 +32,14 @@ def main() -> None:
                 "jsRenderTaskListShowsError": 'row.liveAttempt?.error' in app_js and 'error=${row.liveAttempt.error}' in app_js,
                 "jsRenderTaskListShowsRowNote": 'row.note' in app_js and 'note=${row.note}' in app_js,
                 "jsRenderTaskListHasRecoveryActions": 'const matchedTargetProfile = (state.authProfiles || []).find((profile) => profile.profileId === task.targetProfileId)' in app_js
-                and 'focusBtn.textContent = "Focus Profile"' in app_js
-                and 'refreshBtn.textContent = "Refresh Evidence"' in app_js
-                and 'probeBtn.textContent = "Run Live Probe"' in app_js
-                and 'captureBtn.textContent = "Open Capture"' in app_js
+                and 'focus: "Focus Existing Profile"' in app_js
+                and 'refresh: "Refresh Existing Profile"' in app_js
+                and 'probe: "Probe Existing Profile"' in app_js
+                and 'capture: "Open Capture For Existing Profile"' in app_js
+                and 'focusBtn.textContent = taskRecoveryLabels.focus;' in app_js
+                and 'refreshBtn.textContent = taskRecoveryLabels.refresh;' in app_js
+                and 'probeBtn.textContent = taskRecoveryLabels.probe;' in app_js
+                and 'captureBtn.textContent = matchedTargetProfile ? taskRecoveryLabels.capture : "Open Capture";' in app_js
                 and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedTargetProfile.profileId));' in app_js
                 and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedTargetProfile.profileId));' in app_js
                 and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedTargetProfile.profileId));' in app_js
@@ -50,10 +54,14 @@ def main() -> None:
                 "jsRenderPendingListShowsConflictFields": 'const conflictSupportText = row.conflictSupportStatus ? `, conflictSupport=${row.conflictSupportStatus}` : "";' in app_js and 'const conflictNoteText = row.conflictNote ? `, conflictNote=${row.conflictNote}` : "";' in app_js,
                 "jsRenderPendingListCarriesAvailableFastInputs": 'availableFastInputs: item.availableFastInputs || []' in app_js,
                 "jsRenderPendingListShowsAvailableFastInputs": 'available=${row.availableFastInputs.join(",") || "(none)"}' in app_js,
-                "jsRenderPendingListHasRecoveryActions": 'focusBtn.textContent = "Focus Profile"' in app_js
-                and 'refreshBtn.textContent = "Refresh Evidence"' in app_js
-                and 'probeBtn.textContent = "Run Live Probe"' in app_js
-                and 'captureBtn.textContent = "Open Capture"' in app_js
+                "jsRenderPendingListHasRecoveryActions": 'focus: "Focus Existing Profile"' in app_js
+                and 'refresh: "Refresh Existing Profile"' in app_js
+                and 'probe: "Probe Existing Profile"' in app_js
+                and 'capture: "Open Capture For Existing Profile"' in app_js
+                and 'focusBtn.textContent = pendingRecoveryLabels.focus;' in app_js
+                and 'refreshBtn.textContent = pendingRecoveryLabels.refresh;' in app_js
+                and 'probeBtn.textContent = pendingRecoveryLabels.probe;' in app_js
+                and 'captureBtn.textContent = matchedProfile ? pendingRecoveryLabels.capture : "Open Capture";' in app_js
                 and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedProfile.profileId));' in app_js
                 and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedProfile.profileId));' in app_js
                 and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedProfile.profileId));' in app_js

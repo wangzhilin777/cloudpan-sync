@@ -1700,28 +1700,34 @@ function renderTaskList() {
       || (state.authProfiles || []).find((profile) => profile.providerKey === task.targetProvider)
       || null;
     if (matchedTargetProfile || task.targetProvider) {
+      const taskRecoveryLabels = matchedTargetProfile ? {
+        focus: "Focus Existing Profile",
+        refresh: "Refresh Existing Profile",
+        probe: "Probe Existing Profile",
+        capture: "Open Capture For Existing Profile",
+      } : null;
       if (matchedTargetProfile) {
         const focusBtn = document.createElement("button");
         focusBtn.className = "ghost";
-        focusBtn.textContent = "Focus Profile";
+        focusBtn.textContent = taskRecoveryLabels.focus;
         focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedTargetProfile.profileId));
         actions.appendChild(focusBtn);
         const refreshBtn = document.createElement("button");
         refreshBtn.className = "ghost";
-        refreshBtn.textContent = "Refresh Evidence";
+        refreshBtn.textContent = taskRecoveryLabels.refresh;
         refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedTargetProfile.profileId));
         actions.appendChild(refreshBtn);
         if (liveProbeProviderSet.has(matchedTargetProfile.providerKey)) {
           const probeBtn = document.createElement("button");
           probeBtn.className = "ghost";
-          probeBtn.textContent = "Run Live Probe";
+          probeBtn.textContent = taskRecoveryLabels.probe;
           probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedTargetProfile.profileId));
           actions.appendChild(probeBtn);
         }
       }
       const captureBtn = document.createElement("button");
       captureBtn.className = "ghost";
-      captureBtn.textContent = "Open Capture";
+      captureBtn.textContent = matchedTargetProfile ? taskRecoveryLabels.capture : "Open Capture";
       captureBtn.addEventListener("click", () => openCaptureGuideForProvider(task.targetProvider || matchedTargetProfile?.providerKey || ""));
       actions.appendChild(captureBtn);
     }
@@ -1802,28 +1808,34 @@ function renderPendingList() {
     if (matchedProfile || row.targetProvider) {
       const actions = document.createElement("div");
       actions.className = "row-actions";
+      const pendingRecoveryLabels = matchedProfile ? {
+        focus: "Focus Existing Profile",
+        refresh: "Refresh Existing Profile",
+        probe: "Probe Existing Profile",
+        capture: "Open Capture For Existing Profile",
+      } : null;
       if (matchedProfile) {
         const focusBtn = document.createElement("button");
         focusBtn.className = "ghost";
-        focusBtn.textContent = "Focus Profile";
+        focusBtn.textContent = pendingRecoveryLabels.focus;
         focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedProfile.profileId));
         actions.appendChild(focusBtn);
         const refreshBtn = document.createElement("button");
         refreshBtn.className = "ghost";
-        refreshBtn.textContent = "Refresh Evidence";
+        refreshBtn.textContent = pendingRecoveryLabels.refresh;
         refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedProfile.profileId));
         actions.appendChild(refreshBtn);
         if (liveProbeProviderSet.has(matchedProfile.providerKey)) {
           const probeBtn = document.createElement("button");
           probeBtn.className = "ghost";
-          probeBtn.textContent = "Run Live Probe";
+          probeBtn.textContent = pendingRecoveryLabels.probe;
           probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedProfile.profileId));
           actions.appendChild(probeBtn);
         }
       }
       const captureBtn = document.createElement("button");
       captureBtn.className = "ghost";
-      captureBtn.textContent = "Open Capture";
+      captureBtn.textContent = matchedProfile ? pendingRecoveryLabels.capture : "Open Capture";
       captureBtn.addEventListener("click", () => openCaptureGuideForProvider(row.targetProvider || matchedProfile?.providerKey || ""));
       actions.appendChild(captureBtn);
       node.appendChild(actions);

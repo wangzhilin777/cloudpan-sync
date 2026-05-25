@@ -466,9 +466,11 @@ function setAuthValidationSummary(data, title = "Latest Auth Result") {
   const hasOrphanFollowup = Boolean(
     followupProfileId
       && (
-        data?.recommendedRefreshEvidenceCommand
+        data?.recommendedBootstrapCommand
+        || data?.recommendedRefreshEvidenceCommand
         || data?.recommendedRuntimeProbeCommand
         || data?.recommendedRuntimeSuccessCommand
+        || data?.recommendedPostBootstrapRuntimeCommand
         || data?.recommendedOverwriteVariantCommand
       )
   );
@@ -1248,7 +1250,10 @@ async function createRemediationProfile(providerKey) {
     loadAuthEvidenceBundleSummary(),
     loadAuthRemediationSummary(),
     loadLiveValidations(),
+    loadRealEvidenceSummary(),
+    loadTaskRuntimeEvidence(),
     loadStatusMatrix(),
+    loadAuditSummary(),
   ]);
   const profile = data?.item || null;
   const createdProfileId = profile?.profileId || "";

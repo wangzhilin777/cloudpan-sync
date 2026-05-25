@@ -10,6 +10,22 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充补救建档后续动作与严格面板刷新`
+- 完成范围：
+  - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 里的 `create_remediation_profile()` 从“只返回 stub 本身和 create/bootstrap 命令”推进成会同步带出 `recommendedPostBootstrapRuntimeCommand / recommendedOverwriteVariantCommand` 等后续链路字段；对于“当前仓库还没有 profile，先建一个 stub 再继续补证据”的 provider，不再只停留在建档这一步
+  - 当前 `create_profile` API 在 `stub_created` 路径下已经能把“建完档之后下一步怎么继续跑 post-bootstrap runtime”这条命令链回给前端；这样像 `aliyundrive_open` 这类初始缺口 provider，在应用内点了 `Create Stub` 后，不再只有一条空泛的 nextStep 文案
+  - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 现也把这条链路接到了结果摘要和刷新节奏里：`createRemediationProfile()` 会和 orphan recreate 一样，补齐 `Real Evidence / Task Runtime Evidence / Audit` 等 strict 相关面板刷新；同时 `setAuthValidationSummary()` 已能识别 `recommendedBootstrapCommand / recommendedPostBootstrapRuntimeCommand`，继续复用现有 `Focus / Refresh / Probe / Open Capture` 动作按钮
+  - 这次补齐把“没有 profile 的 provider -> 应用内 Create Stub -> 还要自己猜下一步去哪做”的流程，推进成“Create Stub -> 结果摘要直接承接后续动作 -> strict 面板同步刷新”的更短闭环，也更贴近当前围绕 `M4 / M5 / P-REAL` 的实际收敛路径
+  - 已新增 [verify_real_evidence_remediation_create_refreshes_views.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_refreshes_views.py) 与 [verify_real_evidence_remediation_create_followup_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_followup_ui.py)，并补强现有 [verify_real_evidence_remediation_create_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_api.py)，把 create-profile API、结果摘要和 strict 面板刷新一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_api.py` 已验证应用内 `Create Stub` 当前会返回 post-bootstrap follow-up 命令，重复 `already_exists` 仍保持当前仓库档案状态口径
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证设置页 `Real Evidence Remediation` 面板原有命令摘要、动作绑定和汇总字段未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_refreshes_views.py` 已验证 `createRemediationProfile()` 当前会同步刷新 `loadRealEvidenceSummary / loadTaskRuntimeEvidence / loadAuditSummary`
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_followup_ui.py` 已验证 `Remediation Stub` 结果摘要当前会识别 `recommendedBootstrapCommand / recommendedPostBootstrapRuntimeCommand`，并继续复用现有 follow-up 动作按钮
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充运行孤儿重建后同步刷新严格口径面板`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里的 `recreateRuntimeOrphanProfile()` 从“只刷新 auth/orphan/status 相关局部面板”推进成会同步刷新 `Real Evidence`、`Real Evidence Remediation`、`Task Runtime Evidence`、`Audit` 这些和 `M4 / M5 / P-REAL` 判读直接相关的汇总

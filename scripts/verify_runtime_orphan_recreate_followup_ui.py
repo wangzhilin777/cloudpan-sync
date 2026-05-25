@@ -12,9 +12,11 @@ def main() -> None:
         json.dumps(
             {
                 "jsHasOrphanFollowupDetection": "const hasOrphanFollowup = Boolean(" in app_js
+                and "data?.recommendedBootstrapCommand" in app_js
                 and "data?.recommendedRefreshEvidenceCommand" in app_js
                 and "data?.recommendedRuntimeProbeCommand" in app_js
                 and "data?.recommendedRuntimeSuccessCommand" in app_js
+                and "data?.recommendedPostBootstrapRuntimeCommand" in app_js
                 and "data?.recommendedOverwriteVariantCommand" in app_js,
                 "jsHasOrphanFollowupActions": 'focusBtn.textContent = "Focus Recreated Stub"' in app_js
                 and 'refreshBtn.textContent = "Refresh Recreated Stub"' in app_js

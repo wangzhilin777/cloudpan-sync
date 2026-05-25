@@ -762,6 +762,12 @@ def create_remediation_profile(provider_key: str) -> dict[str, object]:
             "message": "This provider already has a saved auth profile in the current repository; edit that profile directly and continue remediation.",
             "item": auth_profile_view(existing) if existing is not None else None,
             "nextStep": str(target_item.get("nextStep") or ""),
+            "recommendedBootstrapCommand": str(target_item.get("recommendedBootstrapCommand") or ""),
+            "recommendedRefreshEvidenceCommand": str(target_item.get("recommendedRefreshEvidenceCommand") or ""),
+            "recommendedRuntimeProbeCommand": str(target_item.get("recommendedRuntimeProbeCommand") or ""),
+            "recommendedRuntimeSuccessCommand": str(target_item.get("recommendedRuntimeSuccessCommand") or ""),
+            "recommendedPostBootstrapRuntimeCommand": str(target_item.get("recommendedPostBootstrapRuntimeCommand") or ""),
+            "recommendedOverwriteVariantCommand": str(target_item.get("recommendedOverwriteVariantCommand") or ""),
         }
 
     auth_modes = list(target_item.get("recommendedAuthModes") or [])
@@ -788,6 +794,11 @@ def create_remediation_profile(provider_key: str) -> dict[str, object]:
         "requiredFieldHints": field_hints,
         "recommendedCreateCommand": str(target_item.get("recommendedCreateCommand") or ""),
         "recommendedBootstrapCommand": str(target_item.get("recommendedBootstrapCommand") or ""),
+        "recommendedRefreshEvidenceCommand": str(target_item.get("recommendedRefreshEvidenceCommand") or ""),
+        "recommendedRuntimeProbeCommand": str(target_item.get("recommendedRuntimeProbeCommand") or ""),
+        "recommendedRuntimeSuccessCommand": str(target_item.get("recommendedRuntimeSuccessCommand") or ""),
+        "recommendedPostBootstrapRuntimeCommand": str(target_item.get("recommendedPostBootstrapRuntimeCommand") or ""),
+        "recommendedOverwriteVariantCommand": str(target_item.get("recommendedOverwriteVariantCommand") or ""),
         "nextStep": str(target_item.get("nextStep") or ""),
     }
 

@@ -57,6 +57,9 @@ def main() -> None:
                         and ((created_item.get("extra") or {}).get("domainId") == "YOUR_DOMAIN_ID")
                         and ((created_item.get("extra") or {}).get("driveId") == "YOUR_DRIVE_ID")
                         and "token" in (created_item.get("placeholderSecretFieldHints") or [])
+                        and "create_auth_profile_stub.py --provider-key aliyundrive_open" in str(created_payload.get("recommendedBootstrapCommand") or "")
+                        and "create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id YOUR_PROFILE_ID" in str(created_payload.get("recommendedPostBootstrapRuntimeCommand") or "")
+                        and "--conflict-policy overwrite_existing" in str(created_payload.get("recommendedOverwriteVariantCommand") or "")
                     ),
                     "storedProfileHasPlaceholders": (
                         stored is not None
@@ -74,6 +77,7 @@ def main() -> None:
                         and created_again_payload.get("status") == "already_exists"
                         and created_again_payload.get("created") is False
                         and ((created_again_payload.get("item") or {}).get("profileId") == profile_id)
+                        and str(created_again_payload.get("nextStep") or "").strip() != ""
                     ),
                     "singleProfileWritten": len(list_profiles()) == 1,
                 },

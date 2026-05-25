@@ -152,9 +152,19 @@
           <ul id="taskList" class="auth-list"></ul>
         </section>
         <section class="pending-panel" id="pendingPanel" hidden>
-          <h3 id="pendingTitle"></h3>
-          <p id="pendingSubtitle" class="panel-subtitle"></p>
-          <ul id="pendingList" class="auth-list"></ul>
+          <details id="pendingDetails" class="pending-fold" open>
+            <summary id="pendingSummary" class="pending-fold-summary">
+              <div class="pending-fold-summary-copy">
+                <h3 id="pendingTitle"></h3>
+                <p id="pendingFoldHint" class="panel-subtitle"></p>
+              </div>
+              <span id="pendingSummaryMeta" class="auth-item-meta"></span>
+            </summary>
+            <div class="pending-fold-body">
+              <p id="pendingSubtitle" class="panel-subtitle"></p>
+              <ul id="pendingList" class="auth-list"></ul>
+            </div>
+          </details>
         </section>
         <section class="providers-panel" id="providersPanel" hidden>
           <h3 id="providersTitle"></h3>

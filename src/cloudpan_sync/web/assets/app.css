@@ -329,6 +329,43 @@ button.ghost {
   border-radius: 6px;
   padding: 8px;
 }
+.pending-fold {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fbfdff;
+  padding: 0;
+}
+.pending-fold-summary {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  cursor: pointer;
+}
+.pending-fold-summary::-webkit-details-marker {
+  display: none;
+}
+.pending-fold-summary::after {
+  content: "展开";
+  color: #355066;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.pending-fold[open] > .pending-fold-summary::after {
+  content: "收起";
+}
+.pending-fold-summary-copy h3 {
+  margin: 0;
+}
+.pending-fold-summary-copy .panel-subtitle {
+  margin: 4px 0 0;
+}
+.pending-fold-body {
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+}
 .advanced-fields {
   margin-top: 8px;
   display: grid;

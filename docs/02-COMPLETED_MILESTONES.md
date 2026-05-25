@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 里的待处理区现已从普通标题 + 列表改成真实 `details/summary` 折叠结构，新增 `pendingDetails / pendingSummary / pendingFoldHint / pendingSummaryMeta / pending-fold-body`，终于把计划文档 UI smoke 里的 `待处理折叠` 真正落成页面能力
+  - [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 现会继续绑定 `panel.pending.fold_hint` 文案，并在 `renderPendingList()` 里根据当前 `state.tasks` 实时刷新 `tasks=... , pending=...` 摘要；没有待处理项时会自动折起，有待处理项时自动展开
+  - [app.css](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.css) 也已补上 `pending-fold` 样式与 `展开 / 收起` 状态文案；[i18n.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/i18n.py) 同步新增 `panel.pending.fold_hint` 的中英文文案
+  - 已新增 [scripts/verify_pending_fold_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_pending_fold_ui.py)，把待处理折叠的 HTML 结构、JS 文案绑定、摘要计数、折叠开关和 CSS 样式一起锁进静态回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_pending_fold_ui.py` 已验证待处理区当前确实包含 `details/summary` 折叠结构、折叠提示文案、`tasks/pending` 摘要更新逻辑，以及 `展开 / 收起` 样式状态
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增 [scripts/verify_error_risk_classification.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_error_risk_classification.py)，把计划文档单元测试里的 `错误码分类` 独立收成一条纯分类回归，不再只靠实现代码和光鸭里程碑描述间接证明
   - 这条 verifier 当前会直接锁住 [guangya_live.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/guangya_live.py) 的 live 请求分类口径：`401 -> auth`、`403 -> risk`、`429 -> rate_limit`、`url_error -> network`、`invalid_json -> api_change`、`unexpected -> unexpected`
   - 同一条回归还会继续验证 [guangya_upload_live.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/guangya_upload_live.py) 与 [aliyun_open_upload_live.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/aliyun_open_upload_live.py) 的上传错误分类不会回退，当前会继续把 `local_md5_mismatch` 判成 `input`，把 Aliyun 的 `409` 同名冲突判成 `conflict` 并明确提示改查 `auto_rename_new`

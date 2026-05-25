@@ -519,6 +519,7 @@ function render() {
   document.getElementById("queueTitle").textContent = t("panel.queue.title");
   document.getElementById("queueSubtitle").textContent = t("panel.queue.subtitle");
   document.getElementById("pendingTitle").textContent = t("panel.pending.title");
+  document.getElementById("pendingFoldHint").textContent = t("panel.pending.fold_hint");
   document.getElementById("pendingSubtitle").textContent = t("panel.pending.subtitle");
   document.getElementById("providersTitle").textContent = t("panel.providers.title");
   document.getElementById("providersSubtitle").textContent = t("panel.providers.subtitle");
@@ -1278,6 +1279,8 @@ function renderTaskList() {
 
 function renderPendingList() {
   const list = document.getElementById("pendingList");
+  const summaryMeta = document.getElementById("pendingSummaryMeta");
+  const details = document.getElementById("pendingDetails");
   list.innerHTML = "";
   const rows = [];
   for (const task of state.tasks) {
@@ -1299,6 +1302,12 @@ function renderPendingList() {
         conflictNote: item.conflictNote || "",
       });
     }
+  }
+  if (summaryMeta) {
+    summaryMeta.textContent = `tasks=${state.tasks.length}, pending=${rows.length}`;
+  }
+  if (details) {
+    details.open = rows.length > 0;
   }
   if (!rows.length) {
     const empty = document.createElement("li");

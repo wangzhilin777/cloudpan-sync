@@ -1904,6 +1904,48 @@ function renderProviderPanel() {
     }
   }
 
+  function appendProviderRecoveryActions(actions, providerKey) {
+    const matchedProfile = (state.authProfiles || []).find((profile) => profile.providerKey === providerKey);
+    const remediationItem = (state.realEvidenceRemediation?.items || []).find((row) => row.providerKey === providerKey) || null;
+    if (!matchedProfile && !remediationItem?.recommendedCreateCommand && !remediationItem?.needsSecretRefresh) {
+      return false;
+    }
+    if (matchedProfile) {
+      const focusBtn = document.createElement("button");
+      focusBtn.className = "ghost";
+      focusBtn.textContent = "Focus Profile";
+      focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedProfile.profileId));
+      actions.appendChild(focusBtn);
+      const evidenceBtn = document.createElement("button");
+      evidenceBtn.className = "ghost";
+      evidenceBtn.textContent = "Refresh Evidence";
+      evidenceBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedProfile.profileId));
+      actions.appendChild(evidenceBtn);
+      if (liveProbeProviderSet.has(providerKey)) {
+        const probeBtn = document.createElement("button");
+        probeBtn.className = "ghost";
+        probeBtn.textContent = "Run Live Probe";
+        probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedProfile.profileId));
+        actions.appendChild(probeBtn);
+      }
+    }
+    if (remediationItem?.needsSecretRefresh || remediationItem?.recommendedCreateCommand) {
+      const captureBtn = document.createElement("button");
+      captureBtn.className = "ghost";
+      captureBtn.textContent = "Open Capture";
+      captureBtn.addEventListener("click", () => openCaptureGuideForProvider(providerKey));
+      actions.appendChild(captureBtn);
+    }
+    if (remediationItem?.recommendedCreateCommand) {
+      const createBtn = document.createElement("button");
+      createBtn.className = "ghost";
+      createBtn.textContent = "Create Stub";
+      createBtn.addEventListener("click", () => createRemediationProfile(providerKey));
+      actions.appendChild(createBtn);
+    }
+    return actions.childNodes.length > 0;
+  }
+
   for (const item of state.statusMatrix?.items || []) {
     const node = document.createElement("li");
     node.className = "auth-item";
@@ -1942,6 +1984,11 @@ function renderProviderPanel() {
       notes.textContent = item.conflictNotes;
       node.appendChild(notes);
     }
+    const actions = document.createElement("div");
+    actions.className = "row-actions";
+    if (appendProviderRecoveryActions(actions, item.providerKey)) {
+      node.appendChild(actions);
+    }
     matrixList.appendChild(node);
   }
 
@@ -1979,6 +2026,11 @@ function renderProviderPanel() {
         probeNode.textContent = `live_probe=${probe.mode}, ok=${probe.ok}, checks=${(probe.checks || []).length}`;
         node.appendChild(probeNode);
       }
+      const actions = document.createElement("div");
+      actions.className = "row-actions";
+      if (appendProviderRecoveryActions(actions, item.providerKey)) {
+        node.appendChild(actions);
+      }
       researchList.appendChild(node);
       continue;
     }
@@ -1998,6 +2050,11 @@ function renderProviderPanel() {
     node.appendChild(title);
     node.appendChild(meta);
     node.appendChild(notes);
+    const actions = document.createElement("div");
+    actions.className = "row-actions";
+    if (appendProviderRecoveryActions(actions, item.providerKey)) {
+      node.appendChild(actions);
+    }
     researchList.appendChild(node);
   }
 }

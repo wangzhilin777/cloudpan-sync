@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充网盘能力页真实证据补救动作`
+- 完成范围：
+  - 已把 `网盘能力` 页里的 `Provider Matrix / Provider Research` 从“能看到 real_evidence_gaps 但基本只读”推进成可直接触发补救动作；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在 provider 行内直接追加 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture / Create Stub`
+  - 当前动作会按 provider 自动复用已有恢复链路：有已保存档案时可直接聚焦到授权表单并刷新 evidence，支持 live probe 的 provider 还可直接在这一页重跑探测；遇到 `needsSecretRefresh` 或尚未建档时，则可以直接打开网页登录抓取引导，或在支持的场景下一键创建 placeholder stub
+  - 这次补齐把之前主要集中在“设置页补救面板”的恢复入口，进一步前移到普通用户更容易先看到的 `网盘能力` 页，让“看到某个 provider 证据缺口 -> 直接补救”不再要求先切多个页面找对应按钮
+  - 已同步补强 [verify_provider_real_evidence_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_real_evidence_ui.py)，把 provider 行级补救动作函数、按钮文本和事件绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_real_evidence_ui.py` 已验证 `appendProviderRecoveryActions()`、`Focus Profile / Refresh Evidence / Run Live Probe / Open Capture / Create Stub` 文本以及对应事件绑定已接入 `Provider Matrix / Provider Research`
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证底层设置页补救动作链路未回退，provider 页复用的 `refreshRealEvidenceRemediationProfile()`、`probeRealEvidenceRemediationProfile()`、`createRemediationProfile()` 仍保持可用
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充运行样本脱节打开抓取引导`
 - 完成范围：
   - 已把 `Runtime Orphan Recovery` 的设置页恢复动作再往前推进一步；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 不再只给 `Recreate Stub`，每条 orphan 恢复行还会同步带出 `Open Capture`

@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增 [scripts/verify_current_real_evidence_status_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_status_sync.py)，直接锁住当前 [docs/10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 的 runtime 真实口径
+  - 当前这条校验会同时核对顶部 summary 与 provider 分段，确保当前仓库里只有 `guangya / uc / pikpak` 三家被视为 runtime success provider，并确认 `aliyundrive_open / quark / baidu_netdisk / 123_open` 仍是 `0`
+  - 这样 `docs/10` 不再只靠上次导出同步和 synthetic export verifier 兜底，后续如果真实状态报告又被误写回旧的 `6`，当前态校验会第一时间报出来
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_report.py` 已验证真实证据状态报告导出链仍正常
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_status_sync.py` 已验证 `summaryHasCurrentRuntimeCounts=true`、`summaryShowsThreeRuntimeSuccessProviders=true`
+  - 同一验证已锁住 `guangya / uc / pikpak` 的 success 分段，以及 `aliyundrive_open / quark / baidu_netdisk / 123_open` 的 no-success 分段
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [docs/06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 已按当前 `task_runtime_evidence_store` 重新导出，回收了旧矩阵把 runtime 统计高估到 `6` 的过期口径
   - 当前 matrix 顶部 summary 已与当前真实 evidence 状态重新一致：`taskRuntimeEvidenceProviderCount / taskRuntimeSampleCount / taskRuntimeSuccessCount / taskRuntimeConflictHandledProviderCount / taskRuntimeConflictHandledCount` 现都收敛到 `3`
   - 已新增 [scripts/verify_current_provider_status_matrix_runtime_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_provider_status_matrix_runtime_sync.py)，直接锁住当前导出的 `docs/06` 只能把 `guangya / uc / pikpak` 视为 runtime success provider，并确认 `aliyundrive_open / quark / baidu_netdisk / 123_open` 当前仍是 `0`

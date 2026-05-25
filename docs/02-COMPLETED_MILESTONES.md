@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增 [scripts/verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)，直接锁住当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 的当前补救口径
+  - 当前这条校验会同时核对顶部 summary 与关键 provider 分段，确保 `providersNeedingRuntimeSuccess=7`、`providersWithPostBootstrapRuntimeCommand=6`、`providersWithCreateCommand=8`、`providersWithBootstrapCommand=8` 持续与当前 bundle 一致
+  - 同时还锁住 `115_open / 189cloud` 继续走 fast-candidate 型 post-bootstrap helper，`quark / baidu_netdisk / xunlei / 123_open` 继续走 live-upload 型 post-bootstrap helper，而 `aliyundrive_open` 当前仍保持 refresh-evidence 路径、不误长出 post-bootstrap helper
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证真实联调补救指南导出链仍正常
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证 `summaryHasCurrentRemediationCounts=true`、`summaryShowsExpectedRuntimeRemediationCounts=true`
+  - 同一验证已锁住 `115_open / quark / 189cloud / baidu_netdisk / xunlei / 123_open / aliyundrive_open` 的当前 helper 分流
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增 [scripts/verify_current_real_evidence_status_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_status_sync.py)，直接锁住当前 [docs/10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 的 runtime 真实口径
   - 当前这条校验会同时核对顶部 summary 与 provider 分段，确保当前仓库里只有 `guangya / uc / pikpak` 三家被视为 runtime success provider，并确认 `aliyundrive_open / quark / baidu_netdisk / 123_open` 仍是 `0`
   - 这样 `docs/10` 不再只靠上次导出同步和 synthetic export verifier 兜底，后续如果真实状态报告又被误写回旧的 `6`，当前态校验会第一时间报出来

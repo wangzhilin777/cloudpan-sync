@@ -2149,6 +2149,37 @@ function renderProviderPanel() {
     }
     matrixList.appendChild(node);
   }
+  const firstProviderPanelGap =
+    (state.statusMatrix?.items || []).find((item) => {
+      const realEvidence = realEvidenceByProvider(item.providerKey);
+      return (
+        !item.auth_ready ||
+        !item.list_ready ||
+        !item.metadata_ready ||
+        !item.create_dir_ready ||
+        !item.fast_check ||
+        !item.live_probe_ok ||
+        (item.task_runtime_blocked || 0) > 0 ||
+        item.task_runtime_track !== "runtime_success" ||
+        !realEvidence ||
+        Boolean((realEvidence?.gaps || []).length) ||
+        !realEvidence?.fullyVerified
+      );
+    }) || null;
+  if (firstProviderPanelGap) {
+    const node = document.createElement("li");
+    node.className = "auth-item";
+    const copy = document.createElement("div");
+    const realEvidence = realEvidenceByProvider(firstProviderPanelGap.providerKey);
+    copy.textContent = `${firstProviderPanelGap.displayName || firstProviderPanelGap.providerKey || "(unknown)"} [${firstProviderPanelGap.providerKey || "(unknown)"}]: support=${firstProviderPanelGap.supportStatus || "unknown"}, auth=${Boolean(firstProviderPanelGap.auth_ready)}, list=${Boolean(firstProviderPanelGap.list_ready)}, metadata=${Boolean(firstProviderPanelGap.metadata_ready)}, create_dir=${Boolean(firstProviderPanelGap.create_dir_ready)}, fast_check=${Boolean(firstProviderPanelGap.fast_check)}, live_probe_ok=${Boolean(firstProviderPanelGap.live_probe_ok)}, fully_verified=${Boolean(realEvidence?.fullyVerified)}, gaps=${(realEvidence?.gaps || []).join(" | ") || "(none)"}`;
+    node.appendChild(copy);
+    const actions = document.createElement("div");
+    actions.className = "row-actions";
+    if (appendProviderRecoveryActions(actions, firstProviderPanelGap.providerKey)) {
+      node.appendChild(actions);
+    }
+    matrixList.appendChild(node);
+  }
 
   for (const item of state.providerResearch) {
     const node = document.createElement("li");

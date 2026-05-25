@@ -30,6 +30,10 @@ def main() -> None:
                 and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(providerKey));' in app_js
                 and 'createBtn.addEventListener("click", () => createRemediationProfile(providerKey));' in app_js
                 and 'appendProviderRecoveryActions(actions, item.providerKey)' in app_js,
+                "jsProviderPanelHasFirstGapActions": 'const firstProviderPanelGap =' in app_js
+                and 'fully_verified=${Boolean(realEvidence?.fullyVerified)}' in app_js
+                and 'gaps=${(realEvidence?.gaps || []).join(" | ") || "(none)"}' in app_js
+                and 'appendProviderRecoveryActions(actions, firstProviderPanelGap.providerKey)' in app_js,
                 "jsProviderPanelShowsRuntimeTrack": 'task_runtime_track=${item.task_runtime_track || "runtime_planned"}, blocked=${item.task_runtime_blocked || 0}, conflictHandled=${item.task_runtime_conflict_handled || 0}' in app_js,
                 "jsProviderPanelSummaryShowsConflictCounts": 'label: "autoRenameProbeOnly"' in app_js and 'label: "conflictUnsupported"' in app_js and 'label: "runtimeBlocked"' in app_js and 'label: "runtimeConflictHandled"' in app_js,
                 "jsLoadRealEvidenceTriggersProviderRender": 'state.realEvidenceReport = data;' in app_js and 'renderProviderPanel();' in app_js,

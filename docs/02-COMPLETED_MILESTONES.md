@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充网盘矩阵首个缺口直接补救`
+- 完成范围：
+  - 已把 `Provider Matrix` 从“逐条展示 support/auth/list/metadata/create_dir/fast_check/runtime_track 与 real_evidence 信息”推进成可直接突出第一条关键 provider 缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在矩阵列表底部额外渲染首个未满足 `auth/list/metadata/create_dir/fast_check/live_probe/runtime_success/fully_verified` 条件或仍存在 `real_evidence_gaps` 的 provider
+  - 当前动作会直接复用已有的 `appendProviderRecoveryActions()`，因此用户在网盘页不只可以逐条浏览矩阵，还能立刻从第一条关键 provider 缺口进入 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture / Create Stub` 这条修复链，不用自己在整张矩阵里再判断哪一家该优先补
+  - 这次补齐把“看 Provider Matrix -> 人工找第一条最关键缺口 provider -> 再去点行内动作”的流程，推进成“看到第一条关键 provider gap -> 直接点动作 -> 继续收敛 M4/M5/P-REAL”的更短闭环
+  - 已同步补强 [verify_provider_real_evidence_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_real_evidence_ui.py)，把首个矩阵缺口 provider 的识别与 `appendProviderRecoveryActions()` 绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_real_evidence_ui.py` 已验证 `Provider Matrix` 当前包含首个缺口 provider 识别与恢复动作绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证矩阵区复用的 provider 恢复动作底层链未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证登录态主界面与授权弹窗主链路未回退
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充网盘研究首个缺口直接补救`
 - 完成范围：
   - 已把 `Provider Research` 从“逐条展示 research 状态、notes、real evidence 和 live probe 信息”推进成可直接突出第一条最值得优先补的 provider；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在 research 列表底部额外渲染首个 `status!=ready`、`real evidence` 仍有 gap、`fullyVerified=false` 或 live probe 失败的 provider

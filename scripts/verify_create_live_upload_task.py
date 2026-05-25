@@ -164,6 +164,24 @@ def main() -> None:
                     str(evidence_dir),
                 ]
             )
+
+        second_stdout = io.StringIO()
+        with contextlib.redirect_stdout(second_stdout):
+            second_result = live_upload_script.main(
+                [
+                    "--target-profile-id",
+                    "gy-live-1",
+                    "--target-parent-id",
+                    "manual-live-parent",
+                    "--auto-temp-file",
+                    "--no-acknowledge-download-upload",
+                    "--no-refresh-auth-evidence",
+                    "--task-json-output",
+                    str(ROOT / "tmp" / "verify-live-task.json"),
+                    "--auth-evidence-output",
+                    str(ROOT / "tmp" / "verify-live-auth-only.md"),
+                ]
+            )
     finally:
         live_upload_script.get_profile = original_get_profile
         live_upload_script.refresh_auth_profile_evidence = original_refresh_auth_evidence
@@ -173,6 +191,7 @@ def main() -> None:
         live_upload_script.task_runtime.upload_guangya_local_file = original_upload
 
     output = json.loads(stdout_buffer.getvalue())
+    second_output = json.loads(second_stdout.getvalue())
     task_json = evidence_dir / "task.json"
     task_markdown = evidence_dir / "task.md"
     auth_evidence = evidence_dir / "auth_evidence.md"
@@ -191,11 +210,19 @@ def main() -> None:
             path.unlink()
     if evidence_dir.exists():
         evidence_dir.rmdir()
+    second_task_json = ROOT / "tmp" / "verify-live-task.json"
+    second_auth_evidence = ROOT / "tmp" / "verify-live-auth-only.md"
+    second_outputs_ok = second_task_json.exists() and second_auth_evidence.exists()
+    if second_task_json.exists():
+        second_task_json.unlink()
+    if second_auth_evidence.exists():
+        second_auth_evidence.unlink()
 
     print(
         json.dumps(
             {
                 "exitCode": result,
+                "secondExitCode": second_result,
                 "resolvedTargetParentId": output.get("resolvedTargetParentId") == "folder-live-1",
                 "evidenceDirOutput": output.get("evidenceDir") == str(evidence_dir),
                 "stateCompleted": output.get("state") == "completed",
@@ -204,6 +231,12 @@ def main() -> None:
                 "firstResultLive": ((((output.get("results") or [None])[0]) or {}).get("executionMode")) == "live",
                 "firstResultVerifyOk": bool((((((output.get("results") or [None])[0]) or {}).get("liveAttempt") or {}).get("verifyOk"))),
                 "authEvidenceRefreshed": len(refresh_calls) == 1 and refresh_calls[0].get("profileId") == "gy-live-1" and refresh_calls[0].get("persist") is True,
+                "explicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-live-parent",
+                "noRefreshSkipsAuthRefresh": len(refresh_calls) == 1 and second_output.get("refreshedAuthEvidence") is False,
+                "explicitOutputsCreated": second_outputs_ok
+                and second_output.get("taskJsonOutput") == str(second_task_json)
+                and second_output.get("authEvidenceOutput") == str(second_auth_evidence),
+                "noAcknowledgeFlagHonored": second_output.get("acknowledgedDownloadUpload") is False,
                 "jsonSavedState": task_payload.get("state") == "completed",
                 "jsonSavedVerifyMode": (((((task_payload.get("results") or [None])[0]) or {}).get("liveAttempt") or {}).get("verifyMode")) == "list_by_parent_name",
                 "markdownHasConflictAction": "conflictAction=`overwrite_downgraded_to_auto_rename`" in markdown,

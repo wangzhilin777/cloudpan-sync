@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py) 已从“验证能自动解析 parentId 并落 evidence bundle”补强为同时覆盖显式 `--target-parent-id` 覆盖自动解析、`--no-refresh-auth-evidence` 分支，以及 `--no-acknowledge-download-upload`
+  - 当前 `create_live_upload_task.py` 这条 helper 不再只锁默认 happy path，还会验证“明确指定目标目录”“只导出 auth evidence、不刷新最新证据”以及“显式关闭 download_upload 风险确认”这几类实际使用场景
+  - 这样 `recommendedLiveUploadCommand / recommendedRuntimeSuccessCommand` 走 live helper 时也有更完整的边界回归保护
+- 当前验证证据：
+  - [verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py) 已验证显式 `--target-parent-id manual-live-parent` 会覆盖已保存档案里的解析结果
+  - 同一验证已锁住 `--no-refresh-auth-evidence` 时不会再次刷新 auth evidence，显式 `--task-json-output / --auth-evidence-output` 都会真实落盘，并确认 `--no-acknowledge-download-upload` 会把 `acknowledgedDownloadUpload` 关闭
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py) 已从“验证能自动解析 parentId 并落 evidence bundle”补强为同时覆盖显式 `--target-parent-id` 覆盖自动解析，以及 `--no-refresh-auth-evidence` 分支
   - 当前 `create_fast_upload_candidate_task.py` 这条 helper 不再只锁默认 happy path，还会验证“明确指定目标目录”与“只导出 auth evidence、不刷新最新证据”这两类实际使用场景
   - 这样 `recommendedFastCandidateCommand / recommendedRuntimeSuccessCommand` 走 fast helper 时也有更完整的边界回归保护

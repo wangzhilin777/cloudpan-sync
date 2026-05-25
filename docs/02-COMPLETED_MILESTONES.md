@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现已把队列页“新建任务时显式选择阈值与同名冲突策略”的 UI 链路锁进回归，不再只验证 Preview 面板和 guard，而漏掉表单本身的 `taskThresholdMB / taskConflictPolicy`
+  - verifier 当前会同时检查 [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 里确实存在 `taskThresholdMB` 输入框、`taskConflictPolicy` 选择框，以及 `auto_rename_new / overwrite_existing` 两个显式选项
+  - 同一条回归现在还会继续锁住 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 已从表单读取 `thresholdRaw / conflictPolicy`，并把 `thresholdMB / conflictPolicy` 同时带进 Preview 请求、Preview meta 文案和最终 Create Task 请求，避免后续把“页面可选”又退回成“只在内部默认值里生效”
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_queue_plan_preview_ui.py` 已验证队列页当前会显式渲染 `taskThresholdMB / taskConflictPolicy`，并在 Preview / Create 链路中继续保留 `thresholdMB / conflictPolicy`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/verify_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_remediation_bundle.py) 现在已把 auth remediation synthetic bundle/API/Markdown 回归正式切到当前的 secret-refresh / recreate-probe 口径，不再保留已经过时的 `patch_auth_profile_extra.py` 旧期待
   - verifier 当前会同时锁住 synthetic summary 计数、`smoke-guangya` 与 `aliyun-bootstrap` 的 `recommendedRecreateProbeCommand`、`placeholderSecretFieldHints=[token]`，以及 `189-readonly-share` 仍应继续保留账号写授权补丁命令
   - 这样授权补救链路现在除了 current sync verifier、export verifier 之外，连独立 synthetic bundle verifier 也已经把“先换真 secret 再 probe”和“189 只读档案仍需 patch 写鉴权”这两条现行分流一起锁住了

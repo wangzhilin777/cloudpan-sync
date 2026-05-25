@@ -21,6 +21,10 @@ def main() -> None:
     app_js = client.get("/assets/app.js").text
 
     result = {
+        "htmlHasThresholdInput": 'id="taskThresholdMB"' in index_html,
+        "htmlHasConflictPolicySelector": 'id="taskConflictPolicy"' in index_html,
+        "htmlHasConflictPolicyAutoRenameOption": '<option value="auto_rename_new">auto_rename_new</option>' in index_html,
+        "htmlHasConflictPolicyOverwriteOption": '<option value="overwrite_existing">overwrite_existing</option>' in index_html,
         "htmlHasPreviewButton": 'id="taskPreviewBtn"' in index_html,
         "htmlHasPreviewPanel": 'id="taskPlanPreviewPanel"' in index_html,
         "htmlHasPreviewSummary": 'id="taskPlanPreviewSummary"' in index_html,
@@ -31,6 +35,13 @@ def main() -> None:
         "jsHasPreviewRenderer": "function renderTaskPlanPreview()" in app_js,
         "jsHasFetchPlanHelper": "async function fetchTaskPlanPreview()" in app_js,
         "jsHasAckReset": "function resetTaskPlanAck()" in app_js,
+        "jsReadsThresholdAndConflictPolicyFromForm": 'const thresholdRaw = document.getElementById("taskThresholdMB").value.trim();' in app_js
+        and 'const conflictPolicy = document.getElementById("taskConflictPolicy").value;' in app_js,
+        "jsSendsThresholdAndConflictPolicyInPreview": 'thresholdMB: Number(thresholdRaw || 0) || 0,' in app_js
+        and "conflictPolicy," in app_js,
+        "jsPreviewMetaShowsThresholdAndConflictPolicy": 'thresholdMB=${plan.thresholdMB || 0}, conflictPolicy=${plan.conflictPolicy || "auto_rename_new"}' in app_js,
+        "jsCreateRequestPreservesThresholdAndConflictPolicy": "thresholdMB: body.thresholdMB," in app_js
+        and "conflictPolicy: body.conflictPolicy," in app_js,
         "jsHasTaskActionStateHelper": "function taskActionsForState(task)" in app_js,
         "jsHasTaskStatusPillHelpers": "function appendTaskStatusPill(container, label, className = \"\")" in app_js and "function appendTaskGuardPill(container, label, className = \"\")" in app_js,
         "jsPrefersTaskSummary": "task.summary || {}" in app_js and "summary.state || task.state" in app_js and "summary.lastActionError || task.lastActionError" in app_js,

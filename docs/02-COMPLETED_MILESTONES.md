@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充本地适配器验证设置页聚合`
+- 完成范围：
+  - 已新增应用侧聚合模块 [local_live_adapter_verification.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/local_live_adapter_verification.py)，把原本只存在于导出脚本的 `Local Live Adapter Verification` 能力正式抽到 `src` 层，统一提供 `summary / items / markdown` 三种消费形态
+  - [webapp.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/webapp.py) 现已新增 `GET /api/local_live_adapter_verification` 与 `GET /api/local_live_adapter_verification_markdown`，登录后可直接从产品内读取本地 stub 验证快照，而不必只靠单独跑导出脚本
+  - 设置页现已新增 `Local Live Adapter Verification` 摘要面板；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在设置页直接显示 `allOkProviders / md5ReadyProviders / gcidReadyProviders / probeReadyProviders / matrixReadyProviders / accountCreateModeProviders`，并附带逐 provider 的 `list / metadata / create / createMode / probeChecks / matrix` 快照
+  - 已新增 [verify_local_live_adapter_verification_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_local_live_adapter_verification_api.py) 与 [verify_local_live_adapter_verification_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_local_live_adapter_verification_settings_ui.py)，把 API、Markdown、设置页 DOM、状态、loader、刷新链路和摘要字段一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_local_live_adapter_verification_api.py` 已验证应用侧 payload 会输出 `summary / items`，API markdown 也会继续保留 `providerSummary` 与 `189cloud create_mode`
+  - `.\.venv\Scripts\python.exe scripts\verify_local_live_adapter_verification_settings_ui.py` 已验证设置页当前含 `Local Live Adapter Verification` 面板，并会在刷新后加载与展示对应 summary 字段
+  - `.\.venv\Scripts\python.exe scripts\verify_export_local_live_adapter_verification.py` 已验证原有导出链改走应用侧模块后仍保持兼容，导出的 `07-LOCAL_LIVE_ADAPTER_VERIFICATION.md` 结构未回退
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充授权设置页聚合明细`
 - 完成范围：
   - 设置页现已新增 `Auth Evidence Bundle` 与 `Auth Remediation Guide` 两个摘要面板，不必先切到授权页再点按钮，登录后即可直接看到当前 auth profile 的 ready/fix 分布

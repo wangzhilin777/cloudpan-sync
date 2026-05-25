@@ -58,6 +58,10 @@ from .provider_research import build_provider_research_index
 from .provider_registry import build_provider_registry
 from .plan_audit import run_plan_audit, to_markdown
 from .live_probe import run_live_probe, probe_to_markdown
+from .local_live_adapter_verification import (
+    build_local_live_adapter_verification,
+    local_live_adapter_verification_to_markdown,
+)
 from .provider_status_matrix import build_status_matrix, matrix_to_markdown
 from .real_evidence_remediation import build_real_evidence_remediation_bundle, real_evidence_remediation_to_markdown
 from .real_evidence_report import build_real_evidence_report, real_evidence_to_markdown
@@ -297,6 +301,19 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=401, detail="please_login_first")
         data = build_status_matrix()
         return {"markdown": matrix_to_markdown(data)}
+
+    @app.get("/api/local_live_adapter_verification")
+    def local_live_adapter_verification(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        return build_local_live_adapter_verification()
+
+    @app.get("/api/local_live_adapter_verification_markdown")
+    def local_live_adapter_verification_markdown(request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        data = build_local_live_adapter_verification()
+        return {"markdown": local_live_adapter_verification_to_markdown(data)}
 
     @app.get("/api/real_evidence")
     def real_evidence_report(request: Request) -> dict[str, object]:

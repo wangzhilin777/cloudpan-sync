@@ -37,6 +37,7 @@ const state = {
   auditSummary: null,
   authEvidenceBundle: null,
   authRemediationBundle: null,
+  localLiveAdapterVerification: null,
   realEvidenceReport: null,
   realEvidenceSummary: null,
   realEvidenceRemediation: null,
@@ -995,6 +996,15 @@ async function loadRealEvidenceSummary() {
   renderSettingsPanel();
 }
 
+async function loadLocalLiveAdapterVerificationSummary() {
+  if (!state.loggedIn) {
+    return;
+  }
+  const data = await fetchJson("/api/local_live_adapter_verification");
+  state.localLiveAdapterVerification = data;
+  renderSettingsPanel();
+}
+
 async function loadRealEvidenceRemediationSummary() {
   if (!state.loggedIn) {
     return;
@@ -1735,6 +1745,7 @@ function renderSettingsPanel() {
   const authEvidenceList = document.getElementById("settingsAuthEvidenceList");
   const authRemediationList = document.getElementById("settingsAuthRemediationList");
   const providerStatusList = document.getElementById("settingsProviderStatusList");
+  const localAdapterVerificationList = document.getElementById("settingsLocalAdapterVerificationList");
   const realEvidenceList = document.getElementById("settingsRealEvidenceList");
   const realEvidenceRemediationList = document.getElementById("settingsRealEvidenceRemediationList");
   const taskRuntimeEvidenceList = document.getElementById("settingsTaskRuntimeEvidenceList");
@@ -1745,6 +1756,7 @@ function renderSettingsPanel() {
   authEvidenceList.innerHTML = "";
   authRemediationList.innerHTML = "";
   providerStatusList.innerHTML = "";
+  localAdapterVerificationList.innerHTML = "";
   realEvidenceList.innerHTML = "";
   realEvidenceRemediationList.innerHTML = "";
   taskRuntimeEvidenceList.innerHTML = "";
@@ -1843,6 +1855,25 @@ function renderSettingsPanel() {
     const li = document.createElement("li");
     li.textContent = row;
     providerStatusList.appendChild(li);
+  }
+
+  const localAdapterSummary = state.localLiveAdapterVerification?.summary || {};
+  const localAdapterItems = state.localLiveAdapterVerification?.items || [];
+  const localAdapterRows = [
+    `providers=${localAdapterSummary.providerCount || 0}, allOk=${(localAdapterSummary.allOkProviders || []).length}, md5Ready=${(localAdapterSummary.md5ReadyProviders || []).length}, gcidReady=${(localAdapterSummary.gcidReadyProviders || []).length}, probeReady=${(localAdapterSummary.probeCheckReadyProviders || []).length}, matrixReady=${(localAdapterSummary.matrixReadyProviders || []).length}, accountCreateMode=${(localAdapterSummary.accountCreateModeProviders || []).length}`,
+    `allOkProviders=${(localAdapterSummary.allOkProviders || []).join("/") || "(none)"}, md5ReadyProviders=${(localAdapterSummary.md5ReadyProviders || []).join("/") || "(none)"}, gcidReadyProviders=${(localAdapterSummary.gcidReadyProviders || []).join("/") || "(none)"}`,
+    `probeReadyProviders=${(localAdapterSummary.probeCheckReadyProviders || []).join("/") || "(none)"}, matrixReadyProviders=${(localAdapterSummary.matrixReadyProviders || []).join("/") || "(none)"}, accountCreateModeProviders=${(localAdapterSummary.accountCreateModeProviders || []).join("/") || "(none)"}`,
+  ];
+  for (const row of localAdapterRows) {
+    const li = document.createElement("li");
+    li.textContent = row;
+    localAdapterVerificationList.appendChild(li);
+  }
+  for (const item of localAdapterItems.slice(0, 3)) {
+    const matrixRow = item.matrixRow || {};
+    const li = document.createElement("li");
+    li.textContent = `${item.providerKey || "(unknown)"}: list=${Boolean(item.list_ok)}, metadata=${Boolean(item.metadata_ok)}, create=${Boolean(item.create_ok)}, md5=${item.metadata_md5 || "(none)"}, gcid=${item.metadata_gcid || "(none)"}, createMode=${item.create_mode || "(none)"}, probeChecks=${item.probeChecksReady || 0}, matrix=list:${Boolean(matrixRow.list_ready)}/metadata:${Boolean(matrixRow.metadata_ready)}/create:${Boolean(matrixRow.create_dir_ready)}/probe:${Boolean(matrixRow.live_probe_ok)}`;
+    localAdapterVerificationList.appendChild(li);
   }
 
   const realEvidence = state.realEvidenceSummary || {};
@@ -1949,6 +1980,7 @@ async function onLogout() {
   state.providerLiveProbeMeta = { historyCount: 0, summary: null };
   state.authEvidenceBundle = null;
   state.authRemediationBundle = null;
+  state.localLiveAdapterVerification = null;
   state.realEvidenceReport = null;
   state.realEvidenceSummary = null;
   state.realEvidenceRemediation = null;
@@ -1975,6 +2007,7 @@ async function refreshProtectedData() {
     loadProviderLiveProbeResults(),
     loadAuthEvidenceBundleSummary(),
     loadAuthRemediationBundleSummary(),
+    loadLocalLiveAdapterVerificationSummary(),
     loadRealEvidenceSummary(),
     loadRealEvidenceRemediationSummary(),
     loadTaskRuntimeEvidence(),

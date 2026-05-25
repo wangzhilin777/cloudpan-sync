@@ -315,6 +315,11 @@ def build_real_evidence_report() -> dict[str, object]:
 
 def real_evidence_to_markdown(payload: dict[str, object]) -> str:
     summary = dict(payload.get("summary") or {})
+
+    def _profiles_text(values: object) -> str:
+        labels = [str(item or "") for item in list(values or []) if str(item or "")]
+        return ", ".join(labels) if labels else "(none)"
+
     lines: list[str] = []
     lines.append("# CloudPan Sync 真实证据状态报告")
     lines.append("")
@@ -379,6 +384,12 @@ def real_evidence_to_markdown(payload: dict[str, object]) -> str:
             f"blocked={((row.get('taskRuntimeEvidence') or {}).get('blockedCount', 0))} "
             f"conflictHandled={((row.get('taskRuntimeEvidence') or {}).get('conflictHandledCount', 0))} "
             f"note={str((row.get('taskRuntimeEvidence') or {}).get('note') or '')}"
+        )
+        lines.append(
+            f"- taskRuntimeProfiles: success={_profiles_text((row.get('taskRuntimeEvidence') or {}).get('profiles', []))} "
+            f"failed={_profiles_text((row.get('taskRuntimeEvidence') or {}).get('failedProfiles', []))} "
+            f"candidate={_profiles_text((row.get('taskRuntimeEvidence') or {}).get('candidateProfiles', []))} "
+            f"probe={_profiles_text((row.get('taskRuntimeEvidence') or {}).get('probeProfiles', []))}"
         )
         if row.get("gaps"):
             lines.append(f"- gaps: {', '.join(row.get('gaps') or [])}")

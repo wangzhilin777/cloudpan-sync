@@ -12,6 +12,19 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_report.py) 的 markdown 渲染已继续补齐 `taskRuntimeProfiles` 明细，不再只展示 `samples / success / failed / candidate / probe / blocked / conflictHandled` 这类计数，当前会把同一 provider 的 `success / failed / candidate / probe` 样本档案名一起显式写进真实证据报告
+  - 这次补齐后，[docs/10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 现在不仅能继续诚实展示 `guangya / uc / pikpak` 已有 runtime 成功样本，也能直接看出它们当前各自落到的是哪些已保存 profile；对 `115_open / 189cloud / xunlei / aliyundrive_open / quark / baidu_netdisk / 123_open` 这些仍无 runtime 成功样本的 provider，也会明确保持 `success=(none) failed=(none) candidate=(none) probe=(none)`，避免只剩数字、看不出具体档案分布
+  - 已同步补强 [scripts/verify_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_report.py)、[scripts/verify_export_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_report.py)、[scripts/verify_current_real_evidence_status_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_status_sync.py)，把 API markdown、导出 markdown 和当前仓库文档里的 `taskRuntimeProfiles` 明细一起锁进回归，防止 `P-REAL` 追踪再次退回“只有汇总数字、没有样本名单”
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_report.py` 已验证 synthetic payload 与 `/api/real_evidence_markdown` 当前都会输出 `taskRuntimeProfiles`，并区分 `success / failed / candidate / probe` 样本档案
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_report.py` 已验证导出脚本生成的 `docs/10-REAL_EVIDENCE_STATUS.md` 当前会保留 runtime 样本档案明细
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_status_sync.py` 已验证当前仓库文档里的 runtime 样本分布与 `build_real_evidence_report()` 保持同步
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/verify_current_real_evidence_status_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_status_sync.py) 已继续补强，不再只校验 [docs/10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 的 `task_runtime / runtime_samples / runtime_success / runtime_conflict_handled` 汇总口径
   - 这条 current-sync verifier 现在还会继续锁住 `task_runtime_failed / task_runtime_candidate / task_runtime_probe / runtime_failed / runtime_candidate / runtime_probe / runtime_blocked_providers / runtime_blocked` 这些更容易漂移的真实证据字段，防止 `P-REAL` 状态摘要只更新一半
   - 同一条回归当前还会逐 provider 核对 `guangya / uc / pikpak` 仍保持 `samples=1 success=1` 的 runtime 成功样本口径，以及 `115_open / 189cloud / xunlei / aliyundrive_open / quark / baidu_netdisk / 123_open` 这些 provider 仍然诚实保持 `samples=0 success=0 ...` 和“当前尚未记录到任务运行阶段真实成功样本”的未完成提示

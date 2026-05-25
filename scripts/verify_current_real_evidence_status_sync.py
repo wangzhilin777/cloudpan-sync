@@ -23,9 +23,20 @@ def _section(markdown: str, provider_key: str) -> str:
     return markdown[start:next_start]
 
 
+def _item(payload: dict[str, object], provider_key: str) -> dict[str, object]:
+    for row in list(payload.get("items") or []):
+        item = dict(row or {})
+        if str(item.get("providerKey") or "") == provider_key:
+            return item
+    return {}
+
+
 def main() -> None:
     payload = build_real_evidence_report()
     summary = dict(payload.get("summary") or {})
+    guangya_item = _item(payload, "guangya")
+    uc_item = _item(payload, "uc")
+    pikpak_item = _item(payload, "pikpak")
     markdown = (ROOT / "docs" / "10-REAL_EVIDENCE_STATUS.md").read_text(encoding="utf-8")
 
     guangya = _section(markdown, "guangya")
@@ -73,6 +84,11 @@ def main() -> None:
                 "guangyaSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in guangya,
                 "ucSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in uc,
                 "pikpakSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in pikpak,
+                "runtimeSuccessSectionsShowCurrentProfiles": (
+                    f"taskRuntimeProfiles: success={', '.join(((guangya_item.get('taskRuntimeEvidence') or {}).get('profiles') or [])) or '(none)'} failed=(none) candidate=(none) probe=(none)" in guangya
+                    and f"taskRuntimeProfiles: success={', '.join(((uc_item.get('taskRuntimeEvidence') or {}).get('profiles') or [])) or '(none)'} failed=(none) candidate=(none) probe=(none)" in uc
+                    and f"taskRuntimeProfiles: success={', '.join(((pikpak_item.get('taskRuntimeEvidence') or {}).get('profiles') or [])) or '(none)'} failed=(none) candidate=(none) probe=(none)" in pikpak
+                ),
                 "cloud115SectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in cloud115,
                 "cloud189SectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in cloud189,
                 "xunleiSectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in xunlei,
@@ -80,6 +96,15 @@ def main() -> None:
                 "quarkSectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in quark,
                 "baiduSectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in baidu,
                 "pan123SectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in pan123,
+                "noRuntimeSuccessSectionsShowEmptyProfiles": (
+                    "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none)" in cloud115
+                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none)" in cloud189
+                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none)" in xunlei
+                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none)" in aliyun
+                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none)" in quark
+                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none)" in baidu
+                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none)" in pan123
+                ),
                 "noRuntimeSuccessSectionsKeepTodoNote": (
                     "当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。" in cloud115
                     and "当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。" in cloud189

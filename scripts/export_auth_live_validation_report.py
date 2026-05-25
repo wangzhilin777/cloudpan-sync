@@ -25,6 +25,10 @@ def main() -> None:
     lines.append(f"- latestOkCount: `{summary.get('okCount', 0)}`")
     lines.append(f"- latestFailedCount: `{summary.get('failedCount', 0)}`")
     lines.append(f"- latestProviders: `{', '.join(summary.get('providerKeys', [])) or '(none)'}`")
+    lines.append(
+        f"- latestProfiles: `ok={', '.join(summary.get('okProfiles', [])) or '(none)'}` "
+        f"`failed={', '.join(summary.get('failedProfiles', [])) or '(none)'}`"
+    )
     lines.append("")
     lines.append("## Latest By Profile")
     lines.append("")

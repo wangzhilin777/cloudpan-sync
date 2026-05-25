@@ -5,6 +5,7 @@
 - latestOkCount: `0`
 - latestFailedCount: `3`
 - latestProviders: `aliyundrive_open, guangya`
+- latestProfiles: `ok=(none)` `failed=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya`
 
 ## Latest By Profile
 

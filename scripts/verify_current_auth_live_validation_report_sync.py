@@ -31,12 +31,15 @@ def main() -> None:
                     and f"- latestOkCount: `{summary.get('okCount', 0)}`" in markdown
                     and f"- latestFailedCount: `{summary.get('failedCount', 0)}`" in markdown
                     and f"- latestProviders: `{', '.join(summary.get('providerKeys', [])) or '(none)'}`" in markdown
+                    and f"- latestProfiles: `ok={', '.join(summary.get('okProfiles', [])) or '(none)'}` `failed={', '.join(summary.get('failedProfiles', [])) or '(none)'}`" in markdown
                 ),
                 "summaryShowsExpectedValidationCounts": (
                     len(rows) == 5
                     and summary.get("profileCount") == 3
                     and summary.get("okCount") == 0
                     and summary.get("failedCount") == 3
+                    and summary.get("okProfiles") == []
+                    and summary.get("failedProfiles") == ["aliyun-bootstrap", "risk-smoke-guangya", "smoke-guangya"]
                     and summary.get("providerKeys") == ["aliyundrive_open", "guangya"]
                 ),
                 "latestSectionKeepsThreeLatestRows": (

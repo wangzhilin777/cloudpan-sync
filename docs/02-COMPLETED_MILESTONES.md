@@ -12,6 +12,20 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [auth_live_validate.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_live_validate.py) 的 summary 现已继续补齐 `okProfiles / failedProfiles` 聚合明细，不再只返回 `okCount / failedCount / providerKeys`
+  - [export_auth_live_validation_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_auth_live_validation_report.py) 导出的 [03-AUTH_LIVE_VALIDATION_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/03-AUTH_LIVE_VALIDATION_REPORT.md) 现在会显式写出 `latestProfiles` 行，直接汇总最新 auth live validation 中哪些 profile 通过、哪些 profile 失败；当前真实仓库会明确显示 `ok=(none)` 与 `failed=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya`
+  - 已同步补强 [verify_current_auth_live_validation_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_live_validation_report_sync.py)、[verify_export_auth_live_validation_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_live_validation_report.py)、[verify_auth_live_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_live_validation.py)，把当前文档、导出链和 API summary 的 `okProfiles / failedProfiles` 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_current_auth_live_validation_report_sync.py` 已验证当前仓库文档中的 `latestProfiles` 与 `live_validation_summary()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\verify_export_auth_live_validation_report.py` 已验证导出的 auth live validation 报告会写出 `latestProfiles`
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_live_validation.py` 已验证 API summary 现也会返回 `okProfiles / failedProfiles`
+  - `.\.venv\Scripts\python.exe scripts\export_auth_live_validation_report.py` 已重导出当前 [03-AUTH_LIVE_VALIDATION_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/03-AUTH_LIVE_VALIDATION_REPORT.md)
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [task_runtime_evidence_store.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime_evidence_store.py) 的 Markdown 渲染现已继续补齐 `profileSummary` 聚合明细，不再只靠逐条样本长行去人工辨认当前有哪些 `success / failed / candidate / probe / blocked / conflictHandled` profile
   - 这次补齐后，[docs/11-TASK_RUNTIME_EVIDENCE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/11-TASK_RUNTIME_EVIDENCE.md) 现在除了继续保留逐条 runtime 样本行，还会在顶部直接汇总 `success / failed / candidate / probe / blocked / conflictHandled` 对应的 profile；当前真实仓库会明确写出 `success=gy-live-1, pikpak-live-1, uc-live-1` 与 `conflictHandled=gy-live-1, pikpak-live-1, uc-live-1`
   - 已同步补强 [verify_task_runtime_evidence_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_api.py)、[verify_export_task_runtime_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_runtime_evidence_report.py)、[verify_current_task_runtime_evidence_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_task_runtime_evidence_report_sync.py)，把 API markdown、导出 markdown 和当前仓库文档里的 `profileSummary` 一起锁进回归

@@ -60,10 +60,26 @@ def latest_live_validation_for_profile(profile_id: str) -> dict[str, object] | N
 
 def live_validation_summary() -> dict[str, object]:
     rows = latest_live_validations()
+    ok_profiles = sorted(
+        {
+            str(row.get("providerDisplayName") or row.get("profileId") or "")
+            for row in rows
+            if bool(row.get("ok")) and str(row.get("providerDisplayName") or row.get("profileId") or "")
+        }
+    )
+    failed_profiles = sorted(
+        {
+            str(row.get("providerDisplayName") or row.get("profileId") or "")
+            for row in rows
+            if not bool(row.get("ok")) and str(row.get("providerDisplayName") or row.get("profileId") or "")
+        }
+    )
     return {
         "profileCount": len(rows),
         "okCount": sum(1 for row in rows if bool(row.get("ok"))),
         "failedCount": sum(1 for row in rows if not bool(row.get("ok"))),
+        "okProfiles": ok_profiles,
+        "failedProfiles": failed_profiles,
         "providerKeys": sorted({str(row.get("providerKey") or "") for row in rows if str(row.get("providerKey") or "")}),
     }
 

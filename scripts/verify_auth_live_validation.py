@@ -152,7 +152,7 @@ def main() -> None:
                         ).json()
                         with patched_attr(webapp, "list_live_validations", lambda: [{"profileId": "p1", "providerKey": "guangya"}, {"profileId": "p1", "providerKey": "guangya"}, {"profileId": "p2", "providerKey": "123_open"}]):
                             with patched_attr(webapp, "latest_live_validations", lambda: [{"profileId": "p1", "providerKey": "guangya"}, {"profileId": "p2", "providerKey": "123_open"}]):
-                                with patched_attr(webapp, "live_validation_summary", lambda: {"profileCount": 2, "okCount": 1, "failedCount": 1, "providerKeys": ["123_open", "guangya"]}):
+                                with patched_attr(webapp, "live_validation_summary", lambda: {"profileCount": 2, "okCount": 1, "failedCount": 1, "okProfiles": ["guangya-main"], "failedProfiles": ["123-open-main"], "providerKeys": ["123_open", "guangya"]}):
                                     validations_response = client.get("/api/auth/live_validations").json()
                         with patched_attr(webapp, "list_provider_live_probes", lambda: [{"profileId": "p1", "providerKey": "guangya"}, {"profileId": "p1", "providerKey": "guangya"}, {"profileId": "p2", "providerKey": "123_open"}]):
                             with patched_attr(webapp, "latest_provider_live_probes", lambda: [{"profileId": "p1", "providerKey": "guangya"}, {"profileId": "p2", "providerKey": "123_open"}]):
@@ -190,6 +190,8 @@ def main() -> None:
                     "authHistoryCount": len(validations_response.get("items") or []),
                     "authLatestCount": len(validations_response.get("latestItems") or []),
                     "authSummaryProfiles": (validations_response.get("summary") or {}).get("profileCount"),
+                    "authSummaryOkProfiles": (validations_response.get("summary") or {}).get("okProfiles"),
+                    "authSummaryFailedProfiles": (validations_response.get("summary") or {}).get("failedProfiles"),
                     "probeHistoryCount": len(probes_response.get("items") or []),
                     "probeLatestCount": len(probes_response.get("latestItems") or []),
                     "probeSummaryProfiles": (probes_response.get("summary") or {}).get("profileCount"),

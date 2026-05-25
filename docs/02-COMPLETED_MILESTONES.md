@@ -10,6 +10,19 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充状态矩阵聚合明细`
+- 完成范围：
+  - [provider_status_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/provider_status_matrix.py) 的 summary 现已继续补齐 `authReadyProviders / createDirReadyProviders / fastCheckProviders / liveProbeOkProviders / overwriteDowngradeProviders / overwriteSupportedProviders / autoRenameSupportedProviders / autoRenameProbeOnlyProviders / conflictUnsupportedProviders / taskRuntimeSuccessProviders / taskRuntimeFailedProviders / taskRuntimeCandidateProviders / taskRuntimeProbeProviders / taskRuntimeBlockedProviders / taskRuntimeConflictHandledProviders` 聚合明细，不再只返回一组组计数
+  - 这次补齐后，[06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 现在会在顶部额外写出 `providerSummary` 行，直接汇总当前哪些 provider 已具备 `create_dir / fast_check`、哪些是 `overwrite_downgrade / overwrite_supported / auto_rename_probe_only / conflict_unsupported`，以及哪些 provider 当前已有 `runtime_success / runtime_failed / runtime_candidate / runtime_probe / runtime_blocked / runtime_conflict_handled`；当前真实仓库会明确显示 `overwrite_supported=aliyundrive_open`、`auto_rename_probe_only=115_open`、`conflict_unsupported=189cloud`、`runtime_success=guangya, uc, pikpak`
+  - 已同步补强 [verify_export_provider_status_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_provider_status_matrix.py) 与 [verify_current_provider_status_matrix_runtime_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_provider_status_matrix_runtime_sync.py)，把 synthetic export 与当前仓库文档里的 `providerSummary` 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_provider_status_matrix.py` 已验证导出的状态矩阵会写出 `providerSummary`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_provider_status_matrix_runtime_sync.py` 已验证当前仓库文档中的 `providerSummary` 与 `build_status_matrix()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\export_provider_status_matrix.py` 已重导出当前 [06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md)
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充授权联调报告聚合明细`
 - 完成范围：
   - [auth_live_validate.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_live_validate.py) 的 summary 现已继续补齐 `okProviderKeys / failedProviderKeys / failedModes` 聚合明细，不再只返回 `okProfiles / failedProfiles / providerKeys` 这几组字段

@@ -319,6 +319,25 @@ def build_status_matrix() -> dict[str, object]:
             "taskRuntimeActiveCount": sum(1 for x in items if str(x["task_runtime_track"]) == "runtime_active"),
             "taskRuntimeCandidateCount": sum(1 for x in items if str(x["task_runtime_track"]) == "runtime_candidate"),
             "taskRuntimeBlockedCount": sum(1 for x in items if str(x["task_runtime_track"]) == "runtime_blocked"),
+            "authReadyProviders": [str(x.get("providerKey") or "") for x in items if bool(x["auth_ready"])],
+            "createDirReadyProviders": [str(x.get("providerKey") or "") for x in items if bool(x["create_dir_ready"])],
+            "fastCheckProviders": [str(x.get("providerKey") or "") for x in items if bool(x["fast_check"])],
+            "liveProbeOkProviders": [str(x.get("providerKey") or "") for x in items if bool(x["live_probe_ok"])],
+            "overwriteDowngradeProviders": [str(x.get("providerKey") or "") for x in items if str(x["overwrite_support_status"]) == "downgrade_to_auto_rename"],
+            "overwriteSupportedProviders": [str(x.get("providerKey") or "") for x in items if str(x["overwrite_support_status"]) == "supported"],
+            "autoRenameSupportedProviders": [str(x.get("providerKey") or "") for x in items if str(x["auto_rename_support_status"]) == "supported"],
+            "autoRenameProbeOnlyProviders": [str(x.get("providerKey") or "") for x in items if str(x["auto_rename_support_status"]) == "probe_only_runtime_write_check"],
+            "conflictUnsupportedProviders": [
+                str(x.get("providerKey") or "")
+                for x in items
+                if str(x["overwrite_support_status"]) == "unsupported" and str(x["auto_rename_support_status"]) == "unsupported"
+            ],
+            "taskRuntimeSuccessProviders": [str(x.get("providerKey") or "") for x in items if int(x["task_runtime_success"]) > 0],
+            "taskRuntimeFailedProviders": [str(x.get("providerKey") or "") for x in items if int(x["task_runtime_failed"]) > 0],
+            "taskRuntimeCandidateProviders": [str(x.get("providerKey") or "") for x in items if int(x["task_runtime_candidate"]) > 0],
+            "taskRuntimeProbeProviders": [str(x.get("providerKey") or "") for x in items if int(x["task_runtime_probe"]) > 0],
+            "taskRuntimeBlockedProviders": [str(x.get("providerKey") or "") for x in items if int(x["task_runtime_blocked"]) > 0],
+            "taskRuntimeConflictHandledProviders": [str(x.get("providerKey") or "") for x in items if int(x["task_runtime_conflict_handled"]) > 0],
         },
         "items": sorted(items, key=lambda x: str(x.get("providerKey") or "")),
     }
@@ -337,6 +356,23 @@ def matrix_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- GeneratedAt: `{payload.get('generatedAt', '')}`")
     lines.append(
         f"- Summary: providerCount={summary.get('providerCount', 0)}, authReadyCount={summary.get('authReadyCount', 0)}, createDirReadyCount={summary.get('createDirReadyCount', 0)}, fastCheckCount={summary.get('fastCheckCount', 0)}, liveProbeOkCount={summary.get('liveProbeOkCount', 0)}, conflictAwareProviderCount={summary.get('conflictAwareProviderCount', 0)}, overwriteReadyCount={summary.get('overwriteReadyCount', 0)}, autoRenameReadyCount={summary.get('autoRenameReadyCount', 0)}, overwriteDowngradeCount={summary.get('overwriteDowngradeCount', 0)}, overwriteSupportedCount={summary.get('overwriteSupportedCount', 0)}, autoRenameSupportedCount={summary.get('autoRenameSupportedCount', 0)}, autoRenameProbeOnlyCount={summary.get('autoRenameProbeOnlyCount', 0)}, conflictUnsupportedProviderCount={summary.get('conflictUnsupportedProviderCount', 0)}, taskRuntimeEvidenceProviderCount={summary.get('taskRuntimeEvidenceProviderCount', 0)}, taskRuntimeFailedProviderCount={summary.get('taskRuntimeFailedProviderCount', 0)}, taskRuntimeCandidateEvidenceProviderCount={summary.get('taskRuntimeCandidateEvidenceProviderCount', 0)}, taskRuntimeProbeEvidenceProviderCount={summary.get('taskRuntimeProbeEvidenceProviderCount', 0)}, taskRuntimeSampleCount={summary.get('taskRuntimeSampleCount', 0)}, taskRuntimeSuccessCount={summary.get('taskRuntimeSuccessCount', 0)}, taskRuntimeFailedCount={summary.get('taskRuntimeFailedCount', 0)}, taskRuntimeCandidateEvidenceCount={summary.get('taskRuntimeCandidateEvidenceCount', 0)}, taskRuntimeProbeEvidenceCount={summary.get('taskRuntimeProbeEvidenceCount', 0)}, taskRuntimeBlockedProviderCount={summary.get('taskRuntimeBlockedProviderCount', 0)}, taskRuntimeBlockedEvidenceCount={summary.get('taskRuntimeBlockedEvidenceCount', 0)}, taskRuntimeConflictHandledProviderCount={summary.get('taskRuntimeConflictHandledProviderCount', 0)}, taskRuntimeConflictHandledCount={summary.get('taskRuntimeConflictHandledCount', 0)}, taskRuntimeActiveCount={summary.get('taskRuntimeActiveCount', 0)}, taskRuntimeCandidateCount={summary.get('taskRuntimeCandidateCount', 0)}, taskRuntimeBlockedCount={summary.get('taskRuntimeBlockedCount', 0)}"
+    )
+    lines.append(
+        f"- providerSummary: `auth_ready={', '.join(summary.get('authReadyProviders', [])) or '(none)'}` "
+        f"`create_dir_ready={', '.join(summary.get('createDirReadyProviders', [])) or '(none)'}` "
+        f"`fast_check={', '.join(summary.get('fastCheckProviders', [])) or '(none)'}` "
+        f"`live_probe_ok={', '.join(summary.get('liveProbeOkProviders', [])) or '(none)'}` "
+        f"`overwrite_downgrade={', '.join(summary.get('overwriteDowngradeProviders', [])) or '(none)'}` "
+        f"`overwrite_supported={', '.join(summary.get('overwriteSupportedProviders', [])) or '(none)'}` "
+        f"`auto_rename_supported={', '.join(summary.get('autoRenameSupportedProviders', [])) or '(none)'}` "
+        f"`auto_rename_probe_only={', '.join(summary.get('autoRenameProbeOnlyProviders', [])) or '(none)'}` "
+        f"`conflict_unsupported={', '.join(summary.get('conflictUnsupportedProviders', [])) or '(none)'}` "
+        f"`runtime_success={', '.join(summary.get('taskRuntimeSuccessProviders', [])) or '(none)'}` "
+        f"`runtime_failed={', '.join(summary.get('taskRuntimeFailedProviders', [])) or '(none)'}` "
+        f"`runtime_candidate={', '.join(summary.get('taskRuntimeCandidateProviders', [])) or '(none)'}` "
+        f"`runtime_probe={', '.join(summary.get('taskRuntimeProbeProviders', [])) or '(none)'}` "
+        f"`runtime_blocked={', '.join(summary.get('taskRuntimeBlockedProviders', [])) or '(none)'}` "
+        f"`runtime_conflict_handled={', '.join(summary.get('taskRuntimeConflictHandledProviders', [])) or '(none)'}`"
     )
     lines.append("")
     lines.append("| providerKey | supportStatus | auth_ready | list_ready | metadata_ready | create_dir_ready | fast_check | live_probe_ok | task_runtime_track | task_runtime_samples | task_runtime_success | task_runtime_failed | task_runtime_candidate | task_runtime_probe | task_runtime_blocked | task_runtime_conflict_handled | supports_overwrite | supports_auto_rename | overwrite_behavior | overwrite_support_status | auto_rename_support_status | conflict_policies | fallback_ready |")

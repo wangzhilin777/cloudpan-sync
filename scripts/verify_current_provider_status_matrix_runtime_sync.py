@@ -65,10 +65,30 @@ def main() -> None:
                     and f"taskRuntimeConflictHandledProviderCount={summary.get('taskRuntimeConflictHandledProviderCount', 0)}" in markdown
                     and f"taskRuntimeConflictHandledCount={summary.get('taskRuntimeConflictHandledCount', 0)}" in markdown
                 ),
+                "summaryHasCurrentProviderSummary": (
+                    f"- providerSummary: `auth_ready={', '.join(summary.get('authReadyProviders', [])) or '(none)'}` `create_dir_ready={', '.join(summary.get('createDirReadyProviders', [])) or '(none)'}` `fast_check={', '.join(summary.get('fastCheckProviders', [])) or '(none)'}` `live_probe_ok={', '.join(summary.get('liveProbeOkProviders', [])) or '(none)'}` `overwrite_downgrade={', '.join(summary.get('overwriteDowngradeProviders', [])) or '(none)'}` `overwrite_supported={', '.join(summary.get('overwriteSupportedProviders', [])) or '(none)'}` `auto_rename_supported={', '.join(summary.get('autoRenameSupportedProviders', [])) or '(none)'}` `auto_rename_probe_only={', '.join(summary.get('autoRenameProbeOnlyProviders', [])) or '(none)'}` `conflict_unsupported={', '.join(summary.get('conflictUnsupportedProviders', [])) or '(none)'}` `runtime_success={', '.join(summary.get('taskRuntimeSuccessProviders', [])) or '(none)'}` `runtime_failed={', '.join(summary.get('taskRuntimeFailedProviders', [])) or '(none)'}` `runtime_candidate={', '.join(summary.get('taskRuntimeCandidateProviders', [])) or '(none)'}` `runtime_probe={', '.join(summary.get('taskRuntimeProbeProviders', [])) or '(none)'}` `runtime_blocked={', '.join(summary.get('taskRuntimeBlockedProviders', [])) or '(none)'}` `runtime_conflict_handled={', '.join(summary.get('taskRuntimeConflictHandledProviders', [])) or '(none)'}`" in markdown
+                ),
                 "summaryShowsThreeRuntimeSuccessProviders": (
                     summary.get("taskRuntimeEvidenceProviderCount") == 3
                     and summary.get("taskRuntimeSuccessCount") == 3
                     and summary.get("taskRuntimeSampleCount") == 3
+                ),
+                "summaryShowsCurrentProviderDistribution": (
+                    summary.get("authReadyProviders") == []
+                    and summary.get("createDirReadyProviders") == ["guangya", "aliyundrive_open", "115_open", "quark", "189cloud", "baidu_netdisk", "uc", "xunlei", "pikpak", "123_open"]
+                    and summary.get("fastCheckProviders") == ["guangya", "aliyundrive_open", "115_open", "quark", "189cloud", "baidu_netdisk", "uc", "xunlei", "pikpak", "123_open"]
+                    and summary.get("liveProbeOkProviders") == []
+                    and summary.get("overwriteDowngradeProviders") == ["guangya", "quark", "baidu_netdisk", "uc", "xunlei", "pikpak", "123_open"]
+                    and summary.get("overwriteSupportedProviders") == ["aliyundrive_open"]
+                    and summary.get("autoRenameSupportedProviders") == ["guangya", "aliyundrive_open", "quark", "baidu_netdisk", "uc", "xunlei", "pikpak", "123_open"]
+                    and summary.get("autoRenameProbeOnlyProviders") == ["115_open"]
+                    and summary.get("conflictUnsupportedProviders") == ["189cloud"]
+                    and summary.get("taskRuntimeSuccessProviders") == ["guangya", "uc", "pikpak"]
+                    and summary.get("taskRuntimeFailedProviders") == []
+                    and summary.get("taskRuntimeCandidateProviders") == []
+                    and summary.get("taskRuntimeProbeProviders") == []
+                    and summary.get("taskRuntimeBlockedProviders") == []
+                    and summary.get("taskRuntimeConflictHandledProviders") == ["guangya", "uc", "pikpak"]
                 ),
                 "guangyaRowShowsRuntimeSuccess": "| guangya |" in guangya_row and "| 1 | 1 | 0 | 0 | 0 | 0 | 1 |" in guangya_row,
                 "ucRowShowsRuntimeSuccess": "| uc |" in uc_row and "| 1 | 1 | 0 | 0 | 0 | 0 | 1 |" in uc_row,

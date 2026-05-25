@@ -54,6 +54,21 @@ def main() -> None:
             "taskRuntimeActiveCount": 1,
             "taskRuntimeCandidateCount": 0,
             "taskRuntimeBlockedCount": 0,
+            "authReadyProviders": ["guangya"],
+            "createDirReadyProviders": ["guangya", "189cloud"],
+            "fastCheckProviders": ["guangya", "189cloud"],
+            "liveProbeOkProviders": ["guangya"],
+            "overwriteDowngradeProviders": ["guangya"],
+            "overwriteSupportedProviders": [],
+            "autoRenameSupportedProviders": ["guangya"],
+            "autoRenameProbeOnlyProviders": [],
+            "conflictUnsupportedProviders": ["189cloud"],
+            "taskRuntimeSuccessProviders": ["guangya"],
+            "taskRuntimeFailedProviders": ["189cloud"],
+            "taskRuntimeCandidateProviders": [],
+            "taskRuntimeProbeProviders": ["189cloud"],
+            "taskRuntimeBlockedProviders": ["189cloud"],
+            "taskRuntimeConflictHandledProviders": ["guangya"],
         },
         "items": [
             {
@@ -156,6 +171,7 @@ def main() -> None:
                 and "taskRuntimeFailedCount=1" in markdown
                 and "taskRuntimeProbeEvidenceCount=1" in markdown
                 and "taskRuntimeBlockedEvidenceCount=1" in markdown,
+                "exportedHasProviderSummary": "- providerSummary: `auth_ready=guangya` `create_dir_ready=guangya, 189cloud` `fast_check=guangya, 189cloud` `live_probe_ok=guangya` `overwrite_downgrade=guangya` `overwrite_supported=(none)` `auto_rename_supported=guangya` `auto_rename_probe_only=(none)` `conflict_unsupported=189cloud` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=(none)` `runtime_probe=189cloud` `runtime_blocked=189cloud` `runtime_conflict_handled=guangya`" in markdown,
                 "exportedHasGuangyaRow": "| guangya | metadata_ready | True | True | True | True | True | True | runtime_active | 1 | 1 | 0 | 0 | 0 | 0 | 1 | False | True | downgrade_to_auto_rename | downgrade_to_auto_rename | supported | overwrite_existing, auto_rename_new | True |" in markdown,
                 "exportedHas189Row": "| 189cloud | list_ready | False | True | True | True | True | False | runtime_active | 2 | 0 | 1 | 0 | 1 | 1 | 0 | False | False | readonly_auth_blocked | unsupported | unsupported | (none) | True |" in markdown,
                 "exportedHasRuntimeNoteRow": "|  | runtime_note |" in markdown,

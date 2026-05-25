@@ -20,19 +20,21 @@ def main() -> None:
                 "jsHasTaskRuntimeEvidenceState": 'taskRuntimeEvidence: []' in app_js and 'taskRuntimeEvidenceMeta: { historyCount: 0, summary: null }' in app_js,
                 "jsHasTaskRuntimeEvidenceLoader": 'async function loadTaskRuntimeEvidence()' in app_js and 'fetchJson("/api/task_runtime_evidence")' in app_js,
                 "jsRefreshProtectedDataLoadsTaskRuntimeEvidence": 'loadTaskRuntimeEvidence(),' in app_js,
-                "jsHasTaskRuntimeEvidenceActions": 'focusBtn.textContent = "Focus Profile"' in app_js
-                and 'refreshBtn.textContent = "Refresh Evidence"' in app_js
-                and 'probeBtn.textContent = "Run Live Probe"' in app_js
-                and 'captureBtn.textContent = "Open Capture"' in app_js
+                "jsHasTaskRuntimeEvidenceActions": 'const existingLabels = {' in app_js
+                and 'focusBtn.textContent = existingLabels.focus;' in app_js
+                and 'refreshBtn.textContent = existingLabels.refresh;' in app_js
+                and 'probeBtn.textContent = existingLabels.probe;' in app_js
+                and 'captureBtn.textContent = matchedProfile ? "Open Capture For Existing Profile" : "Open Capture";' in app_js
                 and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedProfile.profileId));' in app_js
                 and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedProfile.profileId));' in app_js
                 and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedProfile.profileId));' in app_js
                 and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey || matchedProfile?.providerKey || ""));' in app_js,
                 "jsHasTaskRuntimeFirstGapActions": 'const firstRuntimeEvidenceGap =' in app_js
-                and 'focusBtn.textContent = "Focus First Runtime"' in app_js
-                and 'refreshBtn.textContent = "Refresh First Runtime"' in app_js
-                and 'probeBtn.textContent = "Probe First Runtime"' in app_js
-                and 'captureBtn.textContent = "Open Capture First Runtime"' in app_js
+                and 'const firstRuntimeLabels = {' in app_js
+                and 'focusBtn.textContent = firstRuntimeLabels.focus;' in app_js
+                and 'refreshBtn.textContent = firstRuntimeLabels.refresh;' in app_js
+                and 'probeBtn.textContent = firstRuntimeLabels.probe;' in app_js
+                and 'captureBtn.textContent = firstRuntimeLabels.capture;' in app_js
                 and 'createBtn.textContent = "Create Stub First Runtime"' in app_js
                 and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedProfile.profileId));' in app_js
                 and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedProfile.profileId));' in app_js

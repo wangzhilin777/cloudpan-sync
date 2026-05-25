@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`运行样本入口也对齐现成档案语义`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `Task Runtime Evidence` 的逐行列表与 `firstRuntimeEvidenceGap` 动作文案，从泛化的 `Focus Profile / Refresh Evidence / Probe First Runtime / Open Capture First Runtime` 推进成在已匹配到现成档案时统一使用 `Existing Profile` 语义
+  - 当前效果是：当 runtime 样本已经能映射到当前仓库档案时，用户从 runtime 区块看到的动作口径会和前几轮已补齐的 remediation / orphan 入口保持一致，不再需要自己判断“这是第一个 runtime 问题，还是其实已经有现成档案可直接续做”
+  - 这次补齐继续把 `Task Runtime Evidence` 也并入同一套恢复语言体系，进一步收紧围绕 `P-REAL` 的产品内恢复路径
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_evidence_settings_ui.py` 已验证 runtime 行级动作当前会绑定 `existingLabels`，`firstRuntimeEvidenceGap` 当前会绑定 `firstRuntimeLabels`
+  - 同条顺序检查结果已确认 `POST_RUN_PROCESSES=[]`，说明本轮 verifier 运行后无项目 `.venv` `python` 残留进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补救列表行也补现成档案续做动作`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `Real Evidence Remediation` 的逐行列表从泛化的 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture`，推进成更贴近当前恢复语义的现成档案动作：`Focus Existing Profile / Refresh Existing Profile / Probe Existing Profile / Open Capture For Existing Profile`

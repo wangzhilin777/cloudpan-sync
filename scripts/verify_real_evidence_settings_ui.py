@@ -28,6 +28,7 @@ def main() -> None:
                 and 'createBtn.textContent = "Create Stub First Gap"' in app_js
                 and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(profileId));' in app_js
                 and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(profileId));' in app_js
+                and 'if (liveProbeProviderSet.has(firstRealEvidenceGap.providerKey)) {' in app_js
                 and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(profileId));' in app_js
                 and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstRealEvidenceGap.providerKey || ""));' in app_js
                 and 'createBtn.addEventListener("click", () => createRemediationProfile(firstRealEvidenceGap.providerKey || ""));' in app_js,

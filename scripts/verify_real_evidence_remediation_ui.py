@@ -53,6 +53,7 @@ def main() -> None:
                 "jsRemediationRowsBindCreateStub": 'createBtn.addEventListener("click", () => createRemediationProfile(item.providerKey));' in app_js,
                 "jsRemediationRowsBindProfileActions": 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(profileId));' in app_js
                 and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(profileId));' in app_js
+                and 'if (liveProbeProviderSet.has(item.providerKey)) {' in app_js
                 and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(profileId));' in app_js
                 and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));' in app_js
                 and 'const profileId = (item.profileIds || [])[0] || "";' in app_js,

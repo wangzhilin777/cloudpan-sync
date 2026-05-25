@@ -2805,11 +2805,13 @@ function renderSettingsPanel() {
       refreshBtn.textContent = firstGapLabels.refresh;
       refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(profileId));
       actions.appendChild(refreshBtn);
-      const probeBtn = document.createElement("button");
-      probeBtn.className = "ghost";
-      probeBtn.textContent = firstGapLabels.probe;
-      probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(profileId));
-      actions.appendChild(probeBtn);
+      if (liveProbeProviderSet.has(firstRealEvidenceGap.providerKey)) {
+        const probeBtn = document.createElement("button");
+        probeBtn.className = "ghost";
+        probeBtn.textContent = firstGapLabels.probe;
+        probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(profileId));
+        actions.appendChild(probeBtn);
+      }
     }
     const captureBtn = document.createElement("button");
     captureBtn.className = "ghost";
@@ -2909,11 +2911,13 @@ function renderSettingsPanel() {
         refreshBtn.textContent = "Refresh Evidence";
         refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(profileId));
         actions.appendChild(refreshBtn);
-        const probeBtn = document.createElement("button");
-        probeBtn.className = "ghost";
-        probeBtn.textContent = "Run Live Probe";
-        probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(profileId));
-        actions.appendChild(probeBtn);
+        if (liveProbeProviderSet.has(item.providerKey)) {
+          const probeBtn = document.createElement("button");
+          probeBtn.className = "ghost";
+          probeBtn.textContent = "Run Live Probe";
+          probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(profileId));
+          actions.appendChild(probeBtn);
+        }
       }
       if (item.needsSecretRefresh || item.recommendedCreateCommand) {
         const captureBtn = document.createElement("button");

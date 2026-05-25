@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`统一补救入口的探测按钮能力门控`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `Real Evidence` 的 `firstRealEvidenceGap` 与 `Real Evidence Remediation` 列表行的 `Probe` 按钮，统一收成和其它入口同一套 `liveProbeProviderSet` 能力门控
+  - 之前这两处入口只要存在 `profileId` 就会直接渲染 `Probe`，而 `runtime_orphan`、`latest action` 等入口已经会先按 provider 是否支持 live probe 再决定是否显示；现在这些补救入口在行为上已经一致，不会再出现“某处能 probe、某处也给 probe 按钮，但能力判断标准其实不同”的分裂
+  - 这次补齐虽然不直接增加新的真实样本，但继续减少了 `P-REAL` 恢复路径上的错误暗示，让 UI 只在 provider 真正声明了 live probe 能力时才把这一步作为可点动作暴露出来
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_settings_ui.py` 已验证 `firstRealEvidenceGap` 当前会在 `liveProbeProviderSet.has(firstRealEvidenceGap.providerKey)` 命中时才绑定 `Probe`
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证 remediation 列表行当前会在 `liveProbeProviderSet.has(item.providerKey)` 命中时才绑定 `Run Live Probe`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`首个缺口动作文案对齐现有档案状态`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `Real Evidence` 的 `firstRealEvidenceGap` 与 `Runtime Orphan Recovery` 的 `firstRuntimeOrphanGap` 继续往前收紧：当当前仓库已经存在可直接续做的档案时，这两处入口会明确展示 `Existing Profile / Existing Orphan Profile`，不再只停留在泛化的 `First Gap / First Match`

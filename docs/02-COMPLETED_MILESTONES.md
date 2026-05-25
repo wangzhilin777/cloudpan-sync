@@ -12,6 +12,19 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [src/cloudpan_sync/live_probe.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/live_probe.py) 已修正 provider live probe 报告的 summary 口径，不再把同一 provider 下多条 saved profile probe 历史条目误算进最终 provider 级 summary
+  - 现在 `run_live_probe()` 会按最终导出的 provider 行重新汇总 `profileProbeProviderCount / profileProbeOkCount / profileProbeFailedCount`，从而与 [docs/05-PROVIDER_LIVE_PROBE_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/05-PROVIDER_LIVE_PROBE_REPORT.md) 的 markdown 分段保持同一口径
+  - 已新增 [scripts/verify_live_probe_provider_summary_alignment.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_live_probe_provider_summary_alignment.py)，专门锁住“同一 provider 存在多条 latest profile probe 时，summary 只能按 provider 计 1 条，并采用该 provider 最后一条 probe 内容写入 markdown”
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_live_probe_report.py` 已验证 live probe 报告导出链仍正常
+  - `.\.venv\Scripts\python.exe scripts\verify_live_probe_provider_summary_alignment.py` 已验证 `profileProbeProviderCountIsProviderScoped=true`、`profileProbeFailedCountIsProviderScoped=true`
+  - 同一验证已锁住 `guangyaUsesLatestProfileProbe=true` 与 `markdownHasSingleGuangyaProfileProbeRow=true`
+  - `.\.venv\Scripts\python.exe scripts\export_live_probe_report.py` 已把当前 [docs/05-PROVIDER_LIVE_PROBE_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/05-PROVIDER_LIVE_PROBE_REPORT.md) 同步到修正后的 summary 口径
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增 [scripts/verify_current_plan_audit_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_plan_audit_sync.py)，直接锁住当前 [docs/04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md) 的当前审计口径
   - 当前这条校验会同时核对顶部 summary 与关键里程碑分段，确保 `done=5 / partial=2 / todo=1`、`featureCompletionPercent=85.7`、`strictCompletionPercent=75.0` 持续与当前 plan audit 结果一致
   - 同时还锁住 `M4` 继续保持 `partial`、`M5` 继续保持 `partial`、`P-REAL` 继续保持 `todo`，避免后续因为补了文档/校验链就把严格进度误抬高

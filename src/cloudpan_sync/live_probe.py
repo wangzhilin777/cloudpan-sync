@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-from .provider_live_probe_store import latest_provider_live_probes, list_provider_live_probes, provider_live_probe_summary
+from .provider_live_probe_store import latest_provider_live_probes
 from .provider_research import build_provider_research_index
 
 
@@ -85,7 +85,6 @@ def run_live_probe() -> dict[str, object]:
     rows: list[dict[str, object]] = []
     research = build_provider_research_index()
     saved_profile_probes = {str(row.get("providerKey") or ""): dict(row) for row in latest_provider_live_probes()}
-    probe_summary = provider_live_probe_summary()
     ok_checks = 0
     total_checks = 0
     adapter_probe_ok = 0
@@ -118,6 +117,17 @@ def run_live_probe() -> dict[str, object]:
                 },
             }
         )
+    provider_profile_probe_count = sum(
+        1 for row in rows if int((((row.get("profileProbe") or {}).get("checkCount", 0)) or 0)) > 0
+    )
+    provider_profile_probe_ok_count = sum(
+        1
+        for row in rows
+        if int((((row.get("profileProbe") or {}).get("checkCount", 0)) or 0)) > 0
+        and bool(((row.get("profileProbe") or {}).get("ok")))
+    )
+    provider_profile_probe_failed_count = max(0, provider_profile_probe_count - provider_profile_probe_ok_count)
+
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "summary": {
@@ -125,9 +135,9 @@ def run_live_probe() -> dict[str, object]:
             "totalChecks": total_checks,
             "okChecks": ok_checks,
             "failedChecks": max(0, total_checks - ok_checks),
-            "profileProbeProviderCount": int(probe_summary.get("profileCount", 0) or 0),
-            "profileProbeOkCount": int(probe_summary.get("okCount", 0) or 0),
-            "profileProbeFailedCount": int(probe_summary.get("failedCount", 0) or 0),
+            "profileProbeProviderCount": provider_profile_probe_count,
+            "profileProbeOkCount": provider_profile_probe_ok_count,
+            "profileProbeFailedCount": provider_profile_probe_failed_count,
         },
         "items": rows,
     }

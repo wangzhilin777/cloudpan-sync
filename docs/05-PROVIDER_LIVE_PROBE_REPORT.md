@@ -1,11 +1,11 @@
 # CloudPan Sync Provider Live Probe Report
 
-- GeneratedAt: `2026-05-23T04:08:52.919219+00:00`
-- Summary: providerCount=10, totalChecks=12, okChecks=12, failedChecks=0, profileProbeProviderCount=2, profileProbeOkCount=0, profileProbeFailedCount=2
+- GeneratedAt: `2026-05-25T13:47:17.002625+00:00`
+- Summary: providerCount=10, totalChecks=12, okChecks=12, failedChecks=0, profileProbeProviderCount=1, profileProbeOkCount=0, profileProbeFailedCount=1
 
 ## guangya - Guangya
 - web_login: ok=True status=200 url=https://guangyapan.com/ final=https://www.guangyapan.com/ error=
-- profile_probe: ok=False mode=profile_incomplete checks=1 summary=Guangya live list requires parentId in request or auth profile extra.parentId.
+- profile_probe: ok=False mode=live_error checks=3 summary=Guangya live list request reached the API but was rejected. | Guangya live metadata request reached the API but was rejected. | Guangya create_dir request reached the API but was rejected.
 
 ## aliyundrive_open - Aliyun Drive Open
 - official_docs: ok=True status=200 url=https://www.alipan.com/ final=https://www.alipan.com/ error=

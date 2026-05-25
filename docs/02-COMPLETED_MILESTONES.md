@@ -12,6 +12,20 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[scripts/create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py)、[scripts/create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py) 的 JSON 输出现在都会直接带上 `remediationFollowup`
+  - 当前这三类 task helper 在输出里已能直接给出当前 profile 对应的 `nextStep`，以及最相关的 `recommendedRuntimeProbeCommand / recommendedLiveUploadCommand / recommendedFastCandidateCommand / recommendedRuntimeSuccessCommand / recommendedOverwriteVariantCommand / recommendedPostRefreshRuntimeCommand`
+  - 这样从“跑出 live success / candidate-only / probe-only 样本”到“决定下一条继续跑什么”已经不需要再跳回 remediation 文档或 UI 查命令，进一步缩短了 `P-REAL` 的连续执行链路
+  - 对应 verifier 已同步补强：[scripts/verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py)、[scripts/verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py)、[scripts/verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py)
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_live_upload_task.py` 已验证 live upload helper 的 JSON 输出包含 `remediationFollowup`
+  - `.\.venv\Scripts\python.exe scripts\verify_create_fast_upload_candidate_task.py` 已验证 fast candidate helper 的 JSON 输出包含 `remediationFollowup`
+  - `.\.venv\Scripts\python.exe scripts\verify_create_runtime_probe_task.py` 已验证 runtime probe helper 的 JSON 输出包含 `remediationFollowup`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 和 [scripts/patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_and_probe_auth_profile.py) 现在在保存/探测完成后，会把当前 profile 对应的 remediation follow-up 一起打印到 JSON 结果里
   - 当前输出已可直接带出 `nextStep / recommendedRefreshEvidenceCommand / recommendedPostRefreshRuntimeCommand / recommendedRuntimeSuccessCommand / recommendedOverwriteVariantCommand`，用户不必再回到 `docs/12` 手工查下一条命令
   - 这让“创建档案并 probe”与“修补档案并 probe”两条 helper，都进一步变成连续可执行链路，而不是只返回一份静态探测结果

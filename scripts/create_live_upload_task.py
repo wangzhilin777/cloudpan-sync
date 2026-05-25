@@ -91,6 +91,26 @@ def _auth_evidence_markdown(profile_id: str, refresh: bool) -> str:
     return auth_profile_evidence_to_markdown(payload)
 
 
+def _remediation_followup(profile_id: str) -> dict[str, object]:
+    payload = build_real_evidence_remediation_bundle()
+    for item in payload.get("items", []):
+        row = dict(item or {})
+        profile_ids = [str(value or "") for value in (row.get("profileIds") or [])]
+        if profile_id not in profile_ids:
+            continue
+        return {
+            "nextStep": str(row.get("nextStep") or ""),
+            "recommendedRefreshEvidenceCommand": str(row.get("recommendedRefreshEvidenceCommand") or ""),
+            "recommendedPostRefreshRuntimeCommand": str(row.get("recommendedPostRefreshRuntimeCommand") or ""),
+            "recommendedRuntimeProbeCommand": str(row.get("recommendedRuntimeProbeCommand") or ""),
+            "recommendedLiveUploadCommand": str(row.get("recommendedLiveUploadCommand") or ""),
+            "recommendedFastCandidateCommand": str(row.get("recommendedFastCandidateCommand") or ""),
+            "recommendedRuntimeSuccessCommand": str(row.get("recommendedRuntimeSuccessCommand") or ""),
+            "recommendedOverwriteVariantCommand": str(row.get("recommendedOverwriteVariantCommand") or ""),
+        }
+    return {}
+
+
 def main(argv: list[str] | None = None) -> int:
     custom_data_dir = str(os.environ.get("CLOUDPAN_SYNC_DATA_DIR") or "").strip()
     if custom_data_dir:
@@ -217,6 +237,7 @@ def main(argv: list[str] | None = None) -> int:
         "runtimeEvidenceOutput": runtime_evidence_output,
         "realEvidenceOutput": real_evidence_output,
         "remediationOutput": remediation_output,
+        "remediationFollowup": _remediation_followup(target_profile_id),
     }
     print(json.dumps(output, ensure_ascii=False, indent=2))
     if is_temp and file_path.exists():

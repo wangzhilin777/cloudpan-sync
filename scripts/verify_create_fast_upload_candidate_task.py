@@ -28,6 +28,7 @@ def main() -> None:
     original_run_task = task_runtime.run_task
     original_get_profile = fast_candidate_script.get_profile
     original_refresh_auth_evidence = fast_candidate_script.refresh_auth_profile_evidence
+    original_remediation_builder = fast_candidate_script.build_real_evidence_remediation_bundle
     refresh_calls: list[dict[str, object]] = []
 
     def fake_create_task(payload: object) -> dict[str, object]:
@@ -113,6 +114,19 @@ def main() -> None:
     fast_candidate_script.task_runtime.run_task = fake_run_task
     fast_candidate_script.get_profile = fake_get_profile
     fast_candidate_script.refresh_auth_profile_evidence = fake_refresh_auth_profile_evidence
+    fast_candidate_script.build_real_evidence_remediation_bundle = lambda: {
+        "summary": {},
+        "items": [
+            {
+                "providerKey": "115_open",
+                "profileIds": ["115-fast-1"],
+                "nextStep": "继续补首条真实 runtime 成功样本。",
+                "recommendedFastCandidateCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-fast-1 --target-parent-id 115-root --sha1 auto --auto-temp-file --conflict-policy auto_rename_new --evidence-dir tmp\115_open-fast-candidate-evidence",
+                "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-fast-1 --target-parent-id 115-root --sha1 auto --auto-temp-file --conflict-policy auto_rename_new --evidence-dir tmp\115_open-fast-candidate-evidence",
+                "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-fast-1 --target-parent-id 115-root --sha1 auto --auto-temp-file --conflict-policy overwrite_existing --evidence-dir tmp\115_open-fast-candidate-evidence",
+            }
+        ],
+    }
     try:
         evidence_dir = ROOT / "tmp" / "verify-fast-candidate-evidence"
         if evidence_dir.exists():
@@ -163,6 +177,7 @@ def main() -> None:
         fast_candidate_script.task_runtime.run_task = original_run_task
         fast_candidate_script.get_profile = original_get_profile
         fast_candidate_script.refresh_auth_profile_evidence = original_refresh_auth_evidence
+        fast_candidate_script.build_real_evidence_remediation_bundle = original_remediation_builder
 
     output = json.loads(stdout_buffer.getvalue())
     second_output = json.loads(second_stdout.getvalue())
@@ -206,6 +221,8 @@ def main() -> None:
                 "scriptEvidenceDirOutput": output.get("evidenceDir") == str(evidence_dir),
                 "scriptAuthEvidenceRefreshed": len(refresh_calls) == 1 and refresh_calls[0].get("profileId") == "115-fast-1",
                 "scriptEvidenceBundleCreated": evidence_titles_ok,
+                "scriptRemediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedRuntimeSuccessCommand", "").endswith("tmp\\115_open-fast-candidate-evidence")
+                and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\115_open-fast-candidate-evidence"),
                 "scriptExplicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-fast-parent",
                 "scriptNoRefreshSkipsAuthRefresh": len(refresh_calls) == 1 and second_output.get("refreshedAuthEvidence") is False,
                 "scriptExplicitOutputsCreated": second_outputs_ok

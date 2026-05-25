@@ -28,6 +28,7 @@ def main() -> None:
     original_run_task = task_runtime.run_task
     original_get_profile = runtime_probe_script.get_profile
     original_refresh_auth_evidence = runtime_probe_script.refresh_auth_profile_evidence
+    original_remediation_builder = runtime_probe_script.build_real_evidence_remediation_bundle
     refresh_calls: list[dict[str, object]] = []
 
     def fake_create_task(payload: object) -> dict[str, object]:
@@ -112,6 +113,19 @@ def main() -> None:
     runtime_probe_script.task_runtime.run_task = fake_run_task
     runtime_probe_script.get_profile = fake_get_profile
     runtime_probe_script.refresh_auth_profile_evidence = fake_refresh_auth_profile_evidence
+    runtime_probe_script.build_real_evidence_remediation_bundle = lambda: {
+        "summary": {},
+        "items": [
+            {
+                "providerKey": "aliyundrive_open",
+                "profileIds": ["ali-runtime-1"],
+                "nextStep": "probe-only 之后继续补真实 runtime 样本。",
+                "recommendedRuntimeProbeCommand": r".\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-1 --target-parent-id folder-demo --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-runtime-probe-evidence",
+                "recommendedPostRefreshRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-1 --target-parent-id folder-demo --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-live-evidence",
+                "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-1 --target-parent-id folder-demo --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\aliyundrive_open-live-evidence",
+            }
+        ],
+    }
     try:
         evidence_dir = ROOT / "tmp" / "verify-runtime-probe-evidence"
         if evidence_dir.exists():
@@ -158,6 +172,7 @@ def main() -> None:
         runtime_probe_script.task_runtime.run_task = original_run_task
         runtime_probe_script.get_profile = original_get_profile
         runtime_probe_script.refresh_auth_profile_evidence = original_refresh_auth_evidence
+        runtime_probe_script.build_real_evidence_remediation_bundle = original_remediation_builder
 
     output = json.loads(stdout_buffer.getvalue())
     second_output = json.loads(second_stdout.getvalue())
@@ -200,6 +215,8 @@ def main() -> None:
                 "scriptEvidenceDirOutput": output.get("evidenceDir") == str(evidence_dir),
                 "scriptAuthEvidenceRefreshed": len(refresh_calls) == 1 and refresh_calls[0].get("profileId") == "ali-runtime-1",
                 "scriptEvidenceBundleCreated": evidence_titles_ok,
+                "scriptRemediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedPostRefreshRuntimeCommand", "").endswith("tmp\\aliyundrive_open-live-evidence")
+                and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\aliyundrive_open-live-evidence"),
                 "scriptExplicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-parent",
                 "scriptNoRefreshSkipsAuthRefresh": len(refresh_calls) == 1 and second_output.get("refreshedAuthEvidence") is False,
                 "scriptExplicitOutputsCreated": second_outputs_ok

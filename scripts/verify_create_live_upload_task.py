@@ -27,6 +27,7 @@ SPEC.loader.exec_module(live_upload_script)
 def main() -> None:
     original_get_profile = live_upload_script.get_profile
     original_refresh_auth_evidence = live_upload_script.refresh_auth_profile_evidence
+    original_remediation_builder = live_upload_script.build_real_evidence_remediation_bundle
     original_fast_check = task_runtime.fetch_guangya_live_fast_check
     original_upload = task_runtime.upload_guangya_local_file
     refresh_calls: list[dict[str, object]] = []
@@ -145,6 +146,19 @@ def main() -> None:
 
     live_upload_script.get_profile = fake_get_profile
     live_upload_script.refresh_auth_profile_evidence = fake_refresh_auth_profile_evidence
+    live_upload_script.build_real_evidence_remediation_bundle = lambda: {
+        "summary": {},
+        "items": [
+            {
+                "providerKey": "guangya",
+                "profileIds": ["gy-live-1"],
+                "nextStep": "继续补齐同 provider 的后续 runtime 证据。",
+                "recommendedLiveUploadCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --target-parent-id folder-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
+                "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --target-parent-id folder-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
+                "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --target-parent-id folder-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-live-evidence",
+            }
+        ],
+    }
     task_runtime.fetch_guangya_live_fast_check = fake_fast_check
     task_runtime.upload_guangya_local_file = fake_upload
     live_upload_script.task_runtime.fetch_guangya_live_fast_check = fake_fast_check
@@ -185,6 +199,7 @@ def main() -> None:
     finally:
         live_upload_script.get_profile = original_get_profile
         live_upload_script.refresh_auth_profile_evidence = original_refresh_auth_evidence
+        live_upload_script.build_real_evidence_remediation_bundle = original_remediation_builder
         task_runtime.fetch_guangya_live_fast_check = original_fast_check
         task_runtime.upload_guangya_local_file = original_upload
         live_upload_script.task_runtime.fetch_guangya_live_fast_check = original_fast_check
@@ -231,6 +246,8 @@ def main() -> None:
                 "firstResultLive": ((((output.get("results") or [None])[0]) or {}).get("executionMode")) == "live",
                 "firstResultVerifyOk": bool((((((output.get("results") or [None])[0]) or {}).get("liveAttempt") or {}).get("verifyOk"))),
                 "authEvidenceRefreshed": len(refresh_calls) == 1 and refresh_calls[0].get("profileId") == "gy-live-1" and refresh_calls[0].get("persist") is True,
+                "remediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedRuntimeSuccessCommand", "").endswith("tmp\\guangya-live-evidence")
+                and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\guangya-live-evidence"),
                 "explicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-live-parent",
                 "noRefreshSkipsAuthRefresh": len(refresh_calls) == 1 and second_output.get("refreshedAuthEvidence") is False,
                 "explicitOutputsCreated": second_outputs_ok

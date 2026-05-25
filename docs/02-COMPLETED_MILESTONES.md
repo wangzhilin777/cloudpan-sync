@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增 [scripts/verify_error_risk_classification.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_error_risk_classification.py)，把计划文档单元测试里的 `错误码分类` 独立收成一条纯分类回归，不再只靠实现代码和光鸭里程碑描述间接证明
+  - 这条 verifier 当前会直接锁住 [guangya_live.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/guangya_live.py) 的 live 请求分类口径：`401 -> auth`、`403 -> risk`、`429 -> rate_limit`、`url_error -> network`、`invalid_json -> api_change`、`unexpected -> unexpected`
+  - 同一条回归还会继续验证 [guangya_upload_live.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/guangya_upload_live.py) 与 [aliyun_open_upload_live.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/aliyun_open_upload_live.py) 的上传错误分类不会回退，当前会继续把 `local_md5_mismatch` 判成 `input`，把 Aliyun 的 `409` 同名冲突判成 `conflict` 并明确提示改查 `auto_rename_new`
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_error_risk_classification.py` 已验证 Guangya live、Guangya upload、Aliyun upload 当前都会把典型 `401 / 403 / 409 / 429 / 网络失败 / 非 JSON / unexpected` 错误稳定映射为对应的 `riskLevel / riskHint`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增 [scripts/verify_planner_strategy_and_order.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_planner_strategy_and_order.py)，把计划文档单元测试里的 `provider 能力判断 / 秒传策略判断 / fallback 阈值 / 目录底层优先排序` 收成一条独立规划层回归，不再只靠 M6 总结和零散 API verifier 间接证明
   - 这条 verifier 当前会直接锁住 [provider_registry.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/provider_registry.py) 里 `115_open` 的 `fastUploadInputs=["sha1","size"]` 与 `authModes=["official_oauth","manual_cookie"]`，确保 planner 确实按目标 provider 能力来判断秒传条件
   - 同一条回归还会继续验证 [planner.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/planner.py) 在 `thresholdMB=3` 下会把 `sha1` 齐全的小文件判成 `fast_upload`，把缺 `sha1` 但未超阈值的文件判成 `download_upload`，把超阈值的大文件判成 `pending_manual`

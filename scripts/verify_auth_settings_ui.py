@@ -22,7 +22,7 @@ def main() -> None:
                 "jsHasAuthRemediationState": "authRemediationBundle: null" in app_js,
                 "jsHasAuthEvidenceLoader": 'async function loadAuthEvidenceBundleSummary()' in app_js and 'fetchJson("/api/auth/evidence_bundle")' in app_js,
                 "jsHasAuthRemediationLoader": 'async function loadAuthRemediationBundleSummary()' in app_js and 'fetchJson("/api/auth/remediation_bundle")' in app_js,
-                "jsHasAuthRemediationActions": 'function focusAuthRemediationProfile(profileId)' in app_js and 'async function openCaptureGuideForProvider(providerKey)' in app_js and 'focusBtn.textContent = "Focus Profile"' in app_js and 'captureBtn.textContent = "Open Capture"' in app_js,
+                "jsHasAuthRemediationActions": 'function focusAuthRemediationProfile(profileId)' in app_js and 'async function openCaptureGuideForProvider(providerKey)' in app_js and 'focus: "Focus Existing Profile"' in app_js and 'capture: "Open Capture For Existing Profile"' in app_js and 'focusBtn.textContent = remediationLabels.focus;' in app_js and 'captureBtn.textContent = remediationLabels.capture;' in app_js,
                 "jsRefreshProtectedDataLoadsAuthBundles": "loadAuthEvidenceBundleSummary()," in app_js and "loadAuthRemediationBundleSummary()," in app_js,
                 "jsAuthEvidenceHasFirstGapActions": 'const firstAuthEvidenceGap = (state.authEvidenceBundle?.items || []).find((item) => {' in app_js
                 and 'focusBtn.textContent = "Focus First Gap"' in app_js

@@ -2652,14 +2652,18 @@ function renderSettingsPanel() {
     li.appendChild(copy);
     const actions = document.createElement("span");
     actions.className = "row-actions";
+    const remediationLabels = {
+      focus: "Focus Existing Profile",
+      capture: "Open Capture For Existing Profile",
+    };
     const focusBtn = document.createElement("button");
     focusBtn.className = "ghost";
-    focusBtn.textContent = "Focus Profile";
+    focusBtn.textContent = remediationLabels.focus;
     focusBtn.addEventListener("click", () => focusAuthRemediationProfile(item.profileId));
     actions.appendChild(focusBtn);
     const captureBtn = document.createElement("button");
     captureBtn.className = "ghost";
-    captureBtn.textContent = "Open Capture";
+    captureBtn.textContent = remediationLabels.capture;
     captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));
     actions.appendChild(captureBtn);
     li.appendChild(actions);

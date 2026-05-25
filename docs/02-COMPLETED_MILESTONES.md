@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`授权补救列表行也对齐现成档案语义`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Auth Remediation Guide` 下方逐条档案行的恢复动作，从泛化的 `Focus Profile / Open Capture` 推进成明确的 `Focus Existing Profile / Open Capture For Existing Profile`
+  - 当前效果是：用户在授权补救区看到的“首个待修档案”入口和下方具体档案行入口，都会一致地表达“这是当前仓库里可直接续做的现成档案”，不会再出现上面是 `First Fix`、下面又退回泛化 `Profile` 的语义断层
+  - 这次补齐把授权补救区块内部也统一到了同一套恢复语言体系，继续收紧从设置页直接回到真实证据修复链时的理解成本
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_settings_ui.py` 已验证 `Auth Remediation Guide` 逐条档案行当前会使用 `Focus Existing Profile / Open Capture For Existing Profile` 文案，并保留原有事件绑定
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`任务列表与待处理入口也对齐现成档案语义`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `renderTaskList()` 与 `renderPendingList()` 的恢复动作，从泛化的 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture` 推进成在已匹配到现成目标档案时统一使用 `Existing Profile` 语义

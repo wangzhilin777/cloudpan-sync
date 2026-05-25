@@ -2927,10 +2927,11 @@ function renderSettingsPanel() {
     const fieldHints = (item.requiredFieldHints || []).slice(0, 2).join(" | ");
     const placeholderSecretHints = (item.placeholderSecretFieldHints || []).join("/") || "";
     const profileId = (item.profileIds || [])[0] || "";
+    const orphanProfileId = (item.runtimeOrphanProfiles || [])[0] || "";
     const copy = document.createElement("span");
     copy.textContent = `${item.providerKey || "(unknown)"}: profiles=${item.profileCount || 0}, authModes=${authModes}, nextStep=${item.nextStep}, blockedOnly=${Boolean(item.runtimeBlockedOnly)}, candidateOnly=${Boolean(item.runtimeCandidateOnly)}, probeOnly=${Boolean(item.runtimeProbeOnly)}, runtimeOrphanOnly=${Boolean(item.runtimeOrphanOnly)}, needsSecretRefresh=${Boolean(item.needsSecretRefresh)}, conflictDeclared=${(item.declaredConflictPolicies || []).join("/") || "(none)"}, overwriteSupport=${item.overwriteSupportStatus || "unknown"}, autoRenameSupport=${item.autoRenameSupportStatus || "unknown"}, overwriteBehavior=${item.overwriteBehavior || "unknown"}${loginUrl ? `, login=${loginUrl}` : ""}${fieldHints ? `, hints=${fieldHints}` : ""}${placeholderSecretHints ? `, placeholderSecretHints=${placeholderSecretHints}` : ""}${(item.runtimeOrphanProfiles || []).length ? `, runtimeOrphanProfiles=${(item.runtimeOrphanProfiles || []).join("/")}` : ""}${item.providerConflictNotes ? `, providerConflictNotes=${item.providerConflictNotes}` : ""}${item.recommendedPrimaryCommand ? `, primary=${item.recommendedPrimaryCommand}` : ""}${item.recommendedPrimaryCommandLabel ? `, primaryLabel=${item.recommendedPrimaryCommandLabel}` : ""}${item.recommendedCreateCommand ? `, create=${item.recommendedCreateCommand}` : ""}${item.recommendedBootstrapCommand ? `, bootstrap=${item.recommendedBootstrapCommand}` : ""}${item.recommendedPatchCommand ? `, patch=${item.recommendedPatchCommand}` : ""}${item.recommendedPatchProbeCommand ? `, patchProbe=${item.recommendedPatchProbeCommand}` : ""}${item.recommendedRecreateProbeCommand ? `, recreateProbe=${item.recommendedRecreateProbeCommand}` : ""}${item.recommendedRefreshEvidenceCommand ? `, refresh=${item.recommendedRefreshEvidenceCommand}` : ""}${item.recommendedPostRefreshRuntimeCommand ? `, postRefreshRuntime=${item.recommendedPostRefreshRuntimeCommand}` : ""}${item.recommendedRuntimeProbeCommand ? `, runtime=${item.recommendedRuntimeProbeCommand}` : ""}${item.recommendedLiveUploadCommand ? `, liveUpload=${item.recommendedLiveUploadCommand}` : ""}${item.recommendedFastCandidateCommand ? `, fastCandidate=${item.recommendedFastCandidateCommand}` : ""}${item.recommendedRuntimeSuccessCommand ? `, runtimeSuccess=${item.recommendedRuntimeSuccessCommand}` : ""}${item.recommendedPostBootstrapRuntimeCommand ? `, postBootstrapRuntime=${item.recommendedPostBootstrapRuntimeCommand}` : ""}${item.recommendedOverwriteVariantCommand ? `, overwriteVariant=${item.recommendedOverwriteVariantCommand}` : ""}${item.conflictPolicyNote ? `, conflictPolicyNote=${item.conflictPolicyNote}` : ""}`;
     li.appendChild(copy);
-    if (profileId || item.recommendedCreateCommand || item.needsSecretRefresh) {
+    if (profileId || item.recommendedCreateCommand || item.needsSecretRefresh || orphanProfileId) {
       const actions = document.createElement("span");
       actions.className = "row-actions";
       if (profileId) {
@@ -2971,6 +2972,13 @@ function renderSettingsPanel() {
         createBtn.textContent = "Create Stub";
         createBtn.addEventListener("click", () => createRemediationProfile(item.providerKey));
         actions.appendChild(createBtn);
+      }
+      if (orphanProfileId) {
+        const recreateBtn = document.createElement("button");
+        recreateBtn.className = "ghost";
+        recreateBtn.textContent = "Recreate Orphan Stub";
+        recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(item.providerKey, orphanProfileId));
+        actions.appendChild(recreateBtn);
       }
       li.appendChild(actions);
     }

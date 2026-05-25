@@ -42,6 +42,10 @@ def main() -> None:
                 "jsRemediationRowsShowPostBootstrapCommand": "postBootstrapRuntime=${item.recommendedPostBootstrapRuntimeCommand}" in app_js,
                 "jsRemediationRowsShowPrimaryCommand": "primary=${item.recommendedPrimaryCommand}" in app_js and "primaryLabel=${item.recommendedPrimaryCommandLabel}" in app_js,
                 "jsRemediationRowsShowRecreateProbeCommand": "recreateProbe=${item.recommendedRecreateProbeCommand}" in app_js,
+                "jsRemediationRowsBindRecreateOrphanStub": 'const orphanProfileId = (item.runtimeOrphanProfiles || [])[0] || "";' in app_js
+                and 'if (profileId || item.recommendedCreateCommand || item.needsSecretRefresh || orphanProfileId) {' in app_js
+                and 'recreateBtn.textContent = "Recreate Orphan Stub"' in app_js
+                and 'recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(item.providerKey, orphanProfileId));' in app_js,
                 "jsRemediationRowsShowSecretRefreshState": "needsSecretRefresh=${Boolean(item.needsSecretRefresh)}" in app_js and "placeholderSecretHints=${placeholderSecretHints}" in app_js,
                 "jsRemediationRowsPreserveRuntimeCommandText": "runtimeSuccess=${item.recommendedRuntimeSuccessCommand}" in app_js
                 and "postRefreshRuntime=${item.recommendedPostRefreshRuntimeCommand}" in app_js

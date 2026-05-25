@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补救列表也补直达孤儿恢复动作`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Real Evidence Remediation` 的逐行恢复动作继续往前推：当某条 provider 已被判定为 `runtimeOrphanOnly`，并且当前行已经带有 `runtimeOrphanProfiles` 时，用户现在可以直接点 `Recreate Orphan Stub`
+  - 当前效果是：像 `guangya / uc / pikpak` 这类“已有 runtime success 但 auth profile 脱节”的 provider，不必先自己跳去 `Runtime Orphan Recovery` 面板再找同一条记录，而是可以直接从 `Real Evidence Remediation` 行级入口进入 orphan 恢复链
+  - 这次补齐把 `P-REAL` 当前最明确的一类缺口也接回了主补救面板，减少了围绕 `runtime_orphan` 的跨面板来回切换
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证 remediation 行当前会识别 `runtimeOrphanProfiles`，并绑定 `Recreate Orphan Stub -> recreateRuntimeOrphanProfile(item.providerKey, orphanProfileId)` 动作
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`授权主列表探测动作也对齐现成档案语义`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里授权主列表现有档案行的 live probe 动作，从通用的 `auth.live_probe` 按钮口径推进成明确的 `Probe Existing Profile`

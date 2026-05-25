@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增 [scripts/verify_ui_smoke_navigation_modal.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_ui_smoke_navigation_modal.py)，把计划原文 `UI smoke` 里的 `登录 / Tab 切换 / 授权弹窗 / 任务向导` 收成一条独立前端回归，不再只靠零散静态片段证明 `M10`
+  - 这条 verifier 当前会同时检查 [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 里存在 `loginPanel / loginBtn / logoutBtn / tabs / wizardSteps / authModal / advanced-block`，把登录面板、Tab 容器、向导步骤、授权弹窗和高级字段折叠区一次性锁住
+  - API 侧也会一起验证 `/api/session` 未登录时返回 `loggedIn=false`，`/api/plan/audit` 与 `/api/auth/capture/start` 在匿名态会返回 `401 please_login_first`，登录后再调用 `capture/start` 会真实返回 `capture_pending`
+  - 前端逻辑也已同步锁住 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `tabKeys` 渲染、`loginPanel/appPanel/logoutBtn` 显隐切换、`renderWizardSteps()`、`openAuthModal()` 与 `startCaptureGuide()` 绑定，以及 `bootstrap()` 里的登录/登出入口
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证登录保护、Tab 渲染、任务向导、授权弹窗与 capture guide 入口链路当前全部成立
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增 [scripts/verify_i18n_language_switch.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_i18n_language_switch.py)，把计划文档里明确提到的“基础 i18n / 语言切换”独立锁进回归，不再只在代码和旧里程碑描述里笼统说“有 i18n”
   - 这条 verifier 当前会同时验证 [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 里确实存在 `langSelect`、`zh-CN / en-US` 两个选项，以及初始 `<html lang="zh-CN">`
   - 同一条回归还会继续验证 [webapp.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/webapp.py) 的 `/api/i18n` 在 `zh-CN / en-US / 非法 lang` 三种情况下的返回口径，以及 [i18n.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/i18n.py) 的 fallback 仍会回退到 `zh-CN`

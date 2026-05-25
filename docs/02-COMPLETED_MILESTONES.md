@@ -12,6 +12,20 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [task_runtime_evidence_store.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime_evidence_store.py) 的 Markdown 渲染现已继续补齐 `profileSummary` 聚合明细，不再只靠逐条样本长行去人工辨认当前有哪些 `success / failed / candidate / probe / blocked / conflictHandled` profile
+  - 这次补齐后，[docs/11-TASK_RUNTIME_EVIDENCE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/11-TASK_RUNTIME_EVIDENCE.md) 现在除了继续保留逐条 runtime 样本行，还会在顶部直接汇总 `success / failed / candidate / probe / blocked / conflictHandled` 对应的 profile；当前真实仓库会明确写出 `success=gy-live-1, pikpak-live-1, uc-live-1` 与 `conflictHandled=gy-live-1, pikpak-live-1, uc-live-1`
+  - 已同步补强 [verify_task_runtime_evidence_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_api.py)、[verify_export_task_runtime_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_runtime_evidence_report.py)、[verify_current_task_runtime_evidence_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_task_runtime_evidence_report_sync.py)，把 API markdown、导出 markdown 和当前仓库文档里的 `profileSummary` 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_evidence_api.py` 已验证 synthetic API/Markdown 当前会输出 `profileSummary`，并区分 `success / failed / candidate / probe / blocked / conflictHandled`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_task_runtime_evidence_report.py` 已验证导出的任务运行样本报告会写出 `profileSummary`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_task_runtime_evidence_report_sync.py` 已验证当前仓库文档里的 `profileSummary` 与 `build_task_runtime_evidence_payload()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\export_task_runtime_evidence_report.py` 已重导出当前 [docs/11-TASK_RUNTIME_EVIDENCE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/11-TASK_RUNTIME_EVIDENCE.md)
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [provider_status_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/provider_status_matrix.py) 的导出矩阵现已继续补齐 `runtime_profiles` 明细，不再只展示 `task_runtime_samples / success / failed / candidate / probe / blocked / conflict_handled` 这些数字；当前会把每个 provider 的 runtime 成功/失败/candidate/probe 样本对应到具体 profile 名
   - 这次补齐后，[docs/06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 现在除了继续量化 `guangya / uc / pikpak` 当前各有 `1` 条 runtime success 外，还能直接看出这些样本当前对应 `gy-live-1 / uc-live-1 / pikpak-live-1`；对 `115_open / 189cloud / aliyundrive_open / quark / baidu_netdisk / 123_open / xunlei` 这些仍无真实 runtime success 的 provider，也会明确保持 `success=(none) failed=(none) candidate=(none) probe=(none)`，避免矩阵只剩计数口径
   - 已同步补强 [verify_export_provider_status_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_provider_status_matrix.py) 与 [verify_current_provider_status_matrix_runtime_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_provider_status_matrix_runtime_sync.py)，把 synthetic export 与当前仓库导出的 `runtime_profiles` 明细一起锁进回归

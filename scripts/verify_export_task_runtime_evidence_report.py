@@ -41,6 +41,12 @@ def main() -> None:
             "verifyOkCount": 1,
             "conflictHandledProviderCount": 1,
             "conflictHandledCount": 1,
+            "successProfiles": ["gy-1"],
+            "failedProfiles": ["189-1"],
+            "candidateProfiles": ["quark-1"],
+            "probeProfiles": [],
+            "blockedProfiles": ["189-1"],
+            "conflictHandledProfiles": ["gy-1"],
         },
         "latestItems": [
             {
@@ -140,6 +146,13 @@ def main() -> None:
                 and "candidateProviderCount=1" in markdown
                 and "blockedProviderCount=1" in markdown
                 and "conflictHandledProviderCount=1" in markdown,
+                "exportedHasProfileSummary": "profileSummary:" in markdown
+                and "`success=gy-1`" in markdown
+                and "`failed=189-1`" in markdown
+                and "`candidate=quark-1`" in markdown
+                and "`probe=(none)`" in markdown
+                and "`blocked=189-1`" in markdown
+                and "`conflictHandled=gy-1`" in markdown,
                 "exportedHasBlockedRow": "executionMode=blocked" in markdown
                 and "riskHint=download_upload_size_limit_exceeded" in markdown
                 and "requiredAuth=AccessToken" in markdown,

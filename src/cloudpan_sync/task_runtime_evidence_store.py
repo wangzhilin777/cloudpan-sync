@@ -51,6 +51,36 @@ def task_runtime_evidence_summary() -> dict[str, object]:
     candidate_rows = [row for row in latest if bool(row.get("candidateOnly"))]
     probe_rows = [row for row in latest if bool(row.get("probeOnly")) and not bool(row.get("candidateOnly"))]
     effective_rows = [row for row in latest if not bool(row.get("candidateOnly")) and not bool(row.get("probeOnly"))]
+    success_profiles = sorted(
+        {
+            str(row.get("profileId") or "")
+            for row in effective_rows
+            if str(row.get("profileId") or "") and bool(row.get("success"))
+        }
+    )
+    failed_profiles = sorted(
+        {
+            str(row.get("profileId") or "")
+            for row in effective_rows
+            if str(row.get("profileId") or "") and not bool(row.get("success"))
+        }
+    )
+    candidate_profiles = sorted(
+        {str(row.get("profileId") or "") for row in candidate_rows if str(row.get("profileId") or "")}
+    )
+    probe_profiles = sorted(
+        {str(row.get("profileId") or "") for row in probe_rows if str(row.get("profileId") or "")}
+    )
+    blocked_profiles = sorted(
+        {str(row.get("profileId") or "") for row in blocked_rows if str(row.get("profileId") or "")}
+    )
+    conflict_handled_profiles = sorted(
+        {
+            str(row.get("profileId") or "")
+            for row in latest
+            if str(row.get("profileId") or "") and str(row.get("conflictAction") or "")
+        }
+    )
     return {
         "sampleCount": len(latest),
         "providerCount": len({str(row.get("providerKey") or "") for row in latest if str(row.get("providerKey") or "")}),
@@ -104,6 +134,12 @@ def task_runtime_evidence_summary() -> dict[str, object]:
             }
         ),
         "conflictHandledCount": sum(1 for row in latest if str(row.get("conflictAction") or "")),
+        "successProfiles": success_profiles,
+        "failedProfiles": failed_profiles,
+        "candidateProfiles": candidate_profiles,
+        "probeProfiles": probe_profiles,
+        "blockedProfiles": blocked_profiles,
+        "conflictHandledProfiles": conflict_handled_profiles,
         "providers": sorted({str(row.get("providerKey") or "") for row in latest if str(row.get("providerKey") or "")}),
     }
 
@@ -119,6 +155,10 @@ def build_task_runtime_evidence_payload() -> dict[str, object]:
 
 def task_runtime_evidence_to_markdown(payload: dict[str, object]) -> str:
     summary = dict(payload.get("summary") or {})
+    def _profiles_text(values: object) -> str:
+        labels = [str(item or "") for item in list(values or []) if str(item or "")]
+        return ", ".join(labels) if labels else "(none)"
+
     lines: list[str] = []
     lines.append("# CloudPan Sync 任务运行真实样本报告")
     lines.append("")
@@ -141,6 +181,15 @@ def task_runtime_evidence_to_markdown(payload: dict[str, object]) -> str:
         f" `verifyOkCount={summary.get('verifyOkCount', 0)}`"
         f" `conflictHandledProviderCount={summary.get('conflictHandledProviderCount', 0)}`"
         f" `conflictHandledCount={summary.get('conflictHandledCount', 0)}`"
+    )
+    lines.append(
+        "- profileSummary:"
+        f" `success={_profiles_text(summary.get('successProfiles', []))}`"
+        f" `failed={_profiles_text(summary.get('failedProfiles', []))}`"
+        f" `candidate={_profiles_text(summary.get('candidateProfiles', []))}`"
+        f" `probe={_profiles_text(summary.get('probeProfiles', []))}`"
+        f" `blocked={_profiles_text(summary.get('blockedProfiles', []))}`"
+        f" `conflictHandled={_profiles_text(summary.get('conflictHandledProfiles', []))}`"
     )
     lines.append("")
     for row in payload.get("latestItems", []):

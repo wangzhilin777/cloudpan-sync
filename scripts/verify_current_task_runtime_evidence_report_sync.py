@@ -39,6 +39,15 @@ def main() -> None:
                     and summary.get("verifyOkCount") == 3
                     and summary.get("conflictHandledCount") == 3
                 ),
+                "profileSummaryShowsCurrentProfiles": (
+                    "profileSummary:" in markdown
+                    and f"`success={', '.join(summary.get('successProfiles', []) or []) or '(none)'}`" in markdown
+                    and f"`failed={', '.join(summary.get('failedProfiles', []) or []) or '(none)'}`" in markdown
+                    and f"`candidate={', '.join(summary.get('candidateProfiles', []) or []) or '(none)'}`" in markdown
+                    and f"`probe={', '.join(summary.get('probeProfiles', []) or []) or '(none)'}`" in markdown
+                    and f"`blocked={', '.join(summary.get('blockedProfiles', []) or []) or '(none)'}`" in markdown
+                    and f"`conflictHandled={', '.join(summary.get('conflictHandledProfiles', []) or []) or '(none)'}`" in markdown
+                ),
                 "hasPikpakSuccessRow": (
                     "- pikpak profile=pikpak-live-1" in markdown
                     and "mode=binary_upload_after_hash_miss" in markdown

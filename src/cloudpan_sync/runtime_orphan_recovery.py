@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from .auth_store import list_profiles
+from .auth_profile_view import auth_profile_view
+from .auth_store import get_profile, list_profiles, save_profile
+from .models import AuthProfileInput
 from .provider_auth_hints import capture_field_hints, capture_login_url, official_docs_url, provider_auth_modes
 from .provider_registry import build_provider_registry
 from .task_runtime_evidence_store import latest_task_runtime_evidence
@@ -67,6 +69,55 @@ def _command_with_field_hints(provider_key: str, profile_id: str, auth_mode: str
             parts.append(f"--set {key}=YOUR_VALUE")
     parts.append("--probe")
     return " ".join(parts)
+
+
+def _placeholder_secret(auth_mode: str) -> tuple[str, str]:
+    mode = str(auth_mode or "").strip()
+    if mode == "manual_cookie":
+        return "", "YOUR_COOKIE"
+    return "YOUR_TOKEN", ""
+
+
+def _placeholder_extra_value(key: str) -> str:
+    mapping = {
+        "parentId": "YOUR_REAL_PARENT_ID",
+        "parentFileId": "YOUR_PARENT_FILE_ID",
+        "did": "YOUR_DID",
+        "dt": "YOUR_DT",
+        "domainId": "YOUR_DOMAIN_ID",
+        "driveId": "YOUR_DRIVE_ID",
+        "shareCode": "YOUR_SHARE_CODE",
+        "accessCode": "YOUR_ACCESS_CODE",
+        "accessToken": "YOUR_ACCESS_TOKEN",
+        "signature": "YOUR_SIGNATURE",
+        "date": "YOUR_DATE",
+        "fileId": "YOUR_FILE_ID",
+        "path": "YOUR_PATH",
+        "cid": "YOUR_PARENT_ID",
+        "deviceId": "YOUR_DEVICE_ID",
+        "pwdId": "YOUR_SHARE_PWD_ID",
+        "sharePwdId": "YOUR_SHARE_PWD_ID",
+        "passcode": "YOUR_PASSCODE",
+    }
+    return mapping.get(str(key or "").strip(), "YOUR_VALUE")
+
+
+def _extra_stub_fields(field_hints: list[str], auth_mode: str) -> dict[str, str]:
+    extra: dict[str, str] = {}
+    for hint in field_hints:
+        text = str(hint or "")
+        if "extra." not in text:
+            continue
+        key = text.split("extra.", 1)[1].split()[0].split(",")[0].strip()
+        if not key:
+            continue
+        if auth_mode == "manual_cookie" and key in {"cookie_header", "cookie"}:
+            continue
+        if key in {"authorization", "Authorization", "access_token"}:
+            continue
+        normalized = "pwdId" if key == "sharePwdId" else key
+        extra.setdefault(normalized, _placeholder_extra_value(normalized))
+    return extra
 
 
 def build_runtime_orphan_recovery() -> dict[str, object]:
@@ -148,6 +199,60 @@ def build_runtime_orphan_recovery() -> dict[str, object]:
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "summary": summary,
         "items": items,
+    }
+
+
+def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -> dict[str, object]:
+    provider = str(provider_key or "").strip()
+    profile_id = str(orphan_profile_id or "").strip()
+    if not provider or not profile_id:
+        return {"ok": False, "error": "provider_or_profile_missing"}
+
+    existing = get_profile(profile_id)
+    if existing is not None:
+        return {
+            "ok": True,
+            "created": False,
+            "status": "already_exists",
+            "message": "The orphan profileId is already present in the current repository; edit it directly and continue revalidation.",
+            "item": auth_profile_view(existing),
+        }
+
+    payload = build_runtime_orphan_recovery()
+    target_item = None
+    for row in payload.get("items", []):
+        item = dict(row or {})
+        if str(item.get("providerKey") or "") == provider and str(item.get("orphanProfileId") or "") == profile_id:
+            target_item = item
+            break
+    if target_item is None:
+        return {"ok": False, "error": "runtime_orphan_not_found"}
+
+    preferred_auth_mode = str(target_item.get("preferredAuthMode") or "").strip() or _preferred_stub_auth_mode(
+        provider, provider_auth_modes(provider)
+    )
+    token, cookie = _placeholder_secret(preferred_auth_mode)
+    extra = _extra_stub_fields(list(target_item.get("requiredFieldHints") or []), preferred_auth_mode)
+    profile = save_profile(
+        AuthProfileInput(
+            providerKey=provider,
+            authMode=preferred_auth_mode,
+            displayName=f"{provider}-restore-{profile_id}",
+            token=token,
+            cookie=cookie,
+            extra=extra,
+        ),
+        profile_id_override=profile_id,
+    )
+    return {
+        "ok": True,
+        "created": True,
+        "status": "stub_created",
+        "message": "A placeholder auth profile stub was recreated for this runtime orphan. Fill the real credentials, then rerun validation/live probe before treating the old runtime success as re-verifiable evidence.",
+        "item": auth_profile_view(profile),
+        "requiredFieldHints": list(target_item.get("requiredFieldHints") or []),
+        "recommendedCreateCommand": str(target_item.get("recommendedCreateCommand") or ""),
+        "nextStep": str(target_item.get("nextStep") or ""),
     }
 
 

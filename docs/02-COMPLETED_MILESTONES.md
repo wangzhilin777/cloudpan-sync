@@ -10,6 +10,22 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充运行样本脱节一键重建`
+- 完成范围：
+  - 已补齐应用侧恢复动作；这次补齐后，[runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 不再只会汇总 `runtime_orphan` 样本和给出 shell 命令，还能直接按 `providerKey + orphanProfileId` 重建一个带原 `profileId` 的 placeholder auth stub
+  - 当前重建链会保留历史 orphan 的原 `profileId`，并按 provider 自动带出最小占位字段：例如 `guangya` 会预填 `YOUR_TOKEN + parentId`，`quark / uc` 会预填 `YOUR_COOKIE + pwdId`，`189cloud` 会预填 `shareCode / accessCode / accessToken / signature / date` 等写链路相关占位项，避免恢复后还是一张完全空白表单
+  - [webapp.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/webapp.py) 现已新增 `POST /api/runtime_orphan_recovery/recreate_profile`，登录后可以直接从产品内触发 orphan stub 重建；若当前仓库已存在同 `profileId`，接口会诚实返回 `already_exists`，不会静默覆盖现有档案
+  - 设置页的 `Runtime Orphan Recovery` 面板现已从“只展示 recreate 命令”推进成“可直接点按钮恢复”；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会为每条 orphan 样本渲染 `Recreate Stub` 按钮，点击后直接调 `/api/runtime_orphan_recovery/recreate_profile`，刷新授权/恢复摘要，并自动切到授权页把重建出的 stub 档案载入表单，方便继续手工补真实凭证
+  - 这次补齐后，`Runtime Orphan Recovery` 真正形成了“发现 runtime orphan -> 应用内重建 stub -> 回到授权表单补真实凭证 -> 再继续 validation/live probe”的闭环，不再只停留在文档和命令提示层
+  - 已新增 [verify_runtime_orphan_recreate_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_api.py)，并同步补强 [verify_runtime_orphan_recovery_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery_settings_ui.py)，把匿名拦截、stub 重建、重复调用 `already_exists`、设置页恢复按钮和前端恢复动作一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_api.py` 已验证匿名访问 `/api/runtime_orphan_recovery/recreate_profile` 会被拦截，登录后可按原 `profileId=gy-orphan-api` 重建 Guangya orphan stub，重建后当前 recovery 列表会立即移除该 orphan，重复调用则会返回 `already_exists`
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery.py` 已验证原有 recovery payload/markdown/API 链路未回退，当前仍会输出 `--profile-id gy-orphan / uc-orphan` 这类恢复命令
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证设置页当前包含 `recreateRuntimeOrphanProfile()`、`/api/runtime_orphan_recovery/recreate_profile` 调用与 `Recreate Stub` 按钮绑定
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充抓取文本解析与表单回填`
 - 完成范围：
   - 已新增应用侧解析模块 [auth_capture_parse.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_capture_parse.py)，把粘贴进来的浏览器抓取文本继续拆成可消费的 `suggestedProfile / appliedFieldNames / stillMissingFieldHints / placeholderFieldHints`，不再只停在“打开登录页自己看着填”

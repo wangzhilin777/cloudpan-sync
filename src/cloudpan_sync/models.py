@@ -107,6 +107,11 @@ class CaptureParseRequest(BaseModel):
     rawText: str = ""
 
 
+class RuntimeOrphanRecreateRequest(BaseModel):
+    providerKey: str
+    orphanProfileId: str
+
+
 class TaskCreateRequest(BaseModel):
     sourceProvider: str
     targetProvider: str

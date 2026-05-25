@@ -1142,6 +1142,28 @@ async function loadRuntimeOrphanRecoverySummary() {
   renderSettingsPanel();
 }
 
+async function recreateRuntimeOrphanProfile(providerKey, orphanProfileId) {
+  const data = await fetchJson("/api/runtime_orphan_recovery/recreate_profile", {
+    method: "POST",
+    body: JSON.stringify({ providerKey, orphanProfileId }),
+  });
+  setAuthValidationSummary(data, "Runtime Orphan Stub");
+  await Promise.all([
+    loadAuthProfiles(),
+    loadRuntimeOrphanRecoverySummary(),
+    loadAuthEvidenceBundleSummary(),
+    loadAuthRemediationSummary(),
+    loadLiveValidations(),
+    loadStatusMatrix(),
+  ]);
+  const recreated = (state.authProfiles || []).find((item) => item.profileId === orphanProfileId);
+  if (recreated) {
+    fillAuthForm(recreated);
+    state.activeTab = "nav.auth";
+    render();
+  }
+}
+
 async function loadLiveValidations() {
   if (!state.loggedIn) {
     return;
@@ -2129,7 +2151,17 @@ function renderSettingsPanel() {
     const authModes = (item.suggestedAuthModes || []).join("/") || "(none)";
     const fieldHints = (item.requiredFieldHints || []).slice(0, 2).join(" | ");
     const existingProfiles = (item.existingProviderProfileNames || []).join("/") || "(none)";
-    li.textContent = `${item.providerKey || "(unknown)"}: orphanProfileId=${item.orphanProfileId || "(none)"}, sampleCount=${item.sampleCount || 0}, authModes=${authModes}, preferredAuthMode=${item.preferredAuthMode || "(none)"}, existingProfiles=${existingProfiles}${fieldHints ? `, hints=${fieldHints}` : ""}${item.webLoginUrl ? `, login=${item.webLoginUrl}` : ""}${item.recommendedCreateCommand ? `, recreate=${item.recommendedCreateCommand}` : ""}`;
+    const copy = document.createElement("span");
+    copy.textContent = `${item.providerKey || "(unknown)"}: orphanProfileId=${item.orphanProfileId || "(none)"}, sampleCount=${item.sampleCount || 0}, authModes=${authModes}, preferredAuthMode=${item.preferredAuthMode || "(none)"}, existingProfiles=${existingProfiles}${fieldHints ? `, hints=${fieldHints}` : ""}${item.webLoginUrl ? `, login=${item.webLoginUrl}` : ""}${item.recommendedCreateCommand ? `, recreate=${item.recommendedCreateCommand}` : ""}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    const recreateBtn = document.createElement("button");
+    recreateBtn.className = "ghost";
+    recreateBtn.textContent = "Recreate Stub";
+    recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(item.providerKey, item.orphanProfileId));
+    actions.appendChild(recreateBtn);
+    li.appendChild(actions);
     runtimeOrphanRecoveryList.appendChild(li);
   }
 

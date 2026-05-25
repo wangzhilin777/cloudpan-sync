@@ -10,6 +10,21 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充运行孤儿重建后直接续做动作`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里的 `Runtime Orphan Stub` 结果摘要从“只显示一段 JSON/文案”推进成可直接继续操作；这次补齐后，当 orphan recreate API 返回 `recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand / recommendedRuntimeSuccessCommand / recommendedOverwriteVariantCommand` 这组后续链路时，授权结果摘要面板会直接渲染 `Focus Recreated Stub / Refresh Recreated Stub / Probe Recreated Stub / Open Capture For Recreated Stub`
+  - 当前动作直接复用了现有 `focusAuthRemediationProfile()`、`refreshRealEvidenceRemediationProfile()`、`probeRealEvidenceRemediationProfile()` 和 `openCaptureGuideForProvider()`；因此用户在应用内重建 orphan stub 后，不需要再自己从结果 JSON 里读 `profileId`，也不需要再切回设置页找同一组按钮，就能立刻继续补 validation / probe / capture
+  - 这次补齐把 orphan 恢复链从“应用内可重建 stub，但下一步还要自己切页面/猜按钮”推进成“应用内重建 stub -> 结果摘要里直接点续做动作”的更短闭环，比单纯扩文档字段更贴近 `runtime_orphan` 重新拉回当前仓库可复验证据的实际操作路径
+  - 已新增 [verify_runtime_orphan_recreate_followup_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_followup_ui.py)，并保留前一轮的 [verify_runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery.py)、[verify_runtime_orphan_recreate_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_api.py)、[verify_runtime_orphan_recovery_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery_settings_ui.py) 回归，锁住这条 orphan 恢复链的 API/设置页/结果摘要三段一致性
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery.py` 已验证 orphan recovery payload / markdown / API 的后续命令链未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_api.py` 已验证应用内重建 orphan stub 后，API 仍会返回对应 follow-up 命令，重复 `already_exists` 也保持一致
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证设置页 `Runtime Orphan Recovery` 面板原有首个缺口动作和命令摘要未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_followup_ui.py` 已验证授权结果摘要当前会识别 orphan follow-up 命令，并渲染 `Focus Recreated Stub / Refresh Recreated Stub / Probe Recreated Stub / Open Capture For Recreated Stub` 按钮及对应绑定
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充运行孤儿恢复后续命令链`
 - 完成范围：
   - 已把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 从“只告诉你如何按原 `profileId` 重建 stub”推进成“重建之后下一步该怎么继续补真实证据”也一并带出；这次补齐后，每条 orphan item 不再只有 `recommendedCreateCommand`，还会同步输出 `recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand / recommendedRuntimeSuccessCommand / recommendedOverwriteVariantCommand`

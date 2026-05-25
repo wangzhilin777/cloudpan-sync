@@ -461,6 +461,50 @@ function setAuthValidationSummary(data, title = "Latest Auth Result") {
   });
   box.appendChild(meta);
 
+  const followupProfileId = (data?.item?.profileId || row?.profileId || data?.profileId || "").trim();
+  const followupProviderKey = (data?.item?.providerKey || row?.providerKey || data?.providerKey || "").trim();
+  const hasOrphanFollowup = Boolean(
+    followupProfileId
+      && (
+        data?.recommendedRefreshEvidenceCommand
+        || data?.recommendedRuntimeProbeCommand
+        || data?.recommendedRuntimeSuccessCommand
+        || data?.recommendedOverwriteVariantCommand
+      )
+  );
+  if (hasOrphanFollowup) {
+    const actions = document.createElement("div");
+    actions.className = "row-actions";
+    const focusBtn = document.createElement("button");
+    focusBtn.className = "ghost";
+    focusBtn.textContent = "Focus Recreated Stub";
+    focusBtn.addEventListener("click", () => focusAuthRemediationProfile(followupProfileId));
+    actions.appendChild(focusBtn);
+
+    const refreshBtn = document.createElement("button");
+    refreshBtn.className = "ghost";
+    refreshBtn.textContent = "Refresh Recreated Stub";
+    refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(followupProfileId));
+    actions.appendChild(refreshBtn);
+
+    if (followupProviderKey && liveProbeProviderSet.has(followupProviderKey) && data?.recommendedRuntimeProbeCommand) {
+      const probeBtn = document.createElement("button");
+      probeBtn.className = "ghost";
+      probeBtn.textContent = "Probe Recreated Stub";
+      probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(followupProfileId));
+      actions.appendChild(probeBtn);
+    }
+
+    if (followupProviderKey) {
+      const captureBtn = document.createElement("button");
+      captureBtn.className = "ghost";
+      captureBtn.textContent = "Open Capture For Recreated Stub";
+      captureBtn.addEventListener("click", () => openCaptureGuideForProvider(followupProviderKey));
+      actions.appendChild(captureBtn);
+    }
+    box.appendChild(actions);
+  }
+
   raw.textContent = JSON.stringify(data, null, 2);
 }
 

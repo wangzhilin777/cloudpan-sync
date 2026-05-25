@@ -557,6 +557,33 @@ function setAuthEvidenceBundleSummary(bundle, markdown) {
   summaryProfiles.className = "auth-validation-meta";
   summaryProfiles.textContent = `profileReadyProfiles=${(summary.profileReadyProfiles || []).join("/") || "(none)"}, writeReadyProfiles=${(summary.writeReadyProfiles || []).join("/") || "(none)"}, validationOkProfiles=${(summary.validationOkProfiles || []).join("/") || "(none)"}, probeOkProfiles=${(summary.probeOkProfiles || []).join("/") || "(none)"}`;
   box.appendChild(summaryProfiles);
+  const firstNeedsWork = (bundle?.items || []).find((item) => {
+    const itemSummary = item?.summary || {};
+    return itemSummary.profileReady === false || itemSummary.writeReady === false || itemSummary.validationOk === false || itemSummary.probeOk === false;
+  }) || null;
+  if (firstNeedsWork) {
+    const firstProfile = firstNeedsWork.profile || {};
+    const actions = document.createElement("div");
+    actions.className = "row-actions";
+    if (firstProfile.profileId) {
+      const focusBtn = document.createElement("button");
+      focusBtn.className = "ghost";
+      focusBtn.textContent = "Focus First Gap";
+      focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstProfile.profileId));
+      actions.appendChild(focusBtn);
+      const refreshBtn = document.createElement("button");
+      refreshBtn.className = "ghost";
+      refreshBtn.textContent = "Refresh First Gap";
+      refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(firstProfile.profileId));
+      actions.appendChild(refreshBtn);
+    }
+    const captureBtn = document.createElement("button");
+    captureBtn.className = "ghost";
+    captureBtn.textContent = "Open Capture First Gap";
+    captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstProfile.providerKey || ""));
+    actions.appendChild(captureBtn);
+    box.appendChild(actions);
+  }
   raw.textContent = markdown || JSON.stringify(bundle, null, 2);
 }
 
@@ -600,6 +627,24 @@ function setAuthRemediationSummary(bundle, markdown) {
   summaryProfiles.className = "auth-validation-meta";
   summaryProfiles.textContent = `readyProfiles=${(summary.readyProfiles || []).join("/") || "(none)"}, needsFixProfiles=${(summary.needsFixProfiles || []).join("/") || "(none)"}, writeReadyProfiles=${(summary.writeReadyProfiles || []).join("/") || "(none)"}, writeNeedsFixProfiles=${(summary.writeNeedsFixProfiles || []).join("/") || "(none)"}, needsSecretRefreshProfiles=${(summary.needsSecretRefreshProfiles || []).join("/") || "(none)"}`;
   box.appendChild(summaryProfiles);
+  const firstNeedsFix = (bundle?.items || []).find((item) => item?.needsFix || item?.writeNeedsFix || item?.needsSecretRefresh) || null;
+  if (firstNeedsFix) {
+    const actions = document.createElement("div");
+    actions.className = "row-actions";
+    if (firstNeedsFix.profileId) {
+      const focusBtn = document.createElement("button");
+      focusBtn.className = "ghost";
+      focusBtn.textContent = "Focus First Fix";
+      focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstNeedsFix.profileId));
+      actions.appendChild(focusBtn);
+    }
+    const captureBtn = document.createElement("button");
+    captureBtn.className = "ghost";
+    captureBtn.textContent = "Open Capture First Fix";
+    captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstNeedsFix.providerKey || ""));
+    actions.appendChild(captureBtn);
+    box.appendChild(actions);
+  }
   raw.textContent = markdown || JSON.stringify(bundle, null, 2);
 }
 

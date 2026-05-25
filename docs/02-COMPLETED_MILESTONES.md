@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充证据总览首个缺口直接跳转`
+- 完成范围：
+  - 已把授权页顶部的 `Evidence Bundle` 与 `Remediation Guide` 从“弹出摘要后主要还是只读信息”推进成可直接跳转第一个缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在 `Auth Evidence Bundle` 中追加 `Focus First Gap / Refresh First Gap / Open Capture First Gap`，在 `Auth Remediation Guide` 中追加 `Focus First Fix / Open Capture First Fix`
+  - 当前动作会自动从 bundle item 里找出第一个 `profileReady=false / writeReady=false / validationOk=false / probeOk=false` 或 `needsFix / writeNeedsFix / needsSecretRefresh` 的档案，然后直接把用户带到对应授权表单、刷新 evidence，或打开 provider 的网页登录抓取引导，不再要求用户先读完整段摘要再自己去找是哪一个 profile 有缺口
+  - 这次补齐把“总览弹窗能快速看出有问题，但还要人工再定位第一条缺口”的流程，推进成“看总览 -> 直接跳第一条缺口 -> 开始修”的更短闭环，也更贴合当前这套补救 UI 的节奏
+  - 已同步补强 [verify_auth_bundle_summary_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_bundle_summary_ui.py)，把 `Focus First Gap / Refresh First Gap / Open Capture First Gap` 和 `Focus First Fix / Open Capture First Fix` 的文案与绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_bundle_summary_ui.py` 已验证 `Auth Evidence Bundle` 与 `Auth Remediation Guide` 当前包含首个缺口/首个修复项的动作按钮和对应绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_settings_ui.py` 已验证授权页原有 `Auth Remediation` 聚焦与抓取动作链路未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充传输队列直接补救动作`
 - 完成范围：
   - 已把 `传输队列` 主列表从“只展示 targetProfile 状态、guard、riskHint、requiredAuth 和最近结果”推进成可直接跳转补救；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在每个任务行旁边直接渲染 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture`

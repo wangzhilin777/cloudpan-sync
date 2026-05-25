@@ -61,11 +61,21 @@ def main() -> None:
                 and "writeReadyProfiles=" in app_js
                 and "validationOkProfiles=" in app_js
                 and "probeOkProfiles=" in app_js,
+                "jsAuthEvidenceBundleHasFirstGapActions": 'focusBtn.textContent = "Focus First Gap"' in app_js
+                and 'refreshBtn.textContent = "Refresh First Gap"' in app_js
+                and 'captureBtn.textContent = "Open Capture First Gap"' in app_js
+                and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstProfile.profileId));' in app_js
+                and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(firstProfile.profileId));' in app_js
+                and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstProfile.providerKey || ""));' in app_js,
                 "jsAuthRemediationShowsProfileSummary": "readyProfiles=" in app_js
                 and "needsFixProfiles=" in app_js
                 and "writeReadyProfiles=" in app_js
                 and "writeNeedsFixProfiles=" in app_js
                 and "needsSecretRefreshProfiles=" in app_js,
+                "jsAuthRemediationHasFirstFixActions": 'focusBtn.textContent = "Focus First Fix"' in app_js
+                and 'captureBtn.textContent = "Open Capture First Fix"' in app_js
+                and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstNeedsFix.profileId));' in app_js
+                and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstNeedsFix.providerKey || ""));' in app_js,
             },
             ensure_ascii=False,
             indent=2,

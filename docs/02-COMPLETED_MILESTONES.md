@@ -12,6 +12,20 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 已新增结构化字段 `conflictPolicyNote`
+  - 当前只要 remediation provider 暴露了 `recommendedRuntimeProbeCommand / recommendedLiveUploadCommand / recommendedFastCandidateCommand / recommendedRuntimeSuccessCommand / recommendedPostBootstrapRuntimeCommand` 任意一种 helper，就会同时给出一句固定说明：默认使用 `--conflict-policy auto_rename_new`，如需直接覆盖同名文件，可改成 `overwrite_existing`
+  - 这条说明已同步进 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 和设置页 remediation 面板，用户现在不止能看到命令里带了什么参数，也能直接看到该怎么改策略
+  - 对应 verifier 也已同步补强：[scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py)、[scripts/verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)、[scripts/verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 bundle/API/Markdown 都带 `conflictPolicyNote`，并保留 `overwrite_existing`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证导出 Markdown 也会写出 `conflictPolicyNote`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 中 `115_open / quark / 189cloud / baidu_netdisk / xunlei / 123_open` 这几条 post-bootstrap helper 都继续附带该说明
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证设置页 remediation 行会显示 `conflictPolicyNote=${item.conflictPolicyNote}`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py) 已补出 `jsRemediationRowsPreserveRuntimeCommandText` 断言
   - 这条前端校验会继续锁住设置页 remediation 面板仍然原样展示 `runtimeSuccess` 与 `postBootstrapRuntime` 两类 helper 命令文本，避免未来 UI 还在显示 remediation 行，但把后端给出的完整命令字符串吞掉或改写
 - 当前验证证据：

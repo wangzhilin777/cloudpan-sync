@@ -55,36 +55,48 @@ def main() -> None:
                     "recommendedPostBootstrapRuntimeCommand" in cloud115
                     and "create_fast_upload_candidate_task.py" in cloud115
                     and "--conflict-policy auto_rename_new" in cloud115
+                    and "conflictPolicyNote:" in cloud115
+                    and "overwrite_existing" in cloud115
                     and "tmp\\115_open-post-bootstrap-runtime-evidence" in cloud115
                 ),
                 "quarkSectionUsesLivePostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in quark
                     and "create_live_upload_task.py" in quark
                     and "--conflict-policy auto_rename_new" in quark
+                    and "conflictPolicyNote:" in quark
+                    and "overwrite_existing" in quark
                     and "tmp\\quark-post-bootstrap-runtime-evidence" in quark
                 ),
                 "cloud189SectionKeepsFastPostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in cloud189
                     and "create_fast_upload_candidate_task.py" in cloud189
                     and "--conflict-policy auto_rename_new" in cloud189
+                    and "conflictPolicyNote:" in cloud189
+                    and "overwrite_existing" in cloud189
                     and "tmp\\189cloud-post-bootstrap-runtime-evidence" in cloud189
                 ),
                 "baiduSectionUsesLivePostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in baidu
                     and "create_live_upload_task.py" in baidu
                     and "--conflict-policy auto_rename_new" in baidu
+                    and "conflictPolicyNote:" in baidu
+                    and "overwrite_existing" in baidu
                     and "tmp\\baidu_netdisk-post-bootstrap-runtime-evidence" in baidu
                 ),
                 "xunleiSectionUsesLivePostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in xunlei
                     and "create_live_upload_task.py" in xunlei
                     and "--conflict-policy auto_rename_new" in xunlei
+                    and "conflictPolicyNote:" in xunlei
+                    and "overwrite_existing" in xunlei
                     and "tmp\\xunlei-post-bootstrap-runtime-evidence" in xunlei
                 ),
                 "pan123SectionUsesLivePostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in pan123
                     and "create_live_upload_task.py" in pan123
                     and "--conflict-policy auto_rename_new" in pan123
+                    and "conflictPolicyNote:" in pan123
+                    and "overwrite_existing" in pan123
                     and "tmp\\123_open-post-bootstrap-runtime-evidence" in pan123
                 ),
                 "aliyunSectionKeepsRefreshEvidencePath": (

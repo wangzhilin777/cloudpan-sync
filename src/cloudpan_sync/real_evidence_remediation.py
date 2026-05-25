@@ -242,6 +242,12 @@ def _profile_views() -> list[dict[str, object]]:
     return [auth_profile_view(profile) for profile in list_profiles()]
 
 
+def _conflict_policy_note(*commands: str) -> str:
+    if not any(str(command or "").strip() for command in commands):
+        return ""
+    return "当前 helper 默认使用 --conflict-policy auto_rename_new；如需直接覆盖同名文件，可改成 overwrite_existing。"
+
+
 def _next_step(
     *,
     provider_key: str,
@@ -386,6 +392,13 @@ def build_real_evidence_remediation_bundle(
                 post_bootstrap_runtime_command=post_bootstrap_runtime_command if not provider_profiles else "",
             ),
         }
+        item_payload["conflictPolicyNote"] = _conflict_policy_note(
+            str(item_payload.get("recommendedRuntimeProbeCommand") or ""),
+            str(item_payload.get("recommendedLiveUploadCommand") or ""),
+            str(item_payload.get("recommendedFastCandidateCommand") or ""),
+            str(item_payload.get("recommendedRuntimeSuccessCommand") or ""),
+            str(item_payload.get("recommendedPostBootstrapRuntimeCommand") or ""),
+        )
         items.append(item_payload)
 
     return {
@@ -485,5 +498,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedRuntimeSuccessCommand: `{row.get('recommendedRuntimeSuccessCommand', '')}`")
         if row.get("recommendedPostBootstrapRuntimeCommand"):
             lines.append(f"- recommendedPostBootstrapRuntimeCommand: `{row.get('recommendedPostBootstrapRuntimeCommand', '')}`")
+        if row.get("conflictPolicyNote"):
+            lines.append(f"- conflictPolicyNote: {row.get('conflictPolicyNote', '')}")
         lines.append("")
     return "\n".join(lines).strip() + "\n"

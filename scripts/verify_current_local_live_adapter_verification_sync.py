@@ -35,6 +35,10 @@ def main() -> None:
     print(
         json.dumps(
             {
+                "summaryHasCurrentProviderSummary": (
+                    f"- providerCount: `{(payload.get('summary') or {}).get('providerCount', 0)}`" in markdown
+                    and f"- providerSummary: `all_ok={', '.join((payload.get('summary') or {}).get('allOkProviders', [])) or '(none)'}` `md5_ready={', '.join((payload.get('summary') or {}).get('md5ReadyProviders', [])) or '(none)'}` `gcid_ready={', '.join((payload.get('summary') or {}).get('gcidReadyProviders', [])) or '(none)'}` `probe_ready={', '.join((payload.get('summary') or {}).get('probeCheckReadyProviders', [])) or '(none)'}` `matrix_ready={', '.join((payload.get('summary') or {}).get('matrixReadyProviders', [])) or '(none)'}` `account_create_mode={', '.join((payload.get('summary') or {}).get('accountCreateModeProviders', [])) or '(none)'}`" in markdown
+                ),
                 "allProviderSectionsPresent": all(f"## {provider}" in markdown for provider in PROVIDERS),
                 "allAdaptersReportListMetadataCreateOk": all(
                     bool((payload.get(provider) or {}).get("list_ok"))

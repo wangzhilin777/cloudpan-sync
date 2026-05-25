@@ -21,7 +21,7 @@ from scripts.verify_provider_live_adapters import verify_xunlei
 
 
 def build_payload() -> dict[str, object]:
-    return {
+    payload = {
         "guangya": verify_guangya(),
         "aliyundrive_open": verify_aliyun_open(),
         "189cloud": verify_189cloud(),
@@ -34,14 +34,50 @@ def build_payload() -> dict[str, object]:
         "uc": verify_uc(),
         "probe_and_matrix": verify_probe_and_matrix(),
     }
+    providers = ("guangya", "aliyundrive_open", "189cloud", "baidu_netdisk", "123_open", "115_open", "xunlei", "pikpak", "quark", "uc")
+    probe_matrix = dict(payload.get("probe_and_matrix") or {})
+    probe_checks = dict(probe_matrix.get("probeChecks") or {})
+    matrix_rows = dict(probe_matrix.get("matrixRows") or {})
+    payload["summary"] = {
+        "providerCount": len(providers),
+        "allOkProviders": [provider for provider in providers if all(bool((payload.get(provider) or {}).get(key)) for key in ("list_ok", "metadata_ok", "create_ok"))],
+        "md5ReadyProviders": [provider for provider in providers if str((payload.get(provider) or {}).get("metadata_md5") or "")],
+        "gcidReadyProviders": [provider for provider in providers if str((payload.get(provider) or {}).get("metadata_gcid") or "")],
+        "probeCheckReadyProviders": [provider for provider in providers if int(probe_checks.get(provider, 0) or 0) == 3],
+        "matrixReadyProviders": [
+            provider
+            for provider in providers
+            if bool((matrix_rows.get(provider) or {}).get("list_ready"))
+            and bool((matrix_rows.get(provider) or {}).get("metadata_ready"))
+            and bool((matrix_rows.get(provider) or {}).get("create_dir_ready"))
+            and bool((matrix_rows.get(provider) or {}).get("live_probe_ok"))
+        ],
+        "accountCreateModeProviders": [
+            f"{provider}={str((payload.get(provider) or {}).get('create_mode') or '')}"
+            for provider in providers
+            if str((payload.get(provider) or {}).get("create_mode") or "")
+        ],
+    }
+    return payload
 
 
 def to_markdown(payload: dict[str, object]) -> str:
     lines: list[str] = []
+    summary = dict(payload.get("summary") or {})
     lines.append("# CloudPan Sync Local Live Adapter Verification")
     lines.append("")
     lines.append("> 本报告来自 `scripts/verify_provider_live_adapters.py` 的本地可控 stub 验证。")
     lines.append("> 它证明当前工作树里的适配器逻辑和聚合逻辑可跑通，但不等同于真实网盘在线成功。")
+    lines.append("")
+    lines.append(f"- providerCount: `{summary.get('providerCount', 0)}`")
+    lines.append(
+        f"- providerSummary: `all_ok={', '.join(summary.get('allOkProviders', [])) or '(none)'}` "
+        f"`md5_ready={', '.join(summary.get('md5ReadyProviders', [])) or '(none)'}` "
+        f"`gcid_ready={', '.join(summary.get('gcidReadyProviders', [])) or '(none)'}` "
+        f"`probe_ready={', '.join(summary.get('probeCheckReadyProviders', [])) or '(none)'}` "
+        f"`matrix_ready={', '.join(summary.get('matrixReadyProviders', [])) or '(none)'}` "
+        f"`account_create_mode={', '.join(summary.get('accountCreateModeProviders', [])) or '(none)'}`"
+    )
     lines.append("")
 
     for provider_key in ("guangya", "aliyundrive_open", "189cloud", "baidu_netdisk", "123_open", "115_open", "xunlei", "pikpak", "quark", "uc"):

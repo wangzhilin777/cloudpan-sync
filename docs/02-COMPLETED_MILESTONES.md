@@ -10,6 +10,19 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充本地适配器验证聚合明细`
+- 完成范围：
+  - [export_local_live_adapter_verification.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_local_live_adapter_verification.py) 的导出汇总现已继续补齐 `providerCount / allOkProviders / md5ReadyProviders / gcidReadyProviders / probeCheckReadyProviders / matrixReadyProviders / accountCreateModeProviders`，不再只输出逐 provider 明细
+  - 这次补齐后，[07-LOCAL_LIVE_ADAPTER_VERIFICATION.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/07-LOCAL_LIVE_ADAPTER_VERIFICATION.md) 现在会在顶部额外写出 `providerCount` 与 `providerSummary` 行，直接汇总本地 stub 验证里哪些 provider 当前 `all_ok`、哪些已具备 `md5/gcid` 元数据、哪些 probe/matrix 已全绿，以及哪些 provider 当前存在显式 `account_create_mode`；当前真实仓库会明确显示 `providerCount=10`、`all_ok=guangya, aliyundrive_open, 189cloud, baidu_netdisk, 123_open, 115_open, xunlei, pikpak, quark, uc`、`md5_ready=guangya, aliyundrive_open, 189cloud, baidu_netdisk, 123_open, quark, uc`、`gcid_ready=guangya, xunlei, pikpak`、`account_create_mode=189cloud=live_account_auth`
+  - 已同步补强 [verify_export_local_live_adapter_verification.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_local_live_adapter_verification.py) 与 [verify_current_local_live_adapter_verification_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_local_live_adapter_verification_sync.py)，把 synthetic export 与当前仓库文档里的 `providerSummary` 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_local_live_adapter_verification.py` 已验证导出的本地适配器验证报告会写出 `providerSummary`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_local_live_adapter_verification_sync.py` 已验证当前仓库文档中的 `providerCount / providerSummary` 与 `build_payload()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\export_local_live_adapter_verification.py` 已重导出当前 [07-LOCAL_LIVE_ADAPTER_VERIFICATION.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/07-LOCAL_LIVE_ADAPTER_VERIFICATION.md)
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`本次提交`
 - 完成范围：
   - [plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/plan_audit.py) 的审计 summary 现已继续补齐 `doneKeys / partialKeys / todoKeys` 聚合明细，不再只返回 `done / partial / todo` 三个计数

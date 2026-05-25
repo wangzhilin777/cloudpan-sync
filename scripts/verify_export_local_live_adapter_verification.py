@@ -7,6 +7,11 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.export_local_live_adapter_verification import to_markdown
+
 SCRIPT_PATH = ROOT / "scripts" / "export_local_live_adapter_verification.py"
 SPEC = importlib.util.spec_from_file_location("export_local_live_adapter_verification", SCRIPT_PATH)
 if SPEC is None or SPEC.loader is None:
@@ -17,36 +22,34 @@ SPEC.loader.exec_module(export_script)
 
 def main() -> None:
     synthetic_payload = {
+        "summary": {
+            "providerCount": 2,
+            "allOkProviders": ["guangya", "189cloud"],
+            "md5ReadyProviders": ["guangya", "189cloud"],
+            "gcidReadyProviders": ["guangya"],
+            "probeCheckReadyProviders": ["guangya", "189cloud"],
+            "matrixReadyProviders": ["guangya", "189cloud"],
+            "accountCreateModeProviders": ["189cloud=live_account_auth"],
+        },
         "guangya": {
             "list_ok": True,
             "metadata_ok": True,
             "create_ok": True,
             "metadata_md5": "0123456789abcdef0123456789abcdef",
-        },
-        "aliyundrive_open": {
-            "list_ok": True,
-            "metadata_ok": True,
-            "create_ok": True,
-            "drive_id": "drive-demo",
+            "metadata_gcid": "a" * 40,
         },
         "189cloud": {
             "list_ok": True,
-            "metadata_ok": False,
-            "create_ok": False,
-            "error": "share_auth_readonly",
+            "metadata_ok": True,
+            "create_ok": True,
+            "create_mode": "live_account_auth",
+            "create_file_id": "dir-189-1",
+            "metadata_md5": "0123456789abcdef0123456789abcdef",
         },
-        "baidu_netdisk": {"list_ok": True, "metadata_ok": True, "create_ok": True, "metadata_md5": "md5-demo"},
-        "123_open": {"list_ok": True, "metadata_ok": True, "create_ok": True, "file_id": "123-file"},
-        "115_open": {"list_ok": True, "metadata_ok": True, "create_ok": True, "metadata_sha1": "a" * 40},
-        "xunlei": {"list_ok": True, "metadata_ok": True, "create_ok": True, "metadata_gcid": "b" * 40},
-        "pikpak": {"list_ok": True, "metadata_ok": True, "create_ok": True, "metadata_gcid": "c" * 40},
-        "quark": {"list_ok": True, "metadata_ok": True, "create_ok": True, "metadata_md5": "quark-md5"},
-        "uc": {"list_ok": True, "metadata_ok": True, "create_ok": True, "metadata_md5": "uc-md5"},
         "probe_and_matrix": {
             "probeChecks": {
                 "guangya": 3,
-                "aliyundrive_open": 3,
-                "189cloud": 2,
+                "189cloud": 3,
             },
             "matrixRows": {
                 "guangya": {
@@ -57,27 +60,30 @@ def main() -> None:
                 },
                 "189cloud": {
                     "list_ready": True,
-                    "metadata_ready": False,
-                    "create_dir_ready": False,
-                    "live_probe_ok": False,
+                    "metadata_ready": True,
+                    "create_dir_ready": True,
+                    "live_probe_ok": True,
                 },
             },
         },
     }
 
     original_root = export_script.ROOT
-    original_build_payload = export_script.build_payload
+    original_builder = export_script.build_payload
+    original_renderer = export_script.to_markdown
 
     with TemporaryDirectory() as tmp_dir:
         tmp_root = Path(tmp_dir)
         (tmp_root / "docs").mkdir(parents=True, exist_ok=True)
         export_script.ROOT = tmp_root
         export_script.build_payload = lambda: synthetic_payload
+        export_script.to_markdown = to_markdown
         try:
             export_script.main()
         finally:
             export_script.ROOT = original_root
-            export_script.build_payload = original_build_payload
+            export_script.build_payload = original_builder
+            export_script.to_markdown = original_renderer
 
         output_path = tmp_root / "docs" / "07-LOCAL_LIVE_ADAPTER_VERIFICATION.md"
         markdown = output_path.read_text(encoding="utf-8")
@@ -86,22 +92,12 @@ def main() -> None:
         json.dumps(
             {
                 "exportedFileExists": True,
-                "exportedHasTitleAndNotes": "# CloudPan Sync Local Live Adapter Verification" in markdown
-                and "> 本报告来自 `scripts/verify_provider_live_adapters.py` 的本地可控 stub 验证。" in markdown
-                and "> 它证明当前工作树里的适配器逻辑和聚合逻辑可跑通，但不等同于真实网盘在线成功。" in markdown,
-                "exportedHasProviderSections": "## guangya" in markdown
-                and "- list_ok: `True`" in markdown
-                and "- metadata_md5: `0123456789abcdef0123456789abcdef`" in markdown
-                and "## 189cloud" in markdown
-                and "- metadata_ok: `False`" in markdown
-                and "- error: `share_auth_readonly`" in markdown,
-                "exportedHasProbeChecks": "## Probe Checks" in markdown
-                and "- guangya: `3`" in markdown
-                and "- aliyundrive_open: `3`" in markdown
-                and "- 189cloud: `2`" in markdown,
-                "exportedHasMatrixRows": "## Matrix Rows" in markdown
-                and "- guangya: `list_ready=True` `metadata_ready=True` `create_dir_ready=True` `live_probe_ok=True`" in markdown
-                and "- 189cloud: `list_ready=True` `metadata_ready=False` `create_dir_ready=False` `live_probe_ok=False`" in markdown,
+                "exportedHasTitle": "# CloudPan Sync Local Live Adapter Verification" in markdown,
+                "exportedHasProviderSummary": "- providerSummary: `all_ok=guangya, 189cloud` `md5_ready=guangya, 189cloud` `gcid_ready=guangya` `probe_ready=guangya, 189cloud` `matrix_ready=guangya, 189cloud` `account_create_mode=189cloud=live_account_auth`" in markdown,
+                "exportedHasGuangyaSection": "## guangya" in markdown and "- metadata_gcid: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`" in markdown,
+                "exportedHas189Section": "## 189cloud" in markdown and "- create_mode: `live_account_auth`" in markdown and "- create_file_id: `dir-189-1`" in markdown,
+                "exportedHasProbeChecks": "- guangya: `3`" in markdown and "- 189cloud: `3`" in markdown,
+                "exportedHasMatrixRows": "- guangya: `list_ready=True` `metadata_ready=True` `create_dir_ready=True` `live_probe_ok=True`" in markdown and "- 189cloud: `list_ready=True` `metadata_ready=True` `create_dir_ready=True` `live_probe_ok=True`" in markdown,
             },
             ensure_ascii=False,
             indent=2,

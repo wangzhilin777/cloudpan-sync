@@ -3,6 +3,9 @@
 > 本报告来自 `scripts/verify_provider_live_adapters.py` 的本地可控 stub 验证。
 > 它证明当前工作树里的适配器逻辑和聚合逻辑可跑通，但不等同于真实网盘在线成功。
 
+- providerCount: `10`
+- providerSummary: `all_ok=guangya, aliyundrive_open, 189cloud, baidu_netdisk, 123_open, 115_open, xunlei, pikpak, quark, uc` `md5_ready=guangya, aliyundrive_open, 189cloud, baidu_netdisk, 123_open, quark, uc` `gcid_ready=guangya, xunlei, pikpak` `probe_ready=guangya, aliyundrive_open, 189cloud, baidu_netdisk, 123_open, 115_open, xunlei, pikpak, quark, uc` `matrix_ready=guangya, aliyundrive_open, 189cloud, baidu_netdisk, 123_open, 115_open, xunlei, pikpak, quark, uc` `account_create_mode=189cloud=live_account_auth`
+
 ## guangya
 - list_ok: `True`
 - metadata_ok: `True`

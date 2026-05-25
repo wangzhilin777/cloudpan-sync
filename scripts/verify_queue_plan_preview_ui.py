@@ -27,6 +27,7 @@ def main() -> None:
         "htmlHasConflictPolicyOverwriteOption": '<option value="overwrite_existing">overwrite_existing</option>' in index_html,
         "htmlHasPreviewButton": 'id="taskPreviewBtn"' in index_html,
         "htmlHasPreviewPanel": 'id="taskPlanPreviewPanel"' in index_html,
+        "htmlHasPreviewActions": 'id="taskPlanPreviewActions"' in index_html,
         "htmlHasPreviewSummary": 'id="taskPlanPreviewSummary"' in index_html,
         "htmlHasPreviewRisk": 'id="taskPlanPreviewRisk"' in index_html,
         "htmlHasCreateGuard": 'id="taskCreateGuard"' in index_html,
@@ -35,6 +36,17 @@ def main() -> None:
         "jsHasPreviewRenderer": "function renderTaskPlanPreview()" in app_js,
         "jsHasFetchPlanHelper": "async function fetchTaskPlanPreview()" in app_js,
         "jsHasAckReset": "function resetTaskPlanAck()" in app_js,
+        "jsHasPreviewRecoveryActions": 'const actionsWrap = document.getElementById("taskPlanPreviewActions");' in app_js
+        and 'focusBtn.textContent = "Focus Profile"' in app_js
+        and 'refreshBtn.textContent = "Refresh Evidence"' in app_js
+        and 'probeBtn.textContent = "Run Live Probe"' in app_js
+        and 'captureBtn.textContent = "Open Capture"' in app_js
+        and 'createBtn.textContent = "Create Stub"' in app_js
+        and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(targetProfile.profileId));' in app_js
+        and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(targetProfile.profileId));' in app_js
+        and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(targetProfile.profileId));' in app_js
+        and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(targetProviderKey));' in app_js
+        and 'createBtn.addEventListener("click", () => createRemediationProfile(targetProviderKey));' in app_js,
         "jsReadsThresholdAndConflictPolicyFromForm": 'const thresholdRaw = document.getElementById("taskThresholdMB").value.trim();' in app_js
         and 'const conflictPolicy = document.getElementById("taskConflictPolicy").value;' in app_js,
         "jsSendsThresholdAndConflictPolicyInPreview": 'thresholdMB: Number(thresholdRaw || 0) || 0,' in app_js

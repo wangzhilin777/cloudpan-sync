@@ -1655,13 +1655,15 @@ function renderPendingList() {
 function renderTaskPlanPreview() {
   const panel = document.getElementById("taskPlanPreviewPanel");
   const meta = document.getElementById("taskPlanPreviewMeta");
+  const actionsWrap = document.getElementById("taskPlanPreviewActions");
   const summaryWrap = document.getElementById("taskPlanPreviewSummary");
   const risk = document.getElementById("taskPlanPreviewRisk");
   const ackWrap = document.getElementById("taskPlanPreviewAckWrap");
   const list = document.getElementById("taskPlanPreviewList");
-  if (!panel || !meta || !summaryWrap || !risk || !ackWrap || !list) {
+  if (!panel || !meta || !actionsWrap || !summaryWrap || !risk || !ackWrap || !list) {
     return;
   }
+  actionsWrap.innerHTML = "";
   summaryWrap.innerHTML = "";
   list.innerHTML = "";
   const plan = state.taskPlanPreview;
@@ -1680,6 +1682,41 @@ function renderTaskPlanPreview() {
     ? `, targetProfile=${targetProfile.displayName || targetProfile.profileId}, profileReady=${targetProfile.profileReady !== false}, writeReady=${targetProfile.writeReady !== false}`
     : ", targetProfile=(none)";
   meta.textContent = `source=${plan.sourceProvider || "(unknown)"} -> target=${plan.targetProvider || "(unknown)"}, thresholdMB=${plan.thresholdMB || 0}, conflictPolicy=${plan.conflictPolicy || "auto_rename_new"}${targetProfileText}`;
+  const targetProviderKey = plan.targetProvider || "";
+  const targetRemediationItem = (state.realEvidenceRemediation?.items || []).find((item) => item.providerKey === targetProviderKey) || null;
+  if (targetProfile) {
+    const focusBtn = document.createElement("button");
+    focusBtn.className = "ghost";
+    focusBtn.textContent = "Focus Profile";
+    focusBtn.addEventListener("click", () => focusAuthRemediationProfile(targetProfile.profileId));
+    actionsWrap.appendChild(focusBtn);
+    const refreshBtn = document.createElement("button");
+    refreshBtn.className = "ghost";
+    refreshBtn.textContent = "Refresh Evidence";
+    refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(targetProfile.profileId));
+    actionsWrap.appendChild(refreshBtn);
+    if (liveProbeProviderSet.has(targetProfile.providerKey)) {
+      const probeBtn = document.createElement("button");
+      probeBtn.className = "ghost";
+      probeBtn.textContent = "Run Live Probe";
+      probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(targetProfile.profileId));
+      actionsWrap.appendChild(probeBtn);
+    }
+  }
+  if (targetProviderKey) {
+    const captureBtn = document.createElement("button");
+    captureBtn.className = "ghost";
+    captureBtn.textContent = "Open Capture";
+    captureBtn.addEventListener("click", () => openCaptureGuideForProvider(targetProviderKey));
+    actionsWrap.appendChild(captureBtn);
+  }
+  if (targetProviderKey && targetRemediationItem?.recommendedCreateCommand) {
+    const createBtn = document.createElement("button");
+    createBtn.className = "ghost";
+    createBtn.textContent = "Create Stub";
+    createBtn.addEventListener("click", () => createRemediationProfile(targetProviderKey));
+    actionsWrap.appendChild(createBtn);
+  }
   [
     { label: "total", value: plan?.summary?.total || 0 },
     { label: "fast_upload", value: counts.fast_upload || 0 },

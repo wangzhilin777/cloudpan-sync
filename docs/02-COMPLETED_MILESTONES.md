@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充任务预览风险直接补救动作`
+- 完成范围：
+  - 已把 `新建任务 -> Plan Preview` 从“只显示 targetProfile missing/not ready/not write-ready 风险文字”推进成可直接跳转补救；这次补齐后，[index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 新增了 `taskPlanPreviewActions` 区域，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在预览面板里直接渲染 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture / Create Stub`
+  - 当前动作会基于已选 `targetProfile` 与 `targetProvider` 自动复用已有恢复链路：若已经选中了目标档案，可直接聚焦授权表单、刷新 evidence、重跑 live probe；若当前 provider 还没有档案或需要重新抓取，则可以直接打开网页登录抓取引导，或在支持的场景下直接创建 placeholder stub
+  - 这次补齐把“预览已经明确提示任务为什么会被拦住，但用户还要自己切页面修”的流程，推进成“看到风险 -> 直接点动作 -> 修完再回来预览/建任务”的产品内闭环，更贴近计划里对小白用户可操作性的要求
+  - 已同步补强 [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py)，把 `taskPlanPreviewActions`、按钮文本与事件绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_queue_plan_preview_ui.py` 已验证 `Plan Preview` 当前包含 `taskPlanPreviewActions` 以及 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture / Create Stub` 按钮和对应事件绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证预览区复用的 `refreshRealEvidenceRemediationProfile()`、`probeRealEvidenceRemediationProfile()`、`createRemediationProfile()` 链路未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充运行证据样本直接补救动作`
 - 完成范围：
   - 已把设置页里的 `Task Runtime Evidence` 从“只展示 success / failed / probe / blocked 样本摘要”推进成可直接触发补救动作；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会为运行证据样本行直接追加 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture`

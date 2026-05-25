@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增 [scripts/verify_planner_strategy_and_order.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_planner_strategy_and_order.py)，把计划文档单元测试里的 `provider 能力判断 / 秒传策略判断 / fallback 阈值 / 目录底层优先排序` 收成一条独立规划层回归，不再只靠 M6 总结和零散 API verifier 间接证明
+  - 这条 verifier 当前会直接锁住 [provider_registry.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/provider_registry.py) 里 `115_open` 的 `fastUploadInputs=["sha1","size"]` 与 `authModes=["official_oauth","manual_cookie"]`，确保 planner 确实按目标 provider 能力来判断秒传条件
+  - 同一条回归还会继续验证 [planner.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/planner.py) 在 `thresholdMB=3` 下会把 `sha1` 齐全的小文件判成 `fast_upload`，把缺 `sha1` 但未超阈值的文件判成 `download_upload`，把超阈值的大文件判成 `pending_manual`
+  - 执行顺序侧也已同步锁住 `selectedRoots=["/1","/2"]` 时仍保持顶层根顺序 `/1 -> /2`，且每个 root 内部继续按 `deepest_first` 输出，当前 `/1/11/111/movie-fast.bin -> /1/11/112/movie-fallback.bin -> /1/11/archive-large.bin` 的顺序不会被回退成普通扁平队列
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_planner_strategy_and_order.py` 已验证当前 planner 会按 provider 能力判定秒传输入、按 fallback 阈值分流 `fast_upload / download_upload / pending_manual`，并保持“顶层顺序 + 最底层优先”的 `executionGroups`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增 [scripts/verify_auth_profile_masking.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_masking.py)，把计划文档里“授权信息脱敏显示”从已有功能描述补成独立可跑回归，不再只靠旧里程碑文字和零散脚本侧面证明
   - 这条 verifier 当前会直接锁住 [auth_store.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_store.py) 的 `masked_profile()` 仍保持“长 token 保留前 4 后 2、中间脱敏”“长 cookie 保留前 6、中间脱敏”“过短 secret 统一折叠成 `***`”这三条口径，避免后续把真实 secret 直接漏回接口
   - 同一条回归还会继续验证 [auth_profile_view.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_view.py) 与 `/api/auth/profiles` 返回仍会在脱敏后的基础上保留 `resolvedParentId / resolvedFileId`，并对 `tok-demo / domain-demo / drive-demo` 这类占位凭证继续给出 `placeholderFieldHints / placeholderSecretFieldHints / needsSecretRefresh`

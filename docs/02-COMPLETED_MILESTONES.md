@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充授权设置页聚合明细`
+- 完成范围：
+  - 设置页现已新增 `Auth Evidence Bundle` 与 `Auth Remediation Guide` 两个摘要面板，不必先切到授权页再点按钮，登录后即可直接看到当前 auth profile 的 ready/fix 分布
+  - 这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在设置页直接显示 `profileReadyProfiles / writeReadyProfiles / validationOkProfiles / probeOkProfiles` 以及 `readyProfiles / needsFixProfiles / writeNeedsFixProfiles / needsSecretRefreshProfiles`
+  - 已新增 [verify_auth_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_settings_ui.py)，把设置页 DOM、状态、loader、刷新链路和 auth bundle/remediation 摘要展示一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_settings_ui.py` 已验证设置页当前含 auth evidence/remediation 面板，并会在刷新后加载与展示对应 summary 字段
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充授权摘要页面聚合明细`
 - 完成范围：
   - [auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_evidence.py) 现已让 `refresh_auth_evidence_bundle()` 也返回完整 `profileSummary` 名单，不再只剩 count，避免刷新授权证据后页面摘要丢失 profile 级分布

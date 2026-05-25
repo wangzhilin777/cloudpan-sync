@@ -35,6 +35,8 @@ const state = {
   providerResearch: [],
   statusMatrix: null,
   auditSummary: null,
+  authEvidenceBundle: null,
+  authRemediationBundle: null,
   realEvidenceReport: null,
   realEvidenceSummary: null,
   realEvidenceRemediation: null,
@@ -964,6 +966,24 @@ async function loadAuditSummary() {
   renderSettingsPanel();
 }
 
+async function loadAuthEvidenceBundleSummary() {
+  if (!state.loggedIn) {
+    return;
+  }
+  const data = await fetchJson("/api/auth/evidence_bundle");
+  state.authEvidenceBundle = data;
+  renderSettingsPanel();
+}
+
+async function loadAuthRemediationBundleSummary() {
+  if (!state.loggedIn) {
+    return;
+  }
+  const data = await fetchJson("/api/auth/remediation_bundle");
+  state.authRemediationBundle = data;
+  renderSettingsPanel();
+}
+
 async function loadRealEvidenceSummary() {
   if (!state.loggedIn) {
     return;
@@ -1712,6 +1732,8 @@ function renderSettingsPanel() {
   const sessionList = document.getElementById("settingsSessionList");
   const validationList = document.getElementById("settingsValidationList");
   const providerProbeList = document.getElementById("settingsProviderProbeList");
+  const authEvidenceList = document.getElementById("settingsAuthEvidenceList");
+  const authRemediationList = document.getElementById("settingsAuthRemediationList");
   const providerStatusList = document.getElementById("settingsProviderStatusList");
   const realEvidenceList = document.getElementById("settingsRealEvidenceList");
   const realEvidenceRemediationList = document.getElementById("settingsRealEvidenceRemediationList");
@@ -1720,6 +1742,8 @@ function renderSettingsPanel() {
   sessionList.innerHTML = "";
   validationList.innerHTML = "";
   providerProbeList.innerHTML = "";
+  authEvidenceList.innerHTML = "";
+  authRemediationList.innerHTML = "";
   providerStatusList.innerHTML = "";
   realEvidenceList.innerHTML = "";
   realEvidenceRemediationList.innerHTML = "";
@@ -1780,6 +1804,28 @@ function renderSettingsPanel() {
       li.textContent = `${probe.providerKey || "(unknown)"}: ok=${probe.ok}, mode=${probe.mode}, checks=${(probe.checks || []).length}`;
       providerProbeList.appendChild(li);
     }
+  }
+
+  const authEvidenceSummary = state.authEvidenceBundle?.summary || {};
+  const authEvidenceRows = [
+    `profiles=${authEvidenceSummary.profileCount || 0}, profileReady=${authEvidenceSummary.profileReadyCount || 0}, writeReady=${authEvidenceSummary.writeReadyCount || 0}, validationOk=${authEvidenceSummary.validationOkCount || 0}, probeOk=${authEvidenceSummary.probeOkCount || 0}`,
+    `profileReadyProfiles=${(authEvidenceSummary.profileReadyProfiles || []).join("/") || "(none)"}, writeReadyProfiles=${(authEvidenceSummary.writeReadyProfiles || []).join("/") || "(none)"}, validationOkProfiles=${(authEvidenceSummary.validationOkProfiles || []).join("/") || "(none)"}, probeOkProfiles=${(authEvidenceSummary.probeOkProfiles || []).join("/") || "(none)"}`,
+  ];
+  for (const row of authEvidenceRows) {
+    const li = document.createElement("li");
+    li.textContent = row;
+    authEvidenceList.appendChild(li);
+  }
+
+  const authRemediationSummary = state.authRemediationBundle?.summary || {};
+  const authRemediationRows = [
+    `profiles=${authRemediationSummary.profileCount || 0}, ready=${authRemediationSummary.readyCount || 0}, needsFix=${authRemediationSummary.needsFixCount || 0}, writeReady=${authRemediationSummary.writeReadyCount || 0}, writeNeedsFix=${authRemediationSummary.writeNeedsFixCount || 0}, needsSecretRefresh=${authRemediationSummary.needsSecretRefreshCount || 0}`,
+    `readyProfiles=${(authRemediationSummary.readyProfiles || []).join("/") || "(none)"}, needsFixProfiles=${(authRemediationSummary.needsFixProfiles || []).join("/") || "(none)"}, writeReadyProfiles=${(authRemediationSummary.writeReadyProfiles || []).join("/") || "(none)"}, writeNeedsFixProfiles=${(authRemediationSummary.writeNeedsFixProfiles || []).join("/") || "(none)"}, needsSecretRefreshProfiles=${(authRemediationSummary.needsSecretRefreshProfiles || []).join("/") || "(none)"}`,
+  ];
+  for (const row of authRemediationRows) {
+    const li = document.createElement("li");
+    li.textContent = row;
+    authRemediationList.appendChild(li);
   }
 
   const providerStatusSummary = state.statusMatrix?.summary || {};
@@ -1901,6 +1947,8 @@ async function onLogout() {
   state.liveValidationMeta = { historyCount: 0, summary: null };
   state.providerLiveProbes = {};
   state.providerLiveProbeMeta = { historyCount: 0, summary: null };
+  state.authEvidenceBundle = null;
+  state.authRemediationBundle = null;
   state.realEvidenceReport = null;
   state.realEvidenceSummary = null;
   state.realEvidenceRemediation = null;
@@ -1925,6 +1973,8 @@ async function refreshProtectedData() {
     loadTasks(),
     loadLiveValidations(),
     loadProviderLiveProbeResults(),
+    loadAuthEvidenceBundleSummary(),
+    loadAuthRemediationBundleSummary(),
     loadRealEvidenceSummary(),
     loadRealEvidenceRemediationSummary(),
     loadTaskRuntimeEvidence(),

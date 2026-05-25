@@ -143,6 +143,8 @@ def _remediation_followup(profile_id: str) -> dict[str, object]:
             continue
         return {
             "nextStep": str(row.get("nextStep") or ""),
+            "recommendedPrimaryCommandLabel": str(row.get("recommendedPrimaryCommandLabel") or ""),
+            "recommendedPrimaryCommand": str(row.get("recommendedPrimaryCommand") or ""),
             "recommendedRefreshEvidenceCommand": str(row.get("recommendedRefreshEvidenceCommand") or ""),
             "recommendedPostRefreshRuntimeCommand": str(row.get("recommendedPostRefreshRuntimeCommand") or ""),
             "recommendedRuntimeProbeCommand": str(row.get("recommendedRuntimeProbeCommand") or ""),

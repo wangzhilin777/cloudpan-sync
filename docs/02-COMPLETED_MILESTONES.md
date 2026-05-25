@@ -12,6 +12,24 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 现在会为每个 provider 统一计算 `recommendedPrimaryCommand` 和 `recommendedPrimaryCommandLabel`，把当前最值得先跑的一条补救命令结构化输出出来
+  - 当前优先级已经落到真实 bundle：例如 `guangya` 会先指向 `patch_and_probe_auth_profile.py`，`aliyundrive_open` 会先指向 `recommendedRefreshEvidenceCommand`，而 `115_open / quark / 189cloud / baidu_netdisk / xunlei / 123_open` 这类无现成 profile 的 provider，会直接把首条 `post-bootstrap runtime` helper 作为主命令给出
+  - [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 与设置页 remediation 面板已同步展示 `providersWithPrimaryCommand` 汇总，以及逐 provider 的 `recommendedPrimaryCommand` / `label=...`，从“看一堆候选命令”进一步变成“直接抄当前首选下一条”
+  - [scripts/create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py)、[scripts/create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[scripts/create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py)、[scripts/create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py) 的 remediation follow-up 输出也已带上这组主命令字段，helper 结果不再只给“下一步说明”，还能直接给“当前首选命令”
+  - 对应 verifier 已同步补强：[scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py)、[scripts/verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)、[scripts/verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)、[scripts/verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)、[scripts/verify_create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_auth_profile_stub.py)、[scripts/verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py)、[scripts/verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py)、[scripts/verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py)
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 synthetic remediation bundle/API/Markdown 会同步输出 `providersWithPrimaryCommand` 与 `recommendedPrimaryCommand`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证导出的 Markdown 会写出 `providersWithPrimaryCommand` 与逐 provider 的 `recommendedPrimaryCommand`
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证设置页会显示 `primaryCommands=${remediationSummary.providersWithPrimaryCommand || 0}`，以及 `primary=${item.recommendedPrimaryCommand}` / `primaryLabel=${item.recommendedPrimaryCommandLabel}`
+  - `.\.venv\Scripts\python.exe scripts\export_real_evidence_remediation.py` 已重导出当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前仓库导出的真实 remediation 指南与 `providersWithPrimaryCommand=10` 一致，并锁住 `guangya / aliyundrive_open / 115_open / quark / 189cloud / baidu_netdisk / xunlei / 123_open` 的主命令标签
+  - `.\.venv\Scripts\python.exe scripts\verify_create_auth_profile_stub.py`、`scripts\verify_create_live_upload_task.py`、`scripts\verify_create_fast_upload_candidate_task.py`、`scripts\verify_create_runtime_probe_task.py` 已验证 helper JSON 输出现在都能带出 `recommendedPrimaryCommandLabel / recommendedPrimaryCommand`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[scripts/create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py)、[scripts/create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py) 的 JSON 输出现在都会直接带上 `remediationFollowup`
   - 当前这三类 task helper 在输出里已能直接给出当前 profile 对应的 `nextStep`，以及最相关的 `recommendedRuntimeProbeCommand / recommendedLiveUploadCommand / recommendedFastCandidateCommand / recommendedRuntimeSuccessCommand / recommendedOverwriteVariantCommand / recommendedPostRefreshRuntimeCommand`
   - 这样从“跑出 live success / candidate-only / probe-only 样本”到“决定下一条继续跑什么”已经不需要再跳回 remediation 文档或 UI 查命令，进一步缩短了 `P-REAL` 的连续执行链路

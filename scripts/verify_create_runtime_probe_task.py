@@ -120,6 +120,8 @@ def main() -> None:
                 "providerKey": "aliyundrive_open",
                 "profileIds": ["ali-runtime-1"],
                 "nextStep": "probe-only 之后继续补真实 runtime 样本。",
+                "recommendedPrimaryCommandLabel": "post_refresh_runtime",
+                "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-1 --target-parent-id folder-demo --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-live-evidence",
                 "recommendedRuntimeProbeCommand": r".\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-1 --target-parent-id folder-demo --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-runtime-probe-evidence",
                 "recommendedPostRefreshRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-1 --target-parent-id folder-demo --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-live-evidence",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-1 --target-parent-id folder-demo --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\aliyundrive_open-live-evidence",
@@ -215,6 +217,8 @@ def main() -> None:
                 "scriptEvidenceDirOutput": output.get("evidenceDir") == str(evidence_dir),
                 "scriptAuthEvidenceRefreshed": len(refresh_calls) == 1 and refresh_calls[0].get("profileId") == "ali-runtime-1",
                 "scriptEvidenceBundleCreated": evidence_titles_ok,
+                "scriptRemediationPrimaryCommandIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommandLabel") == "post_refresh_runtime"
+                and dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommand", "").endswith("tmp\\aliyundrive_open-live-evidence"),
                 "scriptRemediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedPostRefreshRuntimeCommand", "").endswith("tmp\\aliyundrive_open-live-evidence")
                 and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\aliyundrive_open-live-evidence"),
                 "scriptExplicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-parent",

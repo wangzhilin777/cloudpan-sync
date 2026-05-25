@@ -212,6 +212,7 @@ def main() -> None:
                 "providersWithFastCandidateCommand": ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")),
                 "providersWithRuntimeSuccessCommand": ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")),
                 "providersWithPostBootstrapRuntimeCommand": ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")),
+                "providersWithPrimaryCommand": ((bundle.get("summary") or {}).get("providersWithPrimaryCommand")),
                 "providersWithOverwriteVariantCommand": ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")),
                 "providersWithConflictPolicyNote": ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")),
                 "providersWithDeclaredConflictPolicies": ((bundle.get("summary") or {}).get("providersWithDeclaredConflictPolicies")),
@@ -222,6 +223,7 @@ def main() -> None:
                 "summaryHasExpectedFastCandidateCount": ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == 3,
                 "summaryHasExpectedRuntimeSuccessCount": ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 4,
                 "summaryHasExpectedPostBootstrapCount": ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 5,
+                "summaryHasExpectedPrimaryCommandCount": ((bundle.get("summary") or {}).get("providersWithPrimaryCommand")) == 9,
                 "summaryHasExpectedOverwriteVariantCount": ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == 9,
                 "summaryHasExpectedConflictPolicyNoteCount": ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == 9,
                 "summaryHasExpectedPostRefreshRuntimeCount": ((bundle.get("summary") or {}).get("providersWithPostRefreshRuntimeCommand")) == 0,
@@ -249,6 +251,7 @@ def main() -> None:
                 "fastCandidateCommandShowsConflictChoice": "tmp\\115_open-fast-candidate-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "markdownHasRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown,
                 "markdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown and "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown,
+                "markdownHasPrimaryCommand": "recommendedPrimaryCommand" in markdown and "label=runtime_probe" in markdown and "label=post_bootstrap_runtime" in markdown,
                 "markdownHasExpandedPostBootstrapHelpers": "tmp\\quark-post-bootstrap-runtime-evidence" in markdown and "tmp\\xunlei-post-bootstrap-runtime-evidence" in markdown and "tmp\\123_open-post-bootstrap-runtime-evidence" in markdown,
                 "postBootstrapCommandShowsConflictChoice": "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "markdownHasOverwriteVariantCommand": "recommendedOverwriteVariantCommand" in markdown and "--conflict-policy overwrite_existing" in markdown,
@@ -284,6 +287,7 @@ def main() -> None:
                 "apiHasExpectedLiveUploadSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == 3,
                 "apiHasExpectedFastCandidateSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == 3,
                 "apiHasExpectedRuntimeSuccessSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 4,
+                "apiHasExpectedPrimaryCommandSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithPrimaryCommand")) == ((bundle.get("summary") or {}).get("providersWithPrimaryCommand")) == 9,
                 "apiHasExpectedOverwriteVariantSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == ((bundle.get("summary") or {}).get("providersWithOverwriteVariantCommand")) == 9,
                 "apiHasExpectedConflictPolicyNoteSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == ((bundle.get("summary") or {}).get("providersWithConflictPolicyNote")) == 9,
                 "apiHasExpectedPostRefreshRuntimeSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithPostRefreshRuntimeCommand")) == ((bundle.get("summary") or {}).get("providersWithPostRefreshRuntimeCommand")) == 0,
@@ -349,6 +353,30 @@ def main() -> None:
                         None,
                     )
                 ),
+                "apiHasGuangyaPrimaryCommand": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "guangya"
+                            and str((row or {}).get("recommendedPrimaryCommandLabel") or "") == "runtime_probe"
+                            and "create_runtime_probe_task.py" in str((row or {}).get("recommendedPrimaryCommand") or "")
+                        ),
+                        None,
+                    )
+                ),
+                "apiHas189PrimaryBootstrapCommand": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "189cloud"
+                            and str((row or {}).get("recommendedPrimaryCommandLabel") or "") == "post_bootstrap_runtime"
+                            and "create_fast_upload_candidate_task.py" in str((row or {}).get("recommendedPrimaryCommand") or "")
+                        ),
+                        None,
+                    )
+                ),
                 "apiHas115RuntimeSuccessCommand": bool(
                     next(
                         (
@@ -401,6 +429,7 @@ def main() -> None:
                 "apiMarkdownHasTitle": "# CloudPan Sync 真实联调补救指南" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in str(api_markdown.get("markdown", "")),
+                "apiMarkdownHasPrimaryCommand": "recommendedPrimaryCommand" in str(api_markdown.get("markdown", "")) and "label=runtime_probe" in str(api_markdown.get("markdown", "")) and "label=post_bootstrap_runtime" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasOverwriteVariantCommand": "recommendedOverwriteVariantCommand" in str(api_markdown.get("markdown", "")) and "--conflict-policy overwrite_existing" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasConflictPolicyNote": "conflictPolicyNote:" in str(api_markdown.get("markdown", "")) and "overwrite_existing" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasConflictSupportRows": "conflictSupport:" in str(api_markdown.get("markdown", "")) and "providerConflictNotes:" in str(api_markdown.get("markdown", "")),

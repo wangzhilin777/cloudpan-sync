@@ -51,6 +51,7 @@ def main() -> None:
                     and f"- providersWithCreateCommand: `{summary.get('providersWithCreateCommand', 0)}`" in markdown
                     and f"- providersWithBootstrapCommand: `{summary.get('providersWithBootstrapCommand', 0)}`" in markdown
                     and f"- providersWithPostRefreshRuntimeCommand: `{summary.get('providersWithPostRefreshRuntimeCommand', 0)}`" in markdown
+                    and f"- providersWithPrimaryCommand: `{summary.get('providersWithPrimaryCommand', 0)}`" in markdown
                 ),
                 "summaryShowsExpectedRuntimeRemediationCounts": (
                     summary.get("providersNeedingRuntimeSuccess") == 7
@@ -64,12 +65,15 @@ def main() -> None:
                     and summary.get("providersWithCreateCommand") == 8
                     and summary.get("providersWithBootstrapCommand") == 8
                     and summary.get("providersWithPostRefreshRuntimeCommand") == 1
+                    and summary.get("providersWithPrimaryCommand") == 10
                 ),
                 "cloud115SectionKeepsFastPostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in cloud115
                     and "create_fast_upload_candidate_task.py" in cloud115
                     and "--conflict-policy auto_rename_new" in cloud115
                     and "recommendedOverwriteVariantCommand" in cloud115
+                    and "recommendedPrimaryCommand" in cloud115
+                    and "label=post_bootstrap_runtime" in cloud115
                     and "--conflict-policy overwrite_existing" in cloud115
                     and "conflictPolicyNote:" in cloud115
                     and "overwrite_existing" in cloud115
@@ -83,6 +87,8 @@ def main() -> None:
                     and "create_live_upload_task.py" in quark
                     and "--conflict-policy auto_rename_new" in quark
                     and "recommendedOverwriteVariantCommand" in quark
+                    and "recommendedPrimaryCommand" in quark
+                    and "label=post_bootstrap_runtime" in quark
                     and "--conflict-policy overwrite_existing" in quark
                     and "conflictPolicyNote:" in quark
                     and "overwrite_existing" in quark
@@ -96,6 +102,8 @@ def main() -> None:
                     and "create_fast_upload_candidate_task.py" in cloud189
                     and "--conflict-policy auto_rename_new" in cloud189
                     and "recommendedOverwriteVariantCommand" in cloud189
+                    and "recommendedPrimaryCommand" in cloud189
+                    and "label=post_bootstrap_runtime" in cloud189
                     and "--conflict-policy overwrite_existing" in cloud189
                     and "conflictPolicyNote:" in cloud189
                     and "overwrite_existing" in cloud189
@@ -108,6 +116,8 @@ def main() -> None:
                     and "create_live_upload_task.py" in baidu
                     and "--conflict-policy auto_rename_new" in baidu
                     and "recommendedOverwriteVariantCommand" in baidu
+                    and "recommendedPrimaryCommand" in baidu
+                    and "label=post_bootstrap_runtime" in baidu
                     and "--conflict-policy overwrite_existing" in baidu
                     and "conflictPolicyNote:" in baidu
                     and "overwrite_existing" in baidu
@@ -120,6 +130,8 @@ def main() -> None:
                     and "create_live_upload_task.py" in xunlei
                     and "--conflict-policy auto_rename_new" in xunlei
                     and "recommendedOverwriteVariantCommand" in xunlei
+                    and "recommendedPrimaryCommand" in xunlei
+                    and "label=post_bootstrap_runtime" in xunlei
                     and "--conflict-policy overwrite_existing" in xunlei
                     and "conflictPolicyNote:" in xunlei
                     and "overwrite_existing" in xunlei
@@ -132,6 +144,8 @@ def main() -> None:
                     and "create_live_upload_task.py" in pan123
                     and "--conflict-policy auto_rename_new" in pan123
                     and "recommendedOverwriteVariantCommand" in pan123
+                    and "recommendedPrimaryCommand" in pan123
+                    and "label=post_bootstrap_runtime" in pan123
                     and "--conflict-policy overwrite_existing" in pan123
                     and "conflictPolicyNote:" in pan123
                     and "overwrite_existing" in pan123
@@ -142,6 +156,8 @@ def main() -> None:
                 "aliyunSectionKeepsRefreshEvidencePath": (
                     "recommendedRefreshEvidenceCommand" in aliyun
                     and "recommendedPostRefreshRuntimeCommand" in aliyun
+                    and "recommendedPrimaryCommand" in aliyun
+                    and "label=refresh_evidence" in aliyun
                     and "patch_and_probe_auth_profile.py" in aliyun
                     and "create_live_upload_task.py" in aliyun
                     and "recommendedOverwriteVariantCommand" in aliyun

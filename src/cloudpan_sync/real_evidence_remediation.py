@@ -339,6 +339,26 @@ def _next_step(
     return "当前 provider 已无明显补救项。"
 
 
+def _recommended_primary_command(item_payload: dict[str, object]) -> tuple[str, str]:
+    candidates = [
+        ("patch_probe", str(item_payload.get("recommendedPatchProbeCommand") or "")),
+        ("refresh_evidence", str(item_payload.get("recommendedRefreshEvidenceCommand") or "")),
+        ("post_refresh_runtime", str(item_payload.get("recommendedPostRefreshRuntimeCommand") or "")),
+        ("runtime_probe", str(item_payload.get("recommendedRuntimeProbeCommand") or "")),
+        ("runtime_success", str(item_payload.get("recommendedRuntimeSuccessCommand") or "")),
+        ("live_upload", str(item_payload.get("recommendedLiveUploadCommand") or "")),
+        ("fast_candidate", str(item_payload.get("recommendedFastCandidateCommand") or "")),
+        ("post_bootstrap_runtime", str(item_payload.get("recommendedPostBootstrapRuntimeCommand") or "")),
+        ("bootstrap", str(item_payload.get("recommendedBootstrapCommand") or "")),
+        ("create", str(item_payload.get("recommendedCreateCommand") or "")),
+        ("patch", str(item_payload.get("recommendedPatchCommand") or "")),
+    ]
+    for label, command in candidates:
+        if command:
+            return label, command
+    return "", ""
+
+
 def build_real_evidence_remediation_bundle(
     *,
     report: dict[str, object] | None = None,
@@ -479,6 +499,9 @@ def build_real_evidence_remediation_bundle(
             str(item_payload.get("recommendedRuntimeSuccessCommand") or ""),
             str(item_payload.get("recommendedPostBootstrapRuntimeCommand") or ""),
         )
+        primary_label, primary_command = _recommended_primary_command(item_payload)
+        item_payload["recommendedPrimaryCommandLabel"] = primary_label
+        item_payload["recommendedPrimaryCommand"] = primary_command
         items.append(item_payload)
 
     return {
@@ -499,6 +522,7 @@ def build_real_evidence_remediation_bundle(
             "providersWithFastCandidateCommand": sum(1 for item in items if str(item.get("recommendedFastCandidateCommand") or "")),
             "providersWithRuntimeSuccessCommand": sum(1 for item in items if str(item.get("recommendedRuntimeSuccessCommand") or "")),
             "providersWithPostBootstrapRuntimeCommand": sum(1 for item in items if str(item.get("recommendedPostBootstrapRuntimeCommand") or "")),
+            "providersWithPrimaryCommand": sum(1 for item in items if str(item.get("recommendedPrimaryCommand") or "")),
             "providersWithOverwriteVariantCommand": sum(1 for item in items if str(item.get("recommendedOverwriteVariantCommand") or "")),
             "providersWithConflictPolicyNote": sum(1 for item in items if str(item.get("conflictPolicyNote") or "")),
             "providersWithDeclaredConflictPolicies": sum(1 for item in items if list(item.get("declaredConflictPolicies") or [])),
@@ -541,6 +565,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersWithFastCandidateCommand: `{summary.get('providersWithFastCandidateCommand', 0)}`")
     lines.append(f"- providersWithRuntimeSuccessCommand: `{summary.get('providersWithRuntimeSuccessCommand', 0)}`")
     lines.append(f"- providersWithPostBootstrapRuntimeCommand: `{summary.get('providersWithPostBootstrapRuntimeCommand', 0)}`")
+    lines.append(f"- providersWithPrimaryCommand: `{summary.get('providersWithPrimaryCommand', 0)}`")
     lines.append(f"- providersWithOverwriteVariantCommand: `{summary.get('providersWithOverwriteVariantCommand', 0)}`")
     lines.append(f"- providersWithConflictPolicyNote: `{summary.get('providersWithConflictPolicyNote', 0)}`")
     lines.append(f"- providersWithDeclaredConflictPolicies: `{summary.get('providersWithDeclaredConflictPolicies', 0)}`")
@@ -592,6 +617,11 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
         if row.get("providerConflictNotes"):
             lines.append(f"- providerConflictNotes: {row.get('providerConflictNotes', '')}")
         lines.append(f"- nextStep: {row.get('nextStep', '')}")
+        if row.get("recommendedPrimaryCommand"):
+            lines.append(
+                f"- recommendedPrimaryCommand: `{row.get('recommendedPrimaryCommand', '')}` "
+                f"`label={row.get('recommendedPrimaryCommandLabel', '')}`"
+            )
         if row.get("recommendedCreateCommand"):
             lines.append(f"- recommendedCreateCommand: `{row.get('recommendedCreateCommand', '')}`")
         if row.get("recommendedBootstrapCommand"):

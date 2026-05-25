@@ -211,6 +211,10 @@ def main() -> None:
                 "providersWithFastCandidateCommand": ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")),
                 "providersWithRuntimeSuccessCommand": ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")),
                 "providersWithPostBootstrapRuntimeCommand": ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")),
+                "summaryHasExpectedLiveUploadCount": ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == 3,
+                "summaryHasExpectedFastCandidateCount": ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == 3,
+                "summaryHasExpectedRuntimeSuccessCount": ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 4,
+                "summaryHasExpectedPostBootstrapCount": ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 5,
                 "providersBlockedOnly": ((bundle.get("summary") or {}).get("providersBlockedOnly")),
                 "providersCandidateOnly": ((bundle.get("summary") or {}).get("providersCandidateOnly")),
                 "providersProbeOnly": ((bundle.get("summary") or {}).get("providersProbeOnly")),
@@ -254,6 +258,9 @@ def main() -> None:
                 "apiHasSummary": bool((api_bundle.get("summary") or {}).get("providerCount", 0) >= 0),
                 "apiHasRuntimeSuccessSummary": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")),
                 "apiHasPostBootstrapRuntimeSummary": ((api_bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 5,
+                "apiHasExpectedLiveUploadSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == 3,
+                "apiHasExpectedFastCandidateSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == 3,
+                "apiHasExpectedRuntimeSuccessSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 4,
                 "apiHasGuangyaRuntimeSuccessCommand": bool(
                     next(
                         (

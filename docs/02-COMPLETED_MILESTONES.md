@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已把 remediation bundle 里四类 helper summary 从“只打印当前值”补成显式 expected-count 断言
+  - 当前 bundle 验证现在会单独锁住 `providersWithLiveUploadCommand=3`、`providersWithFastCandidateCommand=3`、`providersWithRuntimeSuccessCommand=4`、`providersWithPostBootstrapRuntimeCommand=5`，并继续校验 API 返回 summary 与 bundle 本体一致
+  - [scripts/verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py) 也同步补上导出 Markdown 的 `providersWithLiveUploadCommand=4` 与 `providersWithFastCandidateCommand=1` 计数断言，不再只盯 runtime/post-bootstrap 两项
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 `summaryHasExpectedLiveUploadCount=true`、`summaryHasExpectedFastCandidateCount=true`、`summaryHasExpectedRuntimeSuccessCount=true`、`summaryHasExpectedPostBootstrapCount=true`
+  - 同一验证已验证 `apiHasExpectedLiveUploadSummaryCount=true`、`apiHasExpectedFastCandidateSummaryCount=true`、`apiHasExpectedRuntimeSuccessSummaryCount=true`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证 `exportedHasLiveUploadSummary=true`、`exportedHasFastCandidateSummary=true`、`exportedHasRuntimeSuccessSummary=true`、`exportedHasPostBootstrapRuntimeSummary=true`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py) 已把 remediation 面板里另外三类关键动作也拆成专项断言，不再只单独盯 `postBootstrap`
   - 当前 UI 验证现在会单独锁住 summary 里的 `liveUploadCommands / fastCandidateCommands / runtimeSuccessCommands`，以及 provider 简讯里的 `liveUpload / fastCandidate / runtimeSuccess`
   - 这样如果前端后续只回退其中一种 helper 展示，诊断输出也能直接指出是哪一类，而不是继续埋在总布尔里

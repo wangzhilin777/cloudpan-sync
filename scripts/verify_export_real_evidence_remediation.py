@@ -227,6 +227,8 @@ def main() -> None:
             {
                 "exportedFileExists": True,
                 "exportedHasTitle": "# CloudPan Sync 真实联调补救指南" in markdown,
+                "exportedHasLiveUploadSummary": "providersWithLiveUploadCommand: `4`" in markdown,
+                "exportedHasFastCandidateSummary": "providersWithFastCandidateCommand: `1`" in markdown,
                 "exportedHasRuntimeSuccessSummary": "providersWithRuntimeSuccessCommand: `2`" in markdown,
                 "exportedHasPostBootstrapRuntimeSummary": "providersWithPostBootstrapRuntimeCommand: `6`" in markdown,
                 "exportedHasLiveRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown

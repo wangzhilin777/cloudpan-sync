@@ -33,6 +33,7 @@ def main() -> None:
             "providersNeedingRuntimeSuccess": 6,
             "providersWithPatchCommand": 0,
             "providersWithPatchProbeCommand": 0,
+            "providersWithRecreateProbeCommand": 1,
             "providersWithRefreshEvidenceCommand": 0,
             "providersWithPostRefreshRuntimeCommand": 1,
             "providersWithRuntimeProbeCommand": 0,
@@ -71,6 +72,8 @@ def main() -> None:
                 "runtimeBlockedOnly": False,
                 "runtimeCandidateOnly": False,
                 "runtimeProbeOnly": False,
+                "needsSecretRefresh": True,
+                "placeholderSecretFieldHints": ["token"],
                 "declaredConflictPolicies": ["overwrite_existing", "auto_rename_new"],
                 "supportsOverwrite": False,
                 "supportsAutoRename": True,
@@ -79,14 +82,15 @@ def main() -> None:
                 "autoRenameSupportStatus": "supported",
                 "providerConflictNotes": "当前 Guangya fallback 上传链路已接受 overwrite_existing / auto_rename_new，但 overwrite_existing 仍会诚实降级为 auto_rename_new。",
                 "gaps": ["基础证据已齐，但尚未记录到真实 runtime 成功样本"],
+                "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name Guangya --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                 "recommendedLiveUploadCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
                 "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
                 "recommendedPostRefreshRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
-                "recommendedPrimaryCommandLabel": "post_refresh_runtime",
-                "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
+                "recommendedPrimaryCommandLabel": "recreate_probe",
+                "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name Guangya --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-live-evidence",
                 "conflictPolicyNote": "当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。",
-                "nextStep": "当前基础证据已齐，可直接运行统一的 runtime success helper。",
+                "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
             },
             {
                 "providerKey": "115_open",
@@ -318,6 +322,7 @@ def main() -> None:
                 "exportedHasRuntimeSuccessSummary": "providersWithRuntimeSuccessCommand: `2`" in markdown,
                 "exportedHasPostBootstrapRuntimeSummary": "providersWithPostBootstrapRuntimeCommand: `6`" in markdown,
                 "exportedHasPrimaryCommandSummary": "providersWithPrimaryCommand: `6`" in markdown,
+                "exportedHasRecreateProbeSummary": "providersWithRecreateProbeCommand: `1`" in markdown,
                 "exportedHasOverwriteVariantSummary": "providersWithOverwriteVariantCommand: `6`" in markdown,
                 "exportedHasConflictPolicyNoteSummary": "providersWithConflictPolicyNote: `6`" in markdown,
                 "exportedHasPostRefreshRuntimeSummary": "providersWithPostRefreshRuntimeCommand: `1`" in markdown,
@@ -331,8 +336,11 @@ def main() -> None:
                 "exportedHasPostRefreshRuntimeCommand": "recommendedPostRefreshRuntimeCommand" in markdown
                 and r"tmp\guangya-live-evidence" in markdown,
                 "exportedHasPrimaryCommand": "recommendedPrimaryCommand" in markdown
-                and "label=post_refresh_runtime" in markdown
+                and "label=recreate_probe" in markdown
                 and "label=bootstrap" in markdown,
+                "exportedHasRecreateProbeCommand": "recommendedRecreateProbeCommand" in markdown
+                and "placeholderSecretFieldHints: `token`" in markdown
+                and "create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token" in markdown,
                 "exportedHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown
                 and r"tmp\189cloud-post-bootstrap-runtime-evidence" in markdown,
                 "exportedHasLivePostBootstrapHelpers": r"tmp\quark-post-bootstrap-runtime-evidence" in markdown

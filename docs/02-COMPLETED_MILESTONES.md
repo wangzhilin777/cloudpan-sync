@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py) 现已把 `recreate_probe` 这条导出分支锁进回归，不再只验证旧的 `post_refresh_runtime / bootstrap` 主命令标签
+  - synthetic export payload 现在会显式模拟 `guangya` 处于 `needsSecretRefresh=True`、`placeholderSecretFieldHints=[token]` 的场景，并验证导出的 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 中会写出 `providersWithRecreateProbeCommand`、`recommendedRecreateProbeCommand` 与 `placeholderSecretFieldHints`
+  - 这样 `real_evidence_remediation` 现在不仅有 current sync verifier 和 synthetic bundle verifier，连独立 export verifier 也已经把新补救路径覆盖到了
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证临时导出的 remediation Markdown 当前会同时包含 `providersWithRecreateProbeCommand: 1`、`recommendedRecreateProbeCommand`、`placeholderSecretFieldHints: token` 与 `recommendedPrimaryCommand label=recreate_probe`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[scripts/create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py)、[scripts/create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py) 的 remediation follow-up 现已统一补齐 `needsSecretRefresh / placeholderSecretFieldHints / recommendedRecreateProbeCommand`
   - 这样这 3 个 task helper 在返回 `recommendedPrimaryCommandLabel / recommendedPrimaryCommand` 之外，也能把“当前其实应先换真 token/cookie 再 probe”的结构化信号一起带出来，不再只让调用方看到一条命令，却看不到这是 `recreate_probe` 还是普通 runtime follow-up
   - 对应 verifier 已同步补强：[scripts/verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py)、[scripts/verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py)、[scripts/verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py)

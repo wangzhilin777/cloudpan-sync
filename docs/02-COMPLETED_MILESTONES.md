@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [docs/10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 已按当前 `task_runtime_evidence_store` 重新导出，纠正了旧报告把多条历史 runtime 成功样本高估到 `6` 个 provider 的问题
+  - 当前真实证据状态报告已与仓库内现存最新样本对齐：runtime success provider 现明确收敛为 `guangya / uc / pikpak` 三个，`aliyundrive_open / quark / baidu_netdisk / 123_open` 等之前被旧文档写成成功的 provider 已回到“尚无成功样本”的诚实状态
+  - 这样 `docs/10` 与 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 的 runtime 口径重新一致，后续继续推进 `P-REAL` 时不会再被旧成功数误导
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_report.py` 已验证 `export_real_evidence_report.py` 导出链仍正常
+  - `git diff -- docs/10-REAL_EVIDENCE_STATUS.md` 已确认本次同步把 `task_runtime/runtime_success` 从 `6` 校正到 `3`，并逐个回收旧文档里误记为成功的 provider 行
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 已补强 `nextStep` 生成逻辑：对于 `115_open / 189cloud` 这类会暴露 `recommendedPostBootstrapRuntimeCommand` 的 provider，不再只提示“先建档再 probe”，而是明确要求拿到真实 `profileId` 后立刻继续补第一条 runtime success 样本
   - 这样补救指南从“命令在下面但提示语没跟上”收成了一条更连贯的真实取证链，用户按 `docs/12` 执行时更容易直接推进到 `P-REAL` 所需的 runtime success 证据
   - remediation bundle 与 Markdown 导出验证也已同步锁住这条新口径，避免后续又退回成泛化 next step

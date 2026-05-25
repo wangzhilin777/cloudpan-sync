@@ -156,7 +156,7 @@ def main() -> None:
                                     validations_response = client.get("/api/auth/live_validations").json()
                         with patched_attr(webapp, "list_provider_live_probes", lambda: [{"profileId": "p1", "providerKey": "guangya"}, {"profileId": "p1", "providerKey": "guangya"}, {"profileId": "p2", "providerKey": "123_open"}]):
                             with patched_attr(webapp, "latest_provider_live_probes", lambda: [{"profileId": "p1", "providerKey": "guangya"}, {"profileId": "p2", "providerKey": "123_open"}]):
-                                with patched_attr(webapp, "provider_live_probe_summary", lambda: {"profileCount": 2, "okCount": 0, "failedCount": 2, "providerKeys": ["123_open", "guangya"]}):
+                                with patched_attr(webapp, "provider_live_probe_summary", lambda: {"profileCount": 2, "okCount": 0, "failedCount": 2, "okProfiles": [], "failedProfiles": ["p1", "p2"], "providerKeys": ["123_open", "guangya"]}):
                                     probes_response = client.get("/api/providers/live_probe_results").json()
 
     print(
@@ -195,6 +195,8 @@ def main() -> None:
                     "probeHistoryCount": len(probes_response.get("items") or []),
                     "probeLatestCount": len(probes_response.get("latestItems") or []),
                     "probeSummaryProfiles": (probes_response.get("summary") or {}).get("profileCount"),
+                    "probeSummaryOkProfiles": (probes_response.get("summary") or {}).get("okProfiles"),
+                    "probeSummaryFailedProfiles": (probes_response.get("summary") or {}).get("failedProfiles"),
                 },
             },
             ensure_ascii=False,

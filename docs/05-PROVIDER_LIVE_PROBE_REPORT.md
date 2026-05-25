@@ -1,7 +1,8 @@
 # CloudPan Sync Provider Live Probe Report
 
-- GeneratedAt: `2026-05-25T16:48:11.419341+00:00`
+- GeneratedAt: `2026-05-25T18:09:51.343616+00:00`
 - Summary: providerCount=10, totalChecks=12, okChecks=12, failedChecks=0, profileProbeProviderCount=2, profileProbeOkCount=0, profileProbeFailedCount=2
+- profileProbeProfiles: `ok=(none)` `failed=22173a49-2206-4da8-8624-9bab7bbbe64b, gy-patch-probe-1`
 
 ## guangya - Guangya
 - web_login: ok=True status=200 url=https://guangyapan.com/ final=https://www.guangyapan.com/ error=

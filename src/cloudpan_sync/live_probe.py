@@ -110,6 +110,7 @@ def run_live_probe() -> dict[str, object]:
                 "displayName": display_name,
                 "checks": [c.to_dict() for c in checks],
                 "profileProbe": {
+                    "profileId": str(saved_probe.get("profileId") or ""),
                     "ok": saved_probe_ok,
                     "mode": str(saved_probe.get("mode") or ""),
                     "summary": str(saved_probe.get("summary") or ""),
@@ -127,6 +128,24 @@ def run_live_probe() -> dict[str, object]:
         and bool(((row.get("profileProbe") or {}).get("ok")))
     )
     provider_profile_probe_failed_count = max(0, provider_profile_probe_count - provider_profile_probe_ok_count)
+    provider_profile_probe_ok_profiles = sorted(
+        {
+            str(((row.get("profileProbe") or {}).get("profileId") or ""))
+            for row in rows
+            if int((((row.get("profileProbe") or {}).get("checkCount", 0)) or 0)) > 0
+            and bool(((row.get("profileProbe") or {}).get("ok")))
+            and str(((row.get("profileProbe") or {}).get("profileId") or ""))
+        }
+    )
+    provider_profile_probe_failed_profiles = sorted(
+        {
+            str(((row.get("profileProbe") or {}).get("profileId") or ""))
+            for row in rows
+            if int((((row.get("profileProbe") or {}).get("checkCount", 0)) or 0)) > 0
+            and not bool(((row.get("profileProbe") or {}).get("ok")))
+            and str(((row.get("profileProbe") or {}).get("profileId") or ""))
+        }
+    )
 
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
@@ -135,12 +154,14 @@ def run_live_probe() -> dict[str, object]:
             "totalChecks": total_checks,
             "okChecks": ok_checks,
             "failedChecks": max(0, total_checks - ok_checks),
-            "profileProbeProviderCount": provider_profile_probe_count,
-            "profileProbeOkCount": provider_profile_probe_ok_count,
-            "profileProbeFailedCount": provider_profile_probe_failed_count,
-        },
-        "items": rows,
-    }
+                "profileProbeProviderCount": provider_profile_probe_count,
+                "profileProbeOkCount": provider_profile_probe_ok_count,
+                "profileProbeFailedCount": provider_profile_probe_failed_count,
+                "profileProbeOkProfiles": provider_profile_probe_ok_profiles,
+                "profileProbeFailedProfiles": provider_profile_probe_failed_profiles,
+            },
+            "items": rows,
+        }
 
 
 def probe_to_markdown(payload: dict[str, object]) -> str:
@@ -151,6 +172,9 @@ def probe_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- GeneratedAt: `{payload.get('generatedAt', '')}`")
     lines.append(
         f"- Summary: providerCount={summary.get('providerCount', 0)}, totalChecks={summary.get('totalChecks', 0)}, okChecks={summary.get('okChecks', 0)}, failedChecks={summary.get('failedChecks', 0)}, profileProbeProviderCount={summary.get('profileProbeProviderCount', 0)}, profileProbeOkCount={summary.get('profileProbeOkCount', 0)}, profileProbeFailedCount={summary.get('profileProbeFailedCount', 0)}"
+    )
+    lines.append(
+        f"- profileProbeProfiles: `ok={', '.join(summary.get('profileProbeOkProfiles', [])) or '(none)'}` `failed={', '.join(summary.get('profileProbeFailedProfiles', [])) or '(none)'}`"
     )
     lines.append("")
     for item in payload.get("items", []):

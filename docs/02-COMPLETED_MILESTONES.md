@@ -12,6 +12,21 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [provider_live_probe_store.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/provider_live_probe_store.py) 的 summary 现已继续补齐 `okProfiles / failedProfiles`，不再只返回 `profileCount / okCount / failedCount / providerKeys`
+  - [live_probe.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/live_probe.py) 生成的 [05-PROVIDER_LIVE_PROBE_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/05-PROVIDER_LIVE_PROBE_REPORT.md) 现在会额外写出 `profileProbeProfiles` 聚合行，直接汇总当前 `profile_probe` 成功/失败对应的 profile；当前真实仓库已明确显示 `ok=(none)` 与 `failed=22173a49-2206-4da8-8624-9bab7bbbe64b, gy-patch-probe-1`
+  - 已同步补强 [verify_export_live_probe_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_live_probe_report.py)、[verify_live_probe_provider_summary_alignment.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_live_probe_provider_summary_alignment.py)、新增 [verify_current_live_probe_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_live_probe_report_sync.py)，并把 [verify_live_result_list_apis.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_live_result_list_apis.py)、[verify_auth_live_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_live_validation.py) 的 probe summary 断言一起补到 `okProfiles / failedProfiles`
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_live_probe_report.py` 已验证导出的 live probe 报告会写出 `profileProbeProfiles`
+  - `.\.venv\Scripts\python.exe scripts\verify_live_probe_provider_summary_alignment.py` 已验证 provider 级 profile_probe 汇总继续按最终导出分段口径聚合，并写出对应 failed profile
+  - `.\.venv\Scripts\python.exe scripts\verify_current_live_probe_report_sync.py` 已验证当前仓库文档中的 `profileProbeProfiles` 与 `run_live_probe()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\verify_live_result_list_apis.py`、`.\.venv\Scripts\python.exe scripts\verify_auth_live_validation.py` 已验证 `/api/providers/live_probe_results` 的 summary 现也会返回 `okProfiles / failedProfiles`
+  - `.\.venv\Scripts\python.exe scripts\export_live_probe_report.py` 已重导出当前 [05-PROVIDER_LIVE_PROBE_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/05-PROVIDER_LIVE_PROBE_REPORT.md)
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [auth_live_validate.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_live_validate.py) 的 summary 现已继续补齐 `okProfiles / failedProfiles` 聚合明细，不再只返回 `okCount / failedCount / providerKeys`
   - [export_auth_live_validation_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_auth_live_validation_report.py) 导出的 [03-AUTH_LIVE_VALIDATION_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/03-AUTH_LIVE_VALIDATION_REPORT.md) 现在会显式写出 `latestProfiles` 行，直接汇总最新 auth live validation 中哪些 profile 通过、哪些 profile 失败；当前真实仓库会明确显示 `ok=(none)` 与 `failed=aliyun-bootstrap, risk-smoke-guangya, smoke-guangya`
   - 已同步补强 [verify_current_auth_live_validation_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_live_validation_report_sync.py)、[verify_export_auth_live_validation_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_live_validation_report.py)、[verify_auth_live_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_live_validation.py)，把当前文档、导出链和 API summary 的 `okProfiles / failedProfiles` 一起锁进回归

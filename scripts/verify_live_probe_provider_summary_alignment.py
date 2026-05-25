@@ -59,13 +59,17 @@ def main() -> None:
                 {
                     "profileProbeProviderCountIsProviderScoped": summary.get("profileProbeProviderCount") == 1,
                     "profileProbeFailedCountIsProviderScoped": summary.get("profileProbeFailedCount") == 1,
+                    "profileProbeProfileSummaryIsProviderScoped": summary.get("profileProbeOkProfiles") == []
+                    and summary.get("profileProbeFailedProfiles") == ["gy-2"],
                     "guangyaUsesLatestProfileProbe": (
                         ((guangya.get("profileProbe") or {}).get("mode")) == "live_error"
+                        and ((guangya.get("profileProbe") or {}).get("profileId")) == "gy-2"
                         and ((guangya.get("profileProbe") or {}).get("checkCount")) == 2
                     ),
                     "markdownSummaryMatchesProviderScopedCounts": (
                         "profileProbeProviderCount=1" in markdown
                         and "profileProbeFailedCount=1" in markdown
+                        and "- profileProbeProfiles: `ok=(none)` `failed=gy-2`" in markdown
                     ),
                     "markdownHasSingleGuangyaProfileProbeRow": markdown.count("profile_probe:") == 1
                     and "mode=live_error checks=2 summary=live rejected" in markdown,

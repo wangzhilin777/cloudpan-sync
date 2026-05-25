@@ -65,6 +65,8 @@ def main() -> None:
         "profileCount": 2,
         "okCount": 1,
         "failedCount": 1,
+        "okProfiles": ["p3"],
+        "failedProfiles": ["p1"],
         "providerKeys": ["aliyundrive_open", "guangya"],
     }
 

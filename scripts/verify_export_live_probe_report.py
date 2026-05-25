@@ -32,6 +32,8 @@ def main() -> None:
             "profileProbeProviderCount": 2,
             "profileProbeOkCount": 1,
             "profileProbeFailedCount": 1,
+            "profileProbeOkProfiles": ["gy-1"],
+            "profileProbeFailedProfiles": ["189-1"],
         },
         "items": [
             {
@@ -136,7 +138,8 @@ def main() -> None:
                 and "failedChecks=2" in markdown
                 and "profileProbeProviderCount=2" in markdown
                 and "profileProbeOkCount=1" in markdown
-                and "profileProbeFailedCount=1" in markdown,
+                and "profileProbeFailedCount=1" in markdown
+                and "- profileProbeProfiles: `ok=gy-1` `failed=189-1`" in markdown,
                 "exportedHasGuangyaRows": "## guangya - Guangya" in markdown
                 and "- official_docs: ok=True status=200 url=https://docs.guangya.example final=https://docs.guangya.example error=" in markdown
                 and "- web_login: ok=False status=403 url=https://login.guangya.example final=https://login.guangya.example/blocked error=http_error:403" in markdown,

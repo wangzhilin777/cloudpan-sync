@@ -43,6 +43,16 @@ def main() -> None:
             json={"providerKey": "aliyundrive_open"},
         )
         created_again_payload = created_again.json() if created_again.status_code == 200 else {}
+        created_again_item = created_again_payload.get("item") or {}
+        expected_refresh = f".\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --profile-id {profile_id} --write"
+        expected_runtime_probe = (
+            ".\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py "
+            f"--target-provider aliyundrive_open --target-profile-id {profile_id}"
+        )
+        expected_runtime = (
+            ".\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py "
+            f"--target-provider aliyundrive_open --target-profile-id {profile_id}"
+        )
 
         print(
             json.dumps(
@@ -76,8 +86,14 @@ def main() -> None:
                         created_again.status_code == 200
                         and created_again_payload.get("status") == "already_exists"
                         and created_again_payload.get("created") is False
-                        and ((created_again_payload.get("item") or {}).get("profileId") == profile_id)
+                        and (created_again_item.get("profileId") == profile_id)
                         and str(created_again_payload.get("nextStep") or "").strip() != ""
+                        and str(created_again_payload.get("recommendedBootstrapCommand") or "") == ""
+                        and str(created_again_payload.get("recommendedRefreshEvidenceCommand") or "") == expected_refresh
+                        and expected_runtime_probe in str(created_again_payload.get("recommendedRuntimeProbeCommand") or "")
+                        and expected_runtime in str(created_again_payload.get("recommendedRuntimeSuccessCommand") or "")
+                        and "--conflict-policy overwrite_existing"
+                        in str(created_again_payload.get("recommendedOverwriteVariantCommand") or "")
                     ),
                     "singleProfileWritten": len(list_profiles()) == 1,
                 },

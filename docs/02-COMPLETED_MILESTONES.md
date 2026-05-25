@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补强补救已存在档案续做校验`
+- 完成范围：
+  - 已把 [verify_real_evidence_remediation_create_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_api.py) 从“第二次 `Create Stub` 只校验会返回 `already_exists` 和非空 `nextStep`”推进成会继续锁定续做命令链
+  - 当前脚本会在 `aliyundrive_open` 的 `create_profile` 第二次命中 `already_exists` 时，明确校验返回体继续带出基于现有 `profileId` 的 `recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand / recommendedRuntimeSuccessCommand / recommendedOverwriteVariantCommand`
+  - 这样一来，刚补上的“已存在档案也能继续续做”不再只靠人工读接口结果确认；它已经被回归脚本固定住，后续若有人把 `already_exists` 重新退回成只剩静态提示，验证会直接失败
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_api.py` 已验证 `stub_created` 与 `already_exists` 两条路径都成立，且 `already_exists` 当前必须继续返回可执行的 refresh/probe/runtime/overwrite 续做命令链
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充补救已存在档案续做命令`
 - 完成范围：
   - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 里的 `create_remediation_profile()` 再往前推进一步：此前 `stub_created` 路径已能回后续命令，但 `already_exists` 基本还是空壳；这次补齐后，当 provider 当前仓库里已经有档案时，接口会优先按现有 profile 直接带出 `recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand / recommendedRuntimeSuccessCommand / recommendedOverwriteVariantCommand`

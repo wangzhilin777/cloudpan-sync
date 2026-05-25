@@ -1,6 +1,8 @@
 # CloudPan Sync 任务运行真实样本报告
 
-- 生成时间：`2026-05-24T19:36:11.001996+00:00`
-- 汇总： `sampleCount=0` `providerCount=0` `profileCount=0` `successProviderCount=0` `failedProviderCount=0` `successCount=0` `failedCount=0` `candidateProviderCount=0` `candidateCount=0` `probeProviderCount=0` `probeCount=0` `blockedProviderCount=0` `blockedCount=0` `verifyOkCount=0` `conflictHandledProviderCount=0` `conflictHandledCount=0`
+- 生成时间：`2026-05-25T15:26:00.246346+00:00`
+- 汇总： `sampleCount=3` `providerCount=3` `profileCount=3` `successProviderCount=3` `failedProviderCount=0` `successCount=3` `failedCount=0` `candidateProviderCount=0` `candidateCount=0` `probeProviderCount=0` `probeCount=0` `blockedProviderCount=0` `blockedCount=0` `verifyOkCount=3` `conflictHandledProviderCount=3` `conflictHandledCount=3`
 
-- none
+- pikpak profile=pikpak-live-1 path=/cloudpan-sync-live-upload.bin mode=binary_upload_after_hash_miss executionMode=live success=True candidateOnly=False probeOnly=False verifyOk=True verifyMode=metadata_by_file_id conflictAction=overwrite_downgraded_to_auto_rename resolvedTargetName=cloudpan-sync-live-upload (1).bin riskHint= verifyNote=verified requiredAuth= error=
+- uc profile=uc-live-1 path=/cloudpan-sync-live-upload.bin mode=binary_upload_after_hash_miss executionMode=live success=True candidateOnly=False probeOnly=False verifyOk=True verifyMode=finish_response conflictAction=overwrite_downgraded_to_auto_rename resolvedTargetName=cloudpan-sync-live-upload (1).bin riskHint= verifyNote=verified requiredAuth= error=
+- guangya profile=gy-live-1 path=/cloudpan-sync-live-upload.bin mode=binary_upload_multipart executionMode=live success=True candidateOnly=False probeOnly=False verifyOk=True verifyMode=list_by_parent_name conflictAction=overwrite_downgraded_to_auto_rename resolvedTargetName=cloudpan-sync-live-upload (1).bin riskHint= verifyNote=verified by list requiredAuth= error=

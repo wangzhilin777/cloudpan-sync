@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shlex
 import sys
 from pathlib import Path
 
@@ -34,8 +35,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Patch one saved auth profile, or just refresh its evidence, then run provider-aware validation and live probe."
     )
-    parser.add_argument("--profile-id", required=True, help="Exact profileId to update.")
+    parser.add_argument("--profile-id", default="", help="Exact profileId to update.")
     parser.add_argument("--set", dest="sets", action="append", default=[], type=_parse_set_value, help="KEY=VALUE extra patch. Repeatable.")
+    parser.add_argument("--from-remediation-provider", default="", help="Autofill patch defaults from the remediation bundle for this provider.")
     parser.add_argument("--dir-name", default="", help="Optional create_dir probe name.")
     parser.add_argument("--page-size", type=int, default=100, help="Optional live probe page size.")
     parser.add_argument("--write", action="store_true", help="Persist the extra patch before validate/probe.")
@@ -75,24 +77,83 @@ def _remediation_followup(profile_id: str) -> dict[str, object]:
     return {}
 
 
+def _extract_patch_defaults(command: str) -> dict[str, object]:
+    text = str(command or "").strip()
+    if not text or "patch_and_probe_auth_profile.py" not in text:
+        return {}
+    tokens = shlex.split(text, posix=False)
+    defaults: dict[str, object] = {"sets": []}
+    index = 0
+    while index < len(tokens):
+        token = str(tokens[index] or "").strip()
+        next_value = str(tokens[index + 1] or "").strip() if index + 1 < len(tokens) else ""
+        if token == "--profile-id" and next_value:
+            defaults["profileId"] = next_value
+            index += 2
+            continue
+        if token == "--set" and next_value:
+            casted = defaults.get("sets")
+            if isinstance(casted, list):
+                casted.append(_parse_set_value(next_value))
+            index += 2
+            continue
+        if token == "--write":
+            defaults["write"] = True
+        index += 1
+    return defaults
+
+
+def _defaults_from_remediation_provider(provider_key: str) -> dict[str, object]:
+    target = str(provider_key or "").strip()
+    if not target:
+        return {}
+    payload = build_real_evidence_remediation_bundle()
+    for item in payload.get("items", []):
+        row = dict(item or {})
+        if str(row.get("providerKey") or "").strip() != target:
+            continue
+        for candidate_key in (
+            "recommendedPatchProbeCommand",
+            "recommendedPatchCommand",
+            "recommendedPrimaryCommand",
+        ):
+            defaults = _extract_patch_defaults(str(row.get(candidate_key) or ""))
+            if defaults:
+                defaults["source"] = f"remediation:{candidate_key}"
+                return defaults
+    return {}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.data_dir:
         configure_data_dir(args.data_dir)
-    profile = get_profile(args.profile_id)
-    if profile is None:
-        raise SystemExit(f"profile_not_found: {args.profile_id}")
+    defaults: dict[str, object] = {}
+    defaults_source = ""
+    if args.from_remediation_provider:
+        defaults = _defaults_from_remediation_provider(str(args.from_remediation_provider or "").strip())
+        defaults_source = str(defaults.get("source") or "")
 
-    updates = {key: value for key, value in args.sets}
+    profile_id = str(args.profile_id or defaults.get("profileId") or "").strip()
+    if not profile_id:
+        raise SystemExit("profile_id_required")
+
+    profile = get_profile(profile_id)
+    if profile is None:
+        raise SystemExit(f"profile_not_found: {profile_id}")
+
+    merged_sets = list(defaults.get("sets") or []) + list(args.sets or [])
+    updates = {key: value for key, value in merged_sets}
     profile.extra = _merge_extra(profile.extra or {}, updates)
-    if args.write:
+    write_flag = bool(args.write or defaults.get("write"))
+    if write_flag:
         update_profile(profile)
     evidence = refresh_auth_profile_evidence(
         profile=profile,
         page_size=max(1, int(args.page_size or 100)),
         dir_name=str(args.dir_name or profile.extra.get("dirName") or "").strip(),
-        persist=bool(args.write),
+        persist=write_flag,
         profile_view_builder=_auth_profile_evidence.__globals__["_auth_profile_view"],
     )
     validation = evidence.get("latestValidation") or {}
@@ -109,7 +170,8 @@ def main(argv: list[str] | None = None) -> int:
             {
                 "profileId": profile.profileId,
                 "providerKey": profile.providerKey,
-                "written": bool(args.write),
+                "written": write_flag,
+                "defaultsSource": defaults_source,
                 "extra": profile.extra,
                 "validation": validation,
                 "probe": probe,

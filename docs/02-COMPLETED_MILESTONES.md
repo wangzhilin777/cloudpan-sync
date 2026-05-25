@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充补丁探测脚本自动带出补救默认值`
+- 完成范围：
+  - 已把 [patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_and_probe_auth_profile.py) 从“必须手工传完整 `profile-id/set/write` 参数”推进成可直接从 `real_evidence_remediation` 推荐命令带起；这次补齐后，脚本新增 `--from-remediation-provider`
+  - 当前能力会直接读取 `recommendedPatchProbeCommand / recommendedPatchCommand / recommendedPrimaryCommand`，自动解析出 `profileId / --set KEY=VALUE / --write` 这些默认值；因此继续补 `P-REAL` 时，不再需要每次先复制一整条 `patch_and_probe_auth_profile.py ...` 命令，再手工拆成参数重输
+  - 对于 remediation 已经明确给出 patch 或 patch+probe 命令的 provider，现在可直接执行 `--from-remediation-provider <provider>`；脚本会自动带出目标 `profileId`，默认 patch 字段也会一并继承，而显式传入的 `--set` 仍保持最高优先级，可覆盖默认 placeholder
+  - 这次补齐把真实证据恢复链从“UI/Markdown 告诉你推荐 patch 命令是什么”往前推进成“补丁探测脚本本身就能吃下推荐默认值”，和前一条 `create_auth_profile_stub.py` 的默认值带出能力形成闭环，更接近实际收敛 `M4 / M5 / P-REAL`
+  - 已新增 [verify_patch_and_probe_auth_profile_defaults.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_and_probe_auth_profile_defaults.py)，并保留现有 [verify_patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_and_probe_auth_profile.py) 回归，锁住默认 `profileId`、默认 `set`、默认 `write` 继承和显式覆盖优先级
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_patch_and_probe_auth_profile.py` 已验证原有 patch + evidence refresh + remediation followup 输出未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_patch_and_probe_auth_profile_defaults.py` 已验证 `--from-remediation-provider` 会正确带出默认 `profileId / set / write`，且显式 `--set` 仍能覆盖默认 placeholder
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充授权桩脚本自动带出补救默认值`
 - 完成范围：
   - 已把 [create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 从“必须手工传完整 `provider-key/auth-mode/profile-id/set` 参数”推进成可直接从恢复链默认值带起：这次补齐后，脚本新增 `--from-remediation-provider` 与 `--from-runtime-orphan-provider`

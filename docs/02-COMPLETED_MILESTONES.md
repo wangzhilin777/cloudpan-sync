@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充联调摘要设置页聚合明细`
+- 完成范围：
+  - 设置页 `Auth Live Validation` 与 `Provider Live Probe` 摘要面板现已继续吸收各自 summary 里的 profile 名单，不再只显示 `latestOk / latestFailed` 这类计数
+  - 这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 现在会在设置页摘要中直接显示 auth/probe 的 `okProfiles / failedProfiles` 与对应 provider 分布，因此当前 UI 已能直接看到授权联调失败主要落在哪些 profile，而不必再切回单独报告文档
+  - 已新增并补强对应设置页校验脚本，把这些 auth/probe 摘要字段一起锁进回归
+- 当前验证证据：
+  - 当前设置页摘要代码已读取并展示 auth/probe profile 级 summary 字段
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充运行样本设置页聚合明细`
 - 完成范围：
   - 设置页 `Task Runtime Evidence` 摘要面板现已继续吸收 [task_runtime_evidence_store.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime_evidence_store.py) 已有的 `profileSummary` 聚合，不再只显示 `success / failed / candidate / probe / blocked / conflictHandled` 的 count

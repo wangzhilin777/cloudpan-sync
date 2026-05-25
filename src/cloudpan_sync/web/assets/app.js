@@ -1740,6 +1740,7 @@ function renderSettingsPanel() {
   const validationRows = [
     `${t("settings.validation")}: history=${state.liveValidationMeta?.historyCount || 0}, latestProfiles=${validationSummary.profileCount || latestValidationList.length}`,
     `latestOk=${validationSummary.okCount || 0}, latestFailed=${validationSummary.failedCount || 0}`,
+    `okProfiles=${(validationSummary.okProfiles || []).join("/") || "(none)"}, failedProfiles=${(validationSummary.failedProfiles || []).join("/") || "(none)"}, okProviders=${(validationSummary.okProviderKeys || []).join("/") || "(none)"}, failedProviders=${(validationSummary.failedProviderKeys || []).join("/") || "(none)"}, failedModes=${(validationSummary.failedModes || []).join("/") || "(none)"}`,
   ];
   const latestValidation = latestValidationList[latestValidationList.length - 1];
   if (latestValidation) {
@@ -1763,6 +1764,9 @@ function renderSettingsPanel() {
     const summaryLi = document.createElement("li");
     summaryLi.textContent = `history=${state.providerLiveProbeMeta?.historyCount || 0}, latestProfiles=${probeSummary.profileCount || probeRows.length}, latestOk=${probeSummary.okCount || 0}, latestFailed=${probeSummary.failedCount || 0}`;
     providerProbeList.appendChild(summaryLi);
+    const profileLi = document.createElement("li");
+    profileLi.textContent = `okProfiles=${(probeSummary.okProfiles || []).join("/") || "(none)"}, failedProfiles=${(probeSummary.failedProfiles || []).join("/") || "(none)"}, providers=${(probeSummary.providerKeys || []).join("/") || "(none)"}`;
+    providerProbeList.appendChild(profileLi);
     for (const probe of probeRows) {
       const li = document.createElement("li");
       li.textContent = `${probe.providerKey || "(unknown)"}: ok=${probe.ok}, mode=${probe.mode}, checks=${(probe.checks || []).length}`;

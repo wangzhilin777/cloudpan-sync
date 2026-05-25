@@ -170,6 +170,16 @@
 - 当前验证证据：
   - [verify_export_provider_status_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_provider_status_matrix.py) 已验证导出文件包含 summary 统计、`guangya/189cloud` provider 行、runtime note 行和冲突 note 行
 
+### 已完成补齐项 - `2026-05-25`（Plan Audit 导出链验证补齐）
+
+- 提交：`本次提交`
+- 完成范围：
+  - 已新增 [verify_export_plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_plan_audit.py)，补齐 `export_plan_audit.py` 的落盘导出验证
+  - 该验证会直接跑导出脚本，把 `04-PLAN_AUDIT_REPORT.md` 写到临时目录，并确认最终 Markdown 里真实保留 `done / partial / todo`、`featureCompletionPercent / strictCompletionPercent`、公式说明以及关键里程碑状态行
+  - 这样计划审计这条链路现在也已经覆盖到 API、settings UI 和 Markdown export 三个出口，不再只验证在线摘要
+- 当前验证证据：
+  - [verify_export_plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_plan_audit.py) 已验证导出文件包含 summary、双口径进度、公式说明、provider 覆盖统计以及 `M5 / P-REAL` 状态行
+
 ### M1 - 独立项目骨架
 
 - 完成日期：`2026-05-23`

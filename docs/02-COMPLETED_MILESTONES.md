@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py) 已把 remediation 面板里另外三类关键动作也拆成专项断言，不再只单独盯 `postBootstrap`
+  - 当前 UI 验证现在会单独锁住 summary 里的 `liveUploadCommands / fastCandidateCommands / runtimeSuccessCommands`，以及 provider 简讯里的 `liveUpload / fastCandidate / runtimeSuccess`
+  - 这样如果前端后续只回退其中一种 helper 展示，诊断输出也能直接指出是哪一类，而不是继续埋在总布尔里
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证 `jsRemediationSummaryShowsLiveUploadCount=true`、`jsRemediationSummaryShowsFastCandidateCount=true`、`jsRemediationSummaryShowsRuntimeSuccessCount=true`
+  - 同一验证已验证 `jsRemediationRowsShowLiveUploadCommand=true`、`jsRemediationRowsShowFastCandidateCommand=true`、`jsRemediationRowsShowRuntimeSuccessCommand=true`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py) 已补出两个更明确的 `postBootstrap` 专项断言，不再只把相关字段埋在一个超长总布尔里
   - 当前 UI 验证现在会单独锁住设置页 summary 行里的 `postBootstrapRuntimeCommands=...`，以及 provider 简讯里的 `postBootstrapRuntime=...`
   - 这样如果前端以后把 `post-bootstrap` 计数或命令展示回退，诊断输出会更直接，不必再从 `jsSettingsRenderUsesRemediation=false` 里手工拆原因

@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补救列表行也补现成档案续做动作`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `Real Evidence Remediation` 的逐行列表从泛化的 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture`，推进成更贴近当前恢复语义的现成档案动作：`Focus Existing Profile / Refresh Existing Profile / Probe Existing Profile / Open Capture For Existing Profile`
+  - 当前效果是：当 remediation 行已经带有 `profileId` 时，用户在这一行看到的动作语义会和前几轮已经补齐的顶部即时摘要、`latest action`、`first gap` 入口保持一致，不必再自己猜“这里的 profile 是现成档案，还是要新建的 stub”
+  - 这次补齐让 `real_evidence_remediation` 和刚补完的 `runtime_orphan_recovery` 行级入口也基本对称，继续减少围绕 `P-REAL` 恢复链的理解跳变
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证 remediation 列表行当前会绑定 `existingLabels`，并在存在 `profileId` 时使用 `Existing Profile` 这组动作文案
+  - 同条顺序检查结果已确认 `POST_RUN_PROCESSES=[]`，说明本轮 verifier 运行后无项目 `.venv` `python` 残留进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`孤儿恢复列表行补直接续做动作`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `Runtime Orphan Recovery` 的逐行列表从“只给 `Recreate Stub / Open Capture`”推进成：当该行已经带有 `existingProviderProfileIds` 时，会直接额外渲染 `Focus Existing Orphan Profile / Refresh Existing Orphan Profile / Probe Existing Orphan Profile`

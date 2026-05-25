@@ -2901,20 +2901,26 @@ function renderSettingsPanel() {
       const actions = document.createElement("span");
       actions.className = "row-actions";
       if (profileId) {
+        const existingLabels = {
+          focus: "Focus Existing Profile",
+          refresh: "Refresh Existing Profile",
+          probe: "Probe Existing Profile",
+          capture: "Open Capture For Existing Profile",
+        };
         const focusBtn = document.createElement("button");
         focusBtn.className = "ghost";
-        focusBtn.textContent = "Focus Profile";
+        focusBtn.textContent = existingLabels.focus;
         focusBtn.addEventListener("click", () => focusAuthRemediationProfile(profileId));
         actions.appendChild(focusBtn);
         const refreshBtn = document.createElement("button");
         refreshBtn.className = "ghost";
-        refreshBtn.textContent = "Refresh Evidence";
+        refreshBtn.textContent = existingLabels.refresh;
         refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(profileId));
         actions.appendChild(refreshBtn);
         if (liveProbeProviderSet.has(item.providerKey)) {
           const probeBtn = document.createElement("button");
           probeBtn.className = "ghost";
-          probeBtn.textContent = "Run Live Probe";
+          probeBtn.textContent = existingLabels.probe;
           probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(profileId));
           actions.appendChild(probeBtn);
         }
@@ -2922,7 +2928,7 @@ function renderSettingsPanel() {
       if (item.needsSecretRefresh || item.recommendedCreateCommand) {
         const captureBtn = document.createElement("button");
         captureBtn.className = "ghost";
-        captureBtn.textContent = "Open Capture";
+        captureBtn.textContent = profileId ? "Open Capture For Existing Profile" : "Open Capture";
         captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));
         actions.appendChild(captureBtn);
       }

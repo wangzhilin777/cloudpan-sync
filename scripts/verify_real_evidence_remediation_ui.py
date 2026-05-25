@@ -20,7 +20,7 @@ def main() -> None:
                 "jsHasRemediationState": "realEvidenceRemediation: null" in app_js,
                 "jsHasRemediationLoader": 'async function loadRealEvidenceRemediationSummary()' in app_js and 'fetchJson("/api/real_evidence_remediation_bundle")' in app_js,
                 "jsHasRemediationCreateAction": 'async function createRemediationProfile(providerKey)' in app_js and 'fetchJson("/api/real_evidence_remediation/create_profile"' in app_js and 'createBtn.textContent = "Create Stub"' in app_js,
-                "jsHasRemediationProfileActions": 'async function refreshRealEvidenceRemediationProfile(profileId)' in app_js and 'async function probeRealEvidenceRemediationProfile(profileId)' in app_js and 'focusBtn.textContent = "Focus Profile"' in app_js and 'refreshBtn.textContent = "Refresh Evidence"' in app_js and 'probeBtn.textContent = "Run Live Probe"' in app_js and 'captureBtn.textContent = "Open Capture"' in app_js,
+                "jsHasRemediationProfileActions": 'async function refreshRealEvidenceRemediationProfile(profileId)' in app_js and 'async function probeRealEvidenceRemediationProfile(profileId)' in app_js and 'focusBtn.textContent = existingLabels.focus;' in app_js and 'refreshBtn.textContent = existingLabels.refresh;' in app_js and 'probeBtn.textContent = existingLabels.probe;' in app_js and 'captureBtn.textContent = profileId ? "Open Capture For Existing Profile" : "Open Capture";' in app_js,
                 "jsRefreshProtectedDataLoadsRemediation": "loadRealEvidenceRemediationSummary()," in app_js,
                 "jsLogoutClearsRemediation": "state.realEvidenceRemediation = null;" in app_js and "state.lastRemediationAction = null;" in app_js,
                 "jsRemediationSummaryShowsLiveUploadCount": "liveUploadCommands=${remediationSummary.providersWithLiveUploadCommand || 0}" in app_js,
@@ -53,6 +53,7 @@ def main() -> None:
                 "jsRemediationRowsBindCreateStub": 'createBtn.addEventListener("click", () => createRemediationProfile(item.providerKey));' in app_js,
                 "jsRemediationRowsBindProfileActions": 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(profileId));' in app_js
                 and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(profileId));' in app_js
+                and 'const existingLabels = {' in app_js
                 and 'if (liveProbeProviderSet.has(item.providerKey)) {' in app_js
                 and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(profileId));' in app_js
                 and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));' in app_js

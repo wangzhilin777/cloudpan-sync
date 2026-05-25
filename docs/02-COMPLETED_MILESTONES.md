@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`提供方与任务预览入口也对齐现成档案语义`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `Provider` 面板的 `appendProviderRecoveryActions()` 与新建任务预览 `renderTaskPlanPreview()` 里的 target profile 恢复动作，从泛化的 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture` 推进成在已有目标档案时统一使用 `Existing Profile` 语义
+  - 当前效果是：无论用户是在设置页恢复区、provider 能力面板，还是新建任务预览里看到恢复动作，只要当前仓库已经存在可直接续做的档案，按钮都会明确表达“继续使用现成档案”，不再混杂一套旧的泛化文案
+  - 这次补齐继续把恢复入口语言统一到更大范围，也让从“看 provider gap / 看 task preview 风险”直接回到真实证据修复链这件事更自然
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_real_evidence_ui.py` 已验证 provider 面板当前会使用 `existingLabels`，并在已有档案时把恢复动作展示为 `Existing Profile` 语义
+  - `.\.venv\Scripts\python.exe scripts\verify_queue_plan_preview_ui.py` 已验证任务预览当前会在已有 `targetProfile` 时使用 `Existing Profile` 语义，并把 capture 动作展示为 `Open Capture For Existing Profile`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`运行样本入口也对齐现成档案语义`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `Task Runtime Evidence` 的逐行列表与 `firstRuntimeEvidenceGap` 动作文案，从泛化的 `Focus Profile / Refresh Evidence / Probe First Runtime / Open Capture First Runtime` 推进成在已匹配到现成档案时统一使用 `Existing Profile` 语义

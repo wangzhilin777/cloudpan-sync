@@ -19,10 +19,11 @@ def main() -> None:
                 "jsHasRealEvidenceByProviderHelper": 'function realEvidenceByProvider(providerKey)' in app_js,
                 "jsProviderPanelUsesRealEvidence": 'real_evidence auth=' in app_js and 'real_evidence_gaps=' in app_js and 'task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}, candidate=${realEvidence.taskRuntimeEvidence?.candidateCount || 0}, probe=${realEvidence.taskRuntimeEvidence?.probeCount || 0}, blocked=${realEvidence.taskRuntimeEvidence?.blockedCount || 0}, conflict=${realEvidence.taskRuntimeEvidence?.conflictHandledCount || 0})' in app_js,
                 "jsProviderPanelHasRecoveryActions": 'function appendProviderRecoveryActions(actions, providerKey)' in app_js
-                and 'focusBtn.textContent = "Focus Profile"' in app_js
-                and 'evidenceBtn.textContent = "Refresh Evidence"' in app_js
-                and 'probeBtn.textContent = "Run Live Probe"' in app_js
-                and 'captureBtn.textContent = "Open Capture"' in app_js
+                and 'const existingLabels = {' in app_js
+                and 'focusBtn.textContent = existingLabels.focus;' in app_js
+                and 'evidenceBtn.textContent = existingLabels.refresh;' in app_js
+                and 'probeBtn.textContent = existingLabels.probe;' in app_js
+                and 'captureBtn.textContent = matchedProfile ? "Open Capture For Existing Profile" : "Open Capture";' in app_js
                 and 'createBtn.textContent = "Create Stub"' in app_js,
                 "jsProviderPanelBindsRecoveryActions": 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedProfile.profileId));' in app_js
                 and 'evidenceBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedProfile.profileId));' in app_js

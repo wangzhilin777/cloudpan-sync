@@ -1865,20 +1865,26 @@ function renderTaskPlanPreview() {
   const targetProviderKey = plan.targetProvider || "";
   const targetRemediationItem = (state.realEvidenceRemediation?.items || []).find((item) => item.providerKey === targetProviderKey) || null;
   if (targetProfile) {
+    const existingLabels = {
+      focus: "Focus Existing Profile",
+      refresh: "Refresh Existing Profile",
+      probe: "Probe Existing Profile",
+      capture: "Open Capture For Existing Profile",
+    };
     const focusBtn = document.createElement("button");
     focusBtn.className = "ghost";
-    focusBtn.textContent = "Focus Profile";
+    focusBtn.textContent = existingLabels.focus;
     focusBtn.addEventListener("click", () => focusAuthRemediationProfile(targetProfile.profileId));
     actionsWrap.appendChild(focusBtn);
     const refreshBtn = document.createElement("button");
     refreshBtn.className = "ghost";
-    refreshBtn.textContent = "Refresh Evidence";
+    refreshBtn.textContent = existingLabels.refresh;
     refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(targetProfile.profileId));
     actionsWrap.appendChild(refreshBtn);
     if (liveProbeProviderSet.has(targetProfile.providerKey)) {
       const probeBtn = document.createElement("button");
       probeBtn.className = "ghost";
-      probeBtn.textContent = "Run Live Probe";
+      probeBtn.textContent = existingLabels.probe;
       probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(targetProfile.profileId));
       actionsWrap.appendChild(probeBtn);
     }
@@ -1886,7 +1892,7 @@ function renderTaskPlanPreview() {
   if (targetProviderKey) {
     const captureBtn = document.createElement("button");
     captureBtn.className = "ghost";
-    captureBtn.textContent = "Open Capture";
+    captureBtn.textContent = targetProfile ? "Open Capture For Existing Profile" : "Open Capture";
     captureBtn.addEventListener("click", () => openCaptureGuideForProvider(targetProviderKey));
     actionsWrap.appendChild(captureBtn);
   }
@@ -2140,20 +2146,26 @@ function renderProviderPanel() {
       return false;
     }
     if (matchedProfile) {
+      const existingLabels = {
+        focus: "Focus Existing Profile",
+        refresh: "Refresh Existing Profile",
+        probe: "Probe Existing Profile",
+        capture: "Open Capture For Existing Profile",
+      };
       const focusBtn = document.createElement("button");
       focusBtn.className = "ghost";
-      focusBtn.textContent = "Focus Profile";
+      focusBtn.textContent = existingLabels.focus;
       focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedProfile.profileId));
       actions.appendChild(focusBtn);
       const evidenceBtn = document.createElement("button");
       evidenceBtn.className = "ghost";
-      evidenceBtn.textContent = "Refresh Evidence";
+      evidenceBtn.textContent = existingLabels.refresh;
       evidenceBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedProfile.profileId));
       actions.appendChild(evidenceBtn);
       if (liveProbeProviderSet.has(providerKey)) {
         const probeBtn = document.createElement("button");
         probeBtn.className = "ghost";
-        probeBtn.textContent = "Run Live Probe";
+        probeBtn.textContent = existingLabels.probe;
         probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedProfile.profileId));
         actions.appendChild(probeBtn);
       }
@@ -2161,7 +2173,7 @@ function renderProviderPanel() {
     if (remediationItem?.needsSecretRefresh || remediationItem?.recommendedCreateCommand) {
       const captureBtn = document.createElement("button");
       captureBtn.className = "ghost";
-      captureBtn.textContent = "Open Capture";
+      captureBtn.textContent = matchedProfile ? "Open Capture For Existing Profile" : "Open Capture";
       captureBtn.addEventListener("click", () => openCaptureGuideForProvider(providerKey));
       actions.appendChild(captureBtn);
     }

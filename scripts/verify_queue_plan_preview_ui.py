@@ -37,10 +37,11 @@ def main() -> None:
         "jsHasFetchPlanHelper": "async function fetchTaskPlanPreview()" in app_js,
         "jsHasAckReset": "function resetTaskPlanAck()" in app_js,
         "jsHasPreviewRecoveryActions": 'const actionsWrap = document.getElementById("taskPlanPreviewActions");' in app_js
-        and 'focusBtn.textContent = "Focus Profile"' in app_js
-        and 'refreshBtn.textContent = "Refresh Evidence"' in app_js
-        and 'probeBtn.textContent = "Run Live Probe"' in app_js
-        and 'captureBtn.textContent = "Open Capture"' in app_js
+        and 'const existingLabels = {' in app_js
+        and 'focusBtn.textContent = existingLabels.focus;' in app_js
+        and 'refreshBtn.textContent = existingLabels.refresh;' in app_js
+        and 'probeBtn.textContent = existingLabels.probe;' in app_js
+        and 'captureBtn.textContent = targetProfile ? "Open Capture For Existing Profile" : "Open Capture";' in app_js
         and 'createBtn.textContent = "Create Stub"' in app_js
         and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(targetProfile.profileId));' in app_js
         and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(targetProfile.profileId));' in app_js

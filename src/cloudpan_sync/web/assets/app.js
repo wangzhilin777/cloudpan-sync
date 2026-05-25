@@ -2288,6 +2288,11 @@ function renderSettingsPanel() {
     recreateBtn.textContent = "Recreate Stub";
     recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(item.providerKey, item.orphanProfileId));
     actions.appendChild(recreateBtn);
+    const captureBtn = document.createElement("button");
+    captureBtn.className = "ghost";
+    captureBtn.textContent = "Open Capture";
+    captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));
+    actions.appendChild(captureBtn);
     li.appendChild(actions);
     runtimeOrphanRecoveryList.appendChild(li);
   }

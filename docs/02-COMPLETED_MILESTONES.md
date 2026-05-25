@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充运行样本脱节打开抓取引导`
+- 完成范围：
+  - 已把 `Runtime Orphan Recovery` 的设置页恢复动作再往前推进一步；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 不再只给 `Recreate Stub`，每条 orphan 恢复行还会同步带出 `Open Capture`
+  - 现在用户在看到 `runtime_orphan` 样本时，可以一边按原 `profileId` 重建 placeholder stub，一边直接打开对应 provider 的网页登录抓取引导，不需要先离开恢复面板再手动切 provider 才能补真实凭证
+  - 这次补齐把上一轮 `Runtime Orphan Recovery -> Recreate Stub -> 切回授权页补字段` 的闭环，继续推进成 `Runtime Orphan Recovery -> Recreate Stub / Open Capture -> 补真实凭证 -> 再跑 validation/live probe`，更贴近当前仓库里 `runtime_orphan` 的真实补救节奏
+  - 已同步补强 [verify_runtime_orphan_recovery_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery_settings_ui.py)，把 orphan 面板里的 `Open Capture` 文本与事件绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证设置页当前包含 `Recreate Stub` 与 `Open Capture` 两个 orphan 恢复动作，以及 `openCaptureGuideForProvider(item.providerKey)` 绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery.py` 已验证原有 runtime orphan recovery payload / markdown / nextStep 口径未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充真实证据补救面板直接刷新与探测`
 - 完成范围：
   - 已把 `Real Evidence Remediation` 从“只显示 recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand 文案”继续推进成应用内可执行动作；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会直接从 `item.profileIds` 识别当前 provider 的已保存档案，并在补救行旁边渲染 `Focus Profile / Refresh Evidence / Run Live Probe`

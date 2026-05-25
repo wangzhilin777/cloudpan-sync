@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shlex
 import sys
 import tempfile
 from hashlib import md5
@@ -133,15 +134,117 @@ def _remediation_followup(profile_id: str) -> dict[str, object]:
     return {}
 
 
+def _extract_runtime_probe_defaults(command: str) -> dict[str, object]:
+    text = str(command or "").strip()
+    if not text or "create_runtime_probe_task.py" not in text:
+        return {}
+    tokens = shlex.split(text, posix=False)
+    defaults: dict[str, object] = {}
+    index = 0
+    while index < len(tokens):
+        token = str(tokens[index] or "").strip()
+        next_value = str(tokens[index + 1] or "").strip() if index + 1 < len(tokens) else ""
+        if token == "--source-provider" and next_value:
+            defaults["sourceProvider"] = next_value
+            index += 2
+            continue
+        if token == "--target-provider" and next_value:
+            defaults["targetProvider"] = next_value
+            index += 2
+            continue
+        if token == "--target-profile-id" and next_value:
+            defaults["targetProfileId"] = next_value
+            index += 2
+            continue
+        if token == "--target-parent-id" and next_value:
+            defaults["targetParentId"] = next_value
+            index += 2
+            continue
+        if token == "--remote-path" and next_value:
+            defaults["remotePath"] = next_value
+            index += 2
+            continue
+        if token == "--local-file" and next_value:
+            defaults["localFile"] = next_value
+            index += 2
+            continue
+        if token == "--threshold-mb" and next_value:
+            defaults["thresholdMB"] = next_value
+            index += 2
+            continue
+        if token == "--conflict-policy" and next_value:
+            defaults["conflictPolicy"] = next_value
+            index += 2
+            continue
+        if token == "--evidence-dir" and next_value:
+            defaults["evidenceDir"] = next_value
+            index += 2
+            continue
+        if token == "--task-json-output" and next_value:
+            defaults["taskJsonOutput"] = next_value
+            index += 2
+            continue
+        if token == "--markdown-output" and next_value:
+            defaults["markdownOutput"] = next_value
+            index += 2
+            continue
+        if token == "--auth-evidence-output" and next_value:
+            defaults["authEvidenceOutput"] = next_value
+            index += 2
+            continue
+        if token == "--runtime-evidence-output" and next_value:
+            defaults["runtimeEvidenceOutput"] = next_value
+            index += 2
+            continue
+        if token == "--real-evidence-output" and next_value:
+            defaults["realEvidenceOutput"] = next_value
+            index += 2
+            continue
+        if token == "--remediation-output" and next_value:
+            defaults["remediationOutput"] = next_value
+            index += 2
+            continue
+        if token == "--auto-temp-file":
+            defaults["autoTempFile"] = True
+        if token == "--include-md5":
+            defaults["includeMd5"] = True
+        if token == "--no-refresh-auth-evidence":
+            defaults["noRefreshAuthEvidence"] = True
+        index += 1
+    return defaults
+
+
+def _defaults_from_remediation_provider(provider_key: str) -> dict[str, object]:
+    target = str(provider_key or "").strip()
+    if not target:
+        return {}
+    payload = build_real_evidence_remediation_bundle()
+    for item in payload.get("items", []):
+        row = dict(item or {})
+        if str(row.get("providerKey") or "").strip() != target:
+            continue
+        for candidate_key in (
+            "recommendedRuntimeProbeCommand",
+            "recommendedRuntimeSuccessCommand",
+            "recommendedPrimaryCommand",
+        ):
+            defaults = _extract_runtime_probe_defaults(str(row.get(candidate_key) or ""))
+            if defaults:
+                defaults["source"] = f"remediation:{candidate_key}"
+                return defaults
+    return {}
+
+
 def main(argv: list[str] | None = None) -> int:
     custom_data_dir = str(os.environ.get("CLOUDPAN_SYNC_DATA_DIR") or "").strip()
     if custom_data_dir:
         configure_data_dir(custom_data_dir)
 
     parser = argparse.ArgumentParser(description="Create and run a lightweight runtime probe task.")
+    parser.add_argument("--from-remediation-provider", default="", help="Autofill runtime probe defaults from the remediation bundle for this provider.")
     parser.add_argument("--source-provider", default="", help="Source provider. Defaults to target provider.")
-    parser.add_argument("--target-provider", required=True, help="Target provider key.")
-    parser.add_argument("--target-profile-id", required=True, help="Saved target auth profile id.")
+    parser.add_argument("--target-provider", default="", help="Target provider key.")
+    parser.add_argument("--target-profile-id", default="", help="Saved target auth profile id.")
     parser.add_argument("--target-parent-id", default="", help="Optional target parent id.")
     parser.add_argument("--remote-path", default="/cloudpan-sync-runtime-probe.bin", help="Remote path for the probe entry.")
     parser.add_argument("--local-file", default="", help="Existing local file path.")
@@ -159,35 +262,53 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--remediation-output", default="", help="Optional output path for remediation markdown.")
     args = parser.parse_args(argv)
 
-    target_provider = str(args.target_provider or "").strip()
-    target_profile_id = str(args.target_profile_id or "").strip()
+    defaults: dict[str, object] = {}
+    defaults_source = ""
+    if args.from_remediation_provider:
+        defaults = _defaults_from_remediation_provider(str(args.from_remediation_provider or "").strip())
+        defaults_source = str(defaults.get("source") or "")
+
+    target_provider = str(args.target_provider or defaults.get("targetProvider") or "").strip()
+    target_profile_id = str(args.target_profile_id or defaults.get("targetProfileId") or "").strip()
+    if not target_provider:
+        raise SystemExit("target_provider_required")
+    if not target_profile_id:
+        raise SystemExit("target_profile_id_required")
     resolved_target_parent_id = _resolve_target_parent_id(
         target_profile_id,
         target_provider,
-        str(args.target_parent_id or "").strip(),
+        str(args.target_parent_id or defaults.get("targetParentId") or "").strip(),
     )
-    file_path, is_temp = _ensure_local_file(str(args.local_file or "").strip(), bool(args.auto_temp_file))
-    entry = _build_entry(file_path, str(args.remote_path or "/cloudpan-sync-runtime-probe.bin"), bool(args.include_md5))
+    source_provider = str(args.source_provider or defaults.get("sourceProvider") or target_provider or "").strip()
+    file_path, is_temp = _ensure_local_file(
+        str(args.local_file or defaults.get("localFile") or "").strip(),
+        bool(args.auto_temp_file or defaults.get("autoTempFile")),
+    )
+    entry = _build_entry(
+        file_path,
+        str(args.remote_path or defaults.get("remotePath") or "/cloudpan-sync-runtime-probe.bin"),
+        bool(args.include_md5 or defaults.get("includeMd5")),
+    )
     payload = TaskCreateRequest(
-        sourceProvider=str(args.source_provider or target_provider or "").strip(),
+        sourceProvider=source_provider,
         targetProvider=target_provider,
         targetProfileId=target_profile_id,
         targetParentId=resolved_target_parent_id,
-        thresholdMB=max(0, int(args.threshold_mb or 0)),
-        conflictPolicy=str(args.conflict_policy or "auto_rename_new"),
+        thresholdMB=max(0, int(args.threshold_mb or defaults.get("thresholdMB") or 0)),
+        conflictPolicy=str(args.conflict_policy or defaults.get("conflictPolicy") or "auto_rename_new"),
         selectedRoots=[],
         entries=[entry],
     )
     task = task_runtime.create_task(payload)
     result = task_runtime.run_task(str(task.get("taskId") or ""))
 
-    evidence_dir = _resolve_evidence_output_dir(str(args.evidence_dir or "").strip())
-    task_json_output = str(args.task_json_output or "").strip()
-    markdown_output_arg = str(args.markdown_output or "").strip()
-    auth_evidence_output_arg = str(args.auth_evidence_output or "").strip()
-    runtime_evidence_output_arg = str(args.runtime_evidence_output or "").strip()
-    real_evidence_output_arg = str(args.real_evidence_output or "").strip()
-    remediation_output_arg = str(args.remediation_output or "").strip()
+    evidence_dir = _resolve_evidence_output_dir(str(args.evidence_dir or defaults.get("evidenceDir") or "").strip())
+    task_json_output = str(args.task_json_output or defaults.get("taskJsonOutput") or "").strip()
+    markdown_output_arg = str(args.markdown_output or defaults.get("markdownOutput") or "").strip()
+    auth_evidence_output_arg = str(args.auth_evidence_output or defaults.get("authEvidenceOutput") or "").strip()
+    runtime_evidence_output_arg = str(args.runtime_evidence_output or defaults.get("runtimeEvidenceOutput") or "").strip()
+    real_evidence_output_arg = str(args.real_evidence_output or defaults.get("realEvidenceOutput") or "").strip()
+    remediation_output_arg = str(args.remediation_output or defaults.get("remediationOutput") or "").strip()
     if evidence_dir is not None:
         if not task_json_output:
             task_json_output = str(evidence_dir / "task.json")
@@ -207,7 +328,7 @@ def main(argv: list[str] | None = None) -> int:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     markdown_output = _write_optional_text(markdown_output_arg, task_runtime.task_to_markdown(result))
-    refresh_auth_evidence = not bool(args.no_refresh_auth_evidence)
+    refresh_auth_evidence = not bool(args.no_refresh_auth_evidence or defaults.get("noRefreshAuthEvidence"))
     auth_evidence_output = _write_optional_text(
         auth_evidence_output_arg,
         _auth_evidence_markdown(target_profile_id, refresh_auth_evidence),
@@ -230,6 +351,7 @@ def main(argv: list[str] | None = None) -> int:
         "state": str(result.get("state") or ""),
         "targetProvider": str(result.get("targetProvider") or ""),
         "targetProfileId": str(result.get("targetProfileId") or ""),
+        "defaultsSource": defaults_source,
         "resolvedTargetParentId": resolved_target_parent_id,
         "sourceEntries": list(result.get("sourceEntries") or []),
         "results": list(result.get("results") or []),

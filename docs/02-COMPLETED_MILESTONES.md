@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充运行样本设置页聚合明细`
+- 完成范围：
+  - 设置页 `Task Runtime Evidence` 摘要面板现已继续吸收 [task_runtime_evidence_store.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime_evidence_store.py) 已有的 `profileSummary` 聚合，不再只显示 `success / failed / candidate / probe / blocked / conflictHandled` 的 count
+  - 这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 现在会在设置页摘要中直接显示 `successProfiles / failedProfiles / candidateProfiles / probeProfiles / blockedProfiles / conflictHandledProfiles`，因此当前 UI 已能直接看见 `gy-live-1 / pikpak-live-1 / uc-live-1` 这些已保存运行样本档案
+  - 已同步补强 [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py)，把这些新的设置页摘要字段一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_evidence_settings_ui.py` 已验证设置页摘要当前会读取并展示新的 task runtime profile 级 summary 字段
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充补救设置页聚合明细`
 - 完成范围：
   - 设置页 `Real Evidence Remediation` 摘要面板现已继续吸收 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的 provider 级 summary list，不再只显示 count

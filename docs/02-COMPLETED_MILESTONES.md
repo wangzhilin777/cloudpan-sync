@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充真实证据首个缺口直接跳转`
+- 完成范围：
+  - 已把设置页的 `Real Evidence` 从“只展示 provider 级统计和 runtime 汇总”推进成可直接跳转第一个缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在 `Real Evidence` 区块下方额外渲染首个 `nextStep` provider，并直接带出 `Focus First Gap / Refresh First Gap / Run First Probe / Open Capture First Gap / Create Stub First Gap`
+  - 当前动作会直接复用已有 `realEvidenceRemediation` 数据源来锁定第一个还需要补证据的 provider；若该 provider 已有档案，就可以直接聚焦到授权表单、刷新 evidence、重跑 live probe；若还没有档案或需要重抓，则可以直接打开网页登录抓取引导或创建 placeholder stub
+  - 这次补齐把“Real Evidence 统计告诉你当前还有哪些 provider 没补齐，但还要自己再去翻 remediation 面板”的流程，推进成“看真实证据统计 -> 直接跳第一个缺口 -> 开始修”的更短闭环
+  - 已同步补强 [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py)，把 `Focus First Gap / Refresh First Gap / Run First Probe / Open Capture First Gap / Create Stub First Gap` 的文案与绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_settings_ui.py` 已验证 `Real Evidence` 当前包含首个缺口动作按钮和对应绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证底层 `realEvidenceRemediation` 补救链路未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充证据总览首个缺口直接跳转`
 - 完成范围：
   - 已把授权页顶部的 `Evidence Bundle` 与 `Remediation Guide` 从“弹出摘要后主要还是只读信息”推进成可直接跳转第一个缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在 `Auth Evidence Bundle` 中追加 `Focus First Gap / Refresh First Gap / Open Capture First Gap`，在 `Auth Remediation Guide` 中追加 `Focus First Fix / Open Capture First Fix`

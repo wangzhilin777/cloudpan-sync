@@ -22,7 +22,7 @@ def main() -> None:
                 "jsHasRemediationCreateAction": 'async function createRemediationProfile(providerKey)' in app_js and 'fetchJson("/api/real_evidence_remediation/create_profile"' in app_js and 'createBtn.textContent = "Create Stub"' in app_js,
                 "jsHasRemediationProfileActions": 'async function refreshRealEvidenceRemediationProfile(profileId)' in app_js and 'async function probeRealEvidenceRemediationProfile(profileId)' in app_js and 'focusBtn.textContent = "Focus Profile"' in app_js and 'refreshBtn.textContent = "Refresh Evidence"' in app_js and 'probeBtn.textContent = "Run Live Probe"' in app_js and 'captureBtn.textContent = "Open Capture"' in app_js,
                 "jsRefreshProtectedDataLoadsRemediation": "loadRealEvidenceRemediationSummary()," in app_js,
-                "jsLogoutClearsRemediation": "state.realEvidenceRemediation = null;" in app_js,
+                "jsLogoutClearsRemediation": "state.realEvidenceRemediation = null;" in app_js and "state.lastRemediationAction = null;" in app_js,
                 "jsRemediationSummaryShowsLiveUploadCount": "liveUploadCommands=${remediationSummary.providersWithLiveUploadCommand || 0}" in app_js,
                 "jsRemediationSummaryShowsFastCandidateCount": "fastCandidateCommands=${remediationSummary.providersWithFastCandidateCommand || 0}" in app_js,
                 "jsRemediationSummaryShowsRuntimeSuccessCount": "runtimeSuccessCommands=${remediationSummary.providersWithRuntimeSuccessCommand || 0}" in app_js,

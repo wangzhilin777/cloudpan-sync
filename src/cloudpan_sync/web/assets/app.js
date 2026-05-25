@@ -3180,6 +3180,7 @@ async function onLogout() {
   state.realEvidenceReport = null;
   state.realEvidenceSummary = null;
   state.realEvidenceRemediation = null;
+  state.lastRemediationAction = null;
   state.taskRuntimeEvidence = [];
   state.taskRuntimeEvidenceMeta = { historyCount: 0, summary: null };
   state.runtimeOrphanRecovery = null;

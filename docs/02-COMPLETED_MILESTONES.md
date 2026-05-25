@@ -10,6 +10,16 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`登出时清理最近补救动作状态`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 新增出来的 `state.lastRemediationAction` 接入登出清理流程，不再只清 `realEvidenceRemediation` 主数据而把最近一次 `Create Stub` 的补救结果留在前端会话里
+  - 这次补尾是顺着上一条“已存在档案留在当前续做面板”继续收一致性：既然最近补救动作现在会在设置页就地承接，那么登出或切换会话时也必须和其它受保护状态一起清空，避免把上一个账号/上一次操作的命令链误留给下一次会话
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证 `jsLogoutClearsRemediation` 当前同时覆盖 `state.realEvidenceRemediation = null;` 与 `state.lastRemediationAction = null;`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补救已存在档案时留在当前续做面板`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里的 `createRemediationProfile()` 从“无论 `stub_created` 还是 `already_exists` 都自动跳去授权页并填表”推进成只在真正新建 stub 时才切到 `Auth`

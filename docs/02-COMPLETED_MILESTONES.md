@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充运行证据首个缺口直接补救`
+- 完成范围：
+  - 已把设置页里的 `Task Runtime Evidence` 从“展示汇总 + 最近三条样本逐行动作”推进成可直接锁定首个关键运行缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在运行证据区块下方额外渲染首个 `failed / candidateOnly / probeOnly / verifyOk=false / requiredAuth 非空` 的关键样本，并直接带出 `Focus First Runtime / Refresh First Runtime / Probe First Runtime / Open Capture First Runtime / Create Stub First Runtime`
+  - 当前动作会优先复用样本自带 `profileId` 或同 provider 的现有档案；因此当设置页已经告诉用户第一条关键 runtime 缺口在哪里时，可以直接回到对应授权表单、刷新 evidence、重跑 live probe，必要时也可以直接打开网页登录抓取引导或创建 placeholder stub，而不需要先自己判断最近三条里哪一条最该优先修
+  - 这次补齐把“看 runtime 汇总和散列样本 -> 自己挑出第一条关键失败 -> 再切去授权补救”的流程，推进成“看到首个关键 runtime 缺口 -> 直接点动作 -> 继续补齐真实证据”的更短闭环，也比单纯展示最近三条更贴近 `P-REAL` 的实际推进节奏
+  - 已同步补强 [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py)，把 `Focus First Runtime / Refresh First Runtime / Probe First Runtime / Open Capture First Runtime / Create Stub First Runtime` 的文案与绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_evidence_settings_ui.py` 已验证 `Task Runtime Evidence` 当前包含首个关键运行缺口动作按钮和对应绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证该区复用的 `refreshRealEvidenceRemediationProfile()`、`probeRealEvidenceRemediationProfile()`、`createRemediationProfile()` 链路未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充网盘状态首个缺口直接补救`
 - 完成范围：
   - 已把设置页里的 `Provider Status Matrix` 从“只展示 provider 汇总数字和 provider 列表状态”推进成可直接跳转首个 provider 缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在状态矩阵区块下方额外渲染首个未满足 `auth/list/metadata/create_dir/fast_check/live_probe/runtime_track` 条件的 provider

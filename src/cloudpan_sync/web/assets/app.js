@@ -2695,6 +2695,62 @@ function renderSettingsPanel() {
     }
     taskRuntimeEvidenceList.appendChild(li);
   }
+  const firstRuntimeEvidenceGap =
+    (state.taskRuntimeEvidence || []).find(
+      (item) =>
+        !item.success ||
+        Boolean(item.candidateOnly) ||
+        Boolean(item.probeOnly) ||
+        !Boolean(item.verifyOk) ||
+        Boolean(item.error) ||
+        Boolean((item.requiredAuth || []).length)
+    ) || null;
+  if (firstRuntimeEvidenceGap) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    copy.textContent = `${firstRuntimeEvidenceGap.providerKey || "(unknown)"}: path=${firstRuntimeEvidenceGap.path || "(unknown)"}, mode=${firstRuntimeEvidenceGap.mode || ""}, success=${Boolean(firstRuntimeEvidenceGap.success)}, candidateOnly=${Boolean(firstRuntimeEvidenceGap.candidateOnly)}, probeOnly=${Boolean(firstRuntimeEvidenceGap.probeOnly)}, verifyOk=${Boolean(firstRuntimeEvidenceGap.verifyOk)}, verifyMode=${firstRuntimeEvidenceGap.verifyMode || "(none)"}, riskHint=${firstRuntimeEvidenceGap.riskHint || "(none)"}, requiredAuth=${(firstRuntimeEvidenceGap.requiredAuth || []).join("/") || "(none)"}, error=${firstRuntimeEvidenceGap.error || "(none)"}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    const matchedProfile = (state.authProfiles || []).find((profile) => profile.profileId === firstRuntimeEvidenceGap.profileId)
+      || (state.authProfiles || []).find((profile) => profile.providerKey === firstRuntimeEvidenceGap.providerKey)
+      || null;
+    const remediationItem =
+      (state.realEvidenceRemediation?.items || []).find((item) => item.providerKey === firstRuntimeEvidenceGap.providerKey) || null;
+    if (matchedProfile) {
+      const focusBtn = document.createElement("button");
+      focusBtn.className = "ghost";
+      focusBtn.textContent = "Focus First Runtime";
+      focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedProfile.profileId));
+      actions.appendChild(focusBtn);
+      const refreshBtn = document.createElement("button");
+      refreshBtn.className = "ghost";
+      refreshBtn.textContent = "Refresh First Runtime";
+      refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedProfile.profileId));
+      actions.appendChild(refreshBtn);
+      if (liveProbeProviderSet.has(matchedProfile.providerKey)) {
+        const probeBtn = document.createElement("button");
+        probeBtn.className = "ghost";
+        probeBtn.textContent = "Probe First Runtime";
+        probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedProfile.profileId));
+        actions.appendChild(probeBtn);
+      }
+    }
+    const captureBtn = document.createElement("button");
+    captureBtn.className = "ghost";
+    captureBtn.textContent = "Open Capture First Runtime";
+    captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstRuntimeEvidenceGap.providerKey || matchedProfile?.providerKey || ""));
+    actions.appendChild(captureBtn);
+    if (remediationItem?.recommendedCreateCommand) {
+      const createBtn = document.createElement("button");
+      createBtn.className = "ghost";
+      createBtn.textContent = "Create Stub First Runtime";
+      createBtn.addEventListener("click", () => createRemediationProfile(firstRuntimeEvidenceGap.providerKey || ""));
+      actions.appendChild(createBtn);
+    }
+    li.appendChild(actions);
+    taskRuntimeEvidenceList.appendChild(li);
+  }
 
   const orphanRecoverySummary = state.runtimeOrphanRecovery?.summary || {};
   const orphanRecoveryItems = state.runtimeOrphanRecovery?.items || [];

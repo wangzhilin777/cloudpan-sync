@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充补救设置页聚合明细`
+- 完成范围：
+  - 设置页 `Real Evidence Remediation` 摘要面板现已继续吸收 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的 provider 级 summary list，不再只显示 count
+  - 这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 现在会在设置页摘要中直接显示 `noProfilesProviders / needAuthProviders / needRuntimeProviders / recreateProbeProviders / primaryCommandProviders / overwriteVariantProviders / blockedOnlyProviders / candidateOnlyProviders / probeOnlyProviders`，因此当前 UI 已能直接看见 `needRuntimeProviders`、`recreateProbeProviders` 等真正需要补救的 provider 名单
+  - 已同步补强 [verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)，把这些新的设置页摘要字段一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证设置页摘要当前会读取并展示新的 remediation provider 级 summary 字段
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充真实证据设置页聚合明细`
 - 完成范围：
   - 设置页 `Real Evidence` 摘要面板现已继续吸收 [real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_report.py) 新增的 provider 级 summary，不再只显示各类 count

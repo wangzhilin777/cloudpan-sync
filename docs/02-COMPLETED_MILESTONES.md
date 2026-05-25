@@ -10,6 +10,21 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充授权桩脚本自动带出补救默认值`
+- 完成范围：
+  - 已把 [create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 从“必须手工传完整 `provider-key/auth-mode/profile-id/set` 参数”推进成可直接从恢复链默认值带起：这次补齐后，脚本新增 `--from-remediation-provider` 与 `--from-runtime-orphan-provider`
+  - 当前能力会直接读取 `real_evidence_remediation` 或 `runtime_orphan_recovery` 的推荐命令，自动解析出 `providerKey / authMode / displayName / profileId / token|cookie placeholder / extra placeholders` 这些默认值；因此继续补 `P-REAL` 时，不再需要每次先去抄一整条 `create_auth_profile_stub.py ...` 命令，再人工拆成参数重输
+  - 对于“没有当前 profile、先按 remediation 建一个 stub”的 provider，可直接用 `--from-remediation-provider <provider>`；对于“历史 runtime success 变成 orphan、需要按原 profileId 恢复”的 provider，可直接用 `--from-runtime-orphan-provider <provider>` 自动带出原 `profileId` 与对应 placeholder 字段
+  - 这次补齐把真实证据恢复链从“UI/Markdown 告诉你推荐命令是什么”往前推进成“脚本本身就能吃下推荐默认值”，比继续补一个前端入口更接近实际收敛 `M4 / M5 / P-REAL`
+  - 已新增 [verify_create_auth_profile_stub_defaults.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_auth_profile_stub_defaults.py)，并补强现有 [verify_create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_auth_profile_stub.py) 覆盖，锁住 remediation/runtime-orphan 两种默认值解析能力
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_auth_profile_stub.py` 已验证原有保存 profile、probe evidence 与 remediation followup 输出未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_create_auth_profile_stub_profile_id.py` 已验证显式 `--profile-id` 覆盖仍保持可用
+  - `.\.venv\Scripts\python.exe scripts\verify_create_auth_profile_stub_defaults.py` 已验证 `--from-remediation-provider` 与 `--from-runtime-orphan-provider` 会正确带出默认值并传给 `save_profile`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充网盘矩阵首个缺口直接补救`
 - 完成范围：
   - 已把 `Provider Matrix` 从“逐条展示 support/auth/list/metadata/create_dir/fast_check/runtime_track 与 real_evidence 信息”推进成可直接突出第一条关键 provider 缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在矩阵列表底部额外渲染首个未满足 `auth/list/metadata/create_dir/fast_check/live_probe/runtime_success/fully_verified` 条件或仍存在 `real_evidence_gaps` 的 provider

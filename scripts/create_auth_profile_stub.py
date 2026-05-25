@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shlex
 import sys
 from pathlib import Path
 
@@ -17,6 +18,7 @@ from cloudpan_sync.auth_live_validate import run_profile_live_validation
 from cloudpan_sync.auth_store import save_profile
 from cloudpan_sync.models import AuthProfileInput
 from cloudpan_sync.real_evidence_remediation import build_real_evidence_remediation_bundle
+from cloudpan_sync.runtime_orphan_recovery import build_runtime_orphan_recovery
 from cloudpan_sync.webapp import _auth_profile_evidence
 
 
@@ -56,18 +58,106 @@ def _remediation_followup(profile_id: str) -> dict[str, object]:
     return {}
 
 
+def _extract_stub_defaults(command: str) -> dict[str, object]:
+    text = str(command or "").strip()
+    if not text or "create_auth_profile_stub.py" not in text:
+        return {}
+    tokens = shlex.split(text, posix=False)
+    defaults: dict[str, object] = {"extra": []}
+    index = 0
+    while index < len(tokens):
+        token = str(tokens[index] or "").strip()
+        next_value = str(tokens[index + 1] or "").strip() if index + 1 < len(tokens) else ""
+        if token == "--provider-key" and next_value:
+            defaults["providerKey"] = next_value
+            index += 2
+            continue
+        if token == "--auth-mode" and next_value:
+            defaults["authMode"] = next_value
+            index += 2
+            continue
+        if token == "--display-name" and next_value:
+            defaults["displayName"] = next_value
+            index += 2
+            continue
+        if token == "--profile-id" and next_value:
+            defaults["profileId"] = next_value
+            index += 2
+            continue
+        if token == "--token" and next_value:
+            defaults["token"] = next_value
+            index += 2
+            continue
+        if token == "--cookie" and next_value:
+            defaults["cookie"] = next_value
+            index += 2
+            continue
+        if token == "--set" and next_value:
+            casted = defaults.get("extra")
+            if isinstance(casted, list):
+                casted.append(next_value)
+            index += 2
+            continue
+        if token == "--probe":
+            defaults["probe"] = True
+        if token == "--validate":
+            defaults["validate"] = True
+        index += 1
+    return defaults
+
+
+def _defaults_from_remediation_provider(provider_key: str) -> dict[str, object]:
+    target = str(provider_key or "").strip()
+    if not target:
+        return {}
+    payload = build_real_evidence_remediation_bundle()
+    for item in payload.get("items", []):
+        row = dict(item or {})
+        if str(row.get("providerKey") or "").strip() != target:
+            continue
+        for candidate_key in (
+            "recommendedPrimaryCommand",
+            "recommendedBootstrapCommand",
+            "recommendedCreateCommand",
+            "recommendedRecreateProbeCommand",
+        ):
+            defaults = _extract_stub_defaults(str(row.get(candidate_key) or ""))
+            if defaults:
+                defaults["source"] = f"remediation:{candidate_key}"
+                return defaults
+    return {}
+
+
+def _defaults_from_runtime_orphan_provider(provider_key: str) -> dict[str, object]:
+    target = str(provider_key or "").strip()
+    if not target:
+        return {}
+    payload = build_runtime_orphan_recovery()
+    for item in payload.get("items", []):
+        row = dict(item or {})
+        if str(row.get("providerKey") or "").strip() != target:
+            continue
+        defaults = _extract_stub_defaults(str(row.get("recommendedCreateCommand") or ""))
+        if defaults:
+            defaults["source"] = "runtime_orphan:recommendedCreateCommand"
+            return defaults
+    return {}
+
+
 def main() -> None:
     custom_data_dir = str(os.environ.get("CLOUDPAN_SYNC_DATA_DIR") or "").strip()
     if custom_data_dir:
         configure_data_dir(custom_data_dir)
     parser = argparse.ArgumentParser(description="Create a local auth profile stub for CloudPan Sync.")
-    parser.add_argument("--provider-key", required=True, help="Provider key, such as guangya or aliyundrive_open.")
-    parser.add_argument("--auth-mode", required=True, help="Auth mode, such as manual_token or manual_cookie.")
+    parser.add_argument("--provider-key", default="", help="Provider key, such as guangya or aliyundrive_open.")
+    parser.add_argument("--auth-mode", default="", help="Auth mode, such as manual_token or manual_cookie.")
     parser.add_argument("--display-name", default="", help="Display name. Defaults to providerKey-authMode.")
     parser.add_argument("--profile-id", default="", help="Optional explicit profileId. Useful when recreating a historical runtime profile.")
     parser.add_argument("--token", default="", help="Optional token value.")
     parser.add_argument("--cookie", default="", help="Optional cookie value.")
     parser.add_argument("--set", dest="extra", action="append", default=[], help="Extra field in key=value form.")
+    parser.add_argument("--from-remediation-provider", default="", help="Autofill defaults from the remediation bundle for this provider.")
+    parser.add_argument("--from-runtime-orphan-provider", default="", help="Autofill defaults from runtime orphan recovery for this provider.")
     parser.add_argument("--validate", action="store_true", help="Run provider-aware live validation after saving.")
     parser.add_argument("--probe", action="store_true", help="Run validation + live probe evidence refresh after saving.")
     parser.add_argument("--page-size", type=int, default=100, help="Optional live probe page size.")
@@ -75,15 +165,37 @@ def main() -> None:
     parser.add_argument("--evidence-output", default="", help="Optional markdown evidence output file path.")
     args = parser.parse_args()
 
+    defaults: dict[str, object] = {}
+    defaults_source = ""
+    if args.from_runtime_orphan_provider:
+        defaults = _defaults_from_runtime_orphan_provider(str(args.from_runtime_orphan_provider or "").strip())
+        defaults_source = str(defaults.get("source") or "")
+    elif args.from_remediation_provider:
+        defaults = _defaults_from_remediation_provider(str(args.from_remediation_provider or "").strip())
+        defaults_source = str(defaults.get("source") or "")
+
+    provider_key = str(args.provider_key or defaults.get("providerKey") or "").strip()
+    auth_mode = str(args.auth_mode or defaults.get("authMode") or "").strip()
+    if not provider_key or not auth_mode:
+        raise SystemExit("provider_key_and_auth_mode_required")
+
+    default_profile_id = str(defaults.get("profileId") or "").strip()
+    default_display_name = str(defaults.get("displayName") or "").strip()
+    default_token = str(defaults.get("token") or "").strip()
+    default_cookie = str(defaults.get("cookie") or "").strip()
+    default_extra = [str(value or "").strip() for value in (defaults.get("extra") or []) if str(value or "").strip()]
+    explicit_extra = [str(value or "").strip() for value in list(args.extra or []) if str(value or "").strip()]
+    merged_extra = default_extra + explicit_extra
+
     payload = AuthProfileInput(
-        providerKey=str(args.provider_key).strip(),
-        authMode=str(args.auth_mode).strip(),
-        displayName=str(args.display_name).strip() or f"{str(args.provider_key).strip()}-{str(args.auth_mode).strip()}",
-        token=str(args.token or "").strip(),
-        cookie=str(args.cookie or "").strip(),
-        extra=_parse_extra(list(args.extra or [])),
+        providerKey=provider_key,
+        authMode=auth_mode,
+        displayName=str(args.display_name).strip() or default_display_name or f"{provider_key}-{auth_mode}",
+        token=str(args.token or "").strip() or default_token,
+        cookie=str(args.cookie or "").strip() or default_cookie,
+        extra=_parse_extra(merged_extra),
     )
-    profile_id_override = str(args.profile_id or "").strip()
+    profile_id_override = str(args.profile_id or "").strip() or default_profile_id
     if profile_id_override:
         profile = save_profile(payload, profile_id_override=profile_id_override)
     else:
@@ -95,8 +207,11 @@ def main() -> None:
         "displayName": profile.displayName,
         "extra": dict(profile.extra or {}),
         "written": True,
+        "defaultsSource": defaults_source,
     }
-    if args.probe:
+    probe_flag = bool(args.probe or defaults.get("probe"))
+    validate_flag = bool(args.validate or defaults.get("validate"))
+    if probe_flag:
         evidence = refresh_auth_profile_evidence(
             profile=profile,
             page_size=max(1, int(args.page_size or 100)),
@@ -109,7 +224,7 @@ def main() -> None:
             output_path = Path(args.evidence_output)
             output_path.write_text(auth_profile_evidence_to_markdown(evidence), encoding="utf-8")
             result["evidenceOutput"] = str(output_path.resolve())
-    elif args.validate:
+    elif validate_flag:
         result["validation"] = run_profile_live_validation(profile.profileId)
     result["remediation"] = _remediation_followup(profile.profileId)
     print(json.dumps(result, ensure_ascii=False, indent=2))

@@ -12,6 +12,19 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增 [scripts/verify_current_plan_audit_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_plan_audit_sync.py)，直接锁住当前 [docs/04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md) 的当前审计口径
+  - 当前这条校验会同时核对顶部 summary 与关键里程碑分段，确保 `done=5 / partial=2 / todo=1`、`featureCompletionPercent=85.7`、`strictCompletionPercent=75.0` 持续与当前 plan audit 结果一致
+  - 同时还锁住 `M4` 继续保持 `partial`、`M5` 继续保持 `partial`、`P-REAL` 继续保持 `todo`，避免后续因为补了文档/校验链就把严格进度误抬高
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_plan_audit.py` 已验证计划审计导出链仍正常
+  - `.\.venv\Scripts\python.exe scripts\verify_plan_audit_progress.py` 已验证审计公式和 `85.7 / 75.0` 进度口径仍正确
+  - `.\.venv\Scripts\python.exe scripts\verify_current_plan_audit_sync.py` 已验证 `summaryHasCurrentAuditCounts=true`、`summaryShowsExpectedAuditCounts=true`
+  - 同一验证已锁住 `m4SectionStillPartial=true`、`m5SectionStillPartial=true`、`prealSectionStillTodo=true`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增 [scripts/verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)，直接锁住当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 的当前补救口径
   - 当前这条校验会同时核对顶部 summary 与关键 provider 分段，确保 `providersNeedingRuntimeSuccess=7`、`providersWithPostBootstrapRuntimeCommand=6`、`providersWithCreateCommand=8`、`providersWithBootstrapCommand=8` 持续与当前 bundle 一致
   - 同时还锁住 `115_open / 189cloud` 继续走 fast-candidate 型 post-bootstrap helper，`quark / baidu_netdisk / xunlei / 123_open` 继续走 live-upload 型 post-bootstrap helper，而 `aliyundrive_open` 当前仍保持 refresh-evidence 路径、不误长出 post-bootstrap helper

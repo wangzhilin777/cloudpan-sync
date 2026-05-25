@@ -35,6 +35,7 @@ const state = {
   providerResearch: [],
   statusMatrix: null,
   auditSummary: null,
+  auditItems: [],
   authEvidenceBundle: null,
   authRemediationBundle: null,
   localLiveAdapterVerification: null,
@@ -1140,6 +1141,7 @@ async function loadAuditSummary() {
   }
   const data = await fetchJson("/api/plan/audit");
   state.auditSummary = data.summary || null;
+  state.auditItems = data.items || [];
   renderSettingsPanel();
 }
 
@@ -2748,6 +2750,7 @@ function renderSettingsPanel() {
   }
 
   const audit = state.auditSummary || {};
+  const auditItems = state.auditItems || [];
   const auditRows = [
     `done=${audit.done || 0}`,
     `partial=${audit.partial || 0}`,
@@ -2760,6 +2763,43 @@ function renderSettingsPanel() {
   for (const row of auditRows) {
     const li = document.createElement("li");
     li.textContent = row;
+    auditList.appendChild(li);
+  }
+  const firstAuditGap = auditItems.find((item) => item.status !== "done") || null;
+  if (firstAuditGap) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    copy.textContent = `${firstAuditGap.key || "(unknown)"}: status=${firstAuditGap.status || "unknown"}, title=${firstAuditGap.title || "(none)"}, gaps=${firstAuditGap.gaps || "(none)"}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    const openSettingsBtn = document.createElement("button");
+    openSettingsBtn.className = "ghost";
+    openSettingsBtn.textContent = "Open First Gap Settings";
+    openSettingsBtn.addEventListener("click", () => {
+      state.activeTab = "nav.settings";
+      render();
+    });
+    actions.appendChild(openSettingsBtn);
+    if (["M4", "M5", "P-REAL"].includes(firstAuditGap.key)) {
+      const openProvidersBtn = document.createElement("button");
+      openProvidersBtn.className = "ghost";
+      openProvidersBtn.textContent = "Open Provider Matrix";
+      openProvidersBtn.addEventListener("click", () => {
+        state.activeTab = "nav.providers";
+        render();
+      });
+      actions.appendChild(openProvidersBtn);
+      const openAuthBtn = document.createElement("button");
+      openAuthBtn.className = "ghost";
+      openAuthBtn.textContent = "Open Auth Profiles";
+      openAuthBtn.addEventListener("click", () => {
+        state.activeTab = "nav.auth";
+        render();
+      });
+      actions.appendChild(openAuthBtn);
+    }
+    li.appendChild(actions);
     auditList.appendChild(li);
   }
 }
@@ -2805,6 +2845,7 @@ async function onLogout() {
   state.providerResearch = [];
   state.statusMatrix = null;
   state.auditSummary = null;
+  state.auditItems = [];
   state.tasks = [];
   await refreshSession();
 }

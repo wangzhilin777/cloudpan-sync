@@ -17,11 +17,19 @@ def main() -> None:
         json.dumps(
             {
                 "htmlHasAuditPanel": 'settingsAuditTitle' in html and 'settingsAuditList' in html,
-                "jsHasAuditSummaryState": 'auditSummary: null' in app_js,
+                "jsHasAuditSummaryState": 'auditSummary: null' in app_js and 'auditItems: []' in app_js,
                 "jsHasAuditLoader": 'async function loadAuditSummary()' in app_js and 'fetchJson("/api/plan/audit")' in app_js,
                 "jsRefreshProtectedDataLoadsAudit": 'loadAuditSummary(),' in app_js,
-                "jsRenderSettingsUsesAuditSummary": 'const audit = state.auditSummary || {};' in app_js and 'done=' in app_js and 'partial=' in app_js and 'todo=' in app_js and 'featureCompletionPercent=' in app_js and 'strictCompletionPercent=' in app_js and 'providerCount=' in app_js and 'researchCount=' in app_js,
-                "jsLogoutClearsAuditSummary": 'state.auditSummary = null;' in app_js,
+                "jsAuditHasFirstGapActions": 'state.auditItems = data.items || [];' in app_js
+                and 'const firstAuditGap = auditItems.find((item) => item.status !== "done") || null;' in app_js
+                and 'openSettingsBtn.textContent = "Open First Gap Settings"' in app_js
+                and 'openProvidersBtn.textContent = "Open Provider Matrix"' in app_js
+                and 'openAuthBtn.textContent = "Open Auth Profiles"' in app_js
+                and 'state.activeTab = "nav.settings";' in app_js
+                and 'state.activeTab = "nav.providers";' in app_js
+                and 'state.activeTab = "nav.auth";' in app_js,
+                "jsRenderSettingsUsesAuditSummary": 'const audit = state.auditSummary || {};' in app_js and 'done=' in app_js and 'partial=' in app_js and 'todo=' in app_js and 'featureCompletionPercent=' in app_js and 'strictCompletionPercent=' in app_js and 'providerCount=' in app_js and 'researchCount=' in app_js and 'gaps=${firstAuditGap.gaps || "(none)"}' in app_js,
+                "jsLogoutClearsAuditSummary": 'state.auditSummary = null;' in app_js and 'state.auditItems = [];' in app_js,
             },
             ensure_ascii=False,
             indent=2,

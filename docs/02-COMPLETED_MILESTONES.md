@@ -10,6 +10,19 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充审计首个缺口直接定位`
+- 完成范围：
+  - 已把设置页里的 `Audit` 从“只展示 done/partial/todo 与双口径百分比汇总”推进成可直接定位首个未完成里程碑；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 不再只保留 `summary`，还会把 `/api/plan/audit` 返回的 `items` 保存在前端状态里，并在审计区块下方额外渲染首个 `status != done` 的里程碑
+  - 当前动作会直接把审计页识别出的首个缺口前移成按钮入口：默认带出 `Open First Gap Settings`，而当首个缺口落在 `M4 / M5 / P-REAL` 这些 provider/真实证据相关项时，还会额外带出 `Open Provider Matrix / Open Auth Profiles`，让用户从“看到严格进度为什么还没涨”直接跳去最相关的补救面板，而不是自己再翻 tab
+  - 这次补齐把“审计页告诉你当前卡在哪个里程碑，但接下来去哪修还得自己判断”的流程，推进成“看首个未完成项 -> 直接跳设置/网盘矩阵/授权页 -> 继续修”的更短闭环，也让 `PROJECT_PLAN_MERGED_RAW.md` 的里程碑状态在产品内不再只是只读百分比
+  - 已同步补强 [verify_audit_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_audit_settings_ui.py)，把 `auditItems` 状态承载、首个缺口文案以及 `Open First Gap Settings / Open Provider Matrix / Open Auth Profiles` 的按钮与跳转绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_audit_settings_ui.py` 已验证 `Audit` 当前会承载 `items`，并包含首个缺口动作按钮与对应跳转绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证登录态下主界面与弹窗主链路未回退
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充运行孤儿样本首个缺口直接补救`
 - 完成范围：
   - 已把设置页里的 `Runtime Orphan Recovery` 从“只列出 orphan provider 摘要和前三条样本，并逐条提供 `Recreate Stub / Open Capture`”推进成可直接跳转首个 orphan 缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在该区块下方额外渲染首个 orphan 样本，并直接带出 `Focus First Match / Refresh First Match / Probe First Match / Recreate First Stub / Open Capture First Gap`

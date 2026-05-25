@@ -82,12 +82,12 @@ def main() -> None:
                 {
                     "providerKey": "aliyundrive_open",
                     "profileIds": ["aliyun-profile-1"],
-                    "nextStep": "先补齐基础证据，再补 runtime。",
-                    "recommendedPrimaryCommandLabel": "refresh_evidence",
-                    "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id aliyun-profile-1 --write",
-                    "recommendedRefreshEvidenceCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id aliyun-profile-1 --write",
-                    "recommendedPostRefreshRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id aliyun-profile-1 --target-parent-id root --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-live-evidence",
-                    "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id aliyun-profile-1 --target-parent-id root --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\aliyundrive_open-live-evidence",
+                    "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
+                    "needsSecretRefresh": True,
+                    "placeholderSecretFieldHints": ["token"],
+                    "recommendedPrimaryCommandLabel": "recreate_probe",
+                    "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name aliyun-bootstrap --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe",
+                    "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name aliyun-bootstrap --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe",
                 }
             ],
         }
@@ -156,11 +156,13 @@ def main() -> None:
                     and dict(payload.get("extra") or {}).get("driveId") == "drive-demo",
                     "probeEvidenceIncluded": dict(payload.get("evidence") or {}).get("summary", {}).get("probeOk") is True
                     and dict(payload.get("evidence") or {}).get("latestProbe", {}).get("summary") == "probe ok",
-                    "remediationPrimaryCommandIncluded": dict(payload.get("remediation") or {}).get("recommendedPrimaryCommandLabel") == "refresh_evidence"
-                    and "patch_and_probe_auth_profile.py" in dict(payload.get("remediation") or {}).get("recommendedPrimaryCommand", ""),
-                    "remediationFollowupIncluded": dict(payload.get("remediation") or {}).get("recommendedPostRefreshRuntimeCommand", "").endswith("tmp\\aliyundrive_open-live-evidence")
-                    and dict(payload.get("remediation") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\aliyundrive_open-live-evidence")
-                    and dict(payload.get("remediation") or {}).get("nextStep") == "先补齐基础证据，再补 runtime。",
+                    "remediationPrimaryCommandIncluded": dict(payload.get("remediation") or {}).get("recommendedPrimaryCommandLabel") == "recreate_probe"
+                    and "create_auth_profile_stub.py" in dict(payload.get("remediation") or {}).get("recommendedPrimaryCommand", ""),
+                    "remediationSecretRefreshIncluded": dict(payload.get("remediation") or {}).get("needsSecretRefresh") is True
+                    and dict(payload.get("remediation") or {}).get("placeholderSecretFieldHints") == ["token"]
+                    and "create_auth_profile_stub.py" in dict(payload.get("remediation") or {}).get("recommendedRecreateProbeCommand", ""),
+                    "remediationFollowupIncluded": dict(payload.get("remediation") or {}).get("nextStep")
+                    == "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                     "evidenceOutputWritten": payload.get("evidenceOutput") == str(evidence_output.resolve())
                     and evidence_output.exists()
                     and "# Auth Profile Evidence" in evidence_output.read_text(encoding="utf-8"),

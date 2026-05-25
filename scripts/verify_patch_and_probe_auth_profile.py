@@ -118,10 +118,12 @@ def main() -> None:
                 {
                     "providerKey": "guangya",
                     "profileIds": ["gy-patch-probe-1"],
-                    "nextStep": "基础证据补齐后继续补 runtime。",
-                    "recommendedRefreshEvidenceCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-patch-probe-1 --write",
-                    "recommendedPostRefreshRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-patch-probe-1 --target-parent-id dir-100 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
-                    "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-patch-probe-1 --target-parent-id dir-100 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-live-evidence",
+                    "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
+                    "needsSecretRefresh": True,
+                    "placeholderSecretFieldHints": ["token"],
+                    "recommendedPrimaryCommandLabel": "recreate_probe",
+                    "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name gy-smoke --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
+                    "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name gy-smoke --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                 }
             ],
         }
@@ -211,11 +213,15 @@ def main() -> None:
                     and first_payload.get("evidenceOutput") == str(evidence_path.resolve())
                     and dict(first_payload.get("validation") or {}).get("summary") == "validation ok"
                     and dict(first_payload.get("probe") or {}).get("summary") == "probe ok"
-                    and dict(first_payload.get("remediation") or {}).get("recommendedPostRefreshRuntimeCommand", "").endswith("tmp\\guangya-live-evidence")
-                    and dict(first_payload.get("remediation") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\guangya-live-evidence"),
+                    and dict(first_payload.get("remediation") or {}).get("recommendedPrimaryCommandLabel") == "recreate_probe"
+                    and "create_auth_profile_stub.py" in dict(first_payload.get("remediation") or {}).get("recommendedPrimaryCommand", "")
+                    and "create_auth_profile_stub.py" in dict(first_payload.get("remediation") or {}).get("recommendedRecreateProbeCommand", "")
+                    and dict(first_payload.get("remediation") or {}).get("needsSecretRefresh") is True
+                    and dict(first_payload.get("remediation") or {}).get("placeholderSecretFieldHints") == ["token"],
                     "secondJsonRefreshOnlyStillWrites": second_payload.get("written") is True
                     and dict(second_payload.get("extra") or {}).get("parentId") == "dir-100"
-                    and dict(second_payload.get("remediation") or {}).get("nextStep") == "基础证据补齐后继续补 runtime。",
+                    and dict(second_payload.get("remediation") or {}).get("nextStep")
+                    == "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                     "refreshOnlyStillWorked": len(validations) >= 2 and len(probes) >= 1,
                     "evidenceFileExists": evidence_path.exists(),
                     "evidenceHasProfileId": "`gy-patch-probe-1`" in evidence_path.read_text(encoding="utf-8"),

@@ -12,6 +12,19 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 的 remediation 输出现已补齐 `needsSecretRefresh / placeholderSecretFieldHints / recommendedRecreateProbeCommand`，当新建出来的 profile 仍是 smoke/demo 凭证时，helper 返回结果不再只会给旧的 refresh 路径
+  - [scripts/patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_and_probe_auth_profile.py) 的 remediation 输出现也与其他 helper 对齐，已同步回出 `recommendedPrimaryCommandLabel / recommendedPrimaryCommand / recommendedRecreateProbeCommand / needsSecretRefresh / placeholderSecretFieldHints`
+  - 这样“建档后 probe”与“补字段后 probe”两条 helper 现在都能直接把“当前其实应该先换真 token/cookie 再 probe”这类结论连同命令一起带回，不再出现 docs/UI 已经切到 `recreate_probe`，但 helper JSON 还是旧 follow-up 字段的割裂
+  - 对应 verifier 已同步补强：[scripts/verify_create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_auth_profile_stub.py) 与 [scripts/verify_patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_and_probe_auth_profile.py)
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_auth_profile_stub.py` 已验证 `create_auth_profile_stub.py` 当前会把 `recommendedPrimaryCommandLabel=recreate_probe`、`recommendedRecreateProbeCommand`、`needsSecretRefresh=true` 与 `placeholderSecretFieldHints=[token]` 一起写进 remediation 输出
+  - `.\.venv\Scripts\python.exe scripts\verify_patch_and_probe_auth_profile.py` 已验证 `patch_and_probe_auth_profile.py` 当前也会把 `recommendedPrimaryCommandLabel=recreate_probe`、`recommendedRecreateProbeCommand`、`needsSecretRefresh=true` 与 `placeholderSecretFieldHints=[token]` 一起写进 remediation 输出
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [src/cloudpan_sync/web/assets/app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里的设置页 `Real Evidence Next Steps` 面板现已把最新 remediation bundle 新增字段真正显示出来，不再停留在旧的 `patch / patchProbe / refresh` 口径
   - 当前 summary 行已新增 `recreateProbeCommands=${remediationSummary.providersWithRecreateProbeCommand || 0}`，因此当补救链路把 `guangya / aliyundrive_open` 这类 provider 切到“先重建真凭证再 probe”时，设置页会同步显示这条新的主路径数量
   - provider 行现在也已同步显示 `needsSecretRefresh=${Boolean(item.needsSecretRefresh)}`、`placeholderSecretHints=${placeholderSecretHints}` 与 `recreateProbe=${item.recommendedRecreateProbeCommand}`，不再只看到旧命令，却看不到“为什么要先重建/换真凭证”

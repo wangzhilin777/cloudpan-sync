@@ -59,6 +59,7 @@ def main() -> None:
         original_probe = provider_live_probe.run_provider_live_probe
         original_evidence_validate = auth_profile_evidence.validate_profile_object
         original_evidence_probe = auth_profile_evidence.run_provider_live_probe
+        original_remediation_builder = patch_and_probe_script.build_real_evidence_remediation_bundle
         probe_calls: list[dict[str, object]] = []
 
         def fake_validate(profile: object) -> dict[str, object]:
@@ -111,6 +112,19 @@ def main() -> None:
         auth_profile_evidence.run_provider_live_probe = fake_probe
         patch_and_probe_script.validate_profile_object = fake_validate
         patch_and_probe_script.run_provider_live_probe = fake_probe
+        patch_and_probe_script.build_real_evidence_remediation_bundle = lambda: {
+            "summary": {},
+            "items": [
+                {
+                    "providerKey": "guangya",
+                    "profileIds": ["gy-patch-probe-1"],
+                    "nextStep": "基础证据补齐后继续补 runtime。",
+                    "recommendedRefreshEvidenceCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-patch-probe-1 --write",
+                    "recommendedPostRefreshRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-patch-probe-1 --target-parent-id dir-100 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
+                    "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-patch-probe-1 --target-parent-id dir-100 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-live-evidence",
+                }
+            ],
+        }
         evidence_path = data_dir / "profile-evidence.md"
         try:
             first_stdout = io.StringIO()
@@ -168,6 +182,7 @@ def main() -> None:
             auth_profile_evidence.run_provider_live_probe = original_evidence_probe
             patch_and_probe_script.validate_profile_object = original_validate
             patch_and_probe_script.run_provider_live_probe = original_probe
+            patch_and_probe_script.build_real_evidence_remediation_bundle = original_remediation_builder
 
         profiles = json.loads((data_dir / "auth_profiles.json").read_text(encoding="utf-8"))
         validations = json.loads((data_dir / "auth_live_validations.json").read_text(encoding="utf-8"))
@@ -195,9 +210,12 @@ def main() -> None:
                     "firstJsonHasOutputAndWriteFlag": first_payload.get("written") is True
                     and first_payload.get("evidenceOutput") == str(evidence_path.resolve())
                     and dict(first_payload.get("validation") or {}).get("summary") == "validation ok"
-                    and dict(first_payload.get("probe") or {}).get("summary") == "probe ok",
+                    and dict(first_payload.get("probe") or {}).get("summary") == "probe ok"
+                    and dict(first_payload.get("remediation") or {}).get("recommendedPostRefreshRuntimeCommand", "").endswith("tmp\\guangya-live-evidence")
+                    and dict(first_payload.get("remediation") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\guangya-live-evidence"),
                     "secondJsonRefreshOnlyStillWrites": second_payload.get("written") is True
-                    and dict(second_payload.get("extra") or {}).get("parentId") == "dir-100",
+                    and dict(second_payload.get("extra") or {}).get("parentId") == "dir-100"
+                    and dict(second_payload.get("remediation") or {}).get("nextStep") == "基础证据补齐后继续补 runtime。",
                     "refreshOnlyStillWorked": len(validations) >= 2 and len(probes) >= 1,
                     "evidenceFileExists": evidence_path.exists(),
                     "evidenceHasProfileId": "`gy-patch-probe-1`" in evidence_path.read_text(encoding="utf-8"),

@@ -37,6 +37,7 @@ def main() -> None:
     original_save_profile = create_auth_profile_stub.save_profile
     original_refresh = create_auth_profile_stub.refresh_auth_profile_evidence
     original_markdown = create_auth_profile_stub.auth_profile_evidence_to_markdown
+    original_remediation_builder = create_auth_profile_stub.build_real_evidence_remediation_bundle
     original_profile_view = create_auth_profile_stub._auth_profile_evidence.__globals__.get("_auth_profile_view")
 
     configured_dirs: list[str] = []
@@ -75,6 +76,19 @@ def main() -> None:
         create_auth_profile_stub.auth_profile_evidence_to_markdown = (
             lambda payload: "# Auth Profile Evidence\n\n- profileId: `aliyun-profile-1`\n- summary: `probe ok`\n"
         )
+        create_auth_profile_stub.build_real_evidence_remediation_bundle = lambda: {
+            "summary": {},
+            "items": [
+                {
+                    "providerKey": "aliyundrive_open",
+                    "profileIds": ["aliyun-profile-1"],
+                    "nextStep": "先补齐基础证据，再补 runtime。",
+                    "recommendedRefreshEvidenceCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id aliyun-profile-1 --write",
+                    "recommendedPostRefreshRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id aliyun-profile-1 --target-parent-id root --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-live-evidence",
+                    "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id aliyun-profile-1 --target-parent-id root --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\aliyundrive_open-live-evidence",
+                }
+            ],
+        }
         create_auth_profile_stub._auth_profile_evidence.__globals__["_auth_profile_view"] = lambda profile: {
             "profileId": fake_profile.profileId,
             "providerKey": fake_profile.providerKey,
@@ -122,6 +136,7 @@ def main() -> None:
             create_auth_profile_stub.save_profile = original_save_profile
             create_auth_profile_stub.refresh_auth_profile_evidence = original_refresh
             create_auth_profile_stub.auth_profile_evidence_to_markdown = original_markdown
+            create_auth_profile_stub.build_real_evidence_remediation_bundle = original_remediation_builder
             if original_profile_view is None:
                 create_auth_profile_stub._auth_profile_evidence.__globals__.pop("_auth_profile_view", None)
             else:
@@ -139,6 +154,9 @@ def main() -> None:
                     and dict(payload.get("extra") or {}).get("driveId") == "drive-demo",
                     "probeEvidenceIncluded": dict(payload.get("evidence") or {}).get("summary", {}).get("probeOk") is True
                     and dict(payload.get("evidence") or {}).get("latestProbe", {}).get("summary") == "probe ok",
+                    "remediationFollowupIncluded": dict(payload.get("remediation") or {}).get("recommendedPostRefreshRuntimeCommand", "").endswith("tmp\\aliyundrive_open-live-evidence")
+                    and dict(payload.get("remediation") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\aliyundrive_open-live-evidence")
+                    and dict(payload.get("remediation") or {}).get("nextStep") == "先补齐基础证据，再补 runtime。",
                     "evidenceOutputWritten": payload.get("evidenceOutput") == str(evidence_output.resolve())
                     and evidence_output.exists()
                     and "# Auth Profile Evidence" in evidence_output.read_text(encoding="utf-8"),

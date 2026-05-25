@@ -13,6 +13,7 @@ if str(SRC) not in sys.path:
 from cloudpan_sync.auth_profile_evidence import auth_profile_evidence_to_markdown, refresh_auth_profile_evidence
 from cloudpan_sync.auth_profile_patch import configure_data_dir
 from cloudpan_sync.auth_store import get_profile, update_profile
+from cloudpan_sync.real_evidence_remediation import build_real_evidence_remediation_bundle
 from cloudpan_sync.webapp import _auth_profile_evidence
 
 
@@ -50,6 +51,23 @@ def _merge_extra(existing: dict[str, str], updates: dict[str, str]) -> dict[str,
         if text:
             merged[key] = text
     return merged
+
+
+def _remediation_followup(profile_id: str) -> dict[str, object]:
+    payload = build_real_evidence_remediation_bundle()
+    for item in payload.get("items", []):
+        row = dict(item or {})
+        profile_ids = [str(value or "") for value in (row.get("profileIds") or [])]
+        if profile_id not in profile_ids:
+            continue
+        return {
+            "nextStep": str(row.get("nextStep") or ""),
+            "recommendedRefreshEvidenceCommand": str(row.get("recommendedRefreshEvidenceCommand") or ""),
+            "recommendedPostRefreshRuntimeCommand": str(row.get("recommendedPostRefreshRuntimeCommand") or ""),
+            "recommendedRuntimeSuccessCommand": str(row.get("recommendedRuntimeSuccessCommand") or ""),
+            "recommendedOverwriteVariantCommand": str(row.get("recommendedOverwriteVariantCommand") or ""),
+        }
+    return {}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -91,6 +109,7 @@ def main(argv: list[str] | None = None) -> int:
                 "validation": validation,
                 "probe": probe,
                 "evidenceOutput": evidence_output,
+                "remediation": _remediation_followup(profile.profileId),
             },
             ensure_ascii=False,
             indent=2,

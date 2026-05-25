@@ -160,6 +160,16 @@
 - 当前验证证据：
   - [verify_export_task_runtime_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_runtime_evidence_report.py) 已验证导出文件包含 summary 统计、blocked 行、candidate 行、probe 行和 conflictHandled 行
 
+### 已完成补齐项 - `2026-05-25`（Provider Status Matrix 导出链验证补齐）
+
+- 提交：`本次提交`
+- 完成范围：
+  - 已新增 [verify_export_provider_status_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_provider_status_matrix.py)，补齐 `export_provider_status_matrix.py` 的落盘导出验证
+  - 该验证会直接跑导出脚本，把 `06-PROVIDER_STATUS_MATRIX.md` 写到临时目录，并确认最终 Markdown 里不只保留 summary，还保留 provider 主行、`runtime_note` 行、`overwrite_note / auto_rename_note / note` 行
+  - 这样 `provider_status_matrix` 这条链路现在也已经覆盖到 API、settings UI 和 Markdown export 三个出口，不再只验证在线接口与页面摘要
+- 当前验证证据：
+  - [verify_export_provider_status_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_provider_status_matrix.py) 已验证导出文件包含 summary 统计、`guangya/189cloud` provider 行、runtime note 行和冲突 note 行
+
 ### M1 - 独立项目骨架
 
 - 完成日期：`2026-05-23`

@@ -916,6 +916,18 @@ function renderAuthList() {
     evidenceBtn.className = "ghost";
     evidenceBtn.textContent = "Refresh Evidence";
     evidenceBtn.addEventListener("click", () => showAuthEvidence(item));
+    const needsCaptureHelp = Boolean(
+      (Array.isArray(item.missingFieldHints) && item.missingFieldHints.length)
+      || item.needsSecretRefresh
+      || item.writeReady === false
+    );
+    if (needsCaptureHelp) {
+      const captureBtn = document.createElement("button");
+      captureBtn.className = "ghost";
+      captureBtn.textContent = "Open Capture";
+      captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));
+      actions.appendChild(captureBtn);
+    }
     if (liveProbeProviderSet.has(item.providerKey)) {
       const probeBtn = document.createElement("button");
       probeBtn.className = "ghost";

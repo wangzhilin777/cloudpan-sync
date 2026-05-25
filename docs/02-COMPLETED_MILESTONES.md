@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充授权档案列表直接打开抓取引导`
+- 完成范围：
+  - 已把“授权管理”页里的 auth profile 行再往前推进一步；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 不再只是展示 `missing / patch_hint / write_blocker`，当档案存在缺字段、`needsSecretRefresh` 或 `writeReady=false` 时，会直接在该 profile 行旁边渲染 `Open Capture`
+  - 现在用户在授权列表里看到某个档案缺少字段、secret 仍像占位值，或者当前写链路被 blocker 卡住时，不需要先切到设置页或手动再选 provider，就可以直接从这条档案打开对应 provider 的网页登录抓取引导
+  - 这次补齐把“看到 auth profile 缺口 -> 直接打开抓取引导 -> 补真实凭证 -> 再刷新 evidence / validate / live probe”的入口前移到了授权管理主列表，更贴近普通用户最先接触 auth 问题的位置
+  - 已新增 [verify_auth_profile_actions_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_actions_ui.py)，把 auth 列表里的 `Open Capture` 条件、按钮文本与事件绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_profile_actions_ui.py` 已验证 auth 列表当前会基于 `missingFieldHints / needsSecretRefresh / writeReady` 决定是否展示 `Open Capture`，并已绑定 `openCaptureGuideForProvider(item.providerKey)`
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_settings_ui.py` 已验证设置页原有 `Auth Remediation` 聚焦与抓取动作链路未回退
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充网盘能力页真实证据补救动作`
 - 完成范围：
   - 已把 `网盘能力` 页里的 `Provider Matrix / Provider Research` 从“能看到 real_evidence_gaps 但基本只读”推进成可直接触发补救动作；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在 provider 行内直接追加 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture / Create Stub`

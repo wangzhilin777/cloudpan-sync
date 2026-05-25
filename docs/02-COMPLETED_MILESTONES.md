@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增独立验证脚本 [verify_export_auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_profile_evidence.py)，把 `export_auth_profile_evidence.py` 这条单 profile CLI 导出链锁进回归
+  - 当前 auth profile evidence 入口现在不只验证“能不能跑”，还覆盖了 `--data-dir` 配置、`--output` 文件导出，以及 profile 缺失时的诚实报错
+  - 至此 `auth` 相关几条主要导出链已全部具备独立 verifier：`auth live validation / auth evidence bundle / auth remediation bundle / auth profile evidence`
+- 当前验证证据：
+  - [verify_export_auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_profile_evidence.py) 已验证 `--data-dir` 会调用 `configure_data_dir()`，命中 profile 时会输出 `Auth Profile Evidence` Markdown 到指定 `--output`
+  - 同一验证已锁住 `189cloud` 只读 share 档案的 `missingFieldHints / writeMissingFieldHints / writeBlockerNote / Latest Validation / Latest Probe`，并验证缺失 profile 时会抛出 `profile_not_found: missing-profile`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增独立导出验证脚本 [verify_export_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_remediation_bundle.py)，把 `09-AUTH_REMEDIATION_GUIDE.md` 的摘要统计、profile 级缺口、只读写阻断说明与推荐 patch 命令锁进回归
   - 当前 auth remediation bundle 导出链现在也具备与 `auth evidence bundle / auth live validation / live probe / plan audit / provider status / real evidence / task runtime` 同级的独立 export verifier
   - 这条验证同时覆盖了“普通缺字段修补”和“189Cloud share 只读补救”两类补救路径，避免导出链只锁最简单的 remediation 文案

@@ -308,6 +308,16 @@ def build_real_evidence_report() -> dict[str, object]:
             "taskRuntimeBlockedProviderCount": task_runtime_blocked_provider_count,
             "taskRuntimeBlockedCount": sum(1 for row in runtime_rows if str(row.get("executionMode") or "") == "blocked"),
             "taskRuntimeConflictHandledCount": task_runtime_conflict_handled_count,
+            "authEvidenceProviders": [str(item.get("providerKey") or "") for item in items if bool(((item.get("authEvidence") or {}).get("ok")))],
+            "listEvidenceProviders": [str(item.get("providerKey") or "") for item in items if bool(((item.get("listEvidence") or {}).get("ok")))],
+            "metadataEvidenceProviders": [str(item.get("providerKey") or "") for item in items if bool(((item.get("metadataEvidence") or {}).get("ok")))],
+            "createDirEvidenceProviders": [str(item.get("providerKey") or "") for item in items if bool(((item.get("createDirEvidence") or {}).get("ok")))],
+            "fullyVerifiedProviders": [str(item.get("providerKey") or "") for item in items if bool(item.get("fullyVerified"))],
+            "taskRuntimeEvidenceProviders": [str(item.get("providerKey") or "") for item in items if bool(((item.get("taskRuntimeEvidence") or {}).get("ok")))],
+            "taskRuntimeFailedProviders": [str(item.get("providerKey") or "") for item in items if int(((item.get("taskRuntimeEvidence") or {}).get("failedCount", 0)) or 0) > 0],
+            "taskRuntimeCandidateProviders": [str(item.get("providerKey") or "") for item in items if int(((item.get("taskRuntimeEvidence") or {}).get("candidateCount", 0)) or 0) > 0],
+            "taskRuntimeProbeProviders": [str(item.get("providerKey") or "") for item in items if int(((item.get("taskRuntimeEvidence") or {}).get("probeCount", 0)) or 0) > 0],
+            "taskRuntimeBlockedProviders": [str(item.get("providerKey") or "") for item in items if int(((item.get("taskRuntimeEvidence") or {}).get("blockedCount", 0)) or 0) > 0],
         },
         "items": items,
     }
@@ -350,6 +360,19 @@ def real_evidence_to_markdown(payload: dict[str, object]) -> str:
         f" `runtime_blocked_providers={summary.get('taskRuntimeBlockedProviderCount', 0)}`"
         f" `runtime_blocked={summary.get('taskRuntimeBlockedCount', 0)}`"
         f" `runtime_conflict_handled={summary.get('taskRuntimeConflictHandledCount', 0)}`"
+    )
+    lines.append(
+        "- providerSummary:"
+        f" `auth={', '.join(summary.get('authEvidenceProviders', [])) or '(none)'}`"
+        f" `list={', '.join(summary.get('listEvidenceProviders', [])) or '(none)'}`"
+        f" `metadata={', '.join(summary.get('metadataEvidenceProviders', [])) or '(none)'}`"
+        f" `create_dir={', '.join(summary.get('createDirEvidenceProviders', [])) or '(none)'}`"
+        f" `fully_verified={', '.join(summary.get('fullyVerifiedProviders', [])) or '(none)'}`"
+        f" `runtime_success={', '.join(summary.get('taskRuntimeEvidenceProviders', [])) or '(none)'}`"
+        f" `runtime_failed={', '.join(summary.get('taskRuntimeFailedProviders', [])) or '(none)'}`"
+        f" `runtime_candidate={', '.join(summary.get('taskRuntimeCandidateProviders', [])) or '(none)'}`"
+        f" `runtime_probe={', '.join(summary.get('taskRuntimeProbeProviders', [])) or '(none)'}`"
+        f" `runtime_blocked={', '.join(summary.get('taskRuntimeBlockedProviders', [])) or '(none)'}`"
     )
     lines.append("")
     lines.append("> 说明：本报告只统计当前仓库已保存的最新真实校验/探测证据，不把 mock 成功、静态能力声明或未持久化的临时运行结果算成真实成功。")

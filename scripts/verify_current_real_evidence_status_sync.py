@@ -67,6 +67,9 @@ def main() -> None:
                     and f"`runtime_blocked={summary.get('taskRuntimeBlockedCount', 0)}`" in markdown
                     and f"`runtime_conflict_handled={summary.get('taskRuntimeConflictHandledCount', 0)}`" in markdown
                 ),
+                "summaryHasCurrentProviderSummary": (
+                    f"- providerSummary: `auth={', '.join(summary.get('authEvidenceProviders', [])) or '(none)'}` `list={', '.join(summary.get('listEvidenceProviders', [])) or '(none)'}` `metadata={', '.join(summary.get('metadataEvidenceProviders', [])) or '(none)'}` `create_dir={', '.join(summary.get('createDirEvidenceProviders', [])) or '(none)'}` `fully_verified={', '.join(summary.get('fullyVerifiedProviders', [])) or '(none)'}` `runtime_success={', '.join(summary.get('taskRuntimeEvidenceProviders', [])) or '(none)'}` `runtime_failed={', '.join(summary.get('taskRuntimeFailedProviders', [])) or '(none)'}` `runtime_candidate={', '.join(summary.get('taskRuntimeCandidateProviders', [])) or '(none)'}` `runtime_probe={', '.join(summary.get('taskRuntimeProbeProviders', [])) or '(none)'}` `runtime_blocked={', '.join(summary.get('taskRuntimeBlockedProviders', [])) or '(none)'}`" in markdown
+                ),
                 "summaryShowsCurrentRuntimeDistribution": (
                     summary.get("taskRuntimeEvidenceProviderCount") == 3
                     and summary.get("taskRuntimeFailedProviderCount") == 0
@@ -80,6 +83,18 @@ def main() -> None:
                     and summary.get("taskRuntimeBlockedProviderCount") == 0
                     and summary.get("taskRuntimeBlockedCount") == 0
                     and summary.get("taskRuntimeConflictHandledCount") == 3
+                ),
+                "summaryShowsCurrentProviderDistribution": (
+                    summary.get("authEvidenceProviders") == []
+                    and summary.get("listEvidenceProviders") == []
+                    and summary.get("metadataEvidenceProviders") == []
+                    and summary.get("createDirEvidenceProviders") == []
+                    and summary.get("fullyVerifiedProviders") == []
+                    and summary.get("taskRuntimeEvidenceProviders") == ["guangya", "uc", "pikpak"]
+                    and summary.get("taskRuntimeFailedProviders") == []
+                    and summary.get("taskRuntimeCandidateProviders") == []
+                    and summary.get("taskRuntimeProbeProviders") == []
+                    and summary.get("taskRuntimeBlockedProviders") == []
                 ),
                 "guangyaSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in guangya,
                 "ucSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in uc,

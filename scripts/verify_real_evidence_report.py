@@ -82,12 +82,13 @@ def main() -> None:
         print(
             json.dumps(
                 {
-                    "summary": payload.get("summary"),
+                "summary": payload.get("summary"),
                 "guangya": next((item for item in payload.get("items", []) if item.get("providerKey") == "guangya"), {}),
                 "tianyi": next((item for item in payload.get("items", []) if item.get("providerKey") == "189cloud"), {}),
                 "markdownHasTitle": "# CloudPan Sync 真实证据状态报告" in markdown,
                 "markdownHasRuntimeFailedSummary": "task_runtime_failed=1" in markdown and "task_runtime_candidate=1" in markdown and "task_runtime_probe=1" in markdown,
                 "markdownHasRuntimeSampleSummary": "runtime_samples=4" in markdown and "runtime_success=1" in markdown and "runtime_failed=1" in markdown and "runtime_candidate=1" in markdown and "runtime_probe=1" in markdown and "runtime_blocked_providers=1" in markdown and "runtime_blocked=1" in markdown and "runtime_conflict_handled=1" in markdown,
+                "markdownHasProviderSummary": "- providerSummary: `auth=guangya` `list=guangya, 189cloud` `metadata=guangya, 189cloud` `create_dir=guangya` `fully_verified=guangya` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=189cloud` `runtime_probe=189cloud` `runtime_blocked=189cloud`" in markdown,
                 "markdownHasBlockedItem": "blocked=1" in markdown,
                 "markdownHasCandidateItem": "candidate=1" in markdown and "fast-upload candidate" in markdown,
                 "markdownHasProbeOnlyItem": "probe=1" in markdown and "probe-only" in markdown,
@@ -96,6 +97,7 @@ def main() -> None:
                 "markdownHasGuangya": "## guangya - 光鸭网盘" in markdown,
                 "apiSummary": api_payload.get("summary"),
                 "apiMarkdownHasTitle": "# CloudPan Sync 真实证据状态报告" in str(api_markdown.get("markdown") or ""),
+                "apiMarkdownHasProviderSummary": "providerSummary: `auth=guangya` `list=guangya, 189cloud` `metadata=guangya, 189cloud` `create_dir=guangya` `fully_verified=guangya` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=189cloud` `runtime_probe=189cloud` `runtime_blocked=189cloud`" in str(api_markdown.get("markdown") or ""),
                 "apiMarkdownHasRuntimeProfiles": "taskRuntimeProfiles: success=(none) failed=189 Share candidate=189 Share probe=189 Share" in str(api_markdown.get("markdown") or ""),
             },
                 ensure_ascii=False,

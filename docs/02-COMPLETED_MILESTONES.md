@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充真实证据状态聚合明细`
+- 完成范围：
+  - [real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_report.py) 的 summary 现已继续补齐 `authEvidenceProviders / listEvidenceProviders / metadataEvidenceProviders / createDirEvidenceProviders / fullyVerifiedProviders / taskRuntimeEvidenceProviders / taskRuntimeFailedProviders / taskRuntimeCandidateProviders / taskRuntimeProbeProviders / taskRuntimeBlockedProviders` 聚合明细，不再只返回各类 provider count
+  - 这次补齐后，[10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 现在会在顶部额外写出 `providerSummary` 行，直接汇总当前哪些 provider 已有 auth/list/metadata/create_dir 真实证据、哪些已 fully verified，以及哪些 provider 当前已有 runtime success / failed / candidate / probe / blocked 样本；当前真实仓库会明确显示 `runtime_success=guangya, uc, pikpak`，其余 `auth / list / metadata / create_dir / runtime_failed / runtime_candidate / runtime_probe / runtime_blocked` 当前都还是 `(none)`
+  - 已同步补强 [verify_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_report.py)、[verify_export_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_report.py)、[verify_current_real_evidence_status_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_status_sync.py)，把 synthetic API/Markdown、导出 markdown 和当前仓库文档里的 `providerSummary` 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_report.py` 已验证 synthetic payload 与 `/api/real_evidence_markdown` 当前会输出 `providerSummary`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_report.py` 已验证导出的真实证据状态报告会写出 `providerSummary`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_status_sync.py` 已验证当前仓库文档中的 `providerSummary` 与 `build_real_evidence_report()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\export_real_evidence_report.py` 已重导出当前 [10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md)
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充本地适配器验证聚合明细`
 - 完成范围：
   - [export_local_live_adapter_verification.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_local_live_adapter_verification.py) 的导出汇总现已继续补齐 `providerCount / allOkProviders / md5ReadyProviders / gcidReadyProviders / probeCheckReadyProviders / matrixReadyProviders / accountCreateModeProviders`，不再只输出逐 provider 明细

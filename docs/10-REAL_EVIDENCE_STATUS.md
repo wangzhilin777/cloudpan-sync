@@ -1,8 +1,9 @@
 # CloudPan Sync 真实证据状态报告
 
-- 生成时间：`2026-05-25T17:54:28.693186+00:00`
+- 生成时间：`2026-05-25T18:38:55.507447+00:00`
 - 汇总： `providerCount=10` `profilesSaved=3` `latestValidationProfileCount=3` `latestProbeProfileCount=4`
 - 真实证据覆盖： `auth=0` `list=0` `metadata=0` `create_dir=0` `fully_verified=0` `task_runtime=3` `task_runtime_failed=0` `task_runtime_candidate=0` `task_runtime_probe=0` `runtime_samples=3` `runtime_success=3` `runtime_failed=0` `runtime_candidate=0` `runtime_probe=0` `runtime_blocked_providers=0` `runtime_blocked=0` `runtime_conflict_handled=3`
+- providerSummary: `auth=(none)` `list=(none)` `metadata=(none)` `create_dir=(none)` `fully_verified=(none)` `runtime_success=guangya, uc, pikpak` `runtime_failed=(none)` `runtime_candidate=(none)` `runtime_probe=(none)` `runtime_blocked=(none)`
 
 > 说明：本报告只统计当前仓库已保存的最新真实校验/探测证据，不把 mock 成功、静态能力声明或未持久化的临时运行结果算成真实成功。
 

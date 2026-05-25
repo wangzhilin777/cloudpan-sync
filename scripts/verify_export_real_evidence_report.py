@@ -45,6 +45,16 @@ def main() -> None:
             "taskRuntimeCandidateCount": 1,
             "taskRuntimeProbeCount": 1,
             "taskRuntimeBlockedCount": 1,
+            "authEvidenceProviders": ["guangya"],
+            "listEvidenceProviders": ["guangya"],
+            "metadataEvidenceProviders": ["guangya"],
+            "createDirEvidenceProviders": ["guangya"],
+            "fullyVerifiedProviders": [],
+            "taskRuntimeEvidenceProviders": ["guangya"],
+            "taskRuntimeFailedProviders": ["189cloud"],
+            "taskRuntimeCandidateProviders": ["189cloud"],
+            "taskRuntimeProbeProviders": ["189cloud"],
+            "taskRuntimeBlockedProviders": ["189cloud"],
         },
         "items": [
             {
@@ -134,6 +144,7 @@ def main() -> None:
                 and "runtime_probe=1" in markdown
                 and "runtime_blocked_providers=1" in markdown
                 and "runtime_blocked=1" in markdown,
+                "exportedHasProviderSummary": "- providerSummary: `auth=guangya` `list=guangya` `metadata=guangya` `create_dir=guangya` `fully_verified=(none)` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=189cloud` `runtime_probe=189cloud` `runtime_blocked=189cloud`" in markdown,
                 "exportedHasGuangyaSuccessRow": "## guangya - Guangya" in markdown
                 and "samples=1 success=1 failed=0" in markdown,
                 "exportedHas189MixedRuntimeRow": "## 189cloud - Tianyi 189Cloud" in markdown

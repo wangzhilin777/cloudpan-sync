@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充运行孤儿样本首个缺口直接补救`
+- 完成范围：
+  - 已把设置页里的 `Runtime Orphan Recovery` 从“只列出 orphan provider 摘要和前三条样本，并逐条提供 `Recreate Stub / Open Capture`”推进成可直接跳转首个 orphan 缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在该区块下方额外渲染首个 orphan 样本，并直接带出 `Focus First Match / Refresh First Match / Probe First Match / Recreate First Stub / Open Capture First Gap`
+  - 当前动作会优先复用同 provider 已存在的保存档案：如果当前仓库里已经有该 provider 的其他档案，就可以直接聚焦到第一条匹配档案、刷新 evidence、重跑 live probe；如果仍然需要按历史 `orphanProfileId` 恢复同名档案，则也可以直接重建 placeholder stub，或者打开网页登录抓取引导补真实凭证
+  - 这次补齐把“看到 runtime orphan 缺口 -> 自己判断先修现有档案还是重建原 profileId -> 再切去别处操作”的流程，推进成“看到首个 orphan 缺口 -> 直接点现有档案补救/重建 stub -> 继续修”的更短闭环，也更贴近 `P-REAL` 当前最关键的缺口类型之一
+  - 已同步补强 [verify_runtime_orphan_recovery_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery_settings_ui.py)，把 `Focus First Match / Refresh First Match / Probe First Match / Recreate First Stub / Open Capture First Gap` 的文案与绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证 `Runtime Orphan Recovery` 当前包含首个缺口动作按钮和对应绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证该区复用的 `refreshRealEvidenceRemediationProfile()`、`probeRealEvidenceRemediationProfile()` 链路未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充校验首个失败直接补救`
 - 完成范围：
   - 已把设置页里的 `Validation` 摘要从“只展示 latest ok/failed profiles/providers 统计”推进成可直接跳转首个失败校验；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在 validation 区块下方额外渲染首个 `ok=false` 的校验样本，并直接带出 `Focus First Failed / Validate First Failed / Open Capture First Failed`

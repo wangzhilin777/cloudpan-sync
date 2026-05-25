@@ -17,6 +17,17 @@ def main() -> None:
                 "jsHasRuntimeOrphanRecoveryLoader": 'async function loadRuntimeOrphanRecoverySummary()' in app_js and 'fetchJson("/api/runtime_orphan_recovery")' in app_js,
                 "jsHasRuntimeOrphanRecoveryRecreateAction": 'async function recreateRuntimeOrphanProfile(providerKey, orphanProfileId)' in app_js and 'fetchJson("/api/runtime_orphan_recovery/recreate_profile"' in app_js and 'recreateBtn.textContent = "Recreate Stub"' in app_js,
                 "jsHasRuntimeOrphanRecoveryCaptureAction": 'captureBtn.textContent = "Open Capture"' in app_js and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));' in app_js,
+                "jsHasRuntimeOrphanRecoveryFirstGapActions": 'const firstRuntimeOrphanGap = orphanRecoveryItems[0] || null;' in app_js
+                and 'focusBtn.textContent = "Focus First Match"' in app_js
+                and 'refreshBtn.textContent = "Refresh First Match"' in app_js
+                and 'probeBtn.textContent = "Probe First Match"' in app_js
+                and 'recreateBtn.textContent = "Recreate First Stub"' in app_js
+                and 'captureBtn.textContent = "Open Capture First Gap"' in app_js
+                and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(existingProfileId));' in app_js
+                and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(existingProfileId));' in app_js
+                and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(existingProfileId));' in app_js
+                and 'recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(firstRuntimeOrphanGap.providerKey, firstRuntimeOrphanGap.orphanProfileId));' in app_js
+                and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstRuntimeOrphanGap.providerKey || ""));' in app_js,
                 "jsRefreshProtectedDataLoadsRuntimeOrphanRecovery": "loadRuntimeOrphanRecoverySummary()," in app_js,
                 "jsLogoutClearsRuntimeOrphanRecovery": "state.runtimeOrphanRecovery = null;" in app_js,
                 "jsSettingsRenderUsesRuntimeOrphanRecovery": "const orphanRecoverySummary = state.runtimeOrphanRecovery?.summary || {};" in app_js and "orphanProfilesList=" in app_js and "recreate=" in app_js and 'recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(item.providerKey, item.orphanProfileId));' in app_js and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));' in app_js,

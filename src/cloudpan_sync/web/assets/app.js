@@ -2704,6 +2704,48 @@ function renderSettingsPanel() {
     li.appendChild(actions);
     runtimeOrphanRecoveryList.appendChild(li);
   }
+  const firstRuntimeOrphanGap = orphanRecoveryItems[0] || null;
+  if (firstRuntimeOrphanGap) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    const existingProfiles = (firstRuntimeOrphanGap.existingProviderProfileNames || []).join("/") || "(none)";
+    copy.textContent = `${firstRuntimeOrphanGap.providerKey || "(unknown)"}: orphanProfileId=${firstRuntimeOrphanGap.orphanProfileId || "(none)"}, sampleCount=${firstRuntimeOrphanGap.sampleCount || 0}, preferredAuthMode=${firstRuntimeOrphanGap.preferredAuthMode || "(none)"}, existingProfiles=${existingProfiles}, nextStep=${firstRuntimeOrphanGap.nextStep || "(none)"}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    const existingProfileId = (firstRuntimeOrphanGap.existingProviderProfileIds || [])[0] || "";
+    if (existingProfileId) {
+      const focusBtn = document.createElement("button");
+      focusBtn.className = "ghost";
+      focusBtn.textContent = "Focus First Match";
+      focusBtn.addEventListener("click", () => focusAuthRemediationProfile(existingProfileId));
+      actions.appendChild(focusBtn);
+      const refreshBtn = document.createElement("button");
+      refreshBtn.className = "ghost";
+      refreshBtn.textContent = "Refresh First Match";
+      refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(existingProfileId));
+      actions.appendChild(refreshBtn);
+      if (liveProbeProviderSet.has(firstRuntimeOrphanGap.providerKey)) {
+        const probeBtn = document.createElement("button");
+        probeBtn.className = "ghost";
+        probeBtn.textContent = "Probe First Match";
+        probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(existingProfileId));
+        actions.appendChild(probeBtn);
+      }
+    }
+    const recreateBtn = document.createElement("button");
+    recreateBtn.className = "ghost";
+    recreateBtn.textContent = "Recreate First Stub";
+    recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(firstRuntimeOrphanGap.providerKey, firstRuntimeOrphanGap.orphanProfileId));
+    actions.appendChild(recreateBtn);
+    const captureBtn = document.createElement("button");
+    captureBtn.className = "ghost";
+    captureBtn.textContent = "Open Capture First Gap";
+    captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstRuntimeOrphanGap.providerKey || ""));
+    actions.appendChild(captureBtn);
+    li.appendChild(actions);
+    runtimeOrphanRecoveryList.appendChild(li);
+  }
 
   const audit = state.auditSummary || {};
   const auditRows = [

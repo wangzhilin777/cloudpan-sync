@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增 [scripts/verify_i18n_language_switch.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_i18n_language_switch.py)，把计划文档里明确提到的“基础 i18n / 语言切换”独立锁进回归，不再只在代码和旧里程碑描述里笼统说“有 i18n”
+  - 这条 verifier 当前会同时验证 [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 里确实存在 `langSelect`、`zh-CN / en-US` 两个选项，以及初始 `<html lang="zh-CN">`
+  - 同一条回归还会继续验证 [webapp.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/webapp.py) 的 `/api/i18n` 在 `zh-CN / en-US / 非法 lang` 三种情况下的返回口径，以及 [i18n.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/i18n.py) 的 fallback 仍会回退到 `zh-CN`
+  - 前端侧也已一并锁住 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会跟踪 `state.lang`、调用 `loadI18n()`、更新 `document.documentElement.lang`、回写语言下拉，并继续用翻译后的文案渲染 Tab、任务向导标题和步骤说明
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_i18n_language_switch.py` 已验证语言切换链当前会同时满足页面下拉、`/api/i18n` 返回、fallback 规则、以及前端 `loadI18n()/render()` 的中英文渲染逻辑
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 现已把队列页“新建任务时显式选择阈值与同名冲突策略”的 UI 链路锁进回归，不再只验证 Preview 面板和 guard，而漏掉表单本身的 `taskThresholdMB / taskConflictPolicy`
   - verifier 当前会同时检查 [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 里确实存在 `taskThresholdMB` 输入框、`taskConflictPolicy` 选择框，以及 `auto_rename_new / overwrite_existing` 两个显式选项
   - 同一条回归现在还会继续锁住 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 已从表单读取 `thresholdRaw / conflictPolicy`，并把 `thresholdMB / conflictPolicy` 同时带进 Preview 请求、Preview meta 文案和最终 Create Task 请求，避免后续把“页面可选”又退回成“只在内部默认值里生效”

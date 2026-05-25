@@ -225,13 +225,17 @@ def main() -> None:
                 "markdownHasRefreshEvidenceCommand": "recommendedRefreshEvidenceCommand" in markdown and "--profile-id" in markdown,
                 "markdownHasRuntimeProbeCommand": "recommendedRuntimeProbeCommand" in markdown and "create_runtime_probe_task.py" in markdown,
                 "runtimeProbeCommandCarriesResolvedParent": "--target-parent-id 115-root-1" in markdown and "--evidence-dir tmp\\115_open-runtime-probe-evidence" in markdown,
+                "runtimeProbeCommandShowsConflictChoice": "--target-provider 115_open" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "markdownHasLiveUploadCommand": "recommendedLiveUploadCommand" in markdown and "create_live_upload_task.py" in markdown,
                 "liveUploadCommandCarriesResolvedParent": "--target-parent-id gy-parent-1" in markdown and "--evidence-dir tmp\\guangya-live-evidence" in markdown,
+                "liveUploadCommandShowsConflictChoice": "tmp\\guangya-live-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "markdownHasFastCandidateCommand": "recommendedFastCandidateCommand" in markdown and "create_fast_upload_candidate_task.py" in markdown,
                 "fastCandidateCommandCarriesResolvedParent": "--target-parent-id 115-root-1" in markdown and "--evidence-dir tmp\\115_open-fast-candidate-evidence" in markdown,
+                "fastCandidateCommandShowsConflictChoice": "tmp\\115_open-fast-candidate-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "markdownHasRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown,
                 "markdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown and "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown,
                 "markdownHasExpandedPostBootstrapHelpers": "tmp\\quark-post-bootstrap-runtime-evidence" in markdown and "tmp\\xunlei-post-bootstrap-runtime-evidence" in markdown and "tmp\\123_open-post-bootstrap-runtime-evidence" in markdown,
+                "postBootstrapCommandShowsConflictChoice": "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "postBootstrapNextStepMentionsRuntimeFollowup": "189cloud" in markdown and "post-bootstrap runtime helper" in markdown and "runtime success" in markdown,
                 "runtimeSuccessFallsBackToFastHelper": "115_open" in markdown and "tmp\\115_open-fast-candidate-evidence" in markdown,
                 "runtimeSuccessUsesLiveHelperWhenAvailable": "guangya" in markdown and "tmp\\guangya-live-evidence" in markdown,
@@ -268,6 +272,7 @@ def main() -> None:
                             for row in (api_bundle.get("items") or [])
                             if str((row or {}).get("providerKey") or "") == "guangya"
                             and "create_live_upload_task.py" in str((row or {}).get("recommendedRuntimeSuccessCommand") or "")
+                            and "--conflict-policy auto_rename_new" in str((row or {}).get("recommendedRuntimeSuccessCommand") or "")
                         ),
                         None,
                     )
@@ -279,6 +284,7 @@ def main() -> None:
                             for row in (api_bundle.get("items") or [])
                             if str((row or {}).get("providerKey") or "") == "115_open"
                             and "create_fast_upload_candidate_task.py" in str((row or {}).get("recommendedRuntimeSuccessCommand") or "")
+                            and "--conflict-policy auto_rename_new" in str((row or {}).get("recommendedRuntimeSuccessCommand") or "")
                         ),
                         None,
                     )
@@ -290,6 +296,7 @@ def main() -> None:
                             for row in (api_bundle.get("items") or [])
                             if str((row or {}).get("providerKey") or "") == "189cloud"
                             and "create_fast_upload_candidate_task.py" in str((row or {}).get("recommendedPostBootstrapRuntimeCommand") or "")
+                            and "--conflict-policy auto_rename_new" in str((row or {}).get("recommendedPostBootstrapRuntimeCommand") or "")
                             and "post-bootstrap runtime helper" in str((row or {}).get("nextStep") or "")
                         ),
                         None,
@@ -302,6 +309,7 @@ def main() -> None:
                             for row in (api_bundle.get("items") or [])
                             if str((row or {}).get("providerKey") or "") == "quark"
                             and "create_live_upload_task.py" in str((row or {}).get("recommendedPostBootstrapRuntimeCommand") or "")
+                            and "--conflict-policy auto_rename_new" in str((row or {}).get("recommendedPostBootstrapRuntimeCommand") or "")
                         ),
                         None,
                     )
@@ -313,6 +321,7 @@ def main() -> None:
                             for row in (api_bundle.get("items") or [])
                             if str((row or {}).get("providerKey") or "") == "baidu_netdisk"
                             and "create_live_upload_task.py" in str((row or {}).get("recommendedPostBootstrapRuntimeCommand") or "")
+                            and "--conflict-policy auto_rename_new" in str((row or {}).get("recommendedPostBootstrapRuntimeCommand") or "")
                         ),
                         None,
                     )

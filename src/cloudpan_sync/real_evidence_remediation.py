@@ -87,7 +87,14 @@ def _runtime_probe_command_for_profile(profile: dict[str, object]) -> str:
     resolved_parent_id = str(profile.get("resolvedParentId") or "").strip()
     if resolved_parent_id:
         parts.append(f"--target-parent-id {resolved_parent_id}")
-    parts.extend(["--auto-temp-file", "--threshold-mb 1", f"--evidence-dir tmp\\{provider_key}-runtime-probe-evidence"])
+    parts.extend(
+        [
+            "--auto-temp-file",
+            "--threshold-mb 1",
+            "--conflict-policy auto_rename_new",
+            f"--evidence-dir tmp\\{provider_key}-runtime-probe-evidence",
+        ]
+    )
     return " ".join(parts)
 
 
@@ -111,7 +118,13 @@ def _fast_candidate_command_for_profile(profile: dict[str, object]) -> str:
         parts.append("--gcid YOUR_GCID")
     else:
         parts.append("--md5 auto")
-    parts.extend(["--auto-temp-file", f"--evidence-dir tmp\\{provider_key}-fast-candidate-evidence"])
+    parts.extend(
+        [
+            "--auto-temp-file",
+            "--conflict-policy auto_rename_new",
+            f"--evidence-dir tmp\\{provider_key}-fast-candidate-evidence",
+        ]
+    )
     return " ".join(parts)
 
 
@@ -133,6 +146,7 @@ def _live_upload_command_for_profile(profile: dict[str, object]) -> str:
         [
             "--auto-temp-file",
             "--threshold-mb 1",
+            "--conflict-policy auto_rename_new",
             f"--evidence-dir tmp\\{provider_key}-live-evidence",
         ]
     )
@@ -157,6 +171,7 @@ def _post_bootstrap_runtime_command_for_provider(provider_key: str) -> str:
                 "--target-profile-id YOUR_PROFILE_ID",
                 "--auto-temp-file",
                 "--threshold-mb 1",
+                "--conflict-policy auto_rename_new",
                 f"--evidence-dir tmp\\{provider}-post-bootstrap-runtime-evidence",
             ]
         )
@@ -171,7 +186,13 @@ def _post_bootstrap_runtime_command_for_provider(provider_key: str) -> str:
             parts.append("--sha1 auto")
         else:
             parts.append("--md5 auto")
-        parts.extend(["--auto-temp-file", f"--evidence-dir tmp\\{provider}-post-bootstrap-runtime-evidence"])
+        parts.extend(
+            [
+                "--auto-temp-file",
+                "--conflict-policy auto_rename_new",
+                f"--evidence-dir tmp\\{provider}-post-bootstrap-runtime-evidence",
+            ]
+        )
         return " ".join(parts)
     return ""
 

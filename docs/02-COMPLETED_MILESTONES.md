@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 已把 remediation bundle 里生成的 `recommendedRuntimeProbeCommand / recommendedLiveUploadCommand / recommendedFastCandidateCommand / recommendedPostBootstrapRuntimeCommand` 统一补成显式 `--conflict-policy auto_rename_new`
+  - 这样 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 里的真实取证 helper 不再把“同名文件冲突时怎么处理”藏在脚本默认值里，而是直接把当前默认策略写出来，后续需要覆盖时也能直接改成 `overwrite_existing`
+  - 对应 verifier 也已同步补强：[scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py)、[scripts/verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)、[scripts/verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py) 现在都会锁住这些 helper 命令继续显式带 `--conflict-policy auto_rename_new`
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 API/Markdown bundle 中 runtime helper 与 post-bootstrap helper 都显式带 `--conflict-policy auto_rename_new`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证导出链写出的 Markdown 也显式保留冲突策略选择
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 中 `115_open / quark / 189cloud / baidu_netdisk / xunlei / 123_open` 的 post-bootstrap helper 继续保持这条口径
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增 [scripts/verify_current_local_live_adapter_verification_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_local_live_adapter_verification_sync.py)，直接锁住当前 [docs/07-LOCAL_LIVE_ADAPTER_VERIFICATION.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/07-LOCAL_LIVE_ADAPTER_VERIFICATION.md) 的本地 adapter stub 验证口径
   - 当前这条校验会确认 10 个 provider 的本地 stub adapter 都继续 `list_ok / metadata_ok / create_ok=True`，并且 `Probe Checks` 中每家都是 `3`
   - 同时还锁住 `Matrix Rows` 里 10 家 provider 都保持 `list_ready / metadata_ready / create_dir_ready / live_probe_ok=True`，以及 `189cloud` 继续保留账号级 `live_account_auth` 写目录样本

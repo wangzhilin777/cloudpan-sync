@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [verify_patch_refresh_export_auth_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_refresh_export_auth_bundle.py) 已进一步补强，不再只验证“批量补字段后能落文件”，还会同时校验 selector 命中范围、非命中档案不被误改，以及 CLI 输出 JSON 摘要
+  - 当前 `patch_refresh_export_auth_bundle.py` 这条“批量补档案 -> 刷新 evidence -> 导出 bundle”链路，已经同时锁住选择器过滤、副作用边界和输出摘要，不再只覆盖 happy path
+  - 这样批量 patch/export helper 的验收口径也更接近真实使用场景：既要改对命中的档案，也要保证不会误伤旁边的其他 provider/profile
+- 当前验证证据：
+  - [verify_patch_refresh_export_auth_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_refresh_export_auth_bundle.py) 已验证 `providerKey=guangya + displayName contains smoke` 只会命中 `gy-batch-1 / gy-batch-2`
+  - 同一验证已锁住 `bundleSummary / profileIds / bundleOutput` JSON 输出，以及未命中的 `aliyundrive_open` 档案不会被误写入 `parentId/fileId`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增独立导出验证脚本 [verify_export_local_live_adapter_verification.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_local_live_adapter_verification.py)，把 `07-LOCAL_LIVE_ADAPTER_VERIFICATION.md` 这条本地 live adapter 导出链锁进回归
   - 当前 local live adapter 报告现在不只验证文件存在，还覆盖了顶部“stub 验证、不等同真实在线成功”的提示文案、provider 分段、Probe Checks 与 Matrix Rows 聚合结果
   - 这样本地 adapter 验证报告也已补齐为独立 export verifier，不再只依赖 `verify_provider_live_adapters.py` 本身的 JSON 输出人工对账

@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import io
 import sys
+from contextlib import redirect_stdout
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -55,6 +57,19 @@ def main() -> None:
                         "createdAt": "2026-05-23T00:00:00+00:00",
                         "updatedAt": "2026-05-23T00:00:00+00:00",
                     },
+                    {
+                        "profileId": "ali-batch-1",
+                        "providerKey": "aliyundrive_open",
+                        "authMode": "manual_token",
+                        "displayName": "other-provider",
+                        "token": "ali_tok",
+                        "cookie": "",
+                        "extra": {"driveId": "drive-1"},
+                        "status": "verified",
+                        "lastError": "",
+                        "createdAt": "2026-05-23T00:00:00+00:00",
+                        "updatedAt": "2026-05-23T00:00:00+00:00",
+                    },
                 ],
                 ensure_ascii=False,
                 indent=2,
@@ -103,23 +118,25 @@ def main() -> None:
         patch_refresh_export_auth_bundle.auth_evidence_bundle_to_markdown = fake_markdown
         try:
             output_path = data_dir / "bundle.md"
-            patch_refresh_export_auth_bundle.main(
-                [
-                    "--provider-key",
-                    "guangya",
-                    "--display-name-contains",
-                    "smoke",
-                    "--set",
-                    "parentId=dir-100",
-                    "--set",
-                    "fileId=file-9",
-                    "--write",
-                    "--data-dir",
-                    str(data_dir),
-                    "--bundle-output",
-                    str(output_path),
-                ]
-            )
+            stdout_buffer = io.StringIO()
+            with redirect_stdout(stdout_buffer):
+                patch_refresh_export_auth_bundle.main(
+                    [
+                        "--provider-key",
+                        "guangya",
+                        "--display-name-contains",
+                        "smoke",
+                        "--set",
+                        "parentId=dir-100",
+                        "--set",
+                        "fileId=file-9",
+                        "--write",
+                        "--data-dir",
+                        str(data_dir),
+                        "--bundle-output",
+                        str(output_path),
+                    ]
+                )
         finally:
             auth_profile_evidence.refresh_auth_evidence_bundle = original_refresh_bundle
             auth_profile_evidence.auth_evidence_bundle_to_markdown = original_markdown
@@ -127,14 +144,25 @@ def main() -> None:
             patch_refresh_export_auth_bundle.auth_evidence_bundle_to_markdown = original_markdown
 
         profiles = json.loads((data_dir / "auth_profiles.json").read_text(encoding="utf-8"))
+        payload = json.loads(stdout_buffer.getvalue())
+        guangya_profiles = [row for row in profiles if row.get("providerKey") == "guangya"]
+        untouched_profiles = [row for row in profiles if row.get("providerKey") != "guangya"]
         print(
             json.dumps(
                 {
-                    "patchedCount": len(profiles),
-                    "allHaveParentId": all((row.get("extra") or {}).get("parentId") == "dir-100" for row in profiles),
-                    "allHaveFileId": all((row.get("extra") or {}).get("fileId") == "file-9" for row in profiles),
+                    "patchedCount": len(guangya_profiles),
+                    "allMatchedHaveParentId": all((row.get("extra") or {}).get("parentId") == "dir-100" for row in guangya_profiles),
+                    "allMatchedHaveFileId": all((row.get("extra") or {}).get("fileId") == "file-9" for row in guangya_profiles),
+                    "nonMatchedUntouched": all((row.get("extra") or {}).get("parentId", "") == "" for row in untouched_profiles)
+                    and all((row.get("extra") or {}).get("fileId", "") == "" for row in untouched_profiles),
                     "bundleFileExists": output_path.exists(),
                     "bundleHasTitle": "# Auth Evidence Bundle" in output_path.read_text(encoding="utf-8"),
+                    "jsonHasProfileIds": payload.get("profileIds") == ["gy-batch-1", "gy-batch-2"],
+                    "jsonHasBundleSummary": dict(payload.get("bundleSummary") or {}).get("profileCount") == 2
+                    and dict(payload.get("bundleSummary") or {}).get("profileReadyCount") == 2
+                    and dict(payload.get("bundleSummary") or {}).get("validationOkCount") == 2
+                    and dict(payload.get("bundleSummary") or {}).get("probeOkCount") == 2,
+                    "jsonHasBundleOutput": payload.get("bundleOutput") == str(output_path.resolve()),
                 },
                 ensure_ascii=False,
                 indent=2,

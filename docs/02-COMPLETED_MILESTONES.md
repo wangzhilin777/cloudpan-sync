@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增 [scripts/verify_current_local_live_adapter_verification_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_local_live_adapter_verification_sync.py)，直接锁住当前 [docs/07-LOCAL_LIVE_ADAPTER_VERIFICATION.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/07-LOCAL_LIVE_ADAPTER_VERIFICATION.md) 的本地 adapter stub 验证口径
+  - 当前这条校验会确认 10 个 provider 的本地 stub adapter 都继续 `list_ok / metadata_ok / create_ok=True`，并且 `Probe Checks` 中每家都是 `3`
+  - 同时还锁住 `Matrix Rows` 里 10 家 provider 都保持 `list_ready / metadata_ready / create_dir_ready / live_probe_ok=True`，以及 `189cloud` 继续保留账号级 `live_account_auth` 写目录样本
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_local_live_adapter_verification.py` 已验证本地 live adapter 报告导出链仍正常
+  - `.\.venv\Scripts\python.exe scripts\verify_current_local_live_adapter_verification_sync.py` 已验证 `allProviderSectionsPresent=true`、`allAdaptersReportListMetadataCreateOk=true`
+  - 同一验证已锁住 `allProbeChecksAreThree=true`、`allMatrixRowsLiveProbeOk=true`、`cloud189KeepsAccountCreateMode=true`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [docs/11-TASK_RUNTIME_EVIDENCE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/11-TASK_RUNTIME_EVIDENCE.md) 已按当前 `task_runtime_evidence_store` 重新导出，不再停留在 `sampleCount=0` 的旧报告
   - 当前任务运行真实样本报告已同步为 `sampleCount=3`、`providerCount=3`、`successProviderCount=3`、`successCount=3`、`verifyOkCount=3`、`conflictHandledCount=3`
   - 已新增 [scripts/verify_current_task_runtime_evidence_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_task_runtime_evidence_report_sync.py)，直接锁住 `pikpak / uc / guangya` 三条当前 runtime success 样本，以及三条同名冲突降级处理记录

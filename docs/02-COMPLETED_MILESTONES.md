@@ -10,6 +10,21 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充授权补救聚焦与抓取引导`
+- 完成范围：
+  - 已补齐 `Auth Remediation` 的前端执行闭环；这次补齐后，设置页不再只有 `needsFix / needsSecretRefresh` 摘要行，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 还会继续渲染逐档案补救行，直接带出 `missing / placeholderSecretHints / writeMissing / patch / recreateProbe` 等当前补救上下文
+  - 当前每条授权补救行都新增了 `Focus Profile` 与 `Open Capture` 两个动作：`Focus Profile` 会直接定位到现有 auth profile 并把它载入主授权表单，`Open Capture` 会按对应 provider 自动打开网页登录抓取弹窗并立即加载 capture guide，不再需要用户自己先手动切换 provider 再点弹窗
+  - 这次补齐后，`Auth Remediation` 真正形成了“看到缺口 -> 直接跳到对应档案编辑 / 直接打开 provider 抓取引导 -> 补真实凭证 -> 保存再验证”的应用内最小闭环，而不是只剩一串 shell 命令或文字提示
+  - 当前补救动作会和已有授权页逻辑复用：聚焦会直接调用现有 `fillAuthForm()`，抓取引导会复用 `openAuthModal()` + `startCaptureGuide()`，因此不会分叉出第二套不一致的授权交互
+  - 已同步补强 [verify_auth_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_settings_ui.py)，把 `focusAuthRemediationProfile()`、`openCaptureGuideForProvider()`、逐档案动作按钮绑定以及补救行中的 `placeholderSecretHints / recreateProbe` 展示一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_settings_ui.py` 已验证设置页当前包含 `Focus Profile` / `Open Capture` 动作、`focusAuthRemediationProfile()`、`openCaptureGuideForProvider()` 以及逐档案补救行绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_capture_guide.py` 已验证 `quark / guangya / aliyundrive_open` 当前仍会返回各自 provider-aware 的结构化 capture guide
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充补救面板一键创建档案`
 - 完成范围：
   - 已补齐 `Real Evidence Remediation` 的应用内创建动作；这次补齐后，[real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 不再只会为 `noProfiles` provider 输出 `recommendedCreateCommand / recommendedBootstrapCommand`，还可以直接在应用侧按 `providerKey` 创建一个 placeholder auth stub

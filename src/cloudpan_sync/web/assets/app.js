@@ -1246,6 +1246,16 @@ async function saveAuth() {
   await Promise.all([loadAuthProfiles(), loadLiveValidations(), loadStatusMatrix()]);
 }
 
+function focusAuthRemediationProfile(profileId) {
+  const profile = (state.authProfiles || []).find((item) => item.profileId === profileId);
+  if (!profile) {
+    return;
+  }
+  fillAuthForm(profile);
+  state.activeTab = "nav.auth";
+  render();
+}
+
 function openAuthModal() {
   const modal = document.getElementById("authModal");
   const modalProvider = document.getElementById("authModalProvider");
@@ -1263,6 +1273,20 @@ function openAuthModal() {
     modal.showModal();
   }
   updateCaptureGuideActions();
+}
+
+async function openCaptureGuideForProvider(providerKey) {
+  const authProvider = document.getElementById("authProvider");
+  if (authProvider) {
+    authProvider.value = providerKey || authProvider.value;
+    syncAuthModeOptions();
+  }
+  openAuthModal();
+  const modalProvider = document.getElementById("authModalProvider");
+  if (modalProvider) {
+    modalProvider.value = providerKey || modalProvider.value;
+  }
+  await startCaptureGuide();
 }
 
 function openCaptureLoginPage() {
@@ -2063,6 +2087,30 @@ function renderSettingsPanel() {
   for (const row of authRemediationRows) {
     const li = document.createElement("li");
     li.textContent = row;
+    authRemediationList.appendChild(li);
+  }
+  const authRemediationItems = state.authRemediationBundle?.items || [];
+  for (const item of authRemediationItems.slice(0, 3)) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    const missing = (item.missingFieldHints || []).join(" | ");
+    const placeholderSecretHints = (item.placeholderSecretFieldHints || []).join("/");
+    const writeMissing = (item.writeMissingFieldHints || []).join(" | ");
+    copy.textContent = `${item.displayName || item.profileId || "(unknown)"} [${item.providerKey || "(unknown)"}]: profileReady=${Boolean(item.profileReady)}, writeReady=${Boolean(item.writeReady)}, resolvedParentId=${item.resolvedParentId || "(none)"}, resolvedFileId=${item.resolvedFileId || "(none)"}${missing ? `, missing=${missing}` : ""}${placeholderSecretHints ? `, placeholderSecretHints=${placeholderSecretHints}` : ""}${writeMissing ? `, writeMissing=${writeMissing}` : ""}${item.recommendedPatchCommand ? `, patch=${item.recommendedPatchCommand}` : ""}${item.recommendedRecreateProbeCommand ? `, recreateProbe=${item.recommendedRecreateProbeCommand}` : ""}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    const focusBtn = document.createElement("button");
+    focusBtn.className = "ghost";
+    focusBtn.textContent = "Focus Profile";
+    focusBtn.addEventListener("click", () => focusAuthRemediationProfile(item.profileId));
+    actions.appendChild(focusBtn);
+    const captureBtn = document.createElement("button");
+    captureBtn.className = "ghost";
+    captureBtn.textContent = "Open Capture";
+    captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));
+    actions.appendChild(captureBtn);
+    li.appendChild(actions);
     authRemediationList.appendChild(li);
   }
 

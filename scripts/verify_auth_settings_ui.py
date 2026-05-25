@@ -22,6 +22,7 @@ def main() -> None:
                 "jsHasAuthRemediationState": "authRemediationBundle: null" in app_js,
                 "jsHasAuthEvidenceLoader": 'async function loadAuthEvidenceBundleSummary()' in app_js and 'fetchJson("/api/auth/evidence_bundle")' in app_js,
                 "jsHasAuthRemediationLoader": 'async function loadAuthRemediationBundleSummary()' in app_js and 'fetchJson("/api/auth/remediation_bundle")' in app_js,
+                "jsHasAuthRemediationActions": 'function focusAuthRemediationProfile(profileId)' in app_js and 'async function openCaptureGuideForProvider(providerKey)' in app_js and 'focusBtn.textContent = "Focus Profile"' in app_js and 'captureBtn.textContent = "Open Capture"' in app_js,
                 "jsRefreshProtectedDataLoadsAuthBundles": "loadAuthEvidenceBundleSummary()," in app_js and "loadAuthRemediationBundleSummary()," in app_js,
                 "jsRenderSettingsUsesAuthEvidence": "const authEvidenceSummary = state.authEvidenceBundle?.summary || {};" in app_js
                 and "profileReadyProfiles=" in app_js
@@ -32,7 +33,11 @@ def main() -> None:
                 and "readyProfiles=" in app_js
                 and "needsFixProfiles=" in app_js
                 and "writeNeedsFixProfiles=" in app_js
-                and "needsSecretRefreshProfiles=" in app_js,
+                and "needsSecretRefreshProfiles=" in app_js
+                and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(item.profileId));' in app_js
+                and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));' in app_js
+                and "placeholderSecretHints=" in app_js
+                and "recreateProbe=" in app_js,
                 "jsLogoutClearsAuthBundles": "state.authEvidenceBundle = null;" in app_js and "state.authRemediationBundle = null;" in app_js,
             },
             ensure_ascii=False,

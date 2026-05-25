@@ -117,8 +117,11 @@ def _remediation_followup(profile_id: str) -> dict[str, object]:
             continue
         return {
             "nextStep": str(row.get("nextStep") or ""),
+            "needsSecretRefresh": bool(row.get("needsSecretRefresh")),
+            "placeholderSecretFieldHints": list(row.get("placeholderSecretFieldHints") or []),
             "recommendedPrimaryCommandLabel": str(row.get("recommendedPrimaryCommandLabel") or ""),
             "recommendedPrimaryCommand": str(row.get("recommendedPrimaryCommand") or ""),
+            "recommendedRecreateProbeCommand": str(row.get("recommendedRecreateProbeCommand") or ""),
             "recommendedRefreshEvidenceCommand": str(row.get("recommendedRefreshEvidenceCommand") or ""),
             "recommendedPostRefreshRuntimeCommand": str(row.get("recommendedPostRefreshRuntimeCommand") or ""),
             "recommendedRuntimeProbeCommand": str(row.get("recommendedRuntimeProbeCommand") or ""),

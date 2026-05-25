@@ -152,9 +152,12 @@ def main() -> None:
             {
                 "providerKey": "guangya",
                 "profileIds": ["gy-live-1"],
-                "nextStep": "继续补齐同 provider 的后续 runtime 证据。",
-                "recommendedPrimaryCommandLabel": "runtime_success",
-                "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --target-parent-id folder-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
+                "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
+                "needsSecretRefresh": True,
+                "placeholderSecretFieldHints": ["token"],
+                "recommendedPrimaryCommandLabel": "recreate_probe",
+                "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name gy-live --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
+                "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name gy-live --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                 "recommendedLiveUploadCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --target-parent-id folder-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
                 "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --target-parent-id folder-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --target-parent-id folder-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-live-evidence",
@@ -248,8 +251,11 @@ def main() -> None:
                 "firstResultLive": ((((output.get("results") or [None])[0]) or {}).get("executionMode")) == "live",
                 "firstResultVerifyOk": bool((((((output.get("results") or [None])[0]) or {}).get("liveAttempt") or {}).get("verifyOk"))),
                 "authEvidenceRefreshed": len(refresh_calls) == 1 and refresh_calls[0].get("profileId") == "gy-live-1" and refresh_calls[0].get("persist") is True,
-                "remediationPrimaryCommandIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommandLabel") == "runtime_success"
-                and dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommand", "").endswith("tmp\\guangya-live-evidence"),
+                "remediationPrimaryCommandIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommandLabel") == "recreate_probe"
+                and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommand", ""),
+                "remediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
+                and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["token"]
+                and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", ""),
                 "remediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedRuntimeSuccessCommand", "").endswith("tmp\\guangya-live-evidence")
                 and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\guangya-live-evidence"),
                 "explicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-live-parent",

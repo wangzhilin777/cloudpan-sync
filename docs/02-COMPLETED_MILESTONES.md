@@ -12,6 +12,19 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[scripts/create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py)、[scripts/create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py) 的 remediation follow-up 现已统一补齐 `needsSecretRefresh / placeholderSecretFieldHints / recommendedRecreateProbeCommand`
+  - 这样这 3 个 task helper 在返回 `recommendedPrimaryCommandLabel / recommendedPrimaryCommand` 之外，也能把“当前其实应先换真 token/cookie 再 probe”的结构化信号一起带出来，不再只让调用方看到一条命令，却看不到这是 `recreate_probe` 还是普通 runtime follow-up
+  - 对应 verifier 已同步补强：[scripts/verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py)、[scripts/verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py)、[scripts/verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py)
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_live_upload_task.py` 已验证 live upload helper 输出当前会同时带 `recommendedPrimaryCommandLabel=recreate_probe`、`recommendedRecreateProbeCommand`、`needsSecretRefresh=true` 与 `placeholderSecretFieldHints=[token]`
+  - `.\.venv\Scripts\python.exe scripts\verify_create_fast_upload_candidate_task.py` 已验证 fast candidate helper 输出当前也会带 `recommendedPrimaryCommandLabel=recreate_probe`、`recommendedRecreateProbeCommand`、`needsSecretRefresh=true` 与 `placeholderSecretFieldHints=[cookie]`
+  - `.\.venv\Scripts\python.exe scripts\verify_create_runtime_probe_task.py` 已验证 runtime probe helper 输出当前也会带 `recommendedPrimaryCommandLabel=recreate_probe`、`recommendedRecreateProbeCommand`、`needsSecretRefresh=true` 与 `placeholderSecretFieldHints=[token]`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 的 synthetic bundle/API/Markdown 回归现已把 `recreate_probe` 这条新分支正式锁进来，不再只覆盖旧的 `runtime_probe / post_bootstrap_runtime / refresh_evidence` 路径
   - synthetic profile 现会显式模拟 `guangya / aliyundrive_open` 处于 `profileReady=False + needsSecretRefresh=True + placeholderSecretFieldHints=[token]` 的状态，并据此验证 summary 会产出 `providersWithRecreateProbeCommand=2`
   - 同一条 verifier 现在还会继续验证 Markdown 与 API 明细里都能看到 `recommendedRecreateProbeCommand / placeholderSecretFieldHints / recommendedPrimaryCommandLabel=recreate_probe`，避免后续再出现“真实 current sync 已对齐，但 synthetic bundle 回归没覆盖到”的空档

@@ -1,11 +1,12 @@
 # CloudPan Sync 计划完成度审计报告
 
-- 生成时间：`2026-05-24T23:25:57.172985+00:00`
+- 生成时间：`2026-05-25T18:29:42.967909+00:00`
 - 汇总：`done=5` `partial=2` `todo=1`
 - 进度口径：`featureCompletionPercent=85.7` `strictCompletionPercent=75.0`
   - `featureCompletionPercent` = 只按 `M1-M7` 主功能里程碑计分，`done=1`、`partial=0.5`。
   - `strictCompletionPercent` = 把 `P-REAL` 真实联调一起纳入总验收后计分，`done=1`、`partial=0.5`。
 - Provider覆盖：`providerCount=10` `researchCount=10`
+- milestoneSummary: `done=M1, M2, M3, M6, M7` `partial=M4, M5` `todo=P-REAL`
 
 ## 审计明细
 

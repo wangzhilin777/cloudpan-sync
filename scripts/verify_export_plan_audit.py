@@ -34,6 +34,9 @@ def main() -> None:
             "strictMilestoneCount": 8,
             "featureCompletionPercent": 85.7,
             "strictCompletionPercent": 75.0,
+            "doneKeys": ["M1", "M2", "M3", "M6", "M7"],
+            "partialKeys": ["M4", "M5"],
+            "todoKeys": ["P-REAL"],
         },
         "items": [
             {
@@ -82,6 +85,7 @@ def main() -> None:
                 "exportedHasProgressPercents": "featureCompletionPercent=85.7" in markdown and "strictCompletionPercent=75.0" in markdown,
                 "exportedHasFormulaNotes": "M1-M7" in markdown and "P-REAL" in markdown,
                 "exportedHasProviderCoverage": "providerCount=10" in markdown and "researchCount=10" in markdown,
+                "exportedHasMilestoneSummary": "milestoneSummary: `done=M1, M2, M3, M6, M7` `partial=M4, M5` `todo=P-REAL`" in markdown,
                 "exportedHasM5Row": "### M5 - 首批常用网盘接入" in markdown and "状态：`partial`" in markdown,
                 "exportedHasPRealRow": "### P-REAL - 真实联调验证" in markdown and "状态：`todo`" in markdown,
             },

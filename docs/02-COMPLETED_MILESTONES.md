@@ -12,6 +12,20 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/plan_audit.py) 的审计 summary 现已继续补齐 `doneKeys / partialKeys / todoKeys` 聚合明细，不再只返回 `done / partial / todo` 三个计数
+  - 这次补齐后，[04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md) 现在会在顶部额外写出 `milestoneSummary` 行，直接汇总当前哪些里程碑已经 `done`、哪些还停在 `partial`、哪些仍是 `todo`；当前真实仓库会明确显示 `done=M1, M2, M3, M6, M7`、`partial=M4, M5`、`todo=P-REAL`
+  - 已同步补强 [verify_export_plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_plan_audit.py)、[verify_current_plan_audit_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_plan_audit_sync.py)、[verify_plan_audit_progress.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_plan_audit_progress.py)，把 synthetic export、当前仓库文档和纯渲染 markdown 里的 `milestoneSummary` 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_plan_audit.py` 已验证导出的计划审计报告会写出 `milestoneSummary`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_plan_audit_sync.py` 已验证当前仓库文档中的 `milestoneSummary` 与 `run_plan_audit()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\verify_plan_audit_progress.py` 已验证纯渲染 markdown 当前也会输出 `milestoneSummary`，且进度百分比说明保持不变
+  - `.\.venv\Scripts\python.exe scripts\export_plan_audit.py` 已重导出当前 [04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md)
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的补救 summary 现已继续补齐 `providersWithNoProfilesList / providersNeedingAuthEvidenceList / providersNeedingRuntimeSuccessList / providersWithRecreateProbeCommandList / providersWithPrimaryCommandList / providersWithOverwriteVariantCommandList / providersBlockedOnlyList / providersCandidateOnlyList / providersProbeOnlyList` 聚合明细，不再只剩一组 count
   - 这次补齐后，[12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 现在会在顶部额外写出 `providerSummary` 行，直接汇总哪些 provider 还没档案、哪些仍缺 auth、哪些还缺 runtime success、哪些当前走 `recreate_probe`、哪些已有主命令/覆盖变体，以及当前是否存在 `blocked-only / candidate-only / probe-only` provider；当前真实仓库会明确显示 `noProfiles=115_open, 123_open, 189cloud, baidu_netdisk, pikpak, quark, uc, xunlei`、`needRuntime=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, quark, xunlei`、`recreateProbe=aliyundrive_open, guangya`
   - 已同步补强 [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py)、[verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)、[verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)，把 synthetic bundle、导出 markdown 和当前仓库文档里的 `providerSummary` 一起锁进回归

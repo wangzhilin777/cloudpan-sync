@@ -40,6 +40,7 @@ def main() -> None:
                     and f"`todo={summary.get('todo', 0)}`" in markdown
                     and f"`featureCompletionPercent={summary.get('featureCompletionPercent', 0)}`" in markdown
                     and f"`strictCompletionPercent={summary.get('strictCompletionPercent', 0)}`" in markdown
+                    and f"`done={', '.join(summary.get('doneKeys', [])) or '(none)'}` `partial={', '.join(summary.get('partialKeys', [])) or '(none)'}` `todo={', '.join(summary.get('todoKeys', [])) or '(none)'}`" in markdown
                 ),
                 "summaryShowsExpectedAuditCounts": (
                     summary.get("done") == 5
@@ -47,6 +48,9 @@ def main() -> None:
                     and summary.get("todo") == 1
                     and summary.get("featureCompletionPercent") == 85.7
                     and summary.get("strictCompletionPercent") == 75.0
+                    and summary.get("doneKeys") == ["M1", "M2", "M3", "M6", "M7"]
+                    and summary.get("partialKeys") == ["M4", "M5"]
+                    and summary.get("todoKeys") == ["P-REAL"]
                 ),
                 "m4SectionStillPartial": "- 状态：`partial`" in m4 and "仍缺稳定的真实在线联调成功样本" in m4,
                 "m5SectionStillPartial": "- 状态：`partial`" in m5 and "仍缺真实在线成功样本" in m5,

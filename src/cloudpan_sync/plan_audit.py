@@ -96,6 +96,9 @@ def run_plan_audit() -> dict[str, object]:
     feature_partial = sum(1 for item in feature_items if item.status == "partial")
     feature_completion_percent = round(((feature_done + feature_partial * 0.5) / len(feature_items)) * 100, 1)
     strict_completion_percent = round(((done + partial * 0.5) / len(items)) * 100, 1)
+    done_keys = [item.key for item in items if item.status == "done"]
+    partial_keys = [item.key for item in items if item.status == "partial"]
+    todo_keys = [item.key for item in items if item.status == "todo"]
 
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
@@ -109,6 +112,9 @@ def run_plan_audit() -> dict[str, object]:
             "strictMilestoneCount": len(items),
             "featureCompletionPercent": feature_completion_percent,
             "strictCompletionPercent": strict_completion_percent,
+            "doneKeys": done_keys,
+            "partialKeys": partial_keys,
+            "todoKeys": todo_keys,
         },
         "items": [item.to_dict() for item in items],
     }
@@ -134,6 +140,11 @@ def to_markdown(audit: dict[str, object]) -> str:
     )
     lines.append(
         f"- Provider覆盖：`providerCount={summary.get('providerCount', 0)}` `researchCount={summary.get('researchCount', 0)}`"
+    )
+    lines.append(
+        f"- milestoneSummary: `done={', '.join(summary.get('doneKeys', [])) or '(none)'}` "
+        f"`partial={', '.join(summary.get('partialKeys', [])) or '(none)'}` "
+        f"`todo={', '.join(summary.get('todoKeys', [])) or '(none)'}`"
     )
     lines.append("")
     lines.append("## 审计明细")

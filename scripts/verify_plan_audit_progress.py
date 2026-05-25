@@ -29,6 +29,7 @@ def main() -> None:
                 "strictFormulaExpected": strict_percent == 75.0,
                 "markdownHasFeaturePercent": "featureCompletionPercent=85.7" in markdown,
                 "markdownHasStrictPercent": "strictCompletionPercent=75.0" in markdown,
+                "markdownHasMilestoneSummary": "milestoneSummary: `done=M1, M2, M3, M6, M7` `partial=M4, M5` `todo=P-REAL`" in markdown,
                 "markdownExplainsFeatureFormula": "featureCompletionPercent" in markdown and "M1-M7" in markdown,
                 "markdownExplainsStrictFormula": "strictCompletionPercent" in markdown and "P-REAL" in markdown,
             },

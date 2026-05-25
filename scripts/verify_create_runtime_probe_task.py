@@ -132,6 +132,25 @@ def main() -> None:
                     str(evidence_dir),
                 ]
             )
+
+        second_stdout = io.StringIO()
+        with contextlib.redirect_stdout(second_stdout):
+            second_result = runtime_probe_script.main(
+                [
+                    "--target-provider",
+                    "aliyundrive_open",
+                    "--target-profile-id",
+                    "ali-runtime-1",
+                    "--target-parent-id",
+                    "manual-parent",
+                    "--auto-temp-file",
+                    "--task-json-output",
+                    str(ROOT / "tmp" / "verify-runtime-probe-task.json"),
+                    "--no-refresh-auth-evidence",
+                    "--auth-evidence-output",
+                    str(ROOT / "tmp" / "verify-runtime-auth-evidence.md"),
+                ]
+            )
     finally:
         task_runtime.create_task = original_create_task
         task_runtime.run_task = original_run_task
@@ -141,6 +160,7 @@ def main() -> None:
         runtime_probe_script.refresh_auth_profile_evidence = original_refresh_auth_evidence
 
     output = json.loads(stdout_buffer.getvalue())
+    second_output = json.loads(second_stdout.getvalue())
     task_json = evidence_dir / "task.json"
     task_markdown = evidence_dir / "task.md"
     auth_evidence = evidence_dir / "auth_evidence.md"
@@ -162,16 +182,29 @@ def main() -> None:
             if child.is_file():
                 child.unlink()
         evidence_dir.rmdir()
+    second_task_json = ROOT / "tmp" / "verify-runtime-probe-task.json"
+    second_auth_evidence = ROOT / "tmp" / "verify-runtime-auth-evidence.md"
+    second_outputs_ok = second_task_json.exists() and second_auth_evidence.exists()
+    if second_task_json.exists():
+        second_task_json.unlink()
+    if second_auth_evidence.exists():
+        second_auth_evidence.unlink()
 
     print(
         json.dumps(
             {
                 "exitCode": result,
+                "secondExitCode": second_result,
                 "scriptEmittedTaskJson": output.get("taskId") == "task-runtime-1",
                 "scriptResolvedTargetParentId": output.get("resolvedTargetParentId") == "folder-demo",
                 "scriptEvidenceDirOutput": output.get("evidenceDir") == str(evidence_dir),
                 "scriptAuthEvidenceRefreshed": len(refresh_calls) == 1 and refresh_calls[0].get("profileId") == "ali-runtime-1",
                 "scriptEvidenceBundleCreated": evidence_titles_ok,
+                "scriptExplicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-parent",
+                "scriptNoRefreshSkipsAuthRefresh": len(refresh_calls) == 1 and second_output.get("refreshedAuthEvidence") is False,
+                "scriptExplicitOutputsCreated": second_outputs_ok
+                and second_output.get("taskJsonOutput") == str(second_task_json)
+                and second_output.get("authEvidenceOutput") == str(second_auth_evidence),
                 "scriptHasAutoTempFile": "--auto-temp-file" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasThresholdDefault": "--threshold-mb" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasTargetProfileArg": "--target-profile-id" in SCRIPT_PATH.read_text(encoding="utf-8"),

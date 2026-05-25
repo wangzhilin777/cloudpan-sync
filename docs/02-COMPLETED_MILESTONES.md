@@ -10,6 +10,19 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充会话首个缺口直接跳转`
+- 完成范围：
+  - 已把设置页里的 `Session` 从“只展示登录状态、授权档案数量、任务数量”推进成可直接处理首个基础会话缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在会话区块下方额外渲染 `missing_auth_profiles / missing_tasks` 这类首个基础缺口，并直接带出 `Open Auth Profiles / Open New Task / Open Queue`
+  - 当前动作会把“刚登录进来看到现在还没档案或还没任务，但不知道下一步从哪一个 tab 开始”的流程，推进成“看到首个基础缺口 -> 直接跳授权页/新建任务页/队列页”的更短闭环，也让设置页 `Session` 面板不再只是纯只读统计
+  - 这次补齐虽然不直接增加新的真实成功证据，但它把从进入系统到开始补 auth/runtime 缺口的第一步收得更短，能减少继续推进 `M4 / M5 / P-REAL` 时的切页成本
+  - 已新增 [verify_session_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_session_settings_ui.py)，把 `Session` 面板的首个缺口文案、按钮和 tab 跳转绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_session_settings_ui.py` 已验证 `Session` 当前包含首个基础缺口动作按钮与对应跳转绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证主界面登录/登出与弹窗主链路未回退
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充授权补救首个修复直接跳转`
 - 完成范围：
   - 已把设置页里的 `Auth Remediation Guide` 从“展示 ready/needsFix 汇总加最近几条档案行内动作”推进成可直接跳转首个最该修的档案；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在补救区块下方额外渲染首个 `needsFix / writeNeedsFix / needsSecretRefresh` 的档案，并直接带出 `Focus First Fix / Open Capture First Fix`

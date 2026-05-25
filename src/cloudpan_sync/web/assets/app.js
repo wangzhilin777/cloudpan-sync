@@ -2253,6 +2253,58 @@ function renderSettingsPanel() {
     li.textContent = row;
     sessionList.appendChild(li);
   }
+  const firstSessionGap = !state.loggedIn
+    ? "login"
+    : state.authProfiles.length === 0
+      ? "auth_profiles"
+      : state.tasks.length === 0
+        ? "tasks"
+        : "";
+  if (firstSessionGap) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    copy.textContent =
+      firstSessionGap === "login"
+        ? "session_gap=login_required"
+        : firstSessionGap === "auth_profiles"
+          ? "session_gap=missing_auth_profiles"
+          : "session_gap=missing_tasks";
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    if (firstSessionGap === "auth_profiles") {
+      const openAuthBtn = document.createElement("button");
+      openAuthBtn.className = "ghost";
+      openAuthBtn.textContent = "Open Auth Profiles";
+      openAuthBtn.addEventListener("click", () => {
+        state.activeTab = "nav.auth";
+        render();
+      });
+      actions.appendChild(openAuthBtn);
+    }
+    if (firstSessionGap === "tasks") {
+      const openNewTaskBtn = document.createElement("button");
+      openNewTaskBtn.className = "ghost";
+      openNewTaskBtn.textContent = "Open New Task";
+      openNewTaskBtn.addEventListener("click", () => {
+        state.activeTab = "nav.new_task";
+        render();
+      });
+      actions.appendChild(openNewTaskBtn);
+      const openQueueBtn = document.createElement("button");
+      openQueueBtn.className = "ghost";
+      openQueueBtn.textContent = "Open Queue";
+      openQueueBtn.addEventListener("click", () => {
+        state.activeTab = "nav.queue";
+        render();
+      });
+      actions.appendChild(openQueueBtn);
+    }
+    if (actions.childNodes.length > 0) {
+      li.appendChild(actions);
+    }
+    sessionList.appendChild(li);
+  }
 
   const latestValidationRows = {};
   for (const row of state.liveValidations) {

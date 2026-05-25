@@ -12,6 +12,15 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py) 已补出 `jsRemediationRowsPreserveRuntimeCommandText` 断言
+  - 这条前端校验会继续锁住设置页 remediation 面板仍然原样展示 `runtimeSuccess` 与 `postBootstrapRuntime` 两类 helper 命令文本，避免未来 UI 还在显示 remediation 行，但把后端给出的完整命令字符串吞掉或改写
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证 `jsRemediationRowsPreserveRuntimeCommandText=true`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 已把 remediation bundle 里生成的 `recommendedRuntimeProbeCommand / recommendedLiveUploadCommand / recommendedFastCandidateCommand / recommendedPostBootstrapRuntimeCommand` 统一补成显式 `--conflict-policy auto_rename_new`
   - 这样 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 里的真实取证 helper 不再把“同名文件冲突时怎么处理”藏在脚本默认值里，而是直接把当前默认策略写出来，后续需要覆盖时也能直接改成 `overwrite_existing`
   - 对应 verifier 也已同步补强：[scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py)、[scripts/verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)、[scripts/verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py) 现在都会锁住这些 helper 命令继续显式带 `--conflict-policy auto_rename_new`

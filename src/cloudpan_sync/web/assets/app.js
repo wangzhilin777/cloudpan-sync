@@ -2215,6 +2215,34 @@ function renderProviderPanel() {
     }
     researchList.appendChild(node);
   }
+  const firstProviderResearchGap =
+    state.providerResearch.find((item) => {
+      const realEvidence = realEvidenceByProvider(item.providerKey);
+      const matchedProfile = state.authProfiles.find((profile) => profile.providerKey === item.providerKey);
+      const probe = matchedProfile ? state.providerLiveProbes[matchedProfile.profileId] : null;
+      return (
+        item.status !== "ready" ||
+        !realEvidence ||
+        Boolean((realEvidence?.gaps || []).length) ||
+        !realEvidence?.fullyVerified ||
+        (probe && !probe.ok)
+      );
+    }) || null;
+  if (firstProviderResearchGap) {
+    const node = document.createElement("li");
+    node.className = "auth-item";
+    const copy = document.createElement("div");
+    const realEvidence = realEvidenceByProvider(firstProviderResearchGap.providerKey);
+    const gaps = (realEvidence?.gaps || []).join(" | ") || "(none)";
+    copy.textContent = `${firstProviderResearchGap.displayName || firstProviderResearchGap.providerKey || "(unknown)"} [${firstProviderResearchGap.providerKey || "(unknown)"}]: status=${firstProviderResearchGap.status || "unknown"}, fully_verified=${Boolean(realEvidence?.fullyVerified)}, gaps=${gaps}`;
+    node.appendChild(copy);
+    const actions = document.createElement("div");
+    actions.className = "row-actions";
+    if (appendProviderRecoveryActions(actions, firstProviderResearchGap.providerKey)) {
+      node.appendChild(actions);
+    }
+    researchList.appendChild(node);
+  }
 }
 
 function renderSettingsPanel() {

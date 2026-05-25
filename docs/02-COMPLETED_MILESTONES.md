@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充网盘研究首个缺口直接补救`
+- 完成范围：
+  - 已把 `Provider Research` 从“逐条展示 research 状态、notes、real evidence 和 live probe 信息”推进成可直接突出第一条最值得优先补的 provider；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在 research 列表底部额外渲染首个 `status!=ready`、`real evidence` 仍有 gap、`fullyVerified=false` 或 live probe 失败的 provider
+  - 当前动作会直接复用已有的 `appendProviderRecoveryActions()`，因此用户在 `Provider Research` 里不只可以逐条看信息，还能立刻从第一条 research 缺口 provider 进入 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture / Create Stub` 这条修复链，而不需要先自己判断 10 个 provider 里哪一条最该优先补
+  - 这次补齐把“看 research 列表 -> 人工判断哪家 provider 最缺真实证据 -> 再去点行内动作”的流程，推进成“看到第一条最关键 research gap -> 直接点动作 -> 继续收敛 M4/M5/P-REAL”的更短闭环
+  - 已新增 [verify_provider_research_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_research_ui.py)，把首个 research gap 的识别与 `appendProviderRecoveryActions()` 绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_research_ui.py` 已验证 `Provider Research` 当前包含首个缺口 provider 识别与恢复动作绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证 research 区复用的 provider 恢复动作底层链未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证登录态主界面与授权弹窗主链路未回退
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充会话首个缺口直接跳转`
 - 完成范围：
   - 已把设置页里的 `Session` 从“只展示登录状态、授权档案数量、任务数量”推进成可直接处理首个基础会话缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在会话区块下方额外渲染 `missing_auth_profiles / missing_tasks` 这类首个基础缺口，并直接带出 `Open Auth Profiles / Open New Task / Open Queue`

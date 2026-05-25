@@ -22,37 +22,36 @@ def main() -> None:
         data_dir = Path(tmp_dir) / ".cloudpan_sync_data"
         configure_data_dir(data_dir)
         app = webapp.create_app()
-        client = TestClient(app)
-
-        anonymous = client.post(
-            "/api/real_evidence_remediation/create_profile",
-            json={"providerKey": "aliyundrive_open"},
-        )
-        client.post("/api/login", json={"password": webapp.ADMIN_PASSWORD})
-        created = client.post(
-            "/api/real_evidence_remediation/create_profile",
-            json={"providerKey": "aliyundrive_open"},
-        )
-        created_payload = created.json() if created.status_code == 200 else {}
-        created_item = created_payload.get("item") or {}
-        profile_id = str(created_item.get("profileId") or "")
-        stored = get_profile(profile_id) if profile_id else None
-        auth_profiles = client.get("/api/auth/profiles").json()
-        created_again = client.post(
-            "/api/real_evidence_remediation/create_profile",
-            json={"providerKey": "aliyundrive_open"},
-        )
-        created_again_payload = created_again.json() if created_again.status_code == 200 else {}
-        created_again_item = created_again_payload.get("item") or {}
-        expected_refresh = f".\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --profile-id {profile_id} --write"
-        expected_runtime_probe = (
-            ".\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py "
-            f"--target-provider aliyundrive_open --target-profile-id {profile_id}"
-        )
-        expected_runtime = (
-            ".\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py "
-            f"--target-provider aliyundrive_open --target-profile-id {profile_id}"
-        )
+        with TestClient(app) as client:
+            anonymous = client.post(
+                "/api/real_evidence_remediation/create_profile",
+                json={"providerKey": "aliyundrive_open"},
+            )
+            client.post("/api/login", json={"password": webapp.ADMIN_PASSWORD})
+            created = client.post(
+                "/api/real_evidence_remediation/create_profile",
+                json={"providerKey": "aliyundrive_open"},
+            )
+            created_payload = created.json() if created.status_code == 200 else {}
+            created_item = created_payload.get("item") or {}
+            profile_id = str(created_item.get("profileId") or "")
+            stored = get_profile(profile_id) if profile_id else None
+            auth_profiles = client.get("/api/auth/profiles").json()
+            created_again = client.post(
+                "/api/real_evidence_remediation/create_profile",
+                json={"providerKey": "aliyundrive_open"},
+            )
+            created_again_payload = created_again.json() if created_again.status_code == 200 else {}
+            created_again_item = created_again_payload.get("item") or {}
+            expected_refresh = f".\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --profile-id {profile_id} --write"
+            expected_runtime_probe = (
+                ".\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py "
+                f"--target-provider aliyundrive_open --target-profile-id {profile_id}"
+            )
+            expected_runtime = (
+                ".\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py "
+                f"--target-provider aliyundrive_open --target-profile-id {profile_id}"
+            )
 
         print(
             json.dumps(

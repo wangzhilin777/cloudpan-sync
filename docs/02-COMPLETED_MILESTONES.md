@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`清理补救建档回归残留进程`
+- 完成范围：
+  - 已把 [verify_real_evidence_remediation_create_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_api.py) 的 `TestClient` 生命周期从裸实例改成上下文托管，避免脚本在临时数据目录里跑完后还残留项目 `.venv` `python` 解释器进程
+  - 这次修复直接针对我们刚刚在本轮回归里撞到的现象：功能校验本身已经通过，但脚本退出后还会留下同路径 `python` 进程，不符合仓库的全局测试清理要求；现在这段 verifier 自身已经能在退出时把生命周期收干净
+  - 这样后续继续围绕 `create_profile -> already_exists` 链路反复回归时，不需要每次人工补一遍 `Stop-Process`，也减少了继续推进 `M4 / M5 / P-REAL` 时因为测试残留造成的干扰
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_api.py` 仍验证通过，`stub_created` 与 `already_exists` 两条路径都保持为 `true`
+  - 紧接脚本退出后的顺序检查结果已确认 `POST_RUN_PROCESSES=[]`，说明本轮 verifier 运行后无项目 `.venv` `python` 残留进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补强补救已存在档案续做校验`
 - 完成范围：
   - 已把 [verify_real_evidence_remediation_create_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_api.py) 从“第二次 `Create Stub` 只校验会返回 `already_exists` 和非空 `nextStep`”推进成会继续锁定续做命令链

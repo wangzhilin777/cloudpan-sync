@@ -1606,6 +1606,7 @@ function renderPendingList() {
         taskState: taskSummary.state || task.state || "",
         taskRiskReason: taskSummary.riskReason || "",
         targetProvider: task.targetProvider,
+        targetProfileId: task.targetProfileId || "",
         path: item.path,
         size: item.size,
         reason: item.reason,
@@ -1648,6 +1649,38 @@ function renderPendingList() {
     left.appendChild(meta);
     left.appendChild(detail);
     node.appendChild(left);
+    const matchedProfile = (state.authProfiles || []).find((profile) => profile.profileId === row.targetProfileId)
+      || (state.authProfiles || []).find((profile) => profile.providerKey === row.targetProvider)
+      || null;
+    if (matchedProfile || row.targetProvider) {
+      const actions = document.createElement("div");
+      actions.className = "row-actions";
+      if (matchedProfile) {
+        const focusBtn = document.createElement("button");
+        focusBtn.className = "ghost";
+        focusBtn.textContent = "Focus Profile";
+        focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedProfile.profileId));
+        actions.appendChild(focusBtn);
+        const refreshBtn = document.createElement("button");
+        refreshBtn.className = "ghost";
+        refreshBtn.textContent = "Refresh Evidence";
+        refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedProfile.profileId));
+        actions.appendChild(refreshBtn);
+        if (liveProbeProviderSet.has(matchedProfile.providerKey)) {
+          const probeBtn = document.createElement("button");
+          probeBtn.className = "ghost";
+          probeBtn.textContent = "Run Live Probe";
+          probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedProfile.profileId));
+          actions.appendChild(probeBtn);
+        }
+      }
+      const captureBtn = document.createElement("button");
+      captureBtn.className = "ghost";
+      captureBtn.textContent = "Open Capture";
+      captureBtn.addEventListener("click", () => openCaptureGuideForProvider(row.targetProvider || matchedProfile?.providerKey || ""));
+      actions.appendChild(captureBtn);
+      node.appendChild(actions);
+    }
     list.appendChild(node);
   }
 }

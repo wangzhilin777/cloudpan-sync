@@ -33,6 +33,7 @@ def main() -> None:
                 "jsRenderTaskListShowsRowNote": 'row.note' in app_js and 'note=${row.note}' in app_js,
                 "jsLoadTasksUsesListItems": 'state.tasks = data.listItems || data.items || [];' in app_js,
                 "jsRenderPendingListCarriesTaskSummary": 'const taskSummary = task?.summary || {};' in app_js and 'taskState: taskSummary.state || task.state || ""' in app_js and 'taskRiskReason: taskSummary.riskReason || ""' in app_js,
+                "jsRenderPendingListCarriesTargetProfile": 'targetProfileId: task.targetProfileId || ""' in app_js,
                 "jsRenderPendingListCarriesConflictPolicy": 'conflictPolicy: item.conflictPolicy || "auto_rename_new"' in app_js,
                 "jsRenderPendingListCarriesConflictFields": 'conflictSupportStatus: item.conflictSupportStatus || ""' in app_js and 'conflictNote: item.conflictNote || ""' in app_js,
                 "jsRenderPendingListShowsTaskSummary": 'state=${row.taskState || "(unknown)"}' in app_js and 'risk=${row.taskRiskReason || "(none)"}' in app_js,
@@ -40,6 +41,14 @@ def main() -> None:
                 "jsRenderPendingListShowsConflictFields": 'const conflictSupportText = row.conflictSupportStatus ? `, conflictSupport=${row.conflictSupportStatus}` : "";' in app_js and 'const conflictNoteText = row.conflictNote ? `, conflictNote=${row.conflictNote}` : "";' in app_js,
                 "jsRenderPendingListCarriesAvailableFastInputs": 'availableFastInputs: item.availableFastInputs || []' in app_js,
                 "jsRenderPendingListShowsAvailableFastInputs": 'available=${row.availableFastInputs.join(",") || "(none)"}' in app_js,
+                "jsRenderPendingListHasRecoveryActions": 'focusBtn.textContent = "Focus Profile"' in app_js
+                and 'refreshBtn.textContent = "Refresh Evidence"' in app_js
+                and 'probeBtn.textContent = "Run Live Probe"' in app_js
+                and 'captureBtn.textContent = "Open Capture"' in app_js
+                and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedProfile.profileId));' in app_js
+                and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedProfile.profileId));' in app_js
+                and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedProfile.profileId));' in app_js
+                and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(row.targetProvider || matchedProfile?.providerKey || ""));' in app_js,
             },
             ensure_ascii=False,
             indent=2,

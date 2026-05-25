@@ -278,6 +278,20 @@ def _provider_conflict_snapshot(provider_key: str) -> dict[str, object]:
     }
 
 
+def _conflict_next_step_suffix(*, overwrite_support_status: str, auto_rename_support_status: str) -> str:
+    overwrite_status = str(overwrite_support_status or "")
+    auto_rename_status = str(auto_rename_support_status or "")
+    if overwrite_status == "supported":
+        return "如需顺手验证同名覆盖，可直接改用 overwrite_existing。"
+    if overwrite_status == "downgrade_to_auto_rename":
+        return "首条样本建议继续保留默认 auto_rename_new；overwrite_existing 当前会诚实降级为自动改名。"
+    if auto_rename_status == "probe_only_runtime_write_check":
+        return "当前 auto_rename_new 仍停留在 probe-only 写探针口径，先不要把首条样本建立在 overwrite_existing 上。"
+    if overwrite_status == "unsupported" and auto_rename_status == "unsupported":
+        return "当前同名冲突处理仍未声明为可安全支持，首条样本请先避开目标目录同名文件。"
+    return ""
+
+
 def _next_step(
     *,
     provider_key: str,
@@ -292,12 +306,18 @@ def _next_step(
     runtime_probe_only: bool,
     runtime_success_command: str,
     post_bootstrap_runtime_command: str,
+    overwrite_support_status: str,
+    auto_rename_support_status: str,
 ) -> str:
+    conflict_suffix = _conflict_next_step_suffix(
+        overwrite_support_status=overwrite_support_status,
+        auto_rename_support_status=auto_rename_support_status,
+    )
     if not provider_profiles:
         if post_bootstrap_runtime_command and not runtime_ok:
             return (
                 f"先创建 `{provider_key}` 的 auth profile 并完成最小 validation / live probe；"
-                "拿到真实 profileId 后立刻继续跑 post-bootstrap runtime helper，补第一条 runtime success 样本。"
+                f"拿到真实 profileId 后立刻继续跑 post-bootstrap runtime helper，补第一条 runtime success 样本。{conflict_suffix}".strip()
             )
         return f"先创建 `{provider_key}` 的 auth profile，再执行最小 validation 和 live probe。"
     if any(not bool(profile.get("profileReady")) for profile in provider_profiles):
@@ -308,7 +328,7 @@ def _next_step(
         return "对现有档案重跑 provider live probe，优先补齐 auth/list/metadata/create_dir 成功证据。"
     if not runtime_ok:
         if runtime_success_command:
-            return "当前基础证据已齐，可直接运行统一的 runtime success helper，优先补一条真实传输成功样本并落任务 JSON/Markdown 快照。"
+            return f"当前基础证据已齐，可直接运行统一的 runtime success helper，优先补一条真实传输成功样本并落任务 JSON/Markdown 快照。{conflict_suffix}".strip()
         if runtime_probe_only:
             return "当前只有 probe-only 样本，说明写探针已跑通但尚未形成真实传输成功证据；请在保留探针样本的基础上继续跑小文件真实任务。"
         if runtime_candidate_only:
@@ -428,6 +448,8 @@ def build_real_evidence_remediation_bundle(
                 runtime_probe_only=runtime_probe_only,
                 runtime_success_command=runtime_success_command,
                 post_bootstrap_runtime_command=post_bootstrap_runtime_command if not provider_profiles else "",
+                overwrite_support_status=str(conflict_snapshot.get("overwriteSupportStatus") or ""),
+                auto_rename_support_status=str(conflict_snapshot.get("autoRenameSupportStatus") or ""),
             ),
         }
         item_payload["recommendedOverwriteVariantCommand"] = _overwrite_variant_command(

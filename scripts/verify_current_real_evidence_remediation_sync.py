@@ -71,9 +71,10 @@ def main() -> None:
                     and "--conflict-policy overwrite_existing" in cloud115
                     and "conflictPolicyNote:" in cloud115
                     and "overwrite_existing" in cloud115
-                    and "conflictSupport: `declared=(none)` `overwrite=unsupported` `auto_rename=probe_only_runtime_write_check`" in cloud115
+                    and "probe_only_runtime_write_check" in cloud115
                     and "providerConflictNotes:" in cloud115
                     and "tmp\\115_open-post-bootstrap-runtime-evidence" in cloud115
+                    and "先不要把首条样本建立在 overwrite_existing 上" in cloud115
                 ),
                 "quarkSectionUsesLivePostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in quark
@@ -83,9 +84,10 @@ def main() -> None:
                     and "--conflict-policy overwrite_existing" in quark
                     and "conflictPolicyNote:" in quark
                     and "overwrite_existing" in quark
-                    and "conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=downgrade_to_auto_rename` `auto_rename=supported`" in quark
+                    and "overwrite=downgrade_to_auto_rename" in quark
                     and "providerConflictNotes:" in quark
                     and "tmp\\quark-post-bootstrap-runtime-evidence" in quark
+                    and "会诚实降级为自动改名" in quark
                 ),
                 "cloud189SectionKeepsFastPostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in cloud189

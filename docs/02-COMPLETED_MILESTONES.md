@@ -12,6 +12,20 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 已把 provider 冲突支持状态进一步落到 `nextStep` 文案里，不再只停留在独立字段和命令参数说明
+  - 当前对于 `overwrite_existing` 真支持、会降级、仅 probe-only 写探针、以及尚未声明支持的 provider，`nextStep` 会给出不同的实操提示，帮助用户首条真实样本直接避开错误冲突策略
+  - 例如当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 已明确提示：`quark` 首条样本建议继续保留默认 `auto_rename_new`；`115_open` 不要把首条样本建立在 `overwrite_existing` 上
+  - 这让 remediation guide 从“能看懂命令”进一步变成“知道先怎么跑第一条真实样本”，更贴近 `P-REAL` 当前的实际推进需要
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 remediation bundle/API/Markdown 仍保持当前结构和计数口径
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证导出链仍正常
+  - `.\.venv\Scripts\python.exe scripts\export_real_evidence_remediation.py` 已重导出当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前 `115_open / quark / 189cloud / baidu_netdisk / xunlei / 123_open / aliyundrive_open` 分段继续保留新的冲突策略 `nextStep` 分流提示
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的 remediation bundle 现已补出 provider 级冲突能力快照：`declaredConflictPolicies / overwriteSupportStatus / autoRenameSupportStatus / overwriteBehavior / providerConflictNotes`
   - [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 现在不只告诉用户“命令可改成 `overwrite_existing`”，还会明确写出当前 provider 是真支持直接覆盖、会诚实降级成自动改名，还是仍未声明为可安全支持
   - 顶部 summary 也新增了结构化汇总计数：`providersWithDeclaredConflictPolicies=8`、`providersWithProviderManagedOverwrite=1`、`providersWithOverwriteDowngrade=7`、`providersWithConflictUnsupported=1`

@@ -23,6 +23,13 @@ def main() -> None:
                 and 'okProviders=' in app_js
                 and 'failedProviders=' in app_js
                 and 'failedModes=' in app_js,
+                "jsValidationFirstFailedActions": 'const firstFailedValidation = latestValidationList.find((row) => !row.ok) || null;' in app_js
+                and 'focusBtn.textContent = "Focus First Failed"' in app_js
+                and 'validateBtn.textContent = "Validate First Failed"' in app_js
+                and 'captureBtn.textContent = "Open Capture First Failed"' in app_js
+                and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstFailedValidation.profileId));' in app_js
+                and 'validateBtn.addEventListener("click", () => validateAuth(firstFailedValidation.profileId));' in app_js
+                and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstFailedValidation.providerKey || ""));' in app_js,
                 "jsProbeSummaryShowsProfiles": 'const probeSummary = state.providerLiveProbeMeta?.summary || {};' in app_js
                 and 'okProfiles=' in app_js
                 and 'failedProfiles=' in app_js

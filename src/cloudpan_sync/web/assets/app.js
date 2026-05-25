@@ -2276,6 +2276,32 @@ function renderSettingsPanel() {
     li.textContent = row;
     validationList.appendChild(li);
   }
+  const firstFailedValidation = latestValidationList.find((row) => !row.ok) || null;
+  if (firstFailedValidation) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    copy.textContent = `${firstFailedValidation.providerKey || "(unknown)"}: ok=${firstFailedValidation.ok}, mode=${firstFailedValidation.mode || "(none)"}, status=${firstFailedValidation.status || 0}, summary=${firstFailedValidation.summary || firstFailedValidation.error || "(none)"}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    const focusBtn = document.createElement("button");
+    focusBtn.className = "ghost";
+    focusBtn.textContent = "Focus First Failed";
+    focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstFailedValidation.profileId));
+    actions.appendChild(focusBtn);
+    const validateBtn = document.createElement("button");
+    validateBtn.className = "ghost";
+    validateBtn.textContent = "Validate First Failed";
+    validateBtn.addEventListener("click", () => validateAuth(firstFailedValidation.profileId));
+    actions.appendChild(validateBtn);
+    const captureBtn = document.createElement("button");
+    captureBtn.className = "ghost";
+    captureBtn.textContent = "Open Capture First Failed";
+    captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstFailedValidation.providerKey || ""));
+    actions.appendChild(captureBtn);
+    li.appendChild(actions);
+    validationList.appendChild(li);
+  }
 
   const probeRows = Object.values(state.providerLiveProbes || {});
   const probeSummary = state.providerLiveProbeMeta?.summary || {};

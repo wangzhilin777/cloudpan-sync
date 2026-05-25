@@ -10,6 +10,19 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充校验首个失败直接补救`
+- 完成范围：
+  - 已把设置页里的 `Validation` 摘要从“只展示 latest ok/failed profiles/providers 统计”推进成可直接跳转首个失败校验；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在 validation 区块下方额外渲染首个 `ok=false` 的校验样本，并直接带出 `Focus First Failed / Validate First Failed / Open Capture First Failed`
+  - 当前动作会直接复用失败校验样本自带的 `profileId/providerKey`；因此当设置页已经告诉用户某个档案的 validation 失败时，可以立刻回到对应授权表单、重新触发 validate，或者直接打开该 provider 的网页登录抓取引导，不再需要回到授权列表重新定位
+  - 这次补齐把“看到 validation 失败摘要 -> 自己记住是哪条 profile -> 切回 auth 列表再点 Validate”的流程，推进成“看到首个失败 -> 直接点动作 -> 继续修”的更短闭环，也让 validation / probe 这组摘要的补救入口保持一致
+  - 已同步补强 [verify_auth_probe_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_probe_settings_ui.py)，把 `Focus First Failed / Validate First Failed / Open Capture First Failed` 的文案与绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_probe_settings_ui.py` 已验证 `Validation` 当前包含首个失败动作按钮和对应绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充实时探测首个失败直接补救`
 - 完成范围：
   - 已把设置页里的 `Provider Live Probe` 从“只展示最近探测摘要和每个 provider 的 ok/mode/checks”推进成可直接跳转首个失败探测；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在 live probe 区块下方额外渲染首个 `ok=false` 的探测样本，并直接带出 `Focus First Failed / Refresh First Failed / Run First Probe / Open Capture First Failed`

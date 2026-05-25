@@ -6,7 +6,7 @@
 - providersNeedingListEvidence: `10`
 - providersNeedingMetadataEvidence: `10`
 - providersNeedingCreateDirEvidence: `10`
-- providersNeedingRuntimeSuccess: `2`
+- providersNeedingRuntimeSuccess: `7`
 - providersWithPatchCommand: `1`
 - providersWithPatchProbeCommand: `1`
 - providersWithRefreshEvidenceCommand: `1`
@@ -14,6 +14,7 @@
 - providersWithLiveUploadCommand: `0`
 - providersWithFastCandidateCommand: `0`
 - providersWithRuntimeSuccessCommand: `0`
+- providersWithPostBootstrapRuntimeCommand: `2`
 - providersWithCreateCommand: `8`
 - providersWithBootstrapCommand: `8`
 - providersBlockedOnly: `0`
@@ -42,7 +43,7 @@
 - recommendedAuthModes: `official_oauth`
 - officialDocsUrl: https://www.alipan.com/
 - requiredFieldHints: `token or extra.authorization, extra.domainId, extra.driveId`
-- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=False` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False`
+- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 对现有档案重跑 provider live probe，优先补齐 auth/list/metadata/create_dir 成功证据。
 - recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --write`
@@ -58,6 +59,7 @@
 - nextStep: 先创建 `115_open` 的 auth profile，再执行最小 validation 和 live probe。
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode manual_cookie --display-name 115_open-manual_cookie --cookie YOUR_COOKIE --set parentId=YOUR_VALUE`
 - recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode manual_cookie --display-name 115_open-manual_cookie --cookie YOUR_COOKIE --set parentId=YOUR_VALUE --probe`
+- recommendedPostBootstrapRuntimeCommand: `.\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id YOUR_PROFILE_ID --sha1 auto --auto-temp-file --evidence-dir tmp\115_open-post-bootstrap-runtime-evidence`
 
 ### quark - Quark
 - profileCount: `0`
@@ -66,7 +68,7 @@
 - recommendedAuthModes: `web_login_capture, manual_cookie`
 - webLoginUrl: https://pan.quark.cn/
 - requiredFieldHints: `cookie or extra.cookie_header, extra.pwdId or extra.sharePwdId, optional extra.passcode, optional extra.fileId`
-- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=False` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False`
+- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `quark` 的 auth profile，再执行最小 validation 和 live probe。
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key quark --auth-mode manual_cookie --display-name quark-manual_cookie --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE`
@@ -84,6 +86,7 @@
 - nextStep: 先创建 `189cloud` 的 auth profile，再执行最小 validation 和 live probe。
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 189cloud --auth-mode manual_cookie --display-name 189cloud-manual_cookie --cookie YOUR_COOKIE --set shareCode=YOUR_VALUE --set accessCode=YOUR_VALUE`
 - recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 189cloud --auth-mode manual_cookie --display-name 189cloud-manual_cookie --cookie YOUR_COOKIE --set shareCode=YOUR_VALUE --set accessCode=YOUR_VALUE --probe`
+- recommendedPostBootstrapRuntimeCommand: `.\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 189cloud --target-profile-id YOUR_PROFILE_ID --md5 auto --auto-temp-file --evidence-dir tmp\189cloud-post-bootstrap-runtime-evidence`
 
 ### baidu_netdisk - Baidu Netdisk
 - profileCount: `0`
@@ -93,7 +96,7 @@
 - webLoginUrl: https://pan.baidu.com/
 - officialDocsUrl: https://pan.baidu.com/
 - requiredFieldHints: `token or extra.authorization, or cookie, optional extra.fileId, optional extra.path`
-- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=False` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False`
+- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `baidu_netdisk` 的 auth profile，再执行最小 validation 和 live probe。
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key baidu_netdisk --auth-mode manual_cookie --display-name baidu_netdisk-manual_cookie --cookie YOUR_COOKIE --set fileId=YOUR_VALUE`
@@ -119,7 +122,7 @@
 - recommendedAuthModes: `web_login_capture, manual_token`
 - webLoginUrl: https://pan.xunlei.com/
 - requiredFieldHints: `token or extra.authorization, extra.deviceId or extra.x-device-id, optional extra.fileId`
-- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=False` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False`
+- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `xunlei` 的 auth profile，再执行最小 validation 和 live probe。
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key xunlei --auth-mode manual_token --display-name xunlei-manual_token --token YOUR_TOKEN --set deviceId=YOUR_VALUE`
@@ -147,7 +150,7 @@
 - webLoginUrl: https://www.123pan.com/
 - officialDocsUrl: https://www.123pan.com/
 - requiredFieldHints: `token or extra.authorization, optional extra.parentFileId, optional extra.fileId`
-- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=False` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False`
+- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - nextStep: 先创建 `123_open` 的 auth profile，再执行最小 validation 和 live probe。
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 123_open --auth-mode manual_token --display-name 123_open-manual_token --token YOUR_TOKEN --set parentFileId=YOUR_VALUE`

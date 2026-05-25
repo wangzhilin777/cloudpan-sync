@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 已按当前 `real_evidence_remediation.py` 重新导出，不再停留在旧口径
+  - 当前补救指南已同步反映“还缺 runtime success 的 provider”真实数量，并把 `115_open / 189cloud` 的 `recommendedPostBootstrapRuntimeCommand` 一起写回最终 Markdown
+  - 这样真实取证补救链不再出现“代码和 verifier 已有新 helper，但仓库内导出文档仍是旧摘要”的割裂，后续按文档执行 `P-REAL` 时会更贴近当前代码状态
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 bundle/API/Markdown 仍带 `recommendedRuntimeSuccessCommand / recommendedPostBootstrapRuntimeCommand` 等字段
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证导出链会把新的 runtime success / post-bootstrap runtime 字段写入最终 Markdown
+  - `git diff -- docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md` 已确认本次同步把 `providersNeedingRuntimeSuccess` 从 `2` 校正到 `7`，并补出 `providersWithPostBootstrapRuntimeCommand: 2`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py) 已从“验证能自动解析 parentId 并落 evidence bundle”补强为同时覆盖显式 `--target-parent-id` 覆盖自动解析、`--no-refresh-auth-evidence` 分支，以及 `--no-acknowledge-download-upload`
   - 当前 `create_live_upload_task.py` 这条 helper 不再只锁默认 happy path，还会验证“明确指定目标目录”“只导出 auth evidence、不刷新最新证据”以及“显式关闭 download_upload 风险确认”这几类实际使用场景
   - 这样 `recommendedLiveUploadCommand / recommendedRuntimeSuccessCommand` 走 live helper 时也有更完整的边界回归保护

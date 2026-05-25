@@ -10,6 +10,21 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充真实证据补救面板直接刷新与探测`
+- 完成范围：
+  - 已把 `Real Evidence Remediation` 从“只显示 recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand 文案”继续推进成应用内可执行动作；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会直接从 `item.profileIds` 识别当前 provider 的已保存档案，并在补救行旁边渲染 `Focus Profile / Refresh Evidence / Run Live Probe`
+  - `Focus Profile` 会直接复用已有授权页聚焦逻辑，把对应档案载入主授权表单；`Refresh Evidence` 会直接复用现有 `/api/auth/profiles/{profileId}/refresh_evidence` 链路刷新 auth/list/metadata/create_dir 证据；`Run Live Probe` 会直接复用 `/api/providers/live_probe_profile` 对当前档案触发 live probe，不再要求用户自己先抄命令再手动找 profileId
+  - 对于 `needsSecretRefresh` 或当前还没有档案、需要先建 stub 的 provider，补救行现在也会直接带出 `Open Capture`，可以一键打开对应 provider 的网页登录抓取引导；已有 `recommendedCreateCommand` 的行仍继续保留 `Create Stub`，因此补救面板当前已经能覆盖“聚焦现有档案 / 刷新证据 / 直接探测 / 打开抓取 / 建立占位档案”这一组最常见恢复动作
+  - 这次补齐仍然没有虚报 `P-REAL` 完成，只是把原本散落在设置页、授权页、live probe 和抓取弹窗之间的已有能力进一步串成产品内闭环，让真实证据补齐过程更接近“看到缺口 -> 直接点动作 -> 刷新证据/补凭证/重跑探测”
+  - 已同步补强 [verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)，把 `refreshRealEvidenceRemediationProfile()`、`probeRealEvidenceRemediationProfile()`、`Open Capture` 与 `Focus Profile / Refresh Evidence / Run Live Probe` 这组按钮和绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证设置页当前包含 `refreshRealEvidenceRemediationProfile()`、`probeRealEvidenceRemediationProfile()`、`Focus Profile / Refresh Evidence / Run Live Probe / Open Capture / Create Stub` 按钮文本以及对应事件绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 remediation bundle 当前仍会稳定产出 `profileIds / recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand / recommendedPrimaryCommand / recommendedOverwriteVariantCommand` 等补救上下文字段，供前端动作复用
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充授权补救聚焦与抓取引导`
 - 完成范围：
   - 已补齐 `Auth Remediation` 的前端执行闭环；这次补齐后，设置页不再只有 `needsFix / needsSecretRefresh` 摘要行，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 还会继续渲染逐档案补救行，直接带出 `missing / placeholderSecretHints / writeMissing / patch / recreateProbe` 等当前补救上下文

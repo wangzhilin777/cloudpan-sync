@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - 已新增 [scripts/verify_api_plan_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_api_plan_bundle.py)，把计划文档 `API 测试` 段落里最核心的一组接口闭环独立收口，不再只把“登录保护 / 授权保存 / 授权验证 / provider registry / 任务 plan 创建 / 队列状态查询 / 同路径同名文件冲突策略保存与返回”分散在多条 verifier 里间接证明
+  - 这条 verifier 当前会同时验证匿名态访问 [webapp.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/webapp.py) 的 `/api/auth/profiles`、`/api/tasks`、`/api/plan/mock` 会统一返回 `401 please_login_first`，错误密码登录会返回 `401 invalid_password`，正确登录后 `/api/session` 会切到 `loggedIn=true`，登出后恢复 `loggedIn=false`
+  - 同一条回归还会锁住 `/api/providers` 返回的 provider registry 当前确实包含 `guangya / aliyundrive_open / quark` 等核心 provider，并继续保留 `conflictPolicies / supportsOverwrite / supportsAutoRename / overwriteBehavior` 这些计划相关能力字段
+  - 授权链路侧也已一并锁住 `/api/auth/profiles` 保存前会先做最小验证，再持久化为 `verified`，随后 `/api/auth/profiles/{profileId}/validate` 还能再次刷新验证结果；任务链路侧则继续验证 `/api/plan/mock` 与 `/api/tasks` 会保留 `thresholdMB=200`、`conflictPolicy=overwrite_existing`，并在 `/api/tasks` 列表与 `/api/tasks/{taskId}` 详情里继续返回 `awaiting_ack` 队列状态与冲突策略字段
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_api_plan_bundle.py` 已验证当前 API 闭环同时满足登录保护、provider registry 能力字段、授权保存前最小验证、授权验证回刷、任务 plan 创建、队列状态查询，以及同路径同名文件冲突策略保存与返回
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - 已新增 [scripts/verify_ui_smoke_navigation_modal.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_ui_smoke_navigation_modal.py)，把计划原文 `UI smoke` 里的 `登录 / Tab 切换 / 授权弹窗 / 任务向导` 收成一条独立前端回归，不再只靠零散静态片段证明 `M10`
   - 这条 verifier 当前会同时检查 [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 里存在 `loginPanel / loginBtn / logoutBtn / tabs / wizardSteps / authModal / advanced-block`，把登录面板、Tab 容器、向导步骤、授权弹窗和高级字段折叠区一次性锁住
   - API 侧也会一起验证 `/api/session` 未登录时返回 `loggedIn=false`，`/api/plan/audit` 与 `/api/auth/capture/start` 在匿名态会返回 `401 please_login_first`，登录后再调用 `capture/start` 会真实返回 `capture_pending`

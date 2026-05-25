@@ -2824,6 +2824,13 @@ function renderSettingsPanel() {
   const remediationItems = state.realEvidenceRemediation?.items || [];
   const lastRemediationAction = state.lastRemediationAction || null;
   if (lastRemediationAction?.status) {
+    const latestIsExisting = lastRemediationAction.created === false && lastRemediationAction.status === "already_exists";
+    const latestLabels = {
+      focus: latestIsExisting ? "Focus Existing Profile" : "Focus Latest Created Stub",
+      refresh: latestIsExisting ? "Refresh Existing Profile" : "Refresh Latest Created Stub",
+      probe: latestIsExisting ? "Probe Existing Profile" : "Probe Latest Created Stub",
+      capture: latestIsExisting ? "Open Capture For Existing Profile" : "Open Capture For Latest Created Stub",
+    };
     const li = document.createElement("li");
     const copy = document.createElement("span");
     const latestProfile = lastRemediationAction.item || null;
@@ -2835,25 +2842,25 @@ function renderSettingsPanel() {
       if (latestProfile?.profileId) {
         const focusBtn = document.createElement("button");
         focusBtn.className = "ghost";
-        focusBtn.textContent = "Focus Latest Stub";
+        focusBtn.textContent = latestLabels.focus;
         focusBtn.addEventListener("click", () => focusAuthRemediationProfile(latestProfile.profileId));
         actions.appendChild(focusBtn);
         const refreshBtn = document.createElement("button");
         refreshBtn.className = "ghost";
-        refreshBtn.textContent = "Refresh Latest Stub";
+        refreshBtn.textContent = latestLabels.refresh;
         refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(latestProfile.profileId));
         actions.appendChild(refreshBtn);
         if (liveProbeProviderSet.has(latestProfile.providerKey)) {
           const probeBtn = document.createElement("button");
           probeBtn.className = "ghost";
-          probeBtn.textContent = "Probe Latest Stub";
+          probeBtn.textContent = latestLabels.probe;
           probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(latestProfile.profileId));
           actions.appendChild(probeBtn);
         }
       }
       const captureBtn = document.createElement("button");
       captureBtn.className = "ghost";
-      captureBtn.textContent = "Open Capture For Latest Stub";
+      captureBtn.textContent = latestLabels.capture;
       captureBtn.addEventListener("click", () => openCaptureGuideForProvider(latestProfile?.providerKey || ""));
       actions.appendChild(captureBtn);
       li.appendChild(actions);
@@ -3042,6 +3049,13 @@ function renderSettingsPanel() {
     runtimeOrphanRecoveryList.appendChild(li);
   }
   if (lastRuntimeOrphanAction?.status) {
+    const latestIsExisting = lastRuntimeOrphanAction.created === false && lastRuntimeOrphanAction.status === "already_exists";
+    const latestLabels = {
+      focus: latestIsExisting ? "Focus Existing Orphan Profile" : "Focus Latest Recreated Stub",
+      refresh: latestIsExisting ? "Refresh Existing Orphan Profile" : "Refresh Latest Recreated Stub",
+      probe: latestIsExisting ? "Probe Existing Orphan Profile" : "Probe Latest Recreated Stub",
+      capture: latestIsExisting ? "Open Capture For Existing Orphan Profile" : "Open Capture For Latest Recreated Stub",
+    };
     const li = document.createElement("li");
     const copy = document.createElement("span");
     const latestProfile = lastRuntimeOrphanAction.item || null;
@@ -3053,25 +3067,25 @@ function renderSettingsPanel() {
       if (latestProfile?.profileId) {
         const focusBtn = document.createElement("button");
         focusBtn.className = "ghost";
-        focusBtn.textContent = "Focus Latest Orphan Stub";
+        focusBtn.textContent = latestLabels.focus;
         focusBtn.addEventListener("click", () => focusAuthRemediationProfile(latestProfile.profileId));
         actions.appendChild(focusBtn);
         const refreshBtn = document.createElement("button");
         refreshBtn.className = "ghost";
-        refreshBtn.textContent = "Refresh Latest Orphan Stub";
+        refreshBtn.textContent = latestLabels.refresh;
         refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(latestProfile.profileId));
         actions.appendChild(refreshBtn);
         if (liveProbeProviderSet.has(latestProfile.providerKey)) {
           const probeBtn = document.createElement("button");
           probeBtn.className = "ghost";
-          probeBtn.textContent = "Probe Latest Orphan Stub";
+          probeBtn.textContent = latestLabels.probe;
           probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(latestProfile.profileId));
           actions.appendChild(probeBtn);
         }
       }
       const captureBtn = document.createElement("button");
       captureBtn.className = "ghost";
-      captureBtn.textContent = "Open Capture For Latest Orphan Stub";
+      captureBtn.textContent = latestLabels.capture;
       captureBtn.addEventListener("click", () => openCaptureGuideForProvider(latestProfile?.providerKey || ""));
       actions.appendChild(captureBtn);
       li.appendChild(actions);

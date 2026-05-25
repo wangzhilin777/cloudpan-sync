@@ -29,10 +29,11 @@ def main() -> None:
                 and 'probeBtn.textContent = followupLabels.probe;' in app_js
                 and 'captureBtn.textContent = followupLabels.capture;' in app_js,
                 "jsLatestOrphanActionStaysInSettings": "latestRuntimeOrphanAction=" in app_js
-                and 'focusBtn.textContent = "Focus Latest Orphan Stub"' in app_js
-                and 'refreshBtn.textContent = "Refresh Latest Orphan Stub"' in app_js
-                and 'probeBtn.textContent = "Probe Latest Orphan Stub"' in app_js
-                and 'captureBtn.textContent = "Open Capture For Latest Orphan Stub"' in app_js,
+                and "const latestIsExisting = lastRuntimeOrphanAction.created === false && lastRuntimeOrphanAction.status === \"already_exists\";" in app_js
+                and 'focus: latestIsExisting ? "Focus Existing Orphan Profile" : "Focus Latest Recreated Stub"' in app_js
+                and 'refresh: latestIsExisting ? "Refresh Existing Orphan Profile" : "Refresh Latest Recreated Stub"' in app_js
+                and 'probe: latestIsExisting ? "Probe Existing Orphan Profile" : "Probe Latest Recreated Stub"' in app_js
+                and 'capture: latestIsExisting ? "Open Capture For Existing Orphan Profile" : "Open Capture For Latest Recreated Stub"' in app_js,
                 "jsHasOrphanFollowupBindings": 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(followupProfileId));' in app_js
                 and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(followupProfileId));' in app_js
                 and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(followupProfileId));' in app_js

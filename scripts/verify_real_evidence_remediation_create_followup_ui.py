@@ -15,10 +15,11 @@ def main() -> None:
                 "jsCreateRemediationStoresLatestAction": "state.lastRemediationAction = data;" in app_js,
                 "jsCreateRemediationOnlyAutoJumpsWhenStubCreated": 'if (data?.created === true && createdProfile) {' in app_js,
                 "jsLatestRemediationActionStaysInSettings": "latestRemediationAction=" in app_js
-                and 'focusBtn.textContent = "Focus Latest Stub"' in app_js
-                and 'refreshBtn.textContent = "Refresh Latest Stub"' in app_js
-                and 'probeBtn.textContent = "Probe Latest Stub"' in app_js
-                and 'captureBtn.textContent = "Open Capture For Latest Stub"' in app_js,
+                and "const latestIsExisting = lastRemediationAction.created === false && lastRemediationAction.status === \"already_exists\";" in app_js
+                and 'focus: latestIsExisting ? "Focus Existing Profile" : "Focus Latest Created Stub"' in app_js
+                and 'refresh: latestIsExisting ? "Refresh Existing Profile" : "Refresh Latest Created Stub"' in app_js
+                and 'probe: latestIsExisting ? "Probe Existing Profile" : "Probe Latest Created Stub"' in app_js
+                and 'capture: latestIsExisting ? "Open Capture For Existing Profile" : "Open Capture For Latest Created Stub"' in app_js,
                 "jsCreateFollowupUsesAccurateLabels": 'focus: followupIsExisting ? "Focus Existing Profile" : "Focus Created Stub"' in app_js
                 and 'refresh: followupIsExisting ? "Refresh Existing Profile" : "Refresh Created Stub"' in app_js
                 and 'probe: followupIsExisting ? "Probe Existing Profile" : "Probe Created Stub"' in app_js

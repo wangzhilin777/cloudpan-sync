@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`最近补救动作文案也对齐真实状态`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `latestRemediationAction / latestRuntimeOrphanAction` 的按钮文案，从统一的 `Latest Stub / Latest Orphan Stub` 推进成也会按 `created/status` 区分真实状态
+  - 当前 `latestRemediationAction` 会明确区分 `Focus/Refresh/Probe/Open Capture For Latest Created Stub` 与 `...Existing Profile`；`latestRuntimeOrphanAction` 会明确区分 `...Latest Recreated Stub` 与 `...Existing Orphan Profile`
+  - 这样设置页里“最近一次动作承接”和顶部即时结果摘要两套入口现在口径一致，不会再出现上面已经说明是 `already_exists`，下面却还是一组 `Latest Stub` 误导按钮的情况
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_followup_ui.py` 已验证 `latestRemediationAction` 当前会按 `created/already_exists` 使用 `Latest Created Stub / Existing Profile` 文案
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_followup_ui.py` 已验证 `latestRuntimeOrphanAction` 当前会按 `created/already_exists` 使用 `Latest Recreated Stub / Existing Orphan Profile` 文案
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补救摘要动作文案对齐真实状态`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里的 `setAuthValidationSummary()` follow-up 按钮文案从统一的 `Recreated Stub`，推进成会按 `title + created/status` 区分真实状态

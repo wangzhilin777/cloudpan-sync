@@ -221,6 +221,7 @@ def main() -> None:
                 "fastCandidateCommandCarriesResolvedParent": "--target-parent-id 115-root-1" in markdown and "--evidence-dir tmp\\115_open-fast-candidate-evidence" in markdown,
                 "markdownHasRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown,
                 "markdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown and "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown,
+                "postBootstrapNextStepMentionsRuntimeFollowup": "189cloud" in markdown and "post-bootstrap runtime helper" in markdown and "runtime success" in markdown,
                 "runtimeSuccessFallsBackToFastHelper": "115_open" in markdown and "tmp\\115_open-fast-candidate-evidence" in markdown,
                 "runtimeSuccessUsesLiveHelperWhenAvailable": "guangya" in markdown and "tmp\\guangya-live-evidence" in markdown,
                 "markdownHasCandidateOnlyFlag": "runtimeCandidateOnly=True" in markdown,
@@ -269,6 +270,7 @@ def main() -> None:
                             for row in (api_bundle.get("items") or [])
                             if str((row or {}).get("providerKey") or "") == "189cloud"
                             and "create_fast_upload_candidate_task.py" in str((row or {}).get("recommendedPostBootstrapRuntimeCommand") or "")
+                            and "post-bootstrap runtime helper" in str((row or {}).get("nextStep") or "")
                         ),
                         None,
                     )

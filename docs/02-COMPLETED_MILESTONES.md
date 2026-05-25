@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 已补强 `nextStep` 生成逻辑：对于 `115_open / 189cloud` 这类会暴露 `recommendedPostBootstrapRuntimeCommand` 的 provider，不再只提示“先建档再 probe”，而是明确要求拿到真实 `profileId` 后立刻继续补第一条 runtime success 样本
+  - 这样补救指南从“命令在下面但提示语没跟上”收成了一条更连贯的真实取证链，用户按 `docs/12` 执行时更容易直接推进到 `P-REAL` 所需的 runtime success 证据
+  - remediation bundle 与 Markdown 导出验证也已同步锁住这条新口径，避免后续又退回成泛化 next step
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 Markdown/API 中 `189cloud` 的 `recommendedPostBootstrapRuntimeCommand` 对应 `nextStep` 会明确提到 `post-bootstrap runtime helper` 与 `runtime success`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证导出的 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 也保留这条后续动作提示
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 已按当前 `real_evidence_remediation.py` 重新导出，不再停留在旧口径
   - 当前补救指南已同步反映“还缺 runtime success 的 provider”真实数量，并把 `115_open / 189cloud` 的 `recommendedPostBootstrapRuntimeCommand` 一起写回最终 Markdown
   - 这样真实取证补救链不再出现“代码和 verifier 已有新 helper，但仓库内导出文档仍是旧摘要”的割裂，后续按文档执行 `P-REAL` 时会更贴近当前代码状态

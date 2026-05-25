@@ -109,7 +109,7 @@ def main() -> None:
                 "recommendedCreateCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 189cloud --auth-mode manual_cookie --display-name 189cloud-manual_cookie --cookie YOUR_COOKIE --set shareCode=YOUR_VALUE --set accessCode=YOUR_VALUE",
                 "recommendedBootstrapCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 189cloud --auth-mode manual_cookie --display-name 189cloud-manual_cookie --cookie YOUR_COOKIE --set shareCode=YOUR_VALUE --set accessCode=YOUR_VALUE --probe",
                 "recommendedPostBootstrapRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 189cloud --target-profile-id YOUR_PROFILE_ID --md5 auto --auto-temp-file --evidence-dir tmp\189cloud-post-bootstrap-runtime-evidence",
-                "nextStep": "先创建 `189cloud` 的 auth profile，再执行最小 validation 和 live probe。",
+                "nextStep": "先创建 `189cloud` 的 auth profile 并完成最小 validation / live probe；拿到真实 profileId 后立刻继续跑 post-bootstrap runtime helper，补第一条 runtime success 样本。",
             },
         ],
     }
@@ -147,6 +147,8 @@ def main() -> None:
                 and r"tmp\115_open-fast-candidate-evidence" in markdown,
                 "exportedHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown
                 and r"tmp\189cloud-post-bootstrap-runtime-evidence" in markdown,
+                "exportedPostBootstrapNextStepMentionsRuntimeFollowup": "post-bootstrap runtime helper" in markdown
+                and "runtime success" in markdown,
                 "exportedHasCandidateOnlyFlag": "runtimeCandidateOnly=True" in markdown,
             },
             ensure_ascii=False,

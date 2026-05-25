@@ -222,8 +222,14 @@ def _next_step(
     runtime_candidate_only: bool,
     runtime_probe_only: bool,
     runtime_success_command: str,
+    post_bootstrap_runtime_command: str,
 ) -> str:
     if not provider_profiles:
+        if post_bootstrap_runtime_command:
+            return (
+                f"先创建 `{provider_key}` 的 auth profile 并完成最小 validation / live probe；"
+                "拿到真实 profileId 后立刻继续跑 post-bootstrap runtime helper，补第一条 runtime success 样本。"
+            )
         return f"先创建 `{provider_key}` 的 auth profile，再执行最小 validation 和 live probe。"
     if any(not bool(profile.get("profileReady")) for profile in provider_profiles):
         return "先补齐档案缺字段并重跑 validation / live probe，拿到 auth/list/metadata 最小成功证据。"
@@ -277,6 +283,7 @@ def build_real_evidence_remediation_bundle(
         runtime_probe_only = bool(runtime_evidence.get("probeCount")) and not bool(runtime_evidence.get("ok"))
         runtime_live_upload_command = _live_upload_command_for_profile(provider_profiles[0] if provider_profiles else {})
         runtime_success_command = _runtime_success_command_for_profile(provider_profiles[0] if provider_profiles else {})
+        post_bootstrap_runtime_command = _post_bootstrap_runtime_command_for_provider(provider_key)
         item_payload = {
             "providerKey": provider_key,
             "displayName": str(row.get("displayName") or provider_key),
@@ -314,7 +321,7 @@ def build_real_evidence_remediation_bundle(
             "recommendedRuntimeSuccessCommand": runtime_success_command
             if provider_profiles and profile_ready and write_ready and bool(auth_evidence.get("ok")) and bool(list_evidence.get("ok")) and bool(metadata_evidence.get("ok")) and bool(create_dir_evidence.get("ok")) and not bool(runtime_evidence.get("ok"))
             else "",
-            "recommendedPostBootstrapRuntimeCommand": _post_bootstrap_runtime_command_for_provider(provider_key)
+            "recommendedPostBootstrapRuntimeCommand": post_bootstrap_runtime_command
             if (not provider_profiles) and not bool(runtime_evidence.get("ok"))
             else "",
             "recommendedCreateCommand": _create_command_for_provider(
@@ -343,6 +350,7 @@ def build_real_evidence_remediation_bundle(
                 runtime_candidate_only=runtime_candidate_only,
                 runtime_probe_only=runtime_probe_only,
                 runtime_success_command=runtime_success_command,
+                post_bootstrap_runtime_command=post_bootstrap_runtime_command if not provider_profiles else "",
             ),
         }
         items.append(item_payload)

@@ -3108,11 +3108,31 @@ function renderSettingsPanel() {
     const authModes = (item.suggestedAuthModes || []).join("/") || "(none)";
     const fieldHints = (item.requiredFieldHints || []).slice(0, 2).join(" | ");
     const existingProfiles = (item.existingProviderProfileNames || []).join("/") || "(none)";
+    const existingProfileId = (item.existingProviderProfileIds || [])[0] || "";
     const copy = document.createElement("span");
     copy.textContent = `${item.providerKey || "(unknown)"}: orphanProfileId=${item.orphanProfileId || "(none)"}, sampleCount=${item.sampleCount || 0}, authModes=${authModes}, preferredAuthMode=${item.preferredAuthMode || "(none)"}, existingProfiles=${existingProfiles}${fieldHints ? `, hints=${fieldHints}` : ""}${item.webLoginUrl ? `, login=${item.webLoginUrl}` : ""}${item.recommendedCreateCommand ? `, recreate=${item.recommendedCreateCommand}` : ""}${item.recommendedRefreshEvidenceCommand ? `, refresh=${item.recommendedRefreshEvidenceCommand}` : ""}${item.recommendedRuntimeProbeCommand ? `, runtimeProbe=${item.recommendedRuntimeProbeCommand}` : ""}${item.recommendedRuntimeSuccessCommand ? `, runtimeSuccess=${item.recommendedRuntimeSuccessCommand}` : ""}${item.recommendedOverwriteVariantCommand ? `, overwriteVariant=${item.recommendedOverwriteVariantCommand}` : ""}`;
     li.appendChild(copy);
     const actions = document.createElement("span");
     actions.className = "row-actions";
+    if (existingProfileId) {
+      const focusBtn = document.createElement("button");
+      focusBtn.className = "ghost";
+      focusBtn.textContent = "Focus Existing Orphan Profile";
+      focusBtn.addEventListener("click", () => focusAuthRemediationProfile(existingProfileId));
+      actions.appendChild(focusBtn);
+      const refreshBtn = document.createElement("button");
+      refreshBtn.className = "ghost";
+      refreshBtn.textContent = "Refresh Existing Orphan Profile";
+      refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(existingProfileId));
+      actions.appendChild(refreshBtn);
+      if (liveProbeProviderSet.has(item.providerKey)) {
+        const probeBtn = document.createElement("button");
+        probeBtn.className = "ghost";
+        probeBtn.textContent = "Probe Existing Orphan Profile";
+        probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(existingProfileId));
+        actions.appendChild(probeBtn);
+      }
+    }
     const recreateBtn = document.createElement("button");
     recreateBtn.className = "ghost";
     recreateBtn.textContent = "Recreate Stub";

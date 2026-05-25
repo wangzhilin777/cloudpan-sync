@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`孤儿恢复列表行补直接续做动作`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `Runtime Orphan Recovery` 的逐行列表从“只给 `Recreate Stub / Open Capture`”推进成：当该行已经带有 `existingProviderProfileIds` 时，会直接额外渲染 `Focus Existing Orphan Profile / Refresh Existing Orphan Profile / Probe Existing Orphan Profile`
+  - 当前效果是：用户看到某条 orphan 行时，不必一定先去点下面那条 `first gap` 汇总，或者自己再切去授权页；如果当前仓库已经有同 provider 的现成档案，就可以直接在这一行继续 focus、刷新证据、重跑 live probe
+  - 这次补齐比继续做文案类收口更直接地缩短了 `P-REAL` 恢复路径，把“orphan 样本 -> 现成档案 -> 继续补 auth/runtime 证据”的动作也前移到了行级入口
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证列表行当前会识别 `existingProviderProfileIds`，并绑定 `Focus/Refresh/Probe Existing Orphan Profile` 这组动作
+  - 同条顺序检查结果已确认 `POST_RUN_PROCESSES=[]`，说明本轮 verifier 运行后无项目 `.venv` `python` 残留进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`统一补救入口的探测按钮能力门控`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `Real Evidence` 的 `firstRealEvidenceGap` 与 `Real Evidence Remediation` 列表行的 `Probe` 按钮，统一收成和其它入口同一套 `liveProbeProviderSet` 能力门控

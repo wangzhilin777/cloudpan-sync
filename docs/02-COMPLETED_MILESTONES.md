@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已补强 synthetic 场景，不再只围绕旧的单个 post-bootstrap helper 走回归
+  - 当前 bundle 验证已能同时覆盖 `189cloud` 的 fast-candidate 型 post-bootstrap helper，以及 `quark / xunlei / 123_open` 的 live-upload 型 post-bootstrap helper，并保留 `aliyundrive_open` 的 probe-only、`115_open` 的 candidate-only 路径
+  - 这样 remediation bundle 的 API/Markdown 验证也和当前 helper 分流保持一致，不再出现“导出 verifier 已更新，但 bundle verifier 还在旧场景”的割裂
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 `apiHasPostBootstrapRuntimeSummary=true`
+  - 同一验证已确认 `markdownHasExpandedPostBootstrapHelpers=true`，并锁住 `apiHasQuarkPostBootstrapRuntimeCommand=true`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py) 已从旧口径补强到当前 remediation 导出能力，不再只验证单个 `189cloud` post-bootstrap helper
   - 当前导出验证已覆盖 `providersWithPostBootstrapRuntimeCommand = 6` 的摘要口径，并同时锁住 `quark / baidu_netdisk / xunlei / 123_open` 这几条新的 live-helper 型 post-bootstrap runtime 命令
   - 这样 `export_real_evidence_remediation.py` 不再落后于当前代码与文档状态，后续如果 post-bootstrap runtime 覆盖面回退，导出链会第一时间报出来

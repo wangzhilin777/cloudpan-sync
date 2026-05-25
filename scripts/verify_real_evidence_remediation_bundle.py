@@ -46,8 +46,28 @@ def main() -> None:
                 "gaps": ["缺少通过的 auth validation 证据"],
             },
             {
+                "providerKey": "baidu_netdisk",
+                "displayName": "Baidu Netdisk",
+                "authEvidence": {"ok": False},
+                "listEvidence": {"ok": False},
+                "metadataEvidence": {"ok": False},
+                "createDirEvidence": {"ok": False},
+                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0},
+                "gaps": ["缺少通过的 auth validation 证据"],
+            },
+            {
                 "providerKey": "quark",
                 "displayName": "Quark",
+                "authEvidence": {"ok": False},
+                "listEvidence": {"ok": False},
+                "metadataEvidence": {"ok": False},
+                "createDirEvidence": {"ok": False},
+                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0},
+                "gaps": ["缺少通过的 auth validation 证据"],
+            },
+            {
+                "providerKey": "xunlei",
+                "displayName": "Xunlei Drive",
                 "authEvidence": {"ok": False},
                 "listEvidence": {"ok": False},
                 "metadataEvidence": {"ok": False},
@@ -66,8 +86,8 @@ def main() -> None:
                 "gaps": ["已有 fast-upload candidate 样本，但尚未记录到真实 runtime 成功样本"],
             },
             {
-                "providerKey": "123_open",
-                "displayName": "123Pan Open",
+                "providerKey": "aliyundrive_open",
+                "displayName": "Aliyun Drive Open",
                 "authEvidence": {"ok": True},
                 "listEvidence": {"ok": True},
                 "metadataEvidence": {"ok": True},
@@ -76,24 +96,24 @@ def main() -> None:
                 "gaps": ["已有 probe-only 样本，但尚未记录到真实传输成功样本"],
             },
             {
-                "providerKey": "baidu_netdisk",
-                "displayName": "Baidu Netdisk",
-                "authEvidence": {"ok": True},
-                "listEvidence": {"ok": True},
-                "metadataEvidence": {"ok": True},
-                "createDirEvidence": {"ok": True},
-                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0},
-                "gaps": ["基础证据已齐，但尚未记录到真实 runtime 成功样本"],
-            },
-            {
-                "providerKey": "xunlei",
-                "displayName": "Xunlei Drive",
+                "providerKey": "123_open",
+                "displayName": "123Pan Open",
                 "authEvidence": {"ok": False},
                 "listEvidence": {"ok": False},
                 "metadataEvidence": {"ok": False},
                 "createDirEvidence": {"ok": False},
                 "taskRuntimeEvidence": {"ok": False, "blockedCount": 0},
                 "gaps": ["缺少通过的 auth validation 证据"],
+            },
+            {
+                "providerKey": "pikpak",
+                "displayName": "PikPak",
+                "authEvidence": {"ok": True},
+                "listEvidence": {"ok": True},
+                "metadataEvidence": {"ok": True},
+                "createDirEvidence": {"ok": True},
+                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0},
+                "gaps": ["基础证据已齐，但尚未记录到真实 runtime 成功样本"],
             },
         ]
     }
@@ -115,12 +135,12 @@ def main() -> None:
             "resolvedParentId": "115-root-1",
         },
         {
-            "profileId": "123-rem-1",
-            "providerKey": "123_open",
-            "displayName": "123-ready",
+            "profileId": "ali-rem-1",
+            "providerKey": "aliyundrive_open",
+            "displayName": "aliyun-ready",
             "profileReady": True,
             "writeReady": True,
-            "resolvedParentId": "0",
+            "resolvedParentId": "aliyun-root-0",
         },
         {
             "profileId": "bd-rem-1",
@@ -131,16 +151,9 @@ def main() -> None:
             "resolvedParentId": "/",
         },
         {
-            "profileId": "quark-rem-1",
-            "providerKey": "quark",
-            "displayName": "quark-manual",
-            "profileReady": False,
-            "writeReady": True,
-        },
-        {
-            "profileId": "xl-rem-1",
-            "providerKey": "xunlei",
-            "displayName": "xunlei-ready",
+            "profileId": "pp-rem-1",
+            "providerKey": "pikpak",
+            "displayName": "pikpak-ready",
             "profileReady": True,
             "writeReady": True,
         },
@@ -222,6 +235,7 @@ def main() -> None:
                 "fastCandidateCommandCarriesResolvedParent": "--target-parent-id 115-root-1" in markdown and "--evidence-dir tmp\\115_open-fast-candidate-evidence" in markdown,
                 "markdownHasRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown,
                 "markdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown and "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown,
+                "markdownHasExpandedPostBootstrapHelpers": "tmp\\quark-post-bootstrap-runtime-evidence" in markdown and "tmp\\xunlei-post-bootstrap-runtime-evidence" in markdown and "tmp\\123_open-post-bootstrap-runtime-evidence" in markdown,
                 "postBootstrapNextStepMentionsRuntimeFollowup": "189cloud" in markdown and "post-bootstrap runtime helper" in markdown and "runtime success" in markdown,
                 "runtimeSuccessFallsBackToFastHelper": "115_open" in markdown and "tmp\\115_open-fast-candidate-evidence" in markdown,
                 "runtimeSuccessUsesLiveHelperWhenAvailable": "guangya" in markdown and "tmp\\guangya-live-evidence" in markdown,
@@ -247,7 +261,7 @@ def main() -> None:
                 "markdownHasNextStep": "nextStep:" in markdown,
                 "apiHasSummary": bool((api_bundle.get("summary") or {}).get("providerCount", 0) >= 0),
                 "apiHasRuntimeSuccessSummary": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")),
-                "apiHasPostBootstrapRuntimeSummary": ((api_bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")),
+                "apiHasPostBootstrapRuntimeSummary": ((api_bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 4,
                 "apiHasGuangyaRuntimeSuccessCommand": bool(
                     next(
                         (
@@ -282,6 +296,28 @@ def main() -> None:
                         None,
                     )
                 ),
+                "apiHasQuarkPostBootstrapRuntimeCommand": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "quark"
+                            and "create_live_upload_task.py" in str((row or {}).get("recommendedPostBootstrapRuntimeCommand") or "")
+                        ),
+                        None,
+                    )
+                ),
+                "apiHasBaiduPostBootstrapRuntimeCommand": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "baidu_netdisk"
+                            and "create_live_upload_task.py" in str((row or {}).get("recommendedPostBootstrapRuntimeCommand") or "")
+                        ),
+                        None,
+                    )
+                ) is False,
                 "apiMarkdownHasTitle": "# CloudPan Sync 真实联调补救指南" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in str(api_markdown.get("markdown", "")),

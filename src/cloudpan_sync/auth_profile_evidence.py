@@ -138,6 +138,13 @@ def build_auth_evidence_bundle(
         build_auth_profile_evidence(profile=profile, profile_view=profile_view_builder(profile))
         for profile in profiles
     ]
+    return {
+        "summary": _auth_evidence_bundle_summary(items),
+        "items": items,
+    }
+
+
+def _auth_evidence_bundle_summary(items: list[dict[str, object]]) -> dict[str, object]:
     profile_ready_profiles = sorted(
         {
             str(((item.get("profile") or {}).get("displayName") or (item.get("profile") or {}).get("profileId") or ""))
@@ -171,18 +178,15 @@ def build_auth_evidence_bundle(
         }
     )
     return {
-        "summary": {
-            "profileCount": len(items),
-            "profileReadyCount": sum(1 for item in items if bool((item.get("summary") or {}).get("profileReady"))),
-            "writeReadyCount": sum(1 for item in items if bool((item.get("summary") or {}).get("writeReady", True))),
-            "validationOkCount": sum(1 for item in items if bool((item.get("summary") or {}).get("validationOk"))),
-            "probeOkCount": sum(1 for item in items if bool((item.get("summary") or {}).get("probeOk"))),
-            "profileReadyProfiles": profile_ready_profiles,
-            "writeReadyProfiles": write_ready_profiles,
-            "validationOkProfiles": validation_ok_profiles,
-            "probeOkProfiles": probe_ok_profiles,
-        },
-        "items": items,
+        "profileCount": len(items),
+        "profileReadyCount": sum(1 for item in items if bool((item.get("summary") or {}).get("profileReady"))),
+        "writeReadyCount": sum(1 for item in items if bool((item.get("summary") or {}).get("writeReady", True))),
+        "validationOkCount": sum(1 for item in items if bool((item.get("summary") or {}).get("validationOk"))),
+        "probeOkCount": sum(1 for item in items if bool((item.get("summary") or {}).get("probeOk"))),
+        "profileReadyProfiles": profile_ready_profiles,
+        "writeReadyProfiles": write_ready_profiles,
+        "validationOkProfiles": validation_ok_profiles,
+        "probeOkProfiles": probe_ok_profiles,
     }
 
 
@@ -205,13 +209,7 @@ def refresh_auth_evidence_bundle(
         for profile in profiles
     ]
     return {
-        "summary": {
-            "profileCount": len(items),
-            "profileReadyCount": sum(1 for item in items if bool((item.get("summary") or {}).get("profileReady"))),
-            "writeReadyCount": sum(1 for item in items if bool((item.get("summary") or {}).get("writeReady", True))),
-            "validationOkCount": sum(1 for item in items if bool((item.get("summary") or {}).get("validationOk"))),
-            "probeOkCount": sum(1 for item in items if bool((item.get("summary") or {}).get("probeOk"))),
-        },
+        "summary": _auth_evidence_bundle_summary(items),
         "items": items,
     }
 

@@ -431,6 +431,10 @@ function setAuthEvidenceBundleSummary(bundle, markdown) {
     pillRow.appendChild(pill);
   });
   box.appendChild(pillRow);
+  const summaryProfiles = document.createElement("div");
+  summaryProfiles.className = "auth-validation-meta";
+  summaryProfiles.textContent = `profileReadyProfiles=${(summary.profileReadyProfiles || []).join("/") || "(none)"}, writeReadyProfiles=${(summary.writeReadyProfiles || []).join("/") || "(none)"}, validationOkProfiles=${(summary.validationOkProfiles || []).join("/") || "(none)"}, probeOkProfiles=${(summary.probeOkProfiles || []).join("/") || "(none)"}`;
+  box.appendChild(summaryProfiles);
   raw.textContent = markdown || JSON.stringify(bundle, null, 2);
 }
 
@@ -470,6 +474,10 @@ function setAuthRemediationSummary(bundle, markdown) {
     pillRow.appendChild(pill);
   });
   box.appendChild(pillRow);
+  const summaryProfiles = document.createElement("div");
+  summaryProfiles.className = "auth-validation-meta";
+  summaryProfiles.textContent = `readyProfiles=${(summary.readyProfiles || []).join("/") || "(none)"}, needsFixProfiles=${(summary.needsFixProfiles || []).join("/") || "(none)"}, writeReadyProfiles=${(summary.writeReadyProfiles || []).join("/") || "(none)"}, writeNeedsFixProfiles=${(summary.writeNeedsFixProfiles || []).join("/") || "(none)"}, needsSecretRefreshProfiles=${(summary.needsSecretRefreshProfiles || []).join("/") || "(none)"}`;
+  box.appendChild(summaryProfiles);
   raw.textContent = markdown || JSON.stringify(bundle, null, 2);
 }
 

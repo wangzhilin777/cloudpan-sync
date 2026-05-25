@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充授权摘要页面聚合明细`
+- 完成范围：
+  - [auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_evidence.py) 现已让 `refresh_auth_evidence_bundle()` 也返回完整 `profileSummary` 名单，不再只剩 count，避免刷新授权证据后页面摘要丢失 profile 级分布
+  - 这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `Auth Evidence Bundle` 与 `Auth Remediation Guide` 页面摘要会直接显示 `profileReadyProfiles / writeReadyProfiles / validationOkProfiles / probeOkProfiles` 以及 `readyProfiles / needsFixProfiles / needsSecretRefreshProfiles`
+  - 已新增 [verify_auth_bundle_summary_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_bundle_summary_ui.py)，把刷新接口保留 profileSummary 名单和前端摘要展示一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_bundle_summary_ui.py` 已验证 `refresh_auth_evidence_bundle()` 当前会保留 profile 级 summary list，且前端摘要会展示这些字段
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充探针报告聚合明细`
 - 完成范围：
   - [live_probe.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/live_probe.py) 现已把 `Provider Live Probe Report` 顶部汇总继续补齐为 provider 级分布，不再只保留 `profileProbeProfiles`

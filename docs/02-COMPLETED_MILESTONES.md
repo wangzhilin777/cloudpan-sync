@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [src/cloudpan_sync/web/assets/app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里的设置页 `Real Evidence Next Steps` 面板现已把最新 remediation bundle 新增字段真正显示出来，不再停留在旧的 `patch / patchProbe / refresh` 口径
+  - 当前 summary 行已新增 `recreateProbeCommands=${remediationSummary.providersWithRecreateProbeCommand || 0}`，因此当补救链路把 `guangya / aliyundrive_open` 这类 provider 切到“先重建真凭证再 probe”时，设置页会同步显示这条新的主路径数量
+  - provider 行现在也已同步显示 `needsSecretRefresh=${Boolean(item.needsSecretRefresh)}`、`placeholderSecretHints=${placeholderSecretHints}` 与 `recreateProbe=${item.recommendedRecreateProbeCommand}`，不再只看到旧命令，却看不到“为什么要先重建/换真凭证”
+  - [scripts/verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py) 已同步补强，静态锁住 `providersWithRecreateProbeCommand / recommendedRecreateProbeCommand / needsSecretRefresh / placeholderSecretFieldHints` 这些 UI 消费点
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证设置页 remediation 面板当前确实展示 `recreateProbeCommands` 汇总，以及逐 provider 的 `recreateProbe / needsSecretRefresh / placeholderSecretHints`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [src/cloudpan_sync/auth_profile_view.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_view.py) 现已把“占位 secret 字段”和“普通缺字段”拆开：会额外给出 `placeholderSecretFieldHints` 与 `needsSecretRefresh`，把 `tok-demo / tok_smoke`、以及需要真实 `cookie/accessToken` 的场景单独标成“必须先换真凭证”
   - [src/cloudpan_sync/auth_profile_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_remediation.py) 已新增 `recommendedRecreateProbeCommand`，对这类仍含占位 secret 的档案，不再继续误导成“只 patch extra 就行”，而是明确改成“重建或补真凭证后直接 probe”
   - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 已把这条逻辑同步抬到 provider 级 remediation：`guangya` 与 `aliyundrive_open` 当前主命令已从旧的 `patch_probe / refresh_evidence` 切成 `recreate_probe`，summary 也新增 `providersWithRecreateProbeCommand`

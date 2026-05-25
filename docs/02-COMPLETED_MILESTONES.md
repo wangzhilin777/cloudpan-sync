@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充运行证据样本直接补救动作`
+- 完成范围：
+  - 已把设置页里的 `Task Runtime Evidence` 从“只展示 success / failed / probe / blocked 样本摘要”推进成可直接触发补救动作；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会为运行证据样本行直接追加 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture`
+  - 当前动作会优先按样本自带的 `profileId` 匹配已保存档案，匹配不到时再按 `providerKey` 兜底；因此用户在看到某条 runtime failed、probe-only、blocked 或 conflict-handled 样本时，可以直接跳到对应授权档案、刷新 auth/list/metadata/create_dir evidence、重跑 live probe，或者直接打开网页登录抓取引导，不再需要自己先抄 sample 里的 provider/profile 信息再切页面
+  - 这次补齐让“运行样本 -> 授权补救 -> 重新验证”的闭环也进入产品内可点击状态，继续把 `P-REAL` 当前缺的那部分恢复动作从命令行/文字提示往 UI 闭环方向推进
+  - 已同步补强 [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py)，把 `Task Runtime Evidence` 行内动作按钮文本和事件绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_evidence_settings_ui.py` 已验证 `Task Runtime Evidence` 当前包含 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture` 文本以及对应绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证底层 `refreshRealEvidenceRemediationProfile()`、`probeRealEvidenceRemediationProfile()` 等复用链路未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充授权档案列表直接打开抓取引导`
 - 完成范围：
   - 已把“授权管理”页里的 auth profile 行再往前推进一步；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 不再只是展示 `missing / patch_hint / write_blocker`，当档案存在缺字段、`needsSecretRefresh` 或 `writeReady=false` 时，会直接在该 profile 行旁边渲染 `Open Capture`

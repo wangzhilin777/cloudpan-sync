@@ -2326,7 +2326,41 @@ function renderSettingsPanel() {
   }
   for (const item of (state.taskRuntimeEvidence || []).slice(0, 3)) {
     const li = document.createElement("li");
-    li.textContent = `${item.providerKey || "(unknown)"}: path=${item.path || "(unknown)"}, mode=${item.mode || ""}, executionMode=${item.executionMode || ""}, success=${Boolean(item.success)}, candidateOnly=${Boolean(item.candidateOnly)}, probeOnly=${Boolean(item.probeOnly)}, verifyOk=${Boolean(item.verifyOk)}, verifyMode=${item.verifyMode || "(none)"}, conflict=${item.conflictAction || "(none)"}, resolvedTargetName=${item.resolvedTargetName || "(none)"}, riskHint=${item.riskHint || "(none)"}, requiredAuth=${(item.requiredAuth || []).join("/") || "(none)"}, error=${item.error || "(none)"}`;
+    const copy = document.createElement("span");
+    copy.textContent = `${item.providerKey || "(unknown)"}: path=${item.path || "(unknown)"}, mode=${item.mode || ""}, executionMode=${item.executionMode || ""}, success=${Boolean(item.success)}, candidateOnly=${Boolean(item.candidateOnly)}, probeOnly=${Boolean(item.probeOnly)}, verifyOk=${Boolean(item.verifyOk)}, verifyMode=${item.verifyMode || "(none)"}, conflict=${item.conflictAction || "(none)"}, resolvedTargetName=${item.resolvedTargetName || "(none)"}, riskHint=${item.riskHint || "(none)"}, requiredAuth=${(item.requiredAuth || []).join("/") || "(none)"}, error=${item.error || "(none)"}`;
+    li.appendChild(copy);
+    const matchedProfile = (state.authProfiles || []).find((profile) => profile.profileId === item.profileId)
+      || (state.authProfiles || []).find((profile) => profile.providerKey === item.providerKey)
+      || null;
+    if (matchedProfile || item.providerKey) {
+      const actions = document.createElement("span");
+      actions.className = "row-actions";
+      if (matchedProfile) {
+        const focusBtn = document.createElement("button");
+        focusBtn.className = "ghost";
+        focusBtn.textContent = "Focus Profile";
+        focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedProfile.profileId));
+        actions.appendChild(focusBtn);
+        const refreshBtn = document.createElement("button");
+        refreshBtn.className = "ghost";
+        refreshBtn.textContent = "Refresh Evidence";
+        refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedProfile.profileId));
+        actions.appendChild(refreshBtn);
+        if (liveProbeProviderSet.has(matchedProfile.providerKey)) {
+          const probeBtn = document.createElement("button");
+          probeBtn.className = "ghost";
+          probeBtn.textContent = "Run Live Probe";
+          probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedProfile.profileId));
+          actions.appendChild(probeBtn);
+        }
+      }
+      const captureBtn = document.createElement("button");
+      captureBtn.className = "ghost";
+      captureBtn.textContent = "Open Capture";
+      captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey || matchedProfile?.providerKey || ""));
+      actions.appendChild(captureBtn);
+      li.appendChild(actions);
+    }
     taskRuntimeEvidenceList.appendChild(li);
   }
 

@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充实时探测首个失败直接补救`
+- 完成范围：
+  - 已把设置页里的 `Provider Live Probe` 从“只展示最近探测摘要和每个 provider 的 ok/mode/checks”推进成可直接跳转首个失败探测；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在 live probe 区块下方额外渲染首个 `ok=false` 的探测样本，并直接带出 `Focus First Failed / Refresh First Failed / Run First Probe / Open Capture First Failed`
+  - 当前动作会直接复用失败样本自带的 `profileId/providerKey`；因此当设置页已经明确告诉用户某个档案的 live probe 失败时，可以立刻回到对应授权表单、刷新 evidence、重跑 probe，或者直接打开该 provider 的网页登录抓取引导，而不需要再去 auth 列表或 remediation 面板重新定位
+  - 这次补齐把“看到探测失败摘要 -> 记住 profile/provider -> 切去别处找修复入口”的流程，推进成“看到首个失败 -> 直接点动作 -> 继续修”的更短闭环，也让 validation/probe 这组设置摘要不再只是纯只读统计
+  - 已同步补强 [verify_auth_probe_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_probe_settings_ui.py)，把 `Focus First Failed / Refresh First Failed / Run First Probe / Open Capture First Failed` 的文案与绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_probe_settings_ui.py` 已验证 `Provider Live Probe` 当前包含首个失败动作按钮和对应绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证该区复用的 `refreshRealEvidenceRemediationProfile()`、`probeRealEvidenceRemediationProfile()` 链路未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充本地适配器验证首个缺口直接跳转`
 - 完成范围：
   - 已把设置页里的 `Local Live Adapter Verification` 从“只展示本地 stub 校验统计和前三条 provider 摘要”推进成可直接跳转首个缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在本地适配器验证区块下方额外渲染首个未满足 `list / metadata / create / md5 / gcid / probeChecks / matrix` 条件的 provider，并直接带出 `Focus First Gap / Refresh First Gap / Run First Probe / Open Capture First Gap / Create Stub First Gap`

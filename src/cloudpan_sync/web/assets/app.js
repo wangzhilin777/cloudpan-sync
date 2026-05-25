@@ -2295,6 +2295,39 @@ function renderSettingsPanel() {
       li.textContent = `${probe.providerKey || "(unknown)"}: ok=${probe.ok}, mode=${probe.mode}, checks=${(probe.checks || []).length}`;
       providerProbeList.appendChild(li);
     }
+    const firstFailedProbe = probeRows.find((probe) => !probe.ok) || null;
+    if (firstFailedProbe) {
+      const li = document.createElement("li");
+      const copy = document.createElement("span");
+      copy.textContent = `${firstFailedProbe.providerKey || "(unknown)"}: ok=${firstFailedProbe.ok}, mode=${firstFailedProbe.mode || "(none)"}, checks=${(firstFailedProbe.checks || []).length}`;
+      li.appendChild(copy);
+      const actions = document.createElement("span");
+      actions.className = "row-actions";
+      if (firstFailedProbe.profileId) {
+        const focusBtn = document.createElement("button");
+        focusBtn.className = "ghost";
+        focusBtn.textContent = "Focus First Failed";
+        focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstFailedProbe.profileId));
+        actions.appendChild(focusBtn);
+        const refreshBtn = document.createElement("button");
+        refreshBtn.className = "ghost";
+        refreshBtn.textContent = "Refresh First Failed";
+        refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(firstFailedProbe.profileId));
+        actions.appendChild(refreshBtn);
+        const probeBtn = document.createElement("button");
+        probeBtn.className = "ghost";
+        probeBtn.textContent = "Run First Probe";
+        probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(firstFailedProbe.profileId));
+        actions.appendChild(probeBtn);
+      }
+      const captureBtn = document.createElement("button");
+      captureBtn.className = "ghost";
+      captureBtn.textContent = "Open Capture First Failed";
+      captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstFailedProbe.providerKey || ""));
+      actions.appendChild(captureBtn);
+      li.appendChild(actions);
+      providerProbeList.appendChild(li);
+    }
   }
 
   const authEvidenceSummary = state.authEvidenceBundle?.summary || {};

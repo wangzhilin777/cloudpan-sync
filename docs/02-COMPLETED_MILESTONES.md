@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - `export_auth_live_validation_report.py` 现已统一使用模块级 `ROOT` 输出 `docs/03-AUTH_LIVE_VALIDATION_REPORT.md`，不再在 `main()` 内重复按 `__file__` 计算根目录；这样和其余导出脚本保持一致，也能被临时目录 verifier 稳定接管
+  - 已新增独立导出验证脚本 [verify_export_auth_live_validation_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_live_validation_report.py)，把 auth live validation 导出链的标题、摘要、Latest By Profile 和 Recent History 关键字段锁进回归
+  - 当前 auth live validation 报告导出链现在也具备与 `plan audit / provider status / real evidence / task runtime / live probe` 同级的独立 export verifier
+- 当前验证证据：
+  - [verify_export_auth_live_validation_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_live_validation_report.py) 已验证导出文件包含 `totalRecords / latestProfileCount / latestOkCount / latestFailedCount / latestProviders`
+  - 同一验证已锁住 `guangya` 的成功型 latest row、`189cloud` 的失败型 latest row，以及 Recent History 中的 `probeArgs / endpoint / finalUrl / checkCount`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - `export_live_probe_report.py` 现已收口到统一的模块级 `ROOT` 输出路径，不再在 `main()` 里重新按 `__file__` 计算根目录；这样和仓库里其余导出脚本保持一致，也能被临时目录 verifier 稳定接管
   - 已新增独立导出验证脚本 [verify_export_live_probe_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_live_probe_report.py)，把 `05-PROVIDER_LIVE_PROBE_REPORT.md` 的标题、摘要统计、provider 检查行以及 `profile_probe` 行锁进回归
   - 当前 live probe 导出链现在不只依赖运行时人工查看，已经具备和 `plan audit / provider status / real evidence / task runtime` 同类的独立 export verifier

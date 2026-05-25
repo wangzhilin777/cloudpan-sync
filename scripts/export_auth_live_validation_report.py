@@ -12,8 +12,7 @@ from cloudpan_sync.auth_live_validate import latest_live_validations, list_live_
 
 
 def main() -> None:
-    root = Path(__file__).resolve().parents[1]
-    out = root / "docs" / "03-AUTH_LIVE_VALIDATION_REPORT.md"
+    out = ROOT / "docs" / "03-AUTH_LIVE_VALIDATION_REPORT.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     rows = list_live_validations()
     latest_rows = latest_live_validations()

@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 已把 `recommendedPostBootstrapRuntimeCommand` 从只覆盖 `115_open / 189cloud` 扩到更多已接真实上传链路但当前仍缺 runtime success 的 provider
+  - 当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 里的 post-bootstrap runtime helper 数量已从 `2` 提升到 `6`，新增覆盖 `quark / baidu_netdisk / xunlei / 123_open`；其中 `115_open / 189cloud` 继续保留 fast-candidate helper，其余新覆盖 provider 直接给 live-upload helper
+  - 这样“先建档并 probe，再继续补第一条 runtime success”不再只对两家成立，首批 runtime 缺口更大的几家现在也都有更短的落地命令，离 `P-REAL` 更近了一步
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 `quark / xunlei` 的 post-bootstrap helper 会分流到 `create_live_upload_task.py`，而 `115_open` 仍保持 `create_fast_upload_candidate_task.py --sha1 auto`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证 remediation 导出链仍正常
+  - `git diff -- docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md` 已确认 `providersWithPostBootstrapRuntimeCommand` 从 `2` 提升到 `6`，并新增 `quark / baidu_netdisk / xunlei / 123_open` 的命令行
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [docs/10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 已按当前 `task_runtime_evidence_store` 重新导出，纠正了旧报告把多条历史 runtime 成功样本高估到 `6` 个 provider 的问题
   - 当前真实证据状态报告已与仓库内现存最新样本对齐：runtime success provider 现明确收敛为 `guangya / uc / pikpak` 三个，`aliyundrive_open / quark / baidu_netdisk / 123_open` 等之前被旧文档写成成功的 provider 已回到“尚无成功样本”的诚实状态
   - 这样 `docs/10` 与 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 的 runtime 口径重新一致，后续继续推进 `P-REAL` 时不会再被旧成功数误导

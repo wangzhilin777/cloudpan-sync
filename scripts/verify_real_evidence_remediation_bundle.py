@@ -13,6 +13,7 @@ if str(SRC) not in sys.path:
 from cloudpan_sync.auth_profile_patch import configure_data_dir
 from cloudpan_sync.real_evidence_remediation import (
     _create_command_for_provider,
+    _post_bootstrap_runtime_command_for_provider,
     build_real_evidence_remediation_bundle,
     real_evidence_remediation_to_markdown,
 )
@@ -230,6 +231,12 @@ def main() -> None:
                 "quarkPrefersManualCookie": "--provider-key quark --auth-mode manual_cookie" in quark_create and "--cookie YOUR_COOKIE" in quark_create,
                 "quarkSkipsCookieHeaderExtra": "--set cookie_header=YOUR_VALUE" not in quark_create,
                 "115PrefersManualCookie": "--provider-key 115_open --auth-mode manual_cookie" in pan115_create and "--cookie YOUR_COOKIE" in pan115_create,
+                "quarkPostBootstrapUsesLiveHelper": "create_live_upload_task.py" in _post_bootstrap_runtime_command_for_provider("quark")
+                and "tmp\\quark-post-bootstrap-runtime-evidence" in _post_bootstrap_runtime_command_for_provider("quark"),
+                "xunleiPostBootstrapUsesLiveHelper": "create_live_upload_task.py" in _post_bootstrap_runtime_command_for_provider("xunlei")
+                and "--threshold-mb 1" in _post_bootstrap_runtime_command_for_provider("xunlei"),
+                "cloud115PostBootstrapKeepsFastHelper": "create_fast_upload_candidate_task.py" in _post_bootstrap_runtime_command_for_provider("115_open")
+                and "--sha1 auto" in _post_bootstrap_runtime_command_for_provider("115_open"),
                 "baiduManualCookieSkipsAuthorizationExtra": "--provider-key baidu_netdisk --auth-mode manual_cookie" in baidu_create and "--set authorization=YOUR_VALUE" not in baidu_create,
                 "xunleiPrefersManualToken": "--provider-key xunlei --auth-mode manual_token" in xunlei_create and "--token YOUR_TOKEN" in xunlei_create and "--set deviceId=YOUR_VALUE" in xunlei_create,
                 "pikpakPrefersManualToken": "--provider-key pikpak --auth-mode manual_token" in pikpak_create and "--token YOUR_TOKEN" in pikpak_create and "--set authorization=YOUR_VALUE" not in pikpak_create,

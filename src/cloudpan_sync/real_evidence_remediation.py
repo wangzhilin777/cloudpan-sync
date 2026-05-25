@@ -148,20 +148,32 @@ def _runtime_success_command_for_profile(profile: dict[str, object]) -> str:
 
 def _post_bootstrap_runtime_command_for_provider(provider_key: str) -> str:
     provider = str(provider_key or "").strip()
-    if provider not in {"115_open", "189cloud"}:
-        return ""
-    parts = [
-        ".\\.venv\\Scripts\\python.exe",
-        "scripts\\create_fast_upload_candidate_task.py",
-        f"--target-provider {provider}",
-        "--target-profile-id YOUR_PROFILE_ID",
-    ]
-    if provider == "115_open":
-        parts.append("--sha1 auto")
-    else:
-        parts.append("--md5 auto")
-    parts.extend(["--auto-temp-file", f"--evidence-dir tmp\\{provider}-post-bootstrap-runtime-evidence"])
-    return " ".join(parts)
+    if provider in {"aliyundrive_open", "123_open", "baidu_netdisk", "xunlei", "pikpak", "quark", "uc", "guangya"}:
+        return " ".join(
+            [
+                ".\\.venv\\Scripts\\python.exe",
+                "scripts\\create_live_upload_task.py",
+                f"--target-provider {provider}",
+                "--target-profile-id YOUR_PROFILE_ID",
+                "--auto-temp-file",
+                "--threshold-mb 1",
+                f"--evidence-dir tmp\\{provider}-post-bootstrap-runtime-evidence",
+            ]
+        )
+    if provider in {"115_open", "189cloud"}:
+        parts = [
+            ".\\.venv\\Scripts\\python.exe",
+            "scripts\\create_fast_upload_candidate_task.py",
+            f"--target-provider {provider}",
+            "--target-profile-id YOUR_PROFILE_ID",
+        ]
+        if provider == "115_open":
+            parts.append("--sha1 auto")
+        else:
+            parts.append("--md5 auto")
+        parts.extend(["--auto-temp-file", f"--evidence-dir tmp\\{provider}-post-bootstrap-runtime-evidence"])
+        return " ".join(parts)
+    return ""
 
 
 def _create_command_for_provider(
@@ -225,7 +237,7 @@ def _next_step(
     post_bootstrap_runtime_command: str,
 ) -> str:
     if not provider_profiles:
-        if post_bootstrap_runtime_command:
+        if post_bootstrap_runtime_command and not runtime_ok:
             return (
                 f"先创建 `{provider_key}` 的 auth profile 并完成最小 validation / live probe；"
                 "拿到真实 profileId 后立刻继续跑 post-bootstrap runtime helper，补第一条 runtime success 样本。"

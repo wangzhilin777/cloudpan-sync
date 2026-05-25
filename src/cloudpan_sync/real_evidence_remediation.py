@@ -245,7 +245,14 @@ def _profile_views() -> list[dict[str, object]]:
 def _conflict_policy_note(*commands: str) -> str:
     if not any(str(command or "").strip() for command in commands):
         return ""
-    return "当前 helper 默认使用 --conflict-policy auto_rename_new；如需直接覆盖同名文件，可改成 overwrite_existing。"
+    return "当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。"
+
+
+def _overwrite_variant_command(command: str) -> str:
+    text = str(command or "").strip()
+    if not text or "--conflict-policy auto_rename_new" not in text:
+        return ""
+    return text.replace("--conflict-policy auto_rename_new", "--conflict-policy overwrite_existing", 1)
 
 
 def _next_step(
@@ -392,6 +399,16 @@ def build_real_evidence_remediation_bundle(
                 post_bootstrap_runtime_command=post_bootstrap_runtime_command if not provider_profiles else "",
             ),
         }
+        item_payload["recommendedOverwriteVariantCommand"] = _overwrite_variant_command(
+            str(
+                item_payload.get("recommendedRuntimeSuccessCommand")
+                or item_payload.get("recommendedPostBootstrapRuntimeCommand")
+                or item_payload.get("recommendedLiveUploadCommand")
+                or item_payload.get("recommendedFastCandidateCommand")
+                or item_payload.get("recommendedRuntimeProbeCommand")
+                or ""
+            )
+        )
         item_payload["conflictPolicyNote"] = _conflict_policy_note(
             str(item_payload.get("recommendedRuntimeProbeCommand") or ""),
             str(item_payload.get("recommendedLiveUploadCommand") or ""),
@@ -498,6 +515,8 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedRuntimeSuccessCommand: `{row.get('recommendedRuntimeSuccessCommand', '')}`")
         if row.get("recommendedPostBootstrapRuntimeCommand"):
             lines.append(f"- recommendedPostBootstrapRuntimeCommand: `{row.get('recommendedPostBootstrapRuntimeCommand', '')}`")
+        if row.get("recommendedOverwriteVariantCommand"):
+            lines.append(f"- recommendedOverwriteVariantCommand: `{row.get('recommendedOverwriteVariantCommand', '')}`")
         if row.get("conflictPolicyNote"):
             lines.append(f"- conflictPolicyNote: {row.get('conflictPolicyNote', '')}")
         lines.append("")

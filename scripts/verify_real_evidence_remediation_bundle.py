@@ -236,6 +236,7 @@ def main() -> None:
                 "markdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown and "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown,
                 "markdownHasExpandedPostBootstrapHelpers": "tmp\\quark-post-bootstrap-runtime-evidence" in markdown and "tmp\\xunlei-post-bootstrap-runtime-evidence" in markdown and "tmp\\123_open-post-bootstrap-runtime-evidence" in markdown,
                 "postBootstrapCommandShowsConflictChoice": "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
+                "markdownHasOverwriteVariantCommand": "recommendedOverwriteVariantCommand" in markdown and "--conflict-policy overwrite_existing" in markdown,
                 "markdownHasConflictPolicyNote": "conflictPolicyNote:" in markdown and "overwrite_existing" in markdown,
                 "postBootstrapNextStepMentionsRuntimeFollowup": "189cloud" in markdown and "post-bootstrap runtime helper" in markdown and "runtime success" in markdown,
                 "runtimeSuccessFallsBackToFastHelper": "115_open" in markdown and "tmp\\115_open-fast-candidate-evidence" in markdown,
@@ -266,6 +267,17 @@ def main() -> None:
                 "apiHasExpectedLiveUploadSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == 3,
                 "apiHasExpectedFastCandidateSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")) == 3,
                 "apiHasExpectedRuntimeSuccessSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == 4,
+                "apiHasOverwriteVariantCommand": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "115_open"
+                            and "--conflict-policy overwrite_existing" in str((row or {}).get("recommendedOverwriteVariantCommand") or "")
+                        ),
+                        None,
+                    )
+                ),
                 "apiHasConflictPolicyNote": bool(
                     next(
                         (
@@ -341,6 +353,7 @@ def main() -> None:
                 "apiMarkdownHasTitle": "# CloudPan Sync 真实联调补救指南" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in str(api_markdown.get("markdown", "")),
+                "apiMarkdownHasOverwriteVariantCommand": "recommendedOverwriteVariantCommand" in str(api_markdown.get("markdown", "")) and "--conflict-policy overwrite_existing" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasConflictPolicyNote": "conflictPolicyNote:" in str(api_markdown.get("markdown", "")) and "overwrite_existing" in str(api_markdown.get("markdown", "")),
             },
             ensure_ascii=False,

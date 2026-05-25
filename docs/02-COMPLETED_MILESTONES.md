@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充探针报告聚合明细`
+- 完成范围：
+  - [live_probe.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/live_probe.py) 现已把 `Provider Live Probe Report` 顶部汇总继续补齐为 provider 级分布，不再只保留 `profileProbeProfiles`
+  - 这次补齐后，[05-PROVIDER_LIVE_PROBE_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/05-PROVIDER_LIVE_PROBE_REPORT.md) 现在会额外写出 `profileProbeProviderSummary`，直接汇总当前哪些 provider 的 live probe 成功、哪些失败，以及失败主要落在哪些 mode；设置页 `Provider Live Probe` 摘要也会同步显示 `okProviders / failedProviders / failedModes`
+  - 已同步补强 [verify_export_live_probe_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_live_probe_report.py)、[verify_current_live_probe_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_live_probe_report_sync.py)、[verify_live_probe_provider_summary_alignment.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_live_probe_provider_summary_alignment.py)、[verify_auth_probe_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_probe_settings_ui.py)，把导出 markdown、当前仓库文档、provider 级 summary 对齐和设置页摘要一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_live_probe_report.py` 已验证导出的 probe 报告会写出 `profileProbeProviderSummary`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_live_probe_report_sync.py` 已验证当前仓库文档中的 `profileProbeProviderSummary` 与 `run_live_probe()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\verify_live_probe_provider_summary_alignment.py` 已验证 provider 级 summary 不会被重复 profile 污染
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_probe_settings_ui.py` 已验证设置页摘要当前会读取并展示新的 probe provider/mode 字段
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充联调摘要设置页聚合明细`
 - 完成范围：
   - 设置页 `Auth Live Validation` 与 `Provider Live Probe` 摘要面板现已继续吸收各自 summary 里的 profile 名单，不再只显示 `latestOk / latestFailed` 这类计数

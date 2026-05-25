@@ -61,6 +61,27 @@ def latest_provider_live_probe_for_profile(profile_id: str, provider_key: str = 
 
 def provider_live_probe_summary() -> dict[str, object]:
     rows = latest_provider_live_probes()
+    ok_provider_keys = sorted(
+        {
+            str(row.get("providerKey") or "")
+            for row in rows
+            if bool(row.get("ok")) and str(row.get("providerKey") or "")
+        }
+    )
+    failed_provider_keys = sorted(
+        {
+            str(row.get("providerKey") or "")
+            for row in rows
+            if not bool(row.get("ok")) and str(row.get("providerKey") or "")
+        }
+    )
+    failed_modes = sorted(
+        {
+            str(row.get("mode") or "")
+            for row in rows
+            if not bool(row.get("ok")) and str(row.get("mode") or "")
+        }
+    )
     ok_profiles = sorted(
         {
             str(row.get("profileId") or "")
@@ -81,6 +102,9 @@ def provider_live_probe_summary() -> dict[str, object]:
         "failedCount": sum(1 for row in rows if not bool(row.get("ok"))),
         "okProfiles": ok_profiles,
         "failedProfiles": failed_profiles,
+        "okProviderKeys": ok_provider_keys,
+        "failedProviderKeys": failed_provider_keys,
+        "failedModes": failed_modes,
         "providerKeys": sorted({str(row.get("providerKey") or "") for row in rows if str(row.get("providerKey") or "")}),
     }
 

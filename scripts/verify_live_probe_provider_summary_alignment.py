@@ -60,7 +60,10 @@ def main() -> None:
                     "profileProbeProviderCountIsProviderScoped": summary.get("profileProbeProviderCount") == 1,
                     "profileProbeFailedCountIsProviderScoped": summary.get("profileProbeFailedCount") == 1,
                     "profileProbeProfileSummaryIsProviderScoped": summary.get("profileProbeOkProfiles") == []
-                    and summary.get("profileProbeFailedProfiles") == ["gy-2"],
+                    and summary.get("profileProbeFailedProfiles") == ["gy-2"]
+                    and summary.get("profileProbeOkProviders") == []
+                    and summary.get("profileProbeFailedProviders") == ["guangya"]
+                    and summary.get("profileProbeFailedModes") == ["live_error"],
                     "guangyaUsesLatestProfileProbe": (
                         ((guangya.get("profileProbe") or {}).get("mode")) == "live_error"
                         and ((guangya.get("profileProbe") or {}).get("profileId")) == "gy-2"
@@ -70,6 +73,7 @@ def main() -> None:
                         "profileProbeProviderCount=1" in markdown
                         and "profileProbeFailedCount=1" in markdown
                         and "- profileProbeProfiles: `ok=(none)` `failed=gy-2`" in markdown
+                        and "- profileProbeProviderSummary: `ok_providers=(none)` `failed_providers=guangya` `failed_modes=live_error`" in markdown
                     ),
                     "markdownHasSingleGuangyaProfileProbeRow": markdown.count("profile_probe:") == 1
                     and "mode=live_error checks=2 summary=live rejected" in markdown,

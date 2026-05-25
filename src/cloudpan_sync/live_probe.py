@@ -146,6 +146,33 @@ def run_live_probe() -> dict[str, object]:
             and str(((row.get("profileProbe") or {}).get("profileId") or ""))
         }
     )
+    provider_profile_probe_ok_providers = sorted(
+        {
+            str(row.get("providerKey") or "")
+            for row in rows
+            if int((((row.get("profileProbe") or {}).get("checkCount", 0)) or 0)) > 0
+            and bool(((row.get("profileProbe") or {}).get("ok")))
+            and str(row.get("providerKey") or "")
+        }
+    )
+    provider_profile_probe_failed_providers = sorted(
+        {
+            str(row.get("providerKey") or "")
+            for row in rows
+            if int((((row.get("profileProbe") or {}).get("checkCount", 0)) or 0)) > 0
+            and not bool(((row.get("profileProbe") or {}).get("ok")))
+            and str(row.get("providerKey") or "")
+        }
+    )
+    provider_profile_probe_failed_modes = sorted(
+        {
+            str(((row.get("profileProbe") or {}).get("mode") or ""))
+            for row in rows
+            if int((((row.get("profileProbe") or {}).get("checkCount", 0)) or 0)) > 0
+            and not bool(((row.get("profileProbe") or {}).get("ok")))
+            and str(((row.get("profileProbe") or {}).get("mode") or ""))
+        }
+    )
 
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
@@ -159,6 +186,9 @@ def run_live_probe() -> dict[str, object]:
                 "profileProbeFailedCount": provider_profile_probe_failed_count,
                 "profileProbeOkProfiles": provider_profile_probe_ok_profiles,
                 "profileProbeFailedProfiles": provider_profile_probe_failed_profiles,
+                "profileProbeOkProviders": provider_profile_probe_ok_providers,
+                "profileProbeFailedProviders": provider_profile_probe_failed_providers,
+                "profileProbeFailedModes": provider_profile_probe_failed_modes,
             },
             "items": rows,
         }
@@ -175,6 +205,9 @@ def probe_to_markdown(payload: dict[str, object]) -> str:
     )
     lines.append(
         f"- profileProbeProfiles: `ok={', '.join(summary.get('profileProbeOkProfiles', [])) or '(none)'}` `failed={', '.join(summary.get('profileProbeFailedProfiles', [])) or '(none)'}`"
+    )
+    lines.append(
+        f"- profileProbeProviderSummary: `ok_providers={', '.join(summary.get('profileProbeOkProviders', [])) or '(none)'}` `failed_providers={', '.join(summary.get('profileProbeFailedProviders', [])) or '(none)'}` `failed_modes={', '.join(summary.get('profileProbeFailedModes', [])) or '(none)'}`"
     )
     lines.append("")
     for item in payload.get("items", []):

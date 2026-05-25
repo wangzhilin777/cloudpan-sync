@@ -29,6 +29,7 @@ def main() -> None:
                     and f"profileProbeOkCount={summary.get('profileProbeOkCount', 0)}" in markdown
                     and f"profileProbeFailedCount={summary.get('profileProbeFailedCount', 0)}" in markdown
                     and f"- profileProbeProfiles: `ok={', '.join(summary.get('profileProbeOkProfiles', [])) or '(none)'}` `failed={', '.join(summary.get('profileProbeFailedProfiles', [])) or '(none)'}`" in markdown
+                    and f"- profileProbeProviderSummary: `ok_providers={', '.join(summary.get('profileProbeOkProviders', [])) or '(none)'}` `failed_providers={', '.join(summary.get('profileProbeFailedProviders', [])) or '(none)'}` `failed_modes={', '.join(summary.get('profileProbeFailedModes', [])) or '(none)'}`" in markdown
                 ),
                 "summaryShowsExpectedCurrentProbeProfiles": (
                     summary.get("profileProbeOkProfiles") == []

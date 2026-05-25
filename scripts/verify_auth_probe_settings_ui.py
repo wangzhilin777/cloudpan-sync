@@ -26,6 +26,9 @@ def main() -> None:
                 "jsProbeSummaryShowsProfiles": 'const probeSummary = state.providerLiveProbeMeta?.summary || {};' in app_js
                 and 'okProfiles=' in app_js
                 and 'failedProfiles=' in app_js
+                and 'okProviders=' in app_js
+                and 'failedProviders=' in app_js
+                and 'failedModes=' in app_js
                 and 'providers=' in app_js,
                 "jsRefreshProtectedDataLoadsBoth": 'async function refreshProtectedData()' in app_js and 'state.liveValidationMeta = {' in app_js and 'state.providerLiveProbeMeta = {' in app_js,
                 "jsLogoutClearsBoth": 'state.liveValidationMeta = { historyCount: 0, summary: null };' in app_js and 'state.providerLiveProbeMeta = { historyCount: 0, summary: null };' in app_js,

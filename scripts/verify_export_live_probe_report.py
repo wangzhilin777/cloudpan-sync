@@ -34,6 +34,9 @@ def main() -> None:
             "profileProbeFailedCount": 1,
             "profileProbeOkProfiles": ["gy-1"],
             "profileProbeFailedProfiles": ["189-1"],
+            "profileProbeOkProviders": ["guangya"],
+            "profileProbeFailedProviders": ["189cloud"],
+            "profileProbeFailedModes": ["share_probe"],
         },
         "items": [
             {
@@ -139,7 +142,8 @@ def main() -> None:
                 and "profileProbeProviderCount=2" in markdown
                 and "profileProbeOkCount=1" in markdown
                 and "profileProbeFailedCount=1" in markdown
-                and "- profileProbeProfiles: `ok=gy-1` `failed=189-1`" in markdown,
+                and "- profileProbeProfiles: `ok=gy-1` `failed=189-1`" in markdown
+                and "- profileProbeProviderSummary: `ok_providers=guangya` `failed_providers=189cloud` `failed_modes=share_probe`" in markdown,
                 "exportedHasGuangyaRows": "## guangya - Guangya" in markdown
                 and "- official_docs: ok=True status=200 url=https://docs.guangya.example final=https://docs.guangya.example error=" in markdown
                 and "- web_login: ok=False status=403 url=https://login.guangya.example final=https://login.guangya.example/blocked error=http_error:403" in markdown,

@@ -1765,7 +1765,7 @@ function renderSettingsPanel() {
     summaryLi.textContent = `history=${state.providerLiveProbeMeta?.historyCount || 0}, latestProfiles=${probeSummary.profileCount || probeRows.length}, latestOk=${probeSummary.okCount || 0}, latestFailed=${probeSummary.failedCount || 0}`;
     providerProbeList.appendChild(summaryLi);
     const profileLi = document.createElement("li");
-    profileLi.textContent = `okProfiles=${(probeSummary.okProfiles || []).join("/") || "(none)"}, failedProfiles=${(probeSummary.failedProfiles || []).join("/") || "(none)"}, providers=${(probeSummary.providerKeys || []).join("/") || "(none)"}`;
+    profileLi.textContent = `okProfiles=${(probeSummary.okProfiles || []).join("/") || "(none)"}, failedProfiles=${(probeSummary.failedProfiles || []).join("/") || "(none)"}, okProviders=${(probeSummary.okProviderKeys || []).join("/") || "(none)"}, failedProviders=${(probeSummary.failedProviderKeys || []).join("/") || "(none)"}, failedModes=${(probeSummary.failedModes || []).join("/") || "(none)"}, providers=${(probeSummary.providerKeys || []).join("/") || "(none)"}`;
     providerProbeList.appendChild(profileLi);
     for (const probe of probeRows) {
       const li = document.createElement("li");

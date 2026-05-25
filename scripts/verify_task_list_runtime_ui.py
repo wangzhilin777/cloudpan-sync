@@ -31,6 +31,15 @@ def main() -> None:
                 "jsRenderTaskListShowsRequiredAuth": 'row.liveAttempt?.requiredAuth?.length' in app_js and 'requiredAuth=${row.liveAttempt.requiredAuth.join("/")}' in app_js,
                 "jsRenderTaskListShowsError": 'row.liveAttempt?.error' in app_js and 'error=${row.liveAttempt.error}' in app_js,
                 "jsRenderTaskListShowsRowNote": 'row.note' in app_js and 'note=${row.note}' in app_js,
+                "jsRenderTaskListHasRecoveryActions": 'const matchedTargetProfile = (state.authProfiles || []).find((profile) => profile.profileId === task.targetProfileId)' in app_js
+                and 'focusBtn.textContent = "Focus Profile"' in app_js
+                and 'refreshBtn.textContent = "Refresh Evidence"' in app_js
+                and 'probeBtn.textContent = "Run Live Probe"' in app_js
+                and 'captureBtn.textContent = "Open Capture"' in app_js
+                and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedTargetProfile.profileId));' in app_js
+                and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedTargetProfile.profileId));' in app_js
+                and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedTargetProfile.profileId));' in app_js
+                and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(task.targetProvider || matchedTargetProfile?.providerKey || ""));' in app_js,
                 "jsLoadTasksUsesListItems": 'state.tasks = data.listItems || data.items || [];' in app_js,
                 "jsRenderPendingListCarriesTaskSummary": 'const taskSummary = task?.summary || {};' in app_js and 'taskState: taskSummary.state || task.state || ""' in app_js and 'taskRiskReason: taskSummary.riskReason || ""' in app_js,
                 "jsRenderPendingListCarriesTargetProfile": 'targetProfileId: task.targetProfileId || ""' in app_js,

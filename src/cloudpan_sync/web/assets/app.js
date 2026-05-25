@@ -1578,6 +1578,35 @@ function renderTaskList() {
 
     const actions = document.createElement("div");
     actions.className = "row-actions";
+    const matchedTargetProfile = (state.authProfiles || []).find((profile) => profile.profileId === task.targetProfileId)
+      || (state.authProfiles || []).find((profile) => profile.providerKey === task.targetProvider)
+      || null;
+    if (matchedTargetProfile || task.targetProvider) {
+      if (matchedTargetProfile) {
+        const focusBtn = document.createElement("button");
+        focusBtn.className = "ghost";
+        focusBtn.textContent = "Focus Profile";
+        focusBtn.addEventListener("click", () => focusAuthRemediationProfile(matchedTargetProfile.profileId));
+        actions.appendChild(focusBtn);
+        const refreshBtn = document.createElement("button");
+        refreshBtn.className = "ghost";
+        refreshBtn.textContent = "Refresh Evidence";
+        refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedTargetProfile.profileId));
+        actions.appendChild(refreshBtn);
+        if (liveProbeProviderSet.has(matchedTargetProfile.providerKey)) {
+          const probeBtn = document.createElement("button");
+          probeBtn.className = "ghost";
+          probeBtn.textContent = "Run Live Probe";
+          probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedTargetProfile.profileId));
+          actions.appendChild(probeBtn);
+        }
+      }
+      const captureBtn = document.createElement("button");
+      captureBtn.className = "ghost";
+      captureBtn.textContent = "Open Capture";
+      captureBtn.addEventListener("click", () => openCaptureGuideForProvider(task.targetProvider || matchedTargetProfile?.providerKey || ""));
+      actions.appendChild(captureBtn);
+    }
     for (const action of taskActionsForState(task)) {
       const btn = document.createElement("button");
       btn.className = "ghost";

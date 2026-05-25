@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充传输队列直接补救动作`
+- 完成范围：
+  - 已把 `传输队列` 主列表从“只展示 targetProfile 状态、guard、riskHint、requiredAuth 和最近结果”推进成可直接跳转补救；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在每个任务行旁边直接渲染 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture`
+  - 当前动作会优先按任务自带的 `targetProfileId` 匹配目标档案，匹配不到时再按 `targetProvider` 兜底；因此当任务因为目标档案未就绪、写链路 blocker、鉴权缺失或 liveAttempt 风险而卡住时，可以直接从任务行进入授权补救，而不需要先去设置页或授权列表重新找对应 provider/profile
+  - 这次补齐把“传输队列看到任务为什么失败/暂停，但补救动作散落在别处”的流程，推进成“看到任务风险 -> 直接点动作 -> 修复后重试/继续”的产品内闭环，也更贴近计划里对队列与执行控制可操作性的要求
+  - 已同步补强 [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py)，把任务行补救动作文本与事件绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_list_runtime_ui.py` 已验证 `传输队列` 当前包含 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture` 文本以及对应绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证任务列表复用的 `refreshRealEvidenceRemediationProfile()`、`probeRealEvidenceRemediationProfile()` 链路未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充待处理列表直接补救动作`
 - 完成范围：
   - 已把 `待处理` 面板从“只展示 pending manual / conflict / missing fast inputs 信息”推进成可直接跳转补救；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在每条待处理项旁边直接渲染 `Focus Profile / Refresh Evidence / Run Live Probe / Open Capture`

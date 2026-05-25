@@ -10,6 +10,22 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充运行孤儿重建后同步刷新严格口径面板`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里的 `recreateRuntimeOrphanProfile()` 从“只刷新 auth/orphan/status 相关局部面板”推进成会同步刷新 `Real Evidence`、`Real Evidence Remediation`、`Task Runtime Evidence`、`Audit` 这些和 `M4 / M5 / P-REAL` 判读直接相关的汇总
+  - 当前链路下，当应用内把 `runtime_orphan` stub 重建回当前仓库后，产品不再继续显示旧的 `runtime_orphan` 数量、旧的 remediation 概览或旧的审计首个缺口；而是会立刻重新拉取对应 summary，让“恢复了一条 orphan profile”这件事更快反映到当前严格口径相关视图
+  - 这次补齐虽然还没有直接把 `75.0%` 改判掉，但它把 orphan 恢复后的可见反馈从“只在授权区和 orphan 列表里更新”推进成“严格口径相关面板也一起刷新”，更贴近我们当前围绕 `runtime_orphan` 收敛 `M4 / M5 / P-REAL` 的实际工作流
+  - 已新增 [verify_runtime_orphan_recreate_refreshes_views.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_refreshes_views.py)，并保留 [verify_runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery.py)、[verify_runtime_orphan_recreate_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_api.py)、[verify_runtime_orphan_recovery_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery_settings_ui.py)、[verify_runtime_orphan_recreate_followup_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_followup_ui.py) 回归，锁住 orphan 恢复链的 API、结果摘要、设置页和严格口径刷新一致性
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery.py` 已验证 orphan recovery payload / markdown / API 的 follow-up 命令链未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_api.py` 已验证应用内重建 orphan stub 后，API 仍会返回一致的 follow-up 命令与 `already_exists` 口径
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证设置页 `Runtime Orphan Recovery` 面板原有动作和摘要未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_followup_ui.py` 已验证授权结果摘要里的 `Focus / Refresh / Probe / Open Capture` orphan follow-up 动作未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_refreshes_views.py` 已验证 `recreateRuntimeOrphanProfile()` 当前会同步刷新 `loadRealEvidenceSummary / loadRealEvidenceRemediationSummary / loadTaskRuntimeEvidence / loadAuditSummary`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充运行孤儿重建后直接续做动作`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里的 `Runtime Orphan Stub` 结果摘要从“只显示一段 JSON/文案”推进成可直接继续操作；这次补齐后，当 orphan recreate API 返回 `recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand / recommendedRuntimeSuccessCommand / recommendedOverwriteVariantCommand` 这组后续链路时，授权结果摘要面板会直接渲染 `Focus Recreated Stub / Refresh Recreated Stub / Probe Recreated Stub / Open Capture For Recreated Stub`

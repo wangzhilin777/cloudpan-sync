@@ -1297,7 +1297,11 @@ async function recreateRuntimeOrphanProfile(providerKey, orphanProfileId) {
     loadAuthEvidenceBundleSummary(),
     loadAuthRemediationSummary(),
     loadLiveValidations(),
+    loadRealEvidenceSummary(),
+    loadRealEvidenceRemediationSummary(),
+    loadTaskRuntimeEvidence(),
     loadStatusMatrix(),
+    loadAuditSummary(),
   ]);
   const recreated = (state.authProfiles || []).find((item) => item.profileId === orphanProfileId);
   if (recreated) {

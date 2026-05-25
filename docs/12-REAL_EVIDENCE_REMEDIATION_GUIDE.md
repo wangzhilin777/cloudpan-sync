@@ -10,13 +10,14 @@
 - providersWithPatchCommand: `1`
 - providersWithPatchProbeCommand: `1`
 - providersWithRefreshEvidenceCommand: `1`
+- providersWithPostRefreshRuntimeCommand: `1`
 - providersWithRuntimeProbeCommand: `0`
 - providersWithLiveUploadCommand: `0`
 - providersWithFastCandidateCommand: `0`
 - providersWithRuntimeSuccessCommand: `0`
 - providersWithPostBootstrapRuntimeCommand: `6`
-- providersWithOverwriteVariantCommand: `6`
-- providersWithConflictPolicyNote: `6`
+- providersWithOverwriteVariantCommand: `7`
+- providersWithConflictPolicyNote: `7`
 - providersWithDeclaredConflictPolicies: `8`
 - providersWithProviderManagedOverwrite: `1`
 - providersWithOverwriteDowngrade: `7`
@@ -57,6 +58,9 @@
 - providerConflictNotes: 当前 Aliyun Drive Open 已接入任务运行阶段真实小文件上传；同名文件可按 overwrite_existing / auto_rename_new 显式选择。
 - nextStep: 对现有档案重跑 provider live probe，优先补齐 auth/list/metadata/create_dir 成功证据。
 - recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --write`
+- recommendedPostRefreshRuntimeCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --target-parent-id root --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-live-evidence`
+- recommendedOverwriteVariantCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --target-parent-id root --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\aliyundrive_open-live-evidence`
+- conflictPolicyNote: 当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。
 
 ### 115_open - 115 Open
 - profileCount: `0`

@@ -34,6 +34,7 @@ def main() -> None:
             "providersWithPatchCommand": 0,
             "providersWithPatchProbeCommand": 0,
             "providersWithRefreshEvidenceCommand": 0,
+            "providersWithPostRefreshRuntimeCommand": 1,
             "providersWithRuntimeProbeCommand": 0,
             "providersWithLiveUploadCommand": 4,
                 "providersWithFastCandidateCommand": 1,
@@ -79,6 +80,7 @@ def main() -> None:
                 "gaps": ["基础证据已齐，但尚未记录到真实 runtime 成功样本"],
                 "recommendedLiveUploadCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
                 "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
+                "recommendedPostRefreshRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-live-evidence",
                 "conflictPolicyNote": "当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。",
                 "nextStep": "当前基础证据已齐，可直接运行统一的 runtime success helper。",
@@ -302,6 +304,7 @@ def main() -> None:
                 "exportedHasPostBootstrapRuntimeSummary": "providersWithPostBootstrapRuntimeCommand: `6`" in markdown,
                 "exportedHasOverwriteVariantSummary": "providersWithOverwriteVariantCommand: `6`" in markdown,
                 "exportedHasConflictPolicyNoteSummary": "providersWithConflictPolicyNote: `6`" in markdown,
+                "exportedHasPostRefreshRuntimeSummary": "providersWithPostRefreshRuntimeCommand: `1`" in markdown,
                 "exportedHasDeclaredConflictPolicySummary": "providersWithDeclaredConflictPolicies: `5`" in markdown,
                 "exportedHasOverwriteDowngradeSummary": "providersWithOverwriteDowngrade: `5`" in markdown,
                 "exportedHasConflictUnsupportedSummary": "providersWithConflictUnsupported: `2`" in markdown,
@@ -309,6 +312,8 @@ def main() -> None:
                 and r"tmp\guangya-live-evidence" in markdown,
                 "exportedHasFastRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown
                 and r"tmp\115_open-fast-candidate-evidence" in markdown,
+                "exportedHasPostRefreshRuntimeCommand": "recommendedPostRefreshRuntimeCommand" in markdown
+                and r"tmp\guangya-live-evidence" in markdown,
                 "exportedHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown
                 and r"tmp\189cloud-post-bootstrap-runtime-evidence" in markdown,
                 "exportedHasLivePostBootstrapHelpers": r"tmp\quark-post-bootstrap-runtime-evidence" in markdown

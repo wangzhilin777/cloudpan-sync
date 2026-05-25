@@ -406,6 +406,14 @@ def build_real_evidence_remediation_bundle(
             "recommendedRefreshEvidenceCommand": _refresh_evidence_command_for_profile(provider_profiles[0] if provider_profiles else {})
             if provider_profiles and profile_ready and write_ready and (not bool(auth_evidence.get("ok")) or not bool(list_evidence.get("ok")) or not bool(metadata_evidence.get("ok")) or not bool(create_dir_evidence.get("ok")))
             else "",
+            "recommendedPostRefreshRuntimeCommand": runtime_success_command
+            if provider_profiles
+            and profile_ready
+            and write_ready
+            and not bool(runtime_evidence.get("ok"))
+            and str(runtime_success_command or "")
+            and (not bool(auth_evidence.get("ok")) or not bool(list_evidence.get("ok")) or not bool(metadata_evidence.get("ok")) or not bool(create_dir_evidence.get("ok")))
+            else "",
             "recommendedRuntimeProbeCommand": _runtime_probe_command_for_profile(provider_profiles[0] if provider_profiles else {})
             if provider_profiles and write_ready and bool(auth_evidence.get("ok")) and bool(list_evidence.get("ok")) and bool(metadata_evidence.get("ok")) and (bool(create_dir_evidence.get("ok")) or runtime_candidate_only or runtime_blocked_only or runtime_probe_only) and not bool(runtime_evidence.get("ok"))
             else "",
@@ -455,6 +463,7 @@ def build_real_evidence_remediation_bundle(
         item_payload["recommendedOverwriteVariantCommand"] = _overwrite_variant_command(
             str(
                 item_payload.get("recommendedRuntimeSuccessCommand")
+                or item_payload.get("recommendedPostRefreshRuntimeCommand")
                 or item_payload.get("recommendedPostBootstrapRuntimeCommand")
                 or item_payload.get("recommendedLiveUploadCommand")
                 or item_payload.get("recommendedFastCandidateCommand")
@@ -463,6 +472,7 @@ def build_real_evidence_remediation_bundle(
             )
         )
         item_payload["conflictPolicyNote"] = _conflict_policy_note(
+            str(item_payload.get("recommendedPostRefreshRuntimeCommand") or ""),
             str(item_payload.get("recommendedRuntimeProbeCommand") or ""),
             str(item_payload.get("recommendedLiveUploadCommand") or ""),
             str(item_payload.get("recommendedFastCandidateCommand") or ""),
@@ -483,6 +493,7 @@ def build_real_evidence_remediation_bundle(
             "providersWithPatchCommand": sum(1 for item in items if str(item.get("recommendedPatchCommand") or "")),
             "providersWithPatchProbeCommand": sum(1 for item in items if str(item.get("recommendedPatchProbeCommand") or "")),
             "providersWithRefreshEvidenceCommand": sum(1 for item in items if str(item.get("recommendedRefreshEvidenceCommand") or "")),
+            "providersWithPostRefreshRuntimeCommand": sum(1 for item in items if str(item.get("recommendedPostRefreshRuntimeCommand") or "")),
             "providersWithRuntimeProbeCommand": sum(1 for item in items if str(item.get("recommendedRuntimeProbeCommand") or "")),
             "providersWithLiveUploadCommand": sum(1 for item in items if str(item.get("recommendedLiveUploadCommand") or "")),
             "providersWithFastCandidateCommand": sum(1 for item in items if str(item.get("recommendedFastCandidateCommand") or "")),
@@ -524,6 +535,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersWithPatchCommand: `{summary.get('providersWithPatchCommand', 0)}`")
     lines.append(f"- providersWithPatchProbeCommand: `{summary.get('providersWithPatchProbeCommand', 0)}`")
     lines.append(f"- providersWithRefreshEvidenceCommand: `{summary.get('providersWithRefreshEvidenceCommand', 0)}`")
+    lines.append(f"- providersWithPostRefreshRuntimeCommand: `{summary.get('providersWithPostRefreshRuntimeCommand', 0)}`")
     lines.append(f"- providersWithRuntimeProbeCommand: `{summary.get('providersWithRuntimeProbeCommand', 0)}`")
     lines.append(f"- providersWithLiveUploadCommand: `{summary.get('providersWithLiveUploadCommand', 0)}`")
     lines.append(f"- providersWithFastCandidateCommand: `{summary.get('providersWithFastCandidateCommand', 0)}`")
@@ -590,6 +602,8 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedPatchProbeCommand: `{row.get('recommendedPatchProbeCommand', '')}`")
         if row.get("recommendedRefreshEvidenceCommand"):
             lines.append(f"- recommendedRefreshEvidenceCommand: `{row.get('recommendedRefreshEvidenceCommand', '')}`")
+        if row.get("recommendedPostRefreshRuntimeCommand"):
+            lines.append(f"- recommendedPostRefreshRuntimeCommand: `{row.get('recommendedPostRefreshRuntimeCommand', '')}`")
         if row.get("recommendedRuntimeProbeCommand"):
             lines.append(f"- recommendedRuntimeProbeCommand: `{row.get('recommendedRuntimeProbeCommand', '')}`")
         if row.get("recommendedLiveUploadCommand"):

@@ -12,6 +12,22 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 已新增 `recommendedPostRefreshRuntimeCommand`，专门覆盖“已有 profile、先 refresh/probe、再补首条 runtime 成功样本”的 provider
+  - 当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 不再只告诉用户先跑 `recommendedRefreshEvidenceCommand`，还会把 refresh 之后下一条直接可跑的 runtime helper 一并提前准备好
+  - 真实仓库当前已能明确给出 `providersWithPostRefreshRuntimeCommand=1`，也就是 `aliyundrive_open` 这种“已有档案但还缺基础联调证据”的路径，现在能少一次手工拼命令
+  - 设置页 remediation 面板也已同步展示 `postRefreshRuntimeCommands` 汇总，以及逐 provider 的 `postRefreshRuntime=...` 行，帮助直接从 UI 里抄命令继续补 runtime 样本
+  - 对应 verifier 已同步补强：[scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py)、[scripts/verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)、[scripts/verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)、[scripts/verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 bundle/API summary 中新增 `providersWithPostRefreshRuntimeCommand`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证导出 Markdown 会写出 `providersWithPostRefreshRuntimeCommand` 和 `recommendedPostRefreshRuntimeCommand`
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证设置页会显示 `postRefreshRuntimeCommands=${remediationSummary.providersWithPostRefreshRuntimeCommand || 0}` 与 `postRefreshRuntime=${item.recommendedPostRefreshRuntimeCommand}`
+  - `.\.venv\Scripts\python.exe scripts\export_real_evidence_remediation.py` 已重导出当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前仓库里 `aliyundrive_open` 分段继续保留 `recommendedRefreshEvidenceCommand + recommendedPostRefreshRuntimeCommand + recommendedOverwriteVariantCommand` 的联动口径
+
+### 已完成补齐项 - `2026-05-26`
+
+- 提交：`本次提交`
+- 完成范围：
   - [src/cloudpan_sync/real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 已把 provider 冲突支持状态进一步落到 `nextStep` 文案里，不再只停留在独立字段和命令参数说明
   - 当前对于 `overwrite_existing` 真支持、会降级、仅 probe-only 写探针、以及尚未声明支持的 provider，`nextStep` 会给出不同的实操提示，帮助用户首条真实样本直接避开错误冲突策略
   - 例如当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 已明确提示：`quark` 首条样本建议继续保留默认 `auto_rename_new`；`115_open` 不要把首条样本建立在 `overwrite_existing` 上

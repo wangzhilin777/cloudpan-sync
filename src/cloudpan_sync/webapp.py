@@ -37,12 +37,13 @@ from .auth_profile_evidence import (
 )
 from .auth_profile_remediation import build_auth_remediation_bundle, auth_remediation_bundle_to_markdown
 from .auth_capture_guide import build_auth_capture_guide
+from .auth_capture_parse import parse_auth_capture
 from .aliyun_open_live import fetch_aliyun_open_live_list, fetch_aliyun_open_live_metadata, fetch_aliyun_open_create_folder
 from .baidu_netdisk_live import fetch_baidu_create_dir, fetch_baidu_live_list, fetch_baidu_live_metadata
 from .auth import build_session_token, verify_session_token
 from .config import ADMIN_PASSWORD, SESSION_COOKIE
 from .i18n import MESSAGES, messages_for
-from .models import AuthLiveValidateRequest, AuthProfileInput, ConflictPolicy, SourceEntry
+from .models import AuthLiveValidateRequest, AuthProfileInput, CaptureParseRequest, ConflictPolicy, SourceEntry
 from .models import TaskActionRequest, TaskCreateRequest
 from .pan115_open_live import fetch_115_open_create_folder, fetch_115_open_live_list, fetch_115_open_live_metadata
 from .pan123_open_live import fetch_123_open_create_folder, fetch_123_open_live_list, fetch_123_open_live_metadata
@@ -530,6 +531,12 @@ def create_app() -> FastAPI:
         if not _is_logged_in(request):
             raise HTTPException(status_code=401, detail="please_login_first")
         return build_auth_capture_guide(payload.providerKey)
+
+    @app.post("/api/auth/capture/parse")
+    def auth_capture_parse(payload: CaptureParseRequest, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        return parse_auth_capture(payload.providerKey, payload.rawText)
 
     @app.post("/api/auth/profiles/{profile_id}/validate")
     def auth_profile_validate(profile_id: str, request: Request) -> dict[str, object]:

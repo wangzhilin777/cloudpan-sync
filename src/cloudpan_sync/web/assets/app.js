@@ -51,6 +51,7 @@ const state = {
   taskRuntimeEvidenceMeta: { historyCount: 0, summary: null },
   runtimeOrphanRecovery: null,
   authCaptureGuide: null,
+  authCaptureParseResult: null,
   tasks: [],
   taskPlanPreview: null,
 };
@@ -214,6 +215,38 @@ function fillAuthForm(profile) {
   updateAuthFormMode();
 }
 
+function applySuggestedProfileToAuthForm(profile) {
+  if (!profile) {
+    return;
+  }
+  document.getElementById("authProvider").value = profile.providerKey || "";
+  syncAuthModeOptions();
+  document.getElementById("authMode").value = profile.authMode || document.getElementById("authMode").value;
+  document.getElementById("authDisplayName").value = profile.displayName || profile.providerKey || "";
+  document.getElementById("authToken").value = profile.token || "";
+  document.getElementById("authCookie").value = profile.cookie || "";
+  document.getElementById("authExtraHeader").value = profile.extra?.header || "";
+  document.getElementById("authExtraDevice").value = profile.extra?.deviceId || profile.extra?.["x-device-id"] || "";
+  document.getElementById("authExtraCaptchaToken").value = profile.extra?.captchaToken || "";
+  document.getElementById("authExtraClientId").value = profile.extra?.clientId || "";
+  document.getElementById("authExtraDid").value = profile.extra?.did || "";
+  document.getElementById("authExtraDt").value = profile.extra?.dt || "";
+  document.getElementById("authExtraParentId").value = profile.extra?.parentId || profile.extra?.parentFileId || "";
+  document.getElementById("authExtraPageSize").value = profile.extra?.pageSize || "";
+  document.getElementById("authExtraFileId").value = profile.extra?.fileId || "";
+  document.getElementById("authExtraDirName").value = profile.extra?.dirName || "";
+  document.getElementById("authExtraPwdId").value = profile.extra?.pwdId || profile.extra?.sharePwdId || "";
+  document.getElementById("authExtraPasscode").value = profile.extra?.passcode || "";
+  document.getElementById("authExtraDomainId").value = profile.extra?.domainId || "";
+  document.getElementById("authExtraDriveId").value = profile.extra?.driveId || "";
+  document.getElementById("authExtraShareCode").value = profile.extra?.shareCode || "";
+  document.getElementById("authExtraAccessCode").value = profile.extra?.accessCode || "";
+  document.getElementById("authExtraAccessToken").value = profile.extra?.accessToken || "";
+  document.getElementById("authExtraSignature").value = profile.extra?.signature || "";
+  document.getElementById("authExtraDate").value = profile.extra?.date || "";
+  document.getElementById("authExtraPathPrefix").value = profile.extra?.pathPrefix || "";
+}
+
 function collectAuthPayload() {
   const providerKey = document.getElementById("authProvider").value;
   const authMode = document.getElementById("authMode").value;
@@ -318,7 +351,7 @@ function setAuthValidationSummary(data, title = "Latest Auth Result") {
   }
 
   const row = data.validation || data.item || data;
-  const ok = Boolean(row?.ok) || data?.status === "capture_pending";
+  const ok = Boolean(row?.ok) || data?.status === "capture_pending" || data?.status === "capture_parsed";
   box.hidden = false;
   box.className = `auth-validation-summary${ok ? " ok" : " fail"}`;
   box.innerHTML = "";
@@ -386,6 +419,27 @@ function setAuthValidationSummary(data, title = "Latest Auth Result") {
     }
   }
 
+  if (data?.status === "capture_parsed") {
+    if (Array.isArray(data.appliedFieldNames) && data.appliedFieldNames.length) {
+      const parsedLine = document.createElement("div");
+      parsedLine.className = "auth-validation-meta";
+      parsedLine.textContent = `appliedFields=${data.appliedFieldNames.join(" | ")}`;
+      box.appendChild(parsedLine);
+    }
+    if (Array.isArray(data.stillMissingFieldHints) && data.stillMissingFieldHints.length) {
+      const missingLine = document.createElement("div");
+      missingLine.className = "auth-validation-meta";
+      missingLine.textContent = `stillMissing=${data.stillMissingFieldHints.join(" | ")}`;
+      box.appendChild(missingLine);
+    }
+    if (Array.isArray(data.placeholderFieldHints) && data.placeholderFieldHints.length) {
+      const placeholderLine = document.createElement("div");
+      placeholderLine.className = "auth-validation-meta";
+      placeholderLine.textContent = `placeholderHints=${data.placeholderFieldHints.join(" | ")}`;
+      box.appendChild(placeholderLine);
+    }
+  }
+
   const meta = document.createElement("div");
   meta.className = "auth-pill-row";
   const pills = [
@@ -411,10 +465,12 @@ function setAuthValidationSummary(data, title = "Latest Auth Result") {
 
 function updateCaptureGuideActions() {
   const openBtn = document.getElementById("authOpenLoginUrlBtn");
-  if (!openBtn) {
+  const applyBtn = document.getElementById("authApplyCaptureBtn");
+  if (!openBtn || !applyBtn) {
     return;
   }
   openBtn.disabled = !state.authCaptureGuide?.loginUrlHint;
+  applyBtn.disabled = !state.authCaptureParseResult?.suggestedProfile;
 }
 
 function setAuthEvidenceSummary(evidence, markdown) {
@@ -1146,6 +1202,17 @@ async function saveAuth() {
 
 function openAuthModal() {
   const modal = document.getElementById("authModal");
+  const modalProvider = document.getElementById("authModalProvider");
+  const authProvider = document.getElementById("authProvider");
+  const rawInput = document.getElementById("authCaptureRawInput");
+  if (modalProvider && authProvider) {
+    modalProvider.value = authProvider.value || modalProvider.value;
+  }
+  if (rawInput) {
+    rawInput.value = "";
+  }
+  state.authCaptureGuide = null;
+  state.authCaptureParseResult = null;
   if (modal && typeof modal.showModal === "function") {
     modal.showModal();
   }
@@ -1167,8 +1234,36 @@ async function startCaptureGuide() {
     body: JSON.stringify({ providerKey }),
   });
   state.authCaptureGuide = data;
+  state.authCaptureParseResult = null;
   updateCaptureGuideActions();
   setAuthValidationSummary(data, "Capture Guide");
+}
+
+async function parseCapturedAuthText() {
+  const providerKey = document.getElementById("authModalProvider").value;
+  const rawText = document.getElementById("authCaptureRawInput").value;
+  const data = await fetchJson("/api/auth/capture/parse", {
+    method: "POST",
+    body: JSON.stringify({ providerKey, rawText }),
+  });
+  state.authCaptureParseResult = data;
+  updateCaptureGuideActions();
+  setAuthValidationSummary(data, "Captured Text Parse");
+}
+
+function applyParsedCaptureSuggestion() {
+  const profile = state.authCaptureParseResult?.suggestedProfile || null;
+  if (!profile) {
+    return;
+  }
+  state.authEditingProfileId = "";
+  applySuggestedProfileToAuthForm(profile);
+  updateAuthFormMode();
+  setAuthValidationSummary(state.authCaptureParseResult, "Applied Capture Suggestion");
+  const modal = document.getElementById("authModal");
+  if (modal && typeof modal.close === "function") {
+    modal.close();
+  }
 }
 
 async function validateAuth(profileId) {
@@ -2138,6 +2233,8 @@ async function bootstrap() {
   document.getElementById("authRemediationBtn").addEventListener("click", showAuthRemediationGuide);
   document.getElementById("authStartCaptureBtn").addEventListener("click", startCaptureGuide);
   document.getElementById("authOpenLoginUrlBtn").addEventListener("click", openCaptureLoginPage);
+  document.getElementById("authParseCaptureBtn").addEventListener("click", parseCapturedAuthText);
+  document.getElementById("authApplyCaptureBtn").addEventListener("click", applyParsedCaptureSuggestion);
   document.getElementById("authProvider").addEventListener("change", () => {
     syncAuthModeOptions();
     render();

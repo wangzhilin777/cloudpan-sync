@@ -248,6 +248,9 @@
         <select id="authModalProvider"></select>
         <button id="authStartCaptureBtn" type="button">Start Capture Guide</button>
         <button id="authOpenLoginUrlBtn" class="ghost" type="button" disabled>Open Login Page</button>
+        <textarea id="authCaptureRawInput" rows="8" placeholder="Paste browser storage dump, cookie/header text, captured curl, or share URL here."></textarea>
+        <button id="authParseCaptureBtn" class="ghost" type="button">Parse Captured Text</button>
+        <button id="authApplyCaptureBtn" class="ghost" type="button" disabled>Apply Parsed Suggestion</button>
       </div>
       <pre id="authCaptureResult" class="capture-result"></pre>
       <button class="ghost" value="cancel">Close</button>

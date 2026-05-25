@@ -102,6 +102,11 @@ class AuthProfileInput(BaseModel):
     extra: dict[str, str] = Field(default_factory=dict)
 
 
+class CaptureParseRequest(BaseModel):
+    providerKey: str
+    rawText: str = ""
+
+
 class TaskCreateRequest(BaseModel):
     sourceProvider: str
     targetProvider: str

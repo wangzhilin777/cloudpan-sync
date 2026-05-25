@@ -10,6 +10,23 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充抓取文本解析与表单回填`
+- 完成范围：
+  - 已新增应用侧解析模块 [auth_capture_parse.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_capture_parse.py)，把粘贴进来的浏览器抓取文本继续拆成可消费的 `suggestedProfile / appliedFieldNames / stillMissingFieldHints / placeholderFieldHints`，不再只停在“打开登录页自己看着填”
+  - 这次补齐后，[webapp.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/webapp.py) 新增 `POST /api/auth/capture/parse`，当前登录后可直接把 storage dump、cookie/header 文本、captured curl、share URL 粘贴给后端解析，再返回 provider-aware 的建议授权档案
+  - 当前解析链会按 provider 继续抽取关键字段：例如 `quark / uc` 会从 URL 或文本里带出 `pwdId / passcode`，`guangya` 会带出 `parentId / did / dt`，`189cloud` 会复用 [tianyi_auth_capture.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/tianyi_auth_capture.py) 解析 `accessToken / signature / date`，并同时保留 `shareCode / accessCode`
+  - 授权弹窗现已新增 [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 的 `authCaptureRawInput / authParseCaptureBtn / authApplyCaptureBtn`，并在 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 中补齐 `parseCapturedAuthText()` 与 `applyParsedCaptureSuggestion()`；解析后可以一键把建议值回填到主授权表单，再继续人工检查后保存
+  - 当前回填链会同步切换主表单的 `provider / authMode / token / cookie / extra.*` 字段，并把解析出来的 `appliedFields / stillMissing / placeholderHints` 直接渲染到结果框，明确告诉用户“哪些字段已经带出、哪些还缺、哪些仍像占位符”
+  - 这次补齐后，网页登录抓取依然没有夸大成“自动抓 Cookie 成功”，但已经从“给结构化步骤”进一步推进成“可粘贴抓取文本 -> 可解析建议 -> 可一键回填授权表单”的最小闭环，更贴近 `M3` 里的 `web_login_capture` 目标
+  - 已新增 [verify_auth_capture_parse.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_capture_parse.py)，并同步补强 [verify_ui_smoke_navigation_modal.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_ui_smoke_navigation_modal.py)，把后端解析接口、前端弹窗控件、解析按钮、回填按钮和匿名访问拦截一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_capture_guide.py` 已验证结构化 capture guide 旧链路未回退，`quark / guangya / aliyundrive_open` 仍会返回各自 provider-aware 引导
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_capture_parse.py` 已验证 `quark` 当前可从 `cookie + share url` 解析出 `cookie / pwdId / passcode`，`guangya` 可解析出 `token / parentId / did / dt`，`189cloud` 可从 captured curl/header 文本解析出 `shareCode / accessCode / accessToken / signature / date`
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗当前包含 `authCaptureRawInput / authParseCaptureBtn / authApplyCaptureBtn`，匿名访问 `/api/auth/capture/parse` 会被拦截，登录后前端已绑定 `parseCapturedAuthText()` 与 `applyParsedCaptureSuggestion()`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充网页登录抓取结构化引导`
 - 完成范围：
   - 已新增应用侧组装模块 [auth_capture_guide.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_capture_guide.py)，把原来只有 `capture_pending + loginUrlHint + requiredFieldHints` 的网页登录抓取提示，补成 provider-aware 的结构化 capture guide

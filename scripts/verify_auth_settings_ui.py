@@ -24,6 +24,13 @@ def main() -> None:
                 "jsHasAuthRemediationLoader": 'async function loadAuthRemediationBundleSummary()' in app_js and 'fetchJson("/api/auth/remediation_bundle")' in app_js,
                 "jsHasAuthRemediationActions": 'function focusAuthRemediationProfile(profileId)' in app_js and 'async function openCaptureGuideForProvider(providerKey)' in app_js and 'focusBtn.textContent = "Focus Profile"' in app_js and 'captureBtn.textContent = "Open Capture"' in app_js,
                 "jsRefreshProtectedDataLoadsAuthBundles": "loadAuthEvidenceBundleSummary()," in app_js and "loadAuthRemediationBundleSummary()," in app_js,
+                "jsAuthEvidenceHasFirstGapActions": 'const firstAuthEvidenceGap = (state.authEvidenceBundle?.items || []).find((item) => {' in app_js
+                and 'focusBtn.textContent = "Focus First Gap"' in app_js
+                and 'refreshBtn.textContent = "Refresh First Gap"' in app_js
+                and 'captureBtn.textContent = "Open Capture First Gap"' in app_js
+                and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstProfile.profileId));' in app_js
+                and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(firstProfile.profileId));' in app_js
+                and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstProfile.providerKey || ""));' in app_js,
                 "jsRenderSettingsUsesAuthEvidence": "const authEvidenceSummary = state.authEvidenceBundle?.summary || {};" in app_js
                 and "profileReadyProfiles=" in app_js
                 and "writeReadyProfiles=" in app_js

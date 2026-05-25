@@ -2368,6 +2368,39 @@ function renderSettingsPanel() {
     li.textContent = row;
     authEvidenceList.appendChild(li);
   }
+  const firstAuthEvidenceGap = (state.authEvidenceBundle?.items || []).find((item) => {
+    const itemSummary = item?.summary || {};
+    return itemSummary.profileReady === false || itemSummary.writeReady === false || itemSummary.validationOk === false || itemSummary.probeOk === false;
+  }) || null;
+  if (firstAuthEvidenceGap) {
+    const firstProfile = firstAuthEvidenceGap.profile || {};
+    const itemSummary = firstAuthEvidenceGap.summary || {};
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    copy.textContent = `${firstProfile.displayName || firstProfile.profileId || "(unknown)"} [${firstProfile.providerKey || "(unknown)"}]: profileReady=${Boolean(itemSummary.profileReady)}, writeReady=${Boolean(itemSummary.writeReady)}, validationOk=${Boolean(itemSummary.validationOk)}, probeOk=${Boolean(itemSummary.probeOk)}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    if (firstProfile.profileId) {
+      const focusBtn = document.createElement("button");
+      focusBtn.className = "ghost";
+      focusBtn.textContent = "Focus First Gap";
+      focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstProfile.profileId));
+      actions.appendChild(focusBtn);
+      const refreshBtn = document.createElement("button");
+      refreshBtn.className = "ghost";
+      refreshBtn.textContent = "Refresh First Gap";
+      refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(firstProfile.profileId));
+      actions.appendChild(refreshBtn);
+    }
+    const captureBtn = document.createElement("button");
+    captureBtn.className = "ghost";
+    captureBtn.textContent = "Open Capture First Gap";
+    captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstProfile.providerKey || ""));
+    actions.appendChild(captureBtn);
+    li.appendChild(actions);
+    authEvidenceList.appendChild(li);
+  }
 
   const authRemediationSummary = state.authRemediationBundle?.summary || {};
   const authRemediationRows = [

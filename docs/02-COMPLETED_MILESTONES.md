@@ -10,6 +10,19 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充授权证据首个缺口直接补救`
+- 完成范围：
+  - 已把设置页里的 `Auth Evidence Bundle` 从“只展示 profileReady/writeReady/validationOk/probeOk 汇总”推进成可直接跳转首个授权证据缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在授权证据区块下方额外渲染首个 `profileReady=false / writeReady=false / validationOk=false / probeOk=false` 的档案，并直接带出 `Focus First Gap / Refresh First Gap / Open Capture First Gap`
+  - 当前动作会直接复用授权页顶部 `Auth Evidence Bundle` 的同一套 first-gap 判定逻辑，因此设置页看到的第一条缺口与授权页顶部摘要保持同口径；用户现在可以直接从设置页回到对应授权表单、刷新 evidence，或者打开网页登录抓取引导，而不需要再切到授权页顶部重新找同一条缺口
+  - 这次补齐把“设置页能看出 auth 证据哪些 profile 还不完整，但接下来去哪修还要自己再跳授权页”的流程，推进成“看首个 auth 证据缺口 -> 直接点动作 -> 继续修”的更短闭环，也让设置页里的 auth 证据面板不再只是纯只读统计
+  - 已同步补强 [verify_auth_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_settings_ui.py)，把 `Focus First Gap / Refresh First Gap / Open Capture First Gap` 的文案与绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_settings_ui.py` 已验证设置页 `Auth Evidence Bundle` 当前包含首个缺口动作按钮和对应绑定
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗与 capture guide 主链路未回退，登录后仍可正常走 `/api/auth/capture/start` 与 `/api/auth/capture/parse`
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充运行证据首个缺口直接补救`
 - 完成范围：
   - 已把设置页里的 `Task Runtime Evidence` 从“展示汇总 + 最近三条样本逐行动作”推进成可直接锁定首个关键运行缺口；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在运行证据区块下方额外渲染首个 `failed / candidateOnly / probeOnly / verifyOk=false / requiredAuth 非空` 的关键样本，并直接带出 `Focus First Runtime / Refresh First Runtime / Probe First Runtime / Open Capture First Runtime / Create Stub First Runtime`

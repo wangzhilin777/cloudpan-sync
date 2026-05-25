@@ -305,6 +305,7 @@ def _next_step(
     runtime_blocked_only: bool,
     runtime_candidate_only: bool,
     runtime_probe_only: bool,
+    runtime_orphan_only: bool,
     runtime_success_command: str,
     post_bootstrap_runtime_command: str,
     overwrite_support_status: str,
@@ -315,6 +316,8 @@ def _next_step(
         auto_rename_support_status=auto_rename_support_status,
     )
     if not provider_profiles:
+        if runtime_orphan_only:
+            return "当前已存在 runtime 成功样本，但对应 auth profile 未保存在当前仓库；先重建可复用 auth profile，再重跑 validation / live probe，把 auth/list/metadata/create_dir 证据补齐。"
         if post_bootstrap_runtime_command and not runtime_ok:
             return (
                 f"先创建 `{provider_key}` 的 auth profile 并完成最小 validation / live probe；"
@@ -394,6 +397,7 @@ def build_real_evidence_remediation_bundle(
         runtime_blocked_only = bool(runtime_evidence.get("blockedCount")) and not bool(runtime_evidence.get("ok"))
         runtime_candidate_only = bool(runtime_evidence.get("candidateCount")) and not bool(runtime_evidence.get("ok"))
         runtime_probe_only = bool(runtime_evidence.get("probeCount")) and not bool(runtime_evidence.get("ok"))
+        runtime_orphan_only = int(runtime_evidence.get("orphanProfileCount", 0) or 0) > 0
         runtime_live_upload_command = _live_upload_command_for_profile(provider_profiles[0] if provider_profiles else {})
         runtime_success_command = _runtime_success_command_for_profile(provider_profiles[0] if provider_profiles else {})
         post_bootstrap_runtime_command = _post_bootstrap_runtime_command_for_provider(provider_key)
@@ -417,6 +421,8 @@ def build_real_evidence_remediation_bundle(
             "runtimeBlockedOnly": runtime_blocked_only,
             "runtimeCandidateOnly": runtime_candidate_only,
             "runtimeProbeOnly": runtime_probe_only,
+            "runtimeOrphanOnly": runtime_orphan_only,
+            "runtimeOrphanProfiles": list(runtime_evidence.get("orphanProfiles") or []),
             "declaredConflictPolicies": list(conflict_snapshot.get("declaredConflictPolicies") or []),
             "supportsOverwrite": bool(conflict_snapshot.get("supportsOverwrite")),
             "supportsAutoRename": bool(conflict_snapshot.get("supportsAutoRename")),
@@ -490,6 +496,7 @@ def build_real_evidence_remediation_bundle(
                 runtime_blocked_only=runtime_blocked_only,
                 runtime_candidate_only=runtime_candidate_only,
                 runtime_probe_only=runtime_probe_only,
+                runtime_orphan_only=runtime_orphan_only,
                 runtime_success_command=runtime_success_command,
                 post_bootstrap_runtime_command=post_bootstrap_runtime_command if not provider_profiles else "",
                 overwrite_support_status=str(conflict_snapshot.get("overwriteSupportStatus") or ""),
@@ -583,6 +590,13 @@ def build_real_evidence_remediation_bundle(
             if bool(item.get("runtimeProbeOnly")) and str(item.get("providerKey") or "")
         }
     )
+    providers_runtime_orphan_only = sorted(
+        {
+            str(item.get("providerKey") or "")
+            for item in items
+            if bool(item.get("runtimeOrphanOnly")) and str(item.get("providerKey") or "")
+        }
+    )
 
     return {
         "summary": {
@@ -620,6 +634,7 @@ def build_real_evidence_remediation_bundle(
             "providersBlockedOnly": sum(1 for item in items if bool(item.get("runtimeBlockedOnly"))),
             "providersCandidateOnly": sum(1 for item in items if bool(item.get("runtimeCandidateOnly"))),
             "providersProbeOnly": sum(1 for item in items if bool(item.get("runtimeProbeOnly"))),
+            "providersRuntimeOrphanOnly": sum(1 for item in items if bool(item.get("runtimeOrphanOnly"))),
             "providersWithNoProfilesList": providers_with_no_profiles,
             "providersNeedingAuthEvidenceList": providers_needing_auth_evidence,
             "providersNeedingRuntimeSuccessList": providers_needing_runtime_success,
@@ -629,6 +644,7 @@ def build_real_evidence_remediation_bundle(
             "providersBlockedOnlyList": providers_blocked_only,
             "providersCandidateOnlyList": providers_candidate_only,
             "providersProbeOnlyList": providers_probe_only,
+            "providersRuntimeOrphanOnlyList": providers_runtime_orphan_only,
         },
         "items": items,
     }
@@ -668,6 +684,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersBlockedOnly: `{summary.get('providersBlockedOnly', 0)}`")
     lines.append(f"- providersCandidateOnly: `{summary.get('providersCandidateOnly', 0)}`")
     lines.append(f"- providersProbeOnly: `{summary.get('providersProbeOnly', 0)}`")
+    lines.append(f"- providersRuntimeOrphanOnly: `{summary.get('providersRuntimeOrphanOnly', 0)}`")
     lines.append(
         f"- providerSummary: `noProfiles={', '.join(summary.get('providersWithNoProfilesList', [])) or '(none)'}` "
         f"`needAuth={', '.join(summary.get('providersNeedingAuthEvidenceList', [])) or '(none)'}` "
@@ -677,7 +694,8 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
         f"`overwriteVariant={', '.join(summary.get('providersWithOverwriteVariantCommandList', [])) or '(none)'}` "
         f"`blockedOnly={', '.join(summary.get('providersBlockedOnlyList', [])) or '(none)'}` "
         f"`candidateOnly={', '.join(summary.get('providersCandidateOnlyList', [])) or '(none)'}` "
-        f"`probeOnly={', '.join(summary.get('providersProbeOnlyList', [])) or '(none)'}`"
+        f"`probeOnly={', '.join(summary.get('providersProbeOnlyList', [])) or '(none)'}` "
+        f"`runtimeOrphanOnly={', '.join(summary.get('providersRuntimeOrphanOnlyList', [])) or '(none)'}`"
     )
     lines.append("")
     lines.append("## Provider 清单")
@@ -699,8 +717,10 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
         lines.append(
             f"- needs: `auth={row.get('needsAuthEvidence', False)}` `list={row.get('needsListEvidence', False)}` "
             f"`metadata={row.get('needsMetadataEvidence', False)}` `create_dir={row.get('needsCreateDirEvidence', False)}` "
-            f"`runtime={row.get('needsRuntimeSuccess', False)}` `runtimeBlockedOnly={row.get('runtimeBlockedOnly', False)}` `runtimeCandidateOnly={row.get('runtimeCandidateOnly', False)}` `runtimeProbeOnly={row.get('runtimeProbeOnly', False)}`"
+            f"`runtime={row.get('needsRuntimeSuccess', False)}` `runtimeBlockedOnly={row.get('runtimeBlockedOnly', False)}` `runtimeCandidateOnly={row.get('runtimeCandidateOnly', False)}` `runtimeProbeOnly={row.get('runtimeProbeOnly', False)}` `runtimeOrphanOnly={row.get('runtimeOrphanOnly', False)}`"
         )
+        if row.get("runtimeOrphanProfiles"):
+            lines.append(f"- runtimeOrphanProfiles: `{', '.join(row.get('runtimeOrphanProfiles') or [])}`")
         if row.get("declaredConflictPolicies"):
             lines.append(
                 f"- conflictSupport: `declared={', '.join(row.get('declaredConflictPolicies') or [])}` "

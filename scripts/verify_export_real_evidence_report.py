@@ -38,6 +38,8 @@ def main() -> None:
             "taskRuntimeProbeProviderCount": 1,
             "taskRuntimeBlockedProviderCount": 1,
             "taskRuntimeConflictHandledCount": 1,
+            "taskRuntimeOrphanProviderCount": 1,
+            "taskRuntimeOrphanProfileCount": 1,
             "fullyVerifiedProviderCount": 0,
             "taskRuntimeSampleCount": 4,
             "taskRuntimeSuccessCount": 1,
@@ -55,6 +57,8 @@ def main() -> None:
             "taskRuntimeCandidateProviders": ["189cloud"],
             "taskRuntimeProbeProviders": ["189cloud"],
             "taskRuntimeBlockedProviders": ["189cloud"],
+            "taskRuntimeOrphanProviders": ["guangya"],
+            "taskRuntimeOrphanProfiles": ["gy-orphan"],
         },
         "items": [
             {
@@ -78,6 +82,8 @@ def main() -> None:
                     "failedProfiles": [],
                     "candidateProfiles": [],
                     "probeProfiles": [],
+                    "orphanProfiles": ["gy-orphan"],
+                    "orphanProfileCount": 1,
                     "note": "当前已记录到任务运行阶段真实成功样本。",
                 },
                 "gaps": ["缺少 fully verified 汇总样本"],
@@ -143,13 +149,16 @@ def main() -> None:
                 and "runtime_candidate=1" in markdown
                 and "runtime_probe=1" in markdown
                 and "runtime_blocked_providers=1" in markdown
-                and "runtime_blocked=1" in markdown,
-                "exportedHasProviderSummary": "- providerSummary: `auth=guangya` `list=guangya` `metadata=guangya` `create_dir=guangya` `fully_verified=(none)` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=189cloud` `runtime_probe=189cloud` `runtime_blocked=189cloud`" in markdown,
+                and "runtime_blocked=1" in markdown
+                and "runtime_orphan_providers=1" in markdown
+                and "runtime_orphan_profiles=1" in markdown,
+                "exportedHasProviderSummary": "- providerSummary: `auth=guangya` `list=guangya` `metadata=guangya` `create_dir=guangya` `fully_verified=(none)` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=189cloud` `runtime_probe=189cloud` `runtime_blocked=189cloud` `runtime_orphan=guangya`" in markdown,
                 "exportedHasGuangyaSuccessRow": "## guangya - Guangya" in markdown
-                and "samples=1 success=1 failed=0" in markdown,
+                and "samples=1 success=1 failed=0" in markdown
+                and "orphanProfiles=1" in markdown,
                 "exportedHas189MixedRuntimeRow": "## 189cloud - Tianyi 189Cloud" in markdown
                 and "samples=3 success=0 failed=1 candidate=1 probe=1 blocked=1" in markdown,
-                "exportedHasRuntimeProfiles": "taskRuntimeProfiles: success=gy-1 failed=(none) candidate=(none) probe=(none)" in markdown
+                "exportedHasRuntimeProfiles": "taskRuntimeProfiles: success=gy-1 failed=(none) candidate=(none) probe=(none) orphan=gy-orphan" in markdown
                 and "taskRuntimeProfiles: success=(none) failed=189-1 candidate=189-candidate probe=189-probe" in markdown,
                 "exportedHasGapText": "缺少真实 runtime 成功样本" in markdown,
             },

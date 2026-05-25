@@ -10,6 +10,26 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充真实证据运行样本脱节诊断`
+- 完成范围：
+  - [real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_report.py) 现已补齐 `taskRuntimeOrphanProviderCount / taskRuntimeOrphanProfileCount / taskRuntimeOrphanProviders / taskRuntimeOrphanProfiles` 聚合明细，并在逐 provider 的 `taskRuntimeEvidence` 里继续写出 `orphanProfiles / orphanProfileCount`，不再把“已有 runtime 成功样本但当前仓库里没有对应 auth profile”混成普通成功
+  - 这次补齐后，[10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 现在会明确写出 `runtime_orphan_providers=3`、`runtime_orphan_profiles=3` 和 `runtime_orphan=guangya, uc, pikpak`，并在 `guangya / uc / pikpak` 三个 provider 下直接标出 `orphan=gy-live-1 / uc-live-1 / pikpak-live-1`，同时把“已有 runtime 样本，但对应 auth profile 未保存在当前仓库”列为真实 gap
+  - [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 现已继续区分 `runtimeOrphanOnly / runtimeOrphanProfiles` 与 `providersRuntimeOrphanOnly / providersRuntimeOrphanOnlyList`，让补救逻辑不再误导成“直接补 runtime”即可，而是先明确提示“重建或导入对应 auth profile，再重跑 validation / live probe”
+  - 这次补齐后，[12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 现在会明确写出 `providersRuntimeOrphanOnly=3` 与 `runtimeOrphanOnly=guangya, pikpak, uc`，逐 provider 也会继续显示 `runtimeOrphanProfiles`
+  - 设置页聚合现已同步吸收上述脱节诊断字段；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在 `Real Evidence` 面板显示 `runtime_orphan_providers / runtime_orphan_profiles / runtimeOrphanProvidersList / runtimeOrphanProfilesList`，在 `Real Evidence Remediation` 面板显示 `runtimeOrphanOnlyProviders`，并在逐行补救摘要里带出 `runtimeOrphanOnly / runtimeOrphanProfiles`
+  - 已同步补强 [verify_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_report.py)、[verify_export_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_report.py)、[verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py)、[verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)，把 synthetic payload、导出链、设置页摘要与脱节诊断字段一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_report.py` 已验证 synthetic payload 与 `/api/real_evidence_markdown` 当前会输出 orphan 相关 summary/provider/item 字段，并把缺失 auth profile 场景记为明确 gap
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_report.py` 已验证导出的真实证据状态报告会写出 `runtime_orphan_providers / runtime_orphan_profiles / runtime_orphan`
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_settings_ui.py` 已验证设置页 `Real Evidence` 摘要当前会读取并展示 orphan 相关字段
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证设置页 `Real Evidence Remediation` 摘要与逐 provider 行当前会读取并展示 `runtimeOrphanOnly / runtimeOrphanProfiles`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_status_sync.py` 已验证当前仓库 [10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 中的 orphan 汇总与 `build_real_evidence_report()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py`、`.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py`、`.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证 remediation bundle、导出 markdown 和当前仓库 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 中的 `runtimeOrphanOnly` 诊断与补救建议保持同步
+  - `.\.venv\Scripts\python.exe scripts\export_real_evidence_report.py`、`.\.venv\Scripts\python.exe scripts\export_real_evidence_remediation.py` 已重导出当前真实证据状态/补救文档
+  - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充本地适配器验证设置页聚合`
 - 完成范围：
   - 已新增应用侧聚合模块 [local_live_adapter_verification.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/local_live_adapter_verification.py)，把原本只存在于导出脚本的 `Local Live Adapter Verification` 能力正式抽到 `src` 层，统一提供 `summary / items / markdown` 三种消费形态

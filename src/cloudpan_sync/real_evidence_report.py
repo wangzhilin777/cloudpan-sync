@@ -117,6 +117,18 @@ def _probe_runtime_profile_labels(
     return sorted(set(labels))
 
 
+def _missing_profile_labels(
+    rows: list[dict[str, object]],
+    profile_map: dict[str, object],
+) -> list[str]:
+    labels: list[str] = []
+    for row in rows:
+        profile_id = str(row.get("profileId") or "")
+        if profile_id and profile_id not in profile_map:
+            labels.append(profile_id)
+    return sorted(set(labels))
+
+
 def build_real_evidence_report() -> dict[str, object]:
     display_map = _provider_display_map()
     notes_map = _provider_notes_map()
@@ -162,6 +174,7 @@ def build_real_evidence_report() -> dict[str, object]:
         runtime_failed_labels = _runtime_profile_labels(provider_runtime_effective_rows, profile_map, success=False)
         runtime_candidate_labels = _candidate_runtime_profile_labels(provider_runtime_candidate_rows, profile_map)
         runtime_probe_labels = _probe_runtime_profile_labels(provider_runtime_probe_rows, profile_map)
+        runtime_orphan_labels = _missing_profile_labels(provider_runtime_rows, profile_map)
 
         auth_ok = bool(auth_ok_labels)
         list_ok = bool(list_ok_labels)
@@ -207,6 +220,8 @@ def build_real_evidence_report() -> dict[str, object]:
             gaps.append("已有 probe-only 样本，但尚未记录到真实传输成功样本")
         if runtime_candidate and not runtime_ok:
             gaps.append("已有 fast-upload candidate 样本，但尚未记录到真实 rapid-upload/runtime 成功样本")
+        if runtime_orphan_labels:
+            gaps.append("已有 runtime 样本，但对应 auth profile 未保存在当前仓库")
 
         items.append(
             {
@@ -249,6 +264,8 @@ def build_real_evidence_report() -> dict[str, object]:
                     "failedProfiles": runtime_failed_labels,
                     "candidateProfiles": runtime_candidate_labels,
                     "probeProfiles": runtime_probe_labels,
+                    "orphanProfiles": runtime_orphan_labels,
+                    "orphanProfileCount": len(runtime_orphan_labels),
                     "note": (
                         "当前已记录到任务运行阶段真实成功样本。"
                         if runtime_ok
@@ -308,6 +325,8 @@ def build_real_evidence_report() -> dict[str, object]:
             "taskRuntimeBlockedProviderCount": task_runtime_blocked_provider_count,
             "taskRuntimeBlockedCount": sum(1 for row in runtime_rows if str(row.get("executionMode") or "") == "blocked"),
             "taskRuntimeConflictHandledCount": task_runtime_conflict_handled_count,
+            "taskRuntimeOrphanProviderCount": sum(1 for item in items if int(((item.get("taskRuntimeEvidence") or {}).get("orphanProfileCount", 0)) or 0) > 0),
+            "taskRuntimeOrphanProfileCount": sum(int(((item.get("taskRuntimeEvidence") or {}).get("orphanProfileCount", 0)) or 0) for item in items),
             "authEvidenceProviders": [str(item.get("providerKey") or "") for item in items if bool(((item.get("authEvidence") or {}).get("ok")))],
             "listEvidenceProviders": [str(item.get("providerKey") or "") for item in items if bool(((item.get("listEvidence") or {}).get("ok")))],
             "metadataEvidenceProviders": [str(item.get("providerKey") or "") for item in items if bool(((item.get("metadataEvidence") or {}).get("ok")))],
@@ -318,6 +337,13 @@ def build_real_evidence_report() -> dict[str, object]:
             "taskRuntimeCandidateProviders": [str(item.get("providerKey") or "") for item in items if int(((item.get("taskRuntimeEvidence") or {}).get("candidateCount", 0)) or 0) > 0],
             "taskRuntimeProbeProviders": [str(item.get("providerKey") or "") for item in items if int(((item.get("taskRuntimeEvidence") or {}).get("probeCount", 0)) or 0) > 0],
             "taskRuntimeBlockedProviders": [str(item.get("providerKey") or "") for item in items if int(((item.get("taskRuntimeEvidence") or {}).get("blockedCount", 0)) or 0) > 0],
+            "taskRuntimeOrphanProviders": [str(item.get("providerKey") or "") for item in items if int(((item.get("taskRuntimeEvidence") or {}).get("orphanProfileCount", 0)) or 0) > 0],
+            "taskRuntimeOrphanProfiles": [
+                str(profile_id or "")
+                for item in items
+                for profile_id in (((item.get("taskRuntimeEvidence") or {}).get("orphanProfiles")) or [])
+                if str(profile_id or "")
+            ],
         },
         "items": items,
     }
@@ -360,6 +386,8 @@ def real_evidence_to_markdown(payload: dict[str, object]) -> str:
         f" `runtime_blocked_providers={summary.get('taskRuntimeBlockedProviderCount', 0)}`"
         f" `runtime_blocked={summary.get('taskRuntimeBlockedCount', 0)}`"
         f" `runtime_conflict_handled={summary.get('taskRuntimeConflictHandledCount', 0)}`"
+        f" `runtime_orphan_providers={summary.get('taskRuntimeOrphanProviderCount', 0)}`"
+        f" `runtime_orphan_profiles={summary.get('taskRuntimeOrphanProfileCount', 0)}`"
     )
     lines.append(
         "- providerSummary:"
@@ -373,6 +401,7 @@ def real_evidence_to_markdown(payload: dict[str, object]) -> str:
         f" `runtime_candidate={', '.join(summary.get('taskRuntimeCandidateProviders', [])) or '(none)'}`"
         f" `runtime_probe={', '.join(summary.get('taskRuntimeProbeProviders', [])) or '(none)'}`"
         f" `runtime_blocked={', '.join(summary.get('taskRuntimeBlockedProviders', [])) or '(none)'}`"
+        f" `runtime_orphan={', '.join(summary.get('taskRuntimeOrphanProviders', [])) or '(none)'}`"
     )
     lines.append("")
     lines.append("> 说明：本报告只统计当前仓库已保存的最新真实校验/探测证据，不把 mock 成功、静态能力声明或未持久化的临时运行结果算成真实成功。")
@@ -406,13 +435,15 @@ def real_evidence_to_markdown(payload: dict[str, object]) -> str:
             f"probe={((row.get('taskRuntimeEvidence') or {}).get('probeCount', 0))} "
             f"blocked={((row.get('taskRuntimeEvidence') or {}).get('blockedCount', 0))} "
             f"conflictHandled={((row.get('taskRuntimeEvidence') or {}).get('conflictHandledCount', 0))} "
+            f"orphanProfiles={((row.get('taskRuntimeEvidence') or {}).get('orphanProfileCount', 0))} "
             f"note={str((row.get('taskRuntimeEvidence') or {}).get('note') or '')}"
         )
         lines.append(
             f"- taskRuntimeProfiles: success={_profiles_text((row.get('taskRuntimeEvidence') or {}).get('profiles', []))} "
             f"failed={_profiles_text((row.get('taskRuntimeEvidence') or {}).get('failedProfiles', []))} "
             f"candidate={_profiles_text((row.get('taskRuntimeEvidence') or {}).get('candidateProfiles', []))} "
-            f"probe={_profiles_text((row.get('taskRuntimeEvidence') or {}).get('probeProfiles', []))}"
+            f"probe={_profiles_text((row.get('taskRuntimeEvidence') or {}).get('probeProfiles', []))} "
+            f"orphan={_profiles_text((row.get('taskRuntimeEvidence') or {}).get('orphanProfiles', []))}"
         )
         if row.get("gaps"):
             lines.append(f"- gaps: {', '.join(row.get('gaps') or [])}")

@@ -12,6 +12,18 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - `real_evidence_remediation.py` 现已新增 `recommendedPostBootstrapRuntimeCommand` 与 `providersWithPostBootstrapRuntimeCommand`：针对 `115_open / 189cloud` 这类“当前还没 profile、但后续一定还要补 runtime success”的 provider，补救指南不再只停在 `create_auth_profile_stub.py --probe`
+  - 当前 `Real Evidence Remediation` 会在“先建档案/跑 probe”之后，继续直接给出下一条占位式 runtime helper，提示用户在拿到真实 `profileId` 后如何立刻进入 `create_fast_upload_candidate_task.py` 收集真实 runtime 样本
+  - settings 页 remediation 简讯、Markdown 导出与 API bundle 现在都已同步带出这条字段，真实取证准备链路从“建档案”延伸到了“建完后怎么继续跑 runtime”
+- 当前验证证据：
+  - [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已验证 bundle/API/Markdown 都带 `recommendedPostBootstrapRuntimeCommand` 与 `providersWithPostBootstrapRuntimeCommand`
+  - [verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py) 已验证 `12-REAL_EVIDENCE_REMEDIATION_GUIDE.md` 导出文件包含新的 summary 与 `189cloud` 的 post-bootstrap runtime helper
+  - [verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py) 已验证 settings 页 remediation 面板已消费 `recommendedPostBootstrapRuntimeCommand / providersWithPostBootstrapRuntimeCommand`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [verify_patch_refresh_export_auth_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_refresh_export_auth_bundle.py) 已进一步补强，不再只验证“批量补字段后能落文件”，还会同时校验 selector 命中范围、非命中档案不被误改，以及 CLI 输出 JSON 摘要
   - 当前 `patch_refresh_export_auth_bundle.py` 这条“批量补档案 -> 刷新 evidence -> 导出 bundle”链路，已经同时锁住选择器过滤、副作用边界和输出摘要，不再只覆盖 happy path
   - 这样批量 patch/export helper 的验收口径也更接近真实使用场景：既要改对命中的档案，也要保证不会误伤旁边的其他 provider/profile

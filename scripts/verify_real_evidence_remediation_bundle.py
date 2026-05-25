@@ -84,6 +84,16 @@ def main() -> None:
                 "taskRuntimeEvidence": {"ok": False, "blockedCount": 0},
                 "gaps": ["基础证据已齐，但尚未记录到真实 runtime 成功样本"],
             },
+            {
+                "providerKey": "xunlei",
+                "displayName": "Xunlei Drive",
+                "authEvidence": {"ok": False},
+                "listEvidence": {"ok": False},
+                "metadataEvidence": {"ok": False},
+                "createDirEvidence": {"ok": False},
+                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0},
+                "gaps": ["缺少通过的 auth validation 证据"],
+            },
         ]
     }
     synthetic_profiles = [
@@ -120,17 +130,17 @@ def main() -> None:
             "resolvedParentId": "/",
         },
         {
-            "profileId": "189-rem-1",
-            "providerKey": "189cloud",
-            "displayName": "share-189",
-            "profileReady": True,
-            "writeReady": False,
-        },
-        {
             "profileId": "quark-rem-1",
             "providerKey": "quark",
             "displayName": "quark-manual",
             "profileReady": False,
+            "writeReady": True,
+        },
+        {
+            "profileId": "xl-rem-1",
+            "providerKey": "xunlei",
+            "displayName": "xunlei-ready",
+            "profileReady": True,
             "writeReady": True,
         },
     ]
@@ -194,6 +204,7 @@ def main() -> None:
                 "providersWithLiveUploadCommand": ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")),
                 "providersWithFastCandidateCommand": ((bundle.get("summary") or {}).get("providersWithFastCandidateCommand")),
                 "providersWithRuntimeSuccessCommand": ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")),
+                "providersWithPostBootstrapRuntimeCommand": ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")),
                 "providersBlockedOnly": ((bundle.get("summary") or {}).get("providersBlockedOnly")),
                 "providersCandidateOnly": ((bundle.get("summary") or {}).get("providersCandidateOnly")),
                 "providersProbeOnly": ((bundle.get("summary") or {}).get("providersProbeOnly")),
@@ -209,6 +220,7 @@ def main() -> None:
                 "markdownHasFastCandidateCommand": "recommendedFastCandidateCommand" in markdown and "create_fast_upload_candidate_task.py" in markdown,
                 "fastCandidateCommandCarriesResolvedParent": "--target-parent-id 115-root-1" in markdown and "--evidence-dir tmp\\115_open-fast-candidate-evidence" in markdown,
                 "markdownHasRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown,
+                "markdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown and "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown,
                 "runtimeSuccessFallsBackToFastHelper": "115_open" in markdown and "tmp\\115_open-fast-candidate-evidence" in markdown,
                 "runtimeSuccessUsesLiveHelperWhenAvailable": "guangya" in markdown and "tmp\\guangya-live-evidence" in markdown,
                 "markdownHasCandidateOnlyFlag": "runtimeCandidateOnly=True" in markdown,
@@ -227,6 +239,7 @@ def main() -> None:
                 "markdownHasNextStep": "nextStep:" in markdown,
                 "apiHasSummary": bool((api_bundle.get("summary") or {}).get("providerCount", 0) >= 0),
                 "apiHasRuntimeSuccessSummary": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")),
+                "apiHasPostBootstrapRuntimeSummary": ((api_bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")),
                 "apiHasGuangyaRuntimeSuccessCommand": bool(
                     next(
                         (
@@ -249,8 +262,20 @@ def main() -> None:
                         None,
                     )
                 ),
+                "apiHas189PostBootstrapRuntimeCommand": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "189cloud"
+                            and "create_fast_upload_candidate_task.py" in str((row or {}).get("recommendedPostBootstrapRuntimeCommand") or "")
+                        ),
+                        None,
+                    )
+                ),
                 "apiMarkdownHasTitle": "# CloudPan Sync 真实联调补救指南" in str(api_markdown.get("markdown", "")),
                 "apiMarkdownHasRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in str(api_markdown.get("markdown", "")),
+                "apiMarkdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in str(api_markdown.get("markdown", "")),
             },
             ensure_ascii=False,
             indent=2,

@@ -146,6 +146,24 @@ def _runtime_success_command_for_profile(profile: dict[str, object]) -> str:
     return _fast_candidate_command_for_profile(profile)
 
 
+def _post_bootstrap_runtime_command_for_provider(provider_key: str) -> str:
+    provider = str(provider_key or "").strip()
+    if provider not in {"115_open", "189cloud"}:
+        return ""
+    parts = [
+        ".\\.venv\\Scripts\\python.exe",
+        "scripts\\create_fast_upload_candidate_task.py",
+        f"--target-provider {provider}",
+        "--target-profile-id YOUR_PROFILE_ID",
+    ]
+    if provider == "115_open":
+        parts.append("--sha1 auto")
+    else:
+        parts.append("--md5 auto")
+    parts.extend(["--auto-temp-file", f"--evidence-dir tmp\\{provider}-post-bootstrap-runtime-evidence"])
+    return " ".join(parts)
+
+
 def _create_command_for_provider(
     *,
     provider_key: str,
@@ -296,6 +314,9 @@ def build_real_evidence_remediation_bundle(
             "recommendedRuntimeSuccessCommand": runtime_success_command
             if provider_profiles and profile_ready and write_ready and bool(auth_evidence.get("ok")) and bool(list_evidence.get("ok")) and bool(metadata_evidence.get("ok")) and bool(create_dir_evidence.get("ok")) and not bool(runtime_evidence.get("ok"))
             else "",
+            "recommendedPostBootstrapRuntimeCommand": _post_bootstrap_runtime_command_for_provider(provider_key)
+            if (not provider_profiles) and not bool(runtime_evidence.get("ok"))
+            else "",
             "recommendedCreateCommand": _create_command_for_provider(
                 provider_key=provider_key,
                 auth_modes=provider_auth_modes(provider_key),
@@ -342,6 +363,7 @@ def build_real_evidence_remediation_bundle(
             "providersWithLiveUploadCommand": sum(1 for item in items if str(item.get("recommendedLiveUploadCommand") or "")),
             "providersWithFastCandidateCommand": sum(1 for item in items if str(item.get("recommendedFastCandidateCommand") or "")),
             "providersWithRuntimeSuccessCommand": sum(1 for item in items if str(item.get("recommendedRuntimeSuccessCommand") or "")),
+            "providersWithPostBootstrapRuntimeCommand": sum(1 for item in items if str(item.get("recommendedPostBootstrapRuntimeCommand") or "")),
             "providersWithCreateCommand": sum(1 for item in items if str(item.get("recommendedCreateCommand") or "")),
             "providersWithBootstrapCommand": sum(1 for item in items if str(item.get("recommendedBootstrapCommand") or "")),
             "providersBlockedOnly": sum(1 for item in items if bool(item.get("runtimeBlockedOnly"))),
@@ -371,6 +393,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersWithLiveUploadCommand: `{summary.get('providersWithLiveUploadCommand', 0)}`")
     lines.append(f"- providersWithFastCandidateCommand: `{summary.get('providersWithFastCandidateCommand', 0)}`")
     lines.append(f"- providersWithRuntimeSuccessCommand: `{summary.get('providersWithRuntimeSuccessCommand', 0)}`")
+    lines.append(f"- providersWithPostBootstrapRuntimeCommand: `{summary.get('providersWithPostBootstrapRuntimeCommand', 0)}`")
     lines.append(f"- providersWithCreateCommand: `{summary.get('providersWithCreateCommand', 0)}`")
     lines.append(f"- providersWithBootstrapCommand: `{summary.get('providersWithBootstrapCommand', 0)}`")
     lines.append(f"- providersBlockedOnly: `{summary.get('providersBlockedOnly', 0)}`")
@@ -419,5 +442,7 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedFastCandidateCommand: `{row.get('recommendedFastCandidateCommand', '')}`")
         if row.get("recommendedRuntimeSuccessCommand"):
             lines.append(f"- recommendedRuntimeSuccessCommand: `{row.get('recommendedRuntimeSuccessCommand', '')}`")
+        if row.get("recommendedPostBootstrapRuntimeCommand"):
+            lines.append(f"- recommendedPostBootstrapRuntimeCommand: `{row.get('recommendedPostBootstrapRuntimeCommand', '')}`")
         lines.append("")
     return "\n".join(lines).strip() + "\n"

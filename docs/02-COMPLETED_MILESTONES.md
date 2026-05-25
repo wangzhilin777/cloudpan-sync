@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`孤儿恢复列表捕获入口也对齐现成档案语义`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Runtime Orphan Recovery` 逐条样本行的 capture 动作，从泛化的 `Open Capture` 推进成在已命中现成 orphan 对应档案时明确使用 `Open Capture For Existing Orphan Profile`
+  - 当前效果是：同一条 orphan 恢复行里，如果当前仓库已经有可直接续做的档案，`Focus / Refresh / Probe / Capture` 四个动作现在都会统一表达“继续使用现成 orphan profile”，不再只剩 capture 还保留旧的泛化口径
+  - 这次补齐让 orphan 行级入口内部也完全对齐到同一套恢复语言体系，继续减少用户在 `P-REAL` 补救链路里的语义跳变
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证 orphan 行级入口当前会在 `existingProfileId` 命中时使用 `Open Capture For Existing Orphan Profile`，并保留原有 `Recreate Stub` 与 `Focus/Refresh/Probe Existing Orphan Profile` 绑定
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`授权补救列表行也对齐现成档案语义`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Auth Remediation Guide` 下方逐条档案行的恢复动作，从泛化的 `Focus Profile / Open Capture` 推进成明确的 `Focus Existing Profile / Open Capture For Existing Profile`

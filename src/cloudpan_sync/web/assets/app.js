@@ -3159,6 +3159,12 @@ function renderSettingsPanel() {
     const fieldHints = (item.requiredFieldHints || []).slice(0, 2).join(" | ");
     const existingProfiles = (item.existingProviderProfileNames || []).join("/") || "(none)";
     const existingProfileId = (item.existingProviderProfileIds || [])[0] || "";
+    const orphanRowLabels = existingProfileId ? {
+      focus: "Focus Existing Orphan Profile",
+      refresh: "Refresh Existing Orphan Profile",
+      probe: "Probe Existing Orphan Profile",
+      capture: "Open Capture For Existing Orphan Profile",
+    } : null;
     const copy = document.createElement("span");
     copy.textContent = `${item.providerKey || "(unknown)"}: orphanProfileId=${item.orphanProfileId || "(none)"}, sampleCount=${item.sampleCount || 0}, authModes=${authModes}, preferredAuthMode=${item.preferredAuthMode || "(none)"}, existingProfiles=${existingProfiles}${fieldHints ? `, hints=${fieldHints}` : ""}${item.webLoginUrl ? `, login=${item.webLoginUrl}` : ""}${item.recommendedCreateCommand ? `, recreate=${item.recommendedCreateCommand}` : ""}${item.recommendedRefreshEvidenceCommand ? `, refresh=${item.recommendedRefreshEvidenceCommand}` : ""}${item.recommendedRuntimeProbeCommand ? `, runtimeProbe=${item.recommendedRuntimeProbeCommand}` : ""}${item.recommendedRuntimeSuccessCommand ? `, runtimeSuccess=${item.recommendedRuntimeSuccessCommand}` : ""}${item.recommendedOverwriteVariantCommand ? `, overwriteVariant=${item.recommendedOverwriteVariantCommand}` : ""}`;
     li.appendChild(copy);
@@ -3167,18 +3173,18 @@ function renderSettingsPanel() {
     if (existingProfileId) {
       const focusBtn = document.createElement("button");
       focusBtn.className = "ghost";
-      focusBtn.textContent = "Focus Existing Orphan Profile";
+      focusBtn.textContent = orphanRowLabels.focus;
       focusBtn.addEventListener("click", () => focusAuthRemediationProfile(existingProfileId));
       actions.appendChild(focusBtn);
       const refreshBtn = document.createElement("button");
       refreshBtn.className = "ghost";
-      refreshBtn.textContent = "Refresh Existing Orphan Profile";
+      refreshBtn.textContent = orphanRowLabels.refresh;
       refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(existingProfileId));
       actions.appendChild(refreshBtn);
       if (liveProbeProviderSet.has(item.providerKey)) {
         const probeBtn = document.createElement("button");
         probeBtn.className = "ghost";
-        probeBtn.textContent = "Probe Existing Orphan Profile";
+        probeBtn.textContent = orphanRowLabels.probe;
         probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(existingProfileId));
         actions.appendChild(probeBtn);
       }
@@ -3190,7 +3196,7 @@ function renderSettingsPanel() {
     actions.appendChild(recreateBtn);
     const captureBtn = document.createElement("button");
     captureBtn.className = "ghost";
-    captureBtn.textContent = "Open Capture";
+    captureBtn.textContent = existingProfileId ? orphanRowLabels.capture : "Open Capture";
     captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));
     actions.appendChild(captureBtn);
     li.appendChild(actions);

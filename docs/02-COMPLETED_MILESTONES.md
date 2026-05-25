@@ -12,6 +12,17 @@
 
 - 提交：`本次提交`
 - 完成范围：
+  - [scripts/verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py) 已补出两个更明确的 `postBootstrap` 专项断言，不再只把相关字段埋在一个超长总布尔里
+  - 当前 UI 验证现在会单独锁住设置页 summary 行里的 `postBootstrapRuntimeCommands=...`，以及 provider 简讯里的 `postBootstrapRuntime=...`
+  - 这样如果前端以后把 `post-bootstrap` 计数或命令展示回退，诊断输出会更直接，不必再从 `jsSettingsRenderUsesRemediation=false` 里手工拆原因
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证 `jsRemediationSummaryShowsPostBootstrapCount=true`
+  - 同一验证已验证 `jsRemediationRowsShowPostBootstrapCommand=true`
+
+### 已完成补齐项 - `2026-05-25`
+
+- 提交：`本次提交`
+- 完成范围：
   - [scripts/verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 已进一步收口 synthetic 场景，让 `baidu_netdisk` 也真实进入 post-bootstrap 分支，而不是停留在“已建档不触发 helper”的旧状态
   - 当前 bundle 验证里的 post-bootstrap 汇总已抬到 `5`，并且 `apiHasBaiduPostBootstrapRuntimeCommand` 现在是正向真覆盖，不再是反向占位式判断
   - 这样 `baidu_netdisk` 这条 live-upload 型 post-bootstrap helper 现在同时被导出验证和 bundle 验证覆盖，和当前 [docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 保持一致

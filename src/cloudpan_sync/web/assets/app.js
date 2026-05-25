@@ -50,6 +50,7 @@ const state = {
   taskRuntimeEvidence: [],
   taskRuntimeEvidenceMeta: { historyCount: 0, summary: null },
   runtimeOrphanRecovery: null,
+  authCaptureGuide: null,
   tasks: [],
   taskPlanPreview: null,
 };
@@ -332,6 +333,59 @@ function setAuthValidationSummary(data, title = "Latest Auth Result") {
   summary.textContent = row?.summary || row?.message || row?.error || "no details";
   box.appendChild(summary);
 
+  if (data?.status === "capture_pending") {
+    if (data.loginUrlHint) {
+      const loginLine = document.createElement("div");
+      loginLine.className = "auth-validation-meta";
+      loginLine.textContent = `loginUrl=${data.loginUrlHint}`;
+      box.appendChild(loginLine);
+    }
+    if (Array.isArray(data.recommendedAuthModes) && data.recommendedAuthModes.length) {
+      const modeLine = document.createElement("div");
+      modeLine.className = "auth-validation-meta";
+      modeLine.textContent = `authModes=${data.recommendedAuthModes.join("/")}, preferred=${data.preferredCaptureMode || "(none)"}`;
+      box.appendChild(modeLine);
+    }
+    if (Array.isArray(data.pasteTargets) && data.pasteTargets.length) {
+      const pasteLine = document.createElement("div");
+      pasteLine.className = "auth-validation-meta";
+      pasteLine.textContent = `pasteTargets=${data.pasteTargets.join(" | ")}`;
+      box.appendChild(pasteLine);
+    }
+    if (Array.isArray(data.manualSteps) && data.manualSteps.length) {
+      const steps = document.createElement("ol");
+      steps.className = "plain-list";
+      for (const step of data.manualSteps) {
+        const item = document.createElement("li");
+        item.textContent = step;
+        steps.appendChild(item);
+      }
+      box.appendChild(steps);
+    }
+    if (Array.isArray(data.browserConsoleSnippets) && data.browserConsoleSnippets.length) {
+      for (const snippet of data.browserConsoleSnippets) {
+        const snippetTitle = document.createElement("div");
+        snippetTitle.className = "auth-validation-meta";
+        snippetTitle.textContent = `${snippet.label || "Snippet"}: ${snippet.purpose || ""}`;
+        box.appendChild(snippetTitle);
+        const snippetCode = document.createElement("pre");
+        snippetCode.className = "capture-result";
+        snippetCode.textContent = snippet.code || "";
+        box.appendChild(snippetCode);
+      }
+    }
+    if (Array.isArray(data.networkCaptureTips) && data.networkCaptureTips.length) {
+      const tips = document.createElement("ul");
+      tips.className = "plain-list";
+      for (const tip of data.networkCaptureTips) {
+        const item = document.createElement("li");
+        item.textContent = tip;
+        tips.appendChild(item);
+      }
+      box.appendChild(tips);
+    }
+  }
+
   const meta = document.createElement("div");
   meta.className = "auth-pill-row";
   const pills = [
@@ -353,6 +407,14 @@ function setAuthValidationSummary(data, title = "Latest Auth Result") {
   box.appendChild(meta);
 
   raw.textContent = JSON.stringify(data, null, 2);
+}
+
+function updateCaptureGuideActions() {
+  const openBtn = document.getElementById("authOpenLoginUrlBtn");
+  if (!openBtn) {
+    return;
+  }
+  openBtn.disabled = !state.authCaptureGuide?.loginUrlHint;
 }
 
 function setAuthEvidenceSummary(evidence, markdown) {
@@ -1087,6 +1149,15 @@ function openAuthModal() {
   if (modal && typeof modal.showModal === "function") {
     modal.showModal();
   }
+  updateCaptureGuideActions();
+}
+
+function openCaptureLoginPage() {
+  const loginUrl = state.authCaptureGuide?.loginUrlHint || "";
+  if (!loginUrl) {
+    return;
+  }
+  window.open(loginUrl, "_blank", "noopener");
 }
 
 async function startCaptureGuide() {
@@ -1095,6 +1166,8 @@ async function startCaptureGuide() {
     method: "POST",
     body: JSON.stringify({ providerKey }),
   });
+  state.authCaptureGuide = data;
+  updateCaptureGuideActions();
   setAuthValidationSummary(data, "Capture Guide");
 }
 
@@ -2064,6 +2137,7 @@ async function bootstrap() {
   document.getElementById("authBundleBtn").addEventListener("click", showAuthEvidenceBundle);
   document.getElementById("authRemediationBtn").addEventListener("click", showAuthRemediationGuide);
   document.getElementById("authStartCaptureBtn").addEventListener("click", startCaptureGuide);
+  document.getElementById("authOpenLoginUrlBtn").addEventListener("click", openCaptureLoginPage);
   document.getElementById("authProvider").addEventListener("change", () => {
     syncAuthModeOptions();
     render();

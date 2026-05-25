@@ -10,6 +10,21 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补充网页登录抓取结构化引导`
+- 完成范围：
+  - 已新增应用侧组装模块 [auth_capture_guide.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_capture_guide.py)，把原来只有 `capture_pending + loginUrlHint + requiredFieldHints` 的网页登录抓取提示，补成 provider-aware 的结构化 capture guide
+  - 这次补齐后，[webapp.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/webapp.py) 的 `POST /api/auth/capture/start` 会直接返回 `recommendedAuthModes / preferredCaptureMode / pasteTargets / manualSteps / browserConsoleSnippets / networkCaptureTips`，不再只剩一句“自己去登录再手填”
+  - 当前 capture guide 会按 provider 区分 `manual_cookie / manual_token / official_oauth` 侧重点；例如 `quark / uc` 会直接提示 `authCookie + authExtraPwdId`，`guangya` 会提示 `authToken + authExtraParentId`，`aliyundrive_open` 会提示 `authToken + authExtraDomainId + authExtraDriveId`
+  - 授权弹窗现已新增 [index.html](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/index.html) 的 `Open Login Page` 按钮，并在 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里把 capture guide 的 `loginUrl / authModes / pasteTargets / manualSteps / browserConsoleSnippets / networkCaptureTips` 结构化渲染出来；不只是把 JSON 原样塞进结果框
+  - 这次补齐后，网页登录抓取仍然没有夸大成“自动抓取成功”，但已经从“纯文本提醒”推进成“可打开登录页 + 可直接复制控制台脚本 + 可按字段回填”的最小自动化入口，更贴近 `M3` 里的 `web_login_capture` 目标
+  - 已新增 [verify_auth_capture_guide.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_capture_guide.py)，并同步补强 [verify_ui_smoke_navigation_modal.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_ui_smoke_navigation_modal.py)，把结构化 guide 字段、provider-specific 提示、授权弹窗按钮和前端渲染入口一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_capture_guide.py` 已验证 `quark` 当前会返回 cookie/share 场景的结构化 capture guide，`guangya` 会走 token capture 提示，`aliyundrive_open` 会显式提示 `domainId/driveId`
+  - `.\.venv\Scripts\python.exe scripts\verify_ui_smoke_navigation_modal.py` 已验证授权弹窗当前包含 `authOpenLoginUrlBtn`，登录后调用 `/api/auth/capture/start` 会返回 `manualSteps / pasteTargets / browserConsoleSnippets / networkCaptureTips`，且前端已绑定 `openCaptureLoginPage()` 与结构化渲染逻辑
+  - 本轮启动的项目 `.venv` `python` verifier 进程已主动清理，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补充补救链按原档案恢复命令`
 - 完成范围：
   - [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 现已把 `runtime_orphan` provider 的 `recommendedRecreateProbeCommand` 提升为优先恢复链路；当存在历史成功样本但当前仓库缺少对应 auth profile 时，会优先给出带原 `profileId` 的恢复命令，而不是只停留在泛化的 bootstrap

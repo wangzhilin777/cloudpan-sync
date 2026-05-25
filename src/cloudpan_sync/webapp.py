@@ -36,6 +36,7 @@ from .auth_profile_evidence import (
     refresh_auth_profile_evidence,
 )
 from .auth_profile_remediation import build_auth_remediation_bundle, auth_remediation_bundle_to_markdown
+from .auth_capture_guide import build_auth_capture_guide
 from .aliyun_open_live import fetch_aliyun_open_live_list, fetch_aliyun_open_live_metadata, fetch_aliyun_open_create_folder
 from .baidu_netdisk_live import fetch_baidu_create_dir, fetch_baidu_live_list, fetch_baidu_live_metadata
 from .auth import build_session_token, verify_session_token
@@ -53,7 +54,6 @@ from .guangya import guangya_fast_check, guangya_mock_list
 from .guangya_live import fetch_guangya_live_list, fetch_guangya_live_metadata, fetch_guangya_create_dir, fetch_guangya_live_fast_check
 from .planner import build_transfer_plan
 from .provider_mock import provider_mock_list, provider_mock_metadata
-from .provider_auth_hints import capture_field_hints, capture_login_url
 from .provider_research import build_provider_research_index
 from .provider_registry import build_provider_registry
 from .plan_audit import run_plan_audit, to_markdown
@@ -529,15 +529,7 @@ def create_app() -> FastAPI:
     def auth_capture_start(payload: CaptureStartRequest, request: Request) -> dict[str, object]:
         if not _is_logged_in(request):
             raise HTTPException(status_code=401, detail="please_login_first")
-        login_url = capture_login_url(payload.providerKey)
-        field_hints = capture_field_hints(payload.providerKey)
-        return {
-            "providerKey": payload.providerKey,
-            "status": "capture_pending",
-            "loginUrlHint": login_url or f"https://{payload.providerKey}.example.com/login",
-            "requiredFieldHints": field_hints,
-            "message": "Open the provider login page, complete login in your browser, then paste token/cookie and any required extra fields into the auth form.",
-        }
+        return build_auth_capture_guide(payload.providerKey)
 
     @app.post("/api/auth/profiles/{profile_id}/validate")
     def auth_profile_validate(profile_id: str, request: Request) -> dict[str, object]:

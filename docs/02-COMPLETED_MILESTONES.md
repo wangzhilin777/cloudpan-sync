@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权写入就绪阻断总链回归断言`
+- 完成范围：
+  - 已把 [verify_auth_profile_write_readiness.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_write_readiness.py) 从本地 profile 视图、授权列表、单档案证据接口和 markdown 导出的分散字段检查，补成真正会给出整条授权写入就绪阻断链结论的 verifier
+  - 同一条回归现在会用 `authProfileWriteReadinessFlowMatchesExpectedGuards` 直接锁住这条链：189Cloud 只读分享档案必须继续保持 `profileReady=true` 但 `writeReady=false`，同时稳定带出 `account-level OAuth write auth: token/accessToken + extra.signature + extra.date` 的 `writeMissingFieldHints`、带“只读”语义的 `writeBlockerNote`，并让授权列表、证据接口和 markdown 导出都一致体现这条写入阻断状态
+  - 当前效果是：授权写入就绪阻断能力不再只是视图、接口和导出字段各自为真，而是多了一条覆盖读就绪、写阻断、缺失写凭证提示和只读阻断说明的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_profile_write_readiness.py` 已验证授权写入就绪阻断链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权更新保存总链回归断言`
 - 完成范围：
   - 已把 [verify_auth_profile_update.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_update.py) 从更新后保存对象和响应视图的分散输出，补成真正会给出整条授权更新保存链结论的 verifier

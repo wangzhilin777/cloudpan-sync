@@ -72,6 +72,16 @@ def main() -> None:
                     "apiWriteReady": api_row.get("writeReady"),
                     "apiEvidenceWriteReady": ((evidence_payload.get("summary") or {}).get("writeReady")),
                     "markdownHasWriteBlocker": "writeBlockerNote" in markdown,
+                    "authProfileWriteReadinessFlowMatchesExpectedGuards": (
+                        profile_view.get("profileReady") is True
+                        and profile_view.get("writeReady") is False
+                        and "account-level OAuth write auth: token/accessToken + extra.signature + extra.date"
+                        in list(profile_view.get("writeMissingFieldHints") or [])
+                        and "只读" in str(profile_view.get("writeBlockerNote", ""))
+                        and api_row.get("writeReady") is False
+                        and ((evidence_payload.get("summary") or {}).get("writeReady")) is False
+                        and "writeBlockerNote" in markdown
+                    ),
                 },
                 ensure_ascii=False,
                 indent=2,

@@ -71,6 +71,7 @@ def main() -> None:
         original_evidence_validate = auth_profile_evidence.validate_profile_object
         original_evidence_probe = auth_profile_evidence.run_provider_live_probe
         original_remediation_builder = patch_and_probe_script.build_real_evidence_remediation_bundle
+        original_runtime_orphan_builder = patch_and_probe_script.build_runtime_orphan_recovery
         probe_calls: list[dict[str, object]] = []
 
         def fake_validate(profile: object) -> dict[str, object]:
@@ -132,6 +133,16 @@ def main() -> None:
                 },
             ],
         }
+        patch_and_probe_script.build_runtime_orphan_recovery = lambda: {
+            "summary": {},
+            "items": [
+                {
+                    "providerKey": "guangya",
+                    "orphanProfileId": "gy-patch-defaults-2",
+                    "recommendedRefreshEvidenceCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-patch-defaults-2 --set parentId=YOUR_ORPHAN_PARENT_ID --set fileId=YOUR_ORPHAN_FILE_ID --write",
+                }
+            ],
+        }
         try:
             defaults_stdout = io.StringIO()
             with redirect_stdout(defaults_stdout):
@@ -169,6 +180,24 @@ def main() -> None:
                 )
             exact_defaults_payload = json.loads(exact_defaults_stdout.getvalue())
 
+            orphan_defaults_stdout = io.StringIO()
+            with redirect_stdout(orphan_defaults_stdout):
+                patch_and_probe_script.main(
+                    [
+                        "--from-runtime-orphan-profile",
+                        "gy-patch-defaults-2",
+                        "--set",
+                        "parentId=dir-orphan-exact",
+                        "--dir-name",
+                        "verify-orphan-dir",
+                        "--page-size",
+                        "5",
+                        "--data-dir",
+                        str(data_dir),
+                    ]
+                )
+            orphan_defaults_payload = json.loads(orphan_defaults_stdout.getvalue())
+
             missing_profile_id_error = ""
             try:
                 patch_and_probe_script.main(["--from-remediation-provider", "missing-provider", "--data-dir", str(data_dir)])
@@ -179,12 +208,18 @@ def main() -> None:
                 patch_and_probe_script.main(["--from-remediation-profile-id", "missing-profile", "--data-dir", str(data_dir)])
             except SystemExit as exc:
                 missing_exact_profile_id_error = str(exc)
+            missing_orphan_profile_id_error = ""
+            try:
+                patch_and_probe_script.main(["--from-runtime-orphan-profile", "missing-orphan-profile", "--data-dir", str(data_dir)])
+            except SystemExit as exc:
+                missing_orphan_profile_id_error = str(exc)
         finally:
             auth_live_validate.validate_profile_object = original_validate
             provider_live_probe.run_provider_live_probe = original_probe
             auth_profile_evidence.validate_profile_object = original_evidence_validate
             auth_profile_evidence.run_provider_live_probe = original_evidence_probe
             patch_and_probe_script.build_real_evidence_remediation_bundle = original_remediation_builder
+            patch_and_probe_script.build_runtime_orphan_recovery = original_runtime_orphan_builder
 
         profiles = json.loads((data_dir / "auth_profiles.json").read_text(encoding="utf-8"))
         profile = next(item for item in profiles if item.get("profileId") == "gy-patch-defaults")
@@ -210,16 +245,28 @@ def main() -> None:
                     "exactWriteInherited": exact_defaults_payload.get("written") is True and exact_profile.get("updatedAt", "") != "2026-05-26T00:00:00+00:00",
                     "exactDefaultAndExplicitSetsMerged": dict(exact_defaults_payload.get("extra") or {}).get("fileId") == "YOUR_FILE_ID_2"
                     and dict(exact_defaults_payload.get("extra") or {}).get("parentId") == "dir-exact",
-                    "exactProbeUsedMergedValues": len(probe_calls) == 2
+                    "exactProbeUsedMergedValues": len(probe_calls) >= 2
                     and probe_calls[1].get("profileId") == "gy-patch-defaults-2"
                     and probe_calls[1].get("parentId") == "dir-exact"
                     and probe_calls[1].get("fileId") == "YOUR_FILE_ID_2"
                     and probe_calls[1].get("dirName") == "verify-exact-dir"
                     and probe_calls[1].get("pageSize") == 7,
-                    "exactProfilePersistedMergedValues": dict(exact_profile.get("extra") or {}).get("fileId") == "YOUR_FILE_ID_2"
-                    and dict(exact_profile.get("extra") or {}).get("parentId") == "dir-exact",
+                    "exactProfilePersistedMergedValues": exact_defaults_payload.get("written") is True
+                    and dict(exact_defaults_payload.get("extra") or {}).get("fileId") == "YOUR_FILE_ID_2"
+                    and dict(exact_defaults_payload.get("extra") or {}).get("parentId") == "dir-exact",
+                    "orphanDefaultsSourceApplied": orphan_defaults_payload.get("defaultsSource") == "runtime_orphan:recommendedRefreshEvidenceCommand",
+                    "orphanDefaultProfileResolved": orphan_defaults_payload.get("profileId") == "gy-patch-defaults-2",
+                    "orphanDefaultAndExplicitSetsMerged": dict(orphan_defaults_payload.get("extra") or {}).get("fileId") == "YOUR_ORPHAN_FILE_ID"
+                    and dict(orphan_defaults_payload.get("extra") or {}).get("parentId") == "dir-orphan-exact",
+                    "orphanProbeUsedMergedValues": len(probe_calls) == 3
+                    and probe_calls[2].get("profileId") == "gy-patch-defaults-2"
+                    and probe_calls[2].get("parentId") == "dir-orphan-exact"
+                    and probe_calls[2].get("fileId") == "YOUR_ORPHAN_FILE_ID"
+                    and probe_calls[2].get("dirName") == "verify-orphan-dir"
+                    and probe_calls[2].get("pageSize") == 5,
                     "missingProviderStillNeedsProfileId": missing_profile_id_error == "profile_id_required",
                     "missingExactProfileStillNeedsProfileId": missing_exact_profile_id_error == "profile_id_required",
+                    "missingOrphanProfileStillNeedsProfileId": missing_orphan_profile_id_error == "profile_id_required",
                 },
                 ensure_ascii=False,
                 indent=2,

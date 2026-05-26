@@ -15,6 +15,7 @@ from cloudpan_sync.auth_profile_evidence import auth_profile_evidence_to_markdow
 from cloudpan_sync.auth_profile_patch import configure_data_dir
 from cloudpan_sync.auth_store import get_profile, update_profile
 from cloudpan_sync.real_evidence_remediation import build_real_evidence_remediation_bundle
+from cloudpan_sync.runtime_orphan_recovery import build_runtime_orphan_recovery
 from cloudpan_sync.webapp import _auth_profile_evidence
 
 
@@ -39,6 +40,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--set", dest="sets", action="append", default=[], type=_parse_set_value, help="KEY=VALUE extra patch. Repeatable.")
     parser.add_argument("--from-remediation-provider", default="", help="Autofill patch defaults from the remediation bundle for this provider.")
     parser.add_argument("--from-remediation-profile-id", default="", help="Autofill exact patch defaults from the remediation bundle for this profileId.")
+    parser.add_argument("--from-runtime-orphan-profile", default="", help="Autofill exact patch defaults from runtime orphan recovery for this orphanProfileId.")
     parser.add_argument("--dir-name", default="", help="Optional create_dir probe name.")
     parser.add_argument("--page-size", type=int, default=100, help="Optional live probe page size.")
     parser.add_argument("--write", action="store_true", help="Persist the extra patch before validate/probe.")
@@ -155,6 +157,27 @@ def _defaults_from_remediation_profile_id(profile_id: str) -> dict[str, object]:
     return {}
 
 
+def _defaults_from_runtime_orphan_profile(profile_id: str) -> dict[str, object]:
+    target = str(profile_id or "").strip()
+    if not target:
+        return {}
+    payload = build_runtime_orphan_recovery()
+    for item in payload.get("items", []):
+        row = dict(item or {})
+        if str(row.get("orphanProfileId") or "").strip() != target:
+            continue
+        for candidate_key in (
+            "recommendedRefreshEvidenceCommand",
+            "recommendedPrimaryCommand",
+        ):
+            defaults = _extract_patch_defaults(str(row.get(candidate_key) or ""))
+            if str(defaults.get("profileId") or "").strip() != target:
+                continue
+            defaults["source"] = f"runtime_orphan:{candidate_key}"
+            return defaults
+    return {}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -162,7 +185,10 @@ def main(argv: list[str] | None = None) -> int:
         configure_data_dir(args.data_dir)
     defaults: dict[str, object] = {}
     defaults_source = ""
-    if args.from_remediation_profile_id:
+    if args.from_runtime_orphan_profile:
+        defaults = _defaults_from_runtime_orphan_profile(str(args.from_runtime_orphan_profile or "").strip())
+        defaults_source = str(defaults.get("source") or "")
+    elif args.from_remediation_profile_id:
         defaults = _defaults_from_remediation_profile_id(str(args.from_remediation_profile_id or "").strip())
         defaults_source = str(defaults.get("source") or "")
     elif args.from_remediation_provider:

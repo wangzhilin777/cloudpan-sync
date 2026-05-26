@@ -221,6 +221,16 @@ def _exact_runtime_helper(command: str, orphan_profile_id: str) -> str:
     return ""
 
 
+def _exact_refresh_helper(command: str, orphan_profile_id: str) -> str:
+    text = str(command or "").strip()
+    profile_id = str(orphan_profile_id or "").strip()
+    if not text or not profile_id:
+        return ""
+    if "scripts\\patch_and_probe_auth_profile.py" in text:
+        return f".\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-runtime-orphan-profile {profile_id}"
+    return ""
+
+
 def _recommended_primary_command(
     *,
     create_command: str,
@@ -500,6 +510,12 @@ def runtime_orphan_recovery_to_markdown(payload: dict[str, object]) -> str:
             )
         if item.get("recommendedRefreshEvidenceCommand"):
             lines.append(f"- recommendedRefreshEvidenceCommand: `{item.get('recommendedRefreshEvidenceCommand', '')}`")
+            exact_refresh_helper = _exact_refresh_helper(
+                str(item.get("recommendedRefreshEvidenceCommand") or ""),
+                str(item.get("orphanProfileId") or ""),
+            )
+            if exact_refresh_helper:
+                lines.append(f"- exactRefreshEvidenceHelper: `{exact_refresh_helper}`")
         if item.get("recommendedRuntimeProbeCommand"):
             lines.append(f"- recommendedRuntimeProbeCommand: `{item.get('recommendedRuntimeProbeCommand', '')}`")
             exact_runtime_probe_helper = _exact_runtime_helper(

@@ -10,6 +10,21 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`孤儿档案补丁探针也支持按档案精确带默认值`
+- 完成范围：
+  - 已把 [patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_and_probe_auth_profile.py) 从 remediation 精确默认值继续补齐到 `runtime orphan` 链路：现在除了 `--from-remediation-provider / --from-remediation-profile-id`，还新增 `--from-runtime-orphan-profile`
+  - 当前效果是：当某条 orphan runtime success 已经通过 [create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 重建回当前仓库后，不必再手抄 `patch_and_probe_auth_profile.py --profile-id ... --set ... --write`；现在可以直接按 `orphanProfileId` 精确带出 refresh/patch 默认值，把“重建 stub -> patch/probe -> runtime helper”真正串成连续链路
+  - 已同步把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 的 markdown 导出补上 `exactRefreshEvidenceHelper`，这样 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 不再只给展开后的 refresh 命令，而会直接给出 `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-runtime-orphan-profile ...`
+  - 已同步补强 [verify_patch_and_probe_auth_profile_defaults.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_and_probe_auth_profile_defaults.py)、[verify_runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery.py)、[verify_current_runtime_orphan_recovery_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_runtime_orphan_recovery_sync.py)，把 orphan-profile 精确 patch/probe 默认值与 `docs/13` 新 helper 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_patch_and_probe_auth_profile_defaults.py` 已验证 `patch_and_probe_auth_profile.py` 现在支持 `--from-runtime-orphan-profile`，并能把 orphan 默认 patch 值与显式 `--set` 正确合并
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery.py` 已验证 runtime orphan recovery 的 API/Markdown 当前会输出 `exactRefreshEvidenceHelper`
+  - `.\.venv\Scripts\python.exe scripts\export_runtime_orphan_recovery.py` 已重导出当前 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_current_runtime_orphan_recovery_sync.py` 已验证当前 `docs/13` 中 Guangya / PikPak / UC 各 orphan 分段都已同步写出 `exactRefreshEvidenceHelper`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`审计与真实证据文档也同步到当前六条孤儿样本`
 - 完成范围：
   - 已把 [plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/plan_audit.py) 的 `M4 / M5 / P-REAL` 叙述从旧的固定口径改成基于当前真实证据汇总生成，不再把 Guangya 说成只有 `2` 条、全仓说成只有 `4` 条 orphan/runtime success

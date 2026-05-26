@@ -1,6 +1,6 @@
 # CloudPan Sync Runtime Orphan Recovery Guide
 
-- 生成时间：`2026-05-26T04:49:01.789616+00:00`
+- 生成时间：`2026-05-26T10:23:24.198785+00:00`
 - 汇总： `providerCount=3` `orphanProfileCount=6` `runtimeSampleCount=6` `providersWithSavedProfiles=1` `providersWithoutSavedProfiles=2`
 - orphanSummary: `providers=guangya, pikpak, uc` `profiles=gy-live-1, gy-live-2, gy-live-defaults-1, gy-orphan-live-1, pikpak-live-1, uc-live-1` `savedProfileProviders=guangya` `missingProfileProviders=pikpak, uc`
 
@@ -8,7 +8,7 @@
 
 ## guangya - Guangya - gy-live-1
 - orphanProfileId: `gy-live-1`
-- sampleCount: `1` pathCount=`1` latestSavedAt=`2026-05-26T04:45:02.794693+00:00`
+- sampleCount: `1` pathCount=`1` latestSavedAt=`2026-05-26T04:49:02.062898+00:00`
 - runtimeModes: `binary_upload_multipart` verifyModes=`list_by_parent_name` conflictPolicies=`overwrite_existing` conflictActions=`overwrite_downgraded_to_auto_rename`
 - existingProviderProfiles: count=`2` ids=`0318479d-4669-415f-9083-7aecc102bf90, 08684618-ea29-48a4-b603-2e40cdc37c3d` names=`smoke-guangya, risk-smoke-guangya`
 - authHints: modes=`web_login_capture, manual_token` preferred=`manual_token` fields=`token or extra.authorization | extra.parentId | optional extra.did | optional extra.dt`
@@ -18,6 +18,7 @@
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_VALUE --probe`
 - recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-1 --write` `label=Refresh Existing Orphan Profile`
 - recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-1 --write`
+- exactRefreshEvidenceHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-live-1`
 - recommendedRuntimeProbeCommand: `.\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --target-provider guangya --target-profile-id gy-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-runtime-orphan-probe-evidence`
 - exactRuntimeProbeHelper: `.\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --from-runtime-orphan-profile gy-live-1`
 - recommendedRuntimeSuccessCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-runtime-orphan-success-evidence`
@@ -26,7 +27,7 @@
 
 ## guangya - Guangya - gy-live-2
 - orphanProfileId: `gy-live-2`
-- sampleCount: `1` pathCount=`1` latestSavedAt=`2026-05-26T04:45:02.830350+00:00`
+- sampleCount: `1` pathCount=`1` latestSavedAt=`2026-05-26T04:49:02.109338+00:00`
 - runtimeModes: `binary_upload_multipart` verifyModes=`list_by_parent_name` conflictPolicies=`auto_rename_new` conflictActions=`overwrite_downgraded_to_auto_rename`
 - existingProviderProfiles: count=`2` ids=`0318479d-4669-415f-9083-7aecc102bf90, 08684618-ea29-48a4-b603-2e40cdc37c3d` names=`smoke-guangya, risk-smoke-guangya`
 - authHints: modes=`web_login_capture, manual_token` preferred=`manual_token` fields=`token or extra.authorization | extra.parentId | optional extra.did | optional extra.dt`
@@ -36,6 +37,7 @@
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-2 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-2 --token YOUR_TOKEN --set parentId=YOUR_VALUE --probe`
 - recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-2 --write` `label=Refresh Existing Orphan Profile`
 - recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-2 --write`
+- exactRefreshEvidenceHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-live-2`
 - recommendedRuntimeProbeCommand: `.\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --target-provider guangya --target-profile-id gy-live-2 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-runtime-orphan-probe-evidence`
 - exactRuntimeProbeHelper: `.\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --from-runtime-orphan-profile gy-live-2`
 - recommendedRuntimeSuccessCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-2 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-runtime-orphan-success-evidence`
@@ -54,6 +56,7 @@
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-defaults-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-defaults-1 --token YOUR_TOKEN --set parentId=YOUR_VALUE --probe`
 - recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-defaults-1 --write` `label=Refresh Existing Orphan Profile`
 - recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-defaults-1 --write`
+- exactRefreshEvidenceHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-live-defaults-1`
 - recommendedRuntimeProbeCommand: `.\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --target-provider guangya --target-profile-id gy-live-defaults-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-runtime-orphan-probe-evidence`
 - exactRuntimeProbeHelper: `.\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --from-runtime-orphan-profile gy-live-defaults-1`
 - recommendedRuntimeSuccessCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-defaults-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-runtime-orphan-success-evidence`
@@ -62,7 +65,7 @@
 
 ## guangya - Guangya - gy-orphan-live-1
 - orphanProfileId: `gy-orphan-live-1`
-- sampleCount: `1` pathCount=`1` latestSavedAt=`2026-05-26T04:45:02.849082+00:00`
+- sampleCount: `1` pathCount=`1` latestSavedAt=`2026-05-26T04:49:02.136415+00:00`
 - runtimeModes: `binary_upload_multipart` verifyModes=`list_by_parent_name` conflictPolicies=`auto_rename_new` conflictActions=`overwrite_downgraded_to_auto_rename`
 - existingProviderProfiles: count=`2` ids=`0318479d-4669-415f-9083-7aecc102bf90, 08684618-ea29-48a4-b603-2e40cdc37c3d` names=`smoke-guangya, risk-smoke-guangya`
 - authHints: modes=`web_login_capture, manual_token` preferred=`manual_token` fields=`token or extra.authorization | extra.parentId | optional extra.did | optional extra.dt`
@@ -72,6 +75,7 @@
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-orphan-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-orphan-live-1 --token YOUR_TOKEN --set parentId=YOUR_VALUE --probe`
 - recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-orphan-live-1 --write` `label=Refresh Existing Orphan Profile`
 - recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-orphan-live-1 --write`
+- exactRefreshEvidenceHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-orphan-live-1`
 - recommendedRuntimeProbeCommand: `.\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --target-provider guangya --target-profile-id gy-orphan-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-runtime-orphan-probe-evidence`
 - exactRuntimeProbeHelper: `.\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --from-runtime-orphan-profile gy-orphan-live-1`
 - recommendedRuntimeSuccessCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-orphan-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-runtime-orphan-success-evidence`
@@ -91,6 +95,7 @@
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id pikpak-live-1 --provider-key pikpak --auth-mode manual_token --display-name pikpak-restore-pikpak-live-1 --token YOUR_TOKEN --set deviceId=YOUR_VALUE --probe`
 - recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id pikpak-live-1 --provider-key pikpak --auth-mode manual_token --display-name pikpak-restore-pikpak-live-1 --token YOUR_TOKEN --set deviceId=YOUR_VALUE --probe` `label=Recreate Orphan Stub`
 - recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id pikpak-live-1 --write`
+- exactRefreshEvidenceHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-runtime-orphan-profile pikpak-live-1`
 - recommendedRuntimeProbeCommand: `.\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --target-provider pikpak --target-profile-id pikpak-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\pikpak-runtime-orphan-probe-evidence`
 - exactRuntimeProbeHelper: `.\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --from-runtime-orphan-profile pikpak-live-1`
 - recommendedRuntimeSuccessCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider pikpak --target-profile-id pikpak-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\pikpak-runtime-orphan-success-evidence`
@@ -109,6 +114,7 @@
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id uc-live-1 --provider-key uc --auth-mode manual_cookie --display-name uc-restore-uc-live-1 --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE --probe`
 - recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id uc-live-1 --provider-key uc --auth-mode manual_cookie --display-name uc-restore-uc-live-1 --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE --probe` `label=Recreate Orphan Stub`
 - recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id uc-live-1 --write`
+- exactRefreshEvidenceHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-runtime-orphan-profile uc-live-1`
 - recommendedRuntimeProbeCommand: `.\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --target-provider uc --target-profile-id uc-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\uc-runtime-orphan-probe-evidence`
 - exactRuntimeProbeHelper: `.\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --from-runtime-orphan-profile uc-live-1`
 - recommendedRuntimeSuccessCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider uc --target-profile-id uc-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\uc-runtime-orphan-success-evidence`

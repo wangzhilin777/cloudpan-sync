@@ -70,21 +70,38 @@ def main() -> None:
         task_runtime._TASKS.clear()
         task_runtime._TASKS.update(original_tasks)
 
+    blocked_summary = dict(blocked.get("summary") or {})
+    awaiting_ack_summary = dict(awaiting_ack_snapshot.get("summary") or {})
+    acknowledged_summary = dict(acknowledged.get("summary") or {})
+
     print(
         json.dumps(
             {
-                "blockedSummary": blocked.get("summary"),
-                "awaitingAckSummary": awaiting_ack_snapshot.get("summary"),
-                "acknowledgedSummary": acknowledged.get("summary"),
-                "blockedConflictSummaryStatuses": ((blocked.get("summary") or {}).get("conflictSupportSummaryStatuses")),
-                "blockedFirstConflictSupportStatus": ((blocked.get("summary") or {}).get("firstConflictSupportStatus")),
-                "blockedFirstConflictNote": ((blocked.get("summary") or {}).get("firstConflictNote")),
-                "awaitingAckConflictSummaryStatuses": ((awaiting_ack_snapshot.get("summary") or {}).get("conflictSupportSummaryStatuses")),
-                "awaitingAckFirstConflictSupportStatus": ((awaiting_ack_snapshot.get("summary") or {}).get("firstConflictSupportStatus")),
-                "awaitingAckFirstConflictNote": ((awaiting_ack_snapshot.get("summary") or {}).get("firstConflictNote")),
-                "acknowledgedConflictSummaryStatuses": ((acknowledged.get("summary") or {}).get("conflictSupportSummaryStatuses")),
-                "acknowledgedFirstConflictSupportStatus": ((acknowledged.get("summary") or {}).get("firstConflictSupportStatus")),
-                "acknowledgedFirstConflictNote": ((acknowledged.get("summary") or {}).get("firstConflictNote")),
+                "blockedSummaryHasConflictFields": (
+                    blocked_summary.get("state") == "blocked"
+                    and blocked_summary.get("hardBlocked") is True
+                    and blocked_summary.get("conflictSupportSummaryStatuses") == ["unsupported"]
+                    and blocked_summary.get("firstConflictSupportStatus") == "unsupported"
+                    and blocked_summary.get("firstConflictNote") == "当前 189Cloud 已接入账号级 create_dir 写目录尝试，但 shareCode/accessCode-only 档案仍然只读，真实文件上传与同名冲突处理仍未声明为已支持。"
+                ),
+                "awaitingAckSummaryHasConflictFields": (
+                    awaiting_ack_summary.get("state") == "awaiting_ack"
+                    and awaiting_ack_summary.get("awaitingAcknowledgement") is True
+                    and awaiting_ack_summary.get("conflictSupportSummaryStatuses") == ["supported"]
+                    and awaiting_ack_summary.get("firstConflictSupportStatus") == "supported"
+                    and awaiting_ack_summary.get("firstConflictNote") == ""
+                ),
+                "acknowledgedSummaryHasConflictFields": (
+                    acknowledged_summary.get("state") == "ready"
+                    and acknowledged_summary.get("awaitingAcknowledgement") is False
+                    and acknowledged_summary.get("riskPaused") is False
+                    and acknowledged_summary.get("conflictSupportSummaryStatuses") == ["supported"]
+                    and acknowledged_summary.get("firstConflictSupportStatus") == "supported"
+                    and acknowledged_summary.get("firstConflictNote") == ""
+                ),
+                "blockedSummary": blocked_summary,
+                "awaitingAckSummary": awaiting_ack_summary,
+                "acknowledgedSummary": acknowledged_summary,
             },
             ensure_ascii=False,
             indent=2,

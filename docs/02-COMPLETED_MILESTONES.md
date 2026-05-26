@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务摘要回归里的冲突字段断言`
+- 完成范围：
+  - 已把 [verify_task_summary_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_summary_api.py) 从单纯打印 `summary` 现场，补成真正的冲突字段回归断言
+  - 当前会分别锁住 `blocked / awaiting_ack / ready` 三种任务摘要状态里的 `conflictSupportSummaryStatuses / firstConflictSupportStatus / firstConflictNote`
+  - 当前效果是：任务摘要这条回归终于不再只是“把值打印出来看一眼”，而是会在 `189cloud` 只读阻塞场景与 `guangya` 已确认可运行场景下，直接卡住 summary 级冲突摘要字段的真实口径
+  - 这样后续如果 `build_task_summary` 把这几项字段改丢、改空，或者在确认风险前后把状态口径弄乱，这条 verifier 会第一时间失败
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_summary_api.py` 已验证 `blocked` 摘要当前会返回 `unsupported + 中文只读冲突备注`，而 `awaiting_ack / ready` 摘要会稳定返回 `supported` 且 `firstConflictNote` 为空串
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐API总回归里的首条冲突备注断言`
 - 完成范围：
   - 已把 [verify_api_plan_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_api_plan_bundle.py) 再补一层：当前这条高层 API 总回归除了继续锁 `conflictSupportSummaryStatuses / firstConflictSupportStatus`，也会把对应的 `firstConflictNote` 一起锁住

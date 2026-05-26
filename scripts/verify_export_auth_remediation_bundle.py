@@ -112,32 +112,51 @@ def main() -> None:
 
         output_path = tmp_root / "docs" / "09-AUTH_REMEDIATION_GUIDE.md"
         markdown = output_path.read_text(encoding="utf-8")
+    exported_file_exists = True
+    exported_has_title = "# 授权补救指南 / Auth Remediation Guide" in markdown
+    exported_has_summary = (
+        "- profileCount: `3`" in markdown
+        and "- readyCount: `1`" in markdown
+        and "- needsFixCount: `2`" in markdown
+        and "- writeReadyCount: `1`" in markdown
+        and "- writeNeedsFixCount: `2`" in markdown
+        and "- needsSecretRefreshCount: `1`" in markdown
+        and "- profileSummary: `ready=Guangya Primary` `needsFix=189 Share Profile, Aliyun Open` `writeReady=Aliyun Open` `writeNeedsFix=189 Share Profile, Guangya Primary` `needsSecretRefresh=Aliyun Open`" in markdown
+    )
+    exported_has_aliyun_recreate_probe_command = (
+        "### Aliyun Open [aliyundrive_open]" in markdown
+        and "- missingFieldHints: `domainId, driveId`" in markdown
+        and "- placeholderFieldHints: `token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token`" in markdown
+        and "- placeholderSecretFieldHints: `token`" in markdown
+        and "- liveRejected: profiles=`Aliyun Open` placeholderProfiles=`Aliyun Open` statuses=`404`" in markdown
+        and "- liveRejectedSummaries: `Aliyun Open:404`" in markdown
+        and "- recommendedRecreateProbeCommand: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name Aliyun Open --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe`"
+        in markdown
+    )
+    exported_has_189_readonly_details = (
+        "### 189 Share Profile [189cloud]" in markdown
+        and "- writeMissingFieldHints: `signature, date`" in markdown
+        and "- writeBlockerNote: 当前 189Cloud share 档案仍为只读。" in markdown
+        and "- recommendedPatchCommand: `.\\.venv\\Scripts\\python.exe scripts\\patch_189cloud_account_auth.py --profile-id 189-share --raw-file captured_189_headers.txt --write --revalidate`"
+        in markdown
+    )
+    export_auth_remediation_bundle_flow_matches_expected_markdown = (
+        exported_file_exists
+        and exported_has_title
+        and exported_has_summary
+        and exported_has_aliyun_recreate_probe_command
+        and exported_has_189_readonly_details
+    )
 
     print(
         json.dumps(
             {
-                "exportedFileExists": True,
-                "exportedHasTitle": "# 授权补救指南 / Auth Remediation Guide" in markdown,
-                "exportedHasSummary": "- profileCount: `3`" in markdown
-                and "- readyCount: `1`" in markdown
-                and "- needsFixCount: `2`" in markdown
-                and "- writeReadyCount: `1`" in markdown
-                and "- writeNeedsFixCount: `2`" in markdown
-                and "- needsSecretRefreshCount: `1`" in markdown
-                and "- profileSummary: `ready=Guangya Primary` `needsFix=189 Share Profile, Aliyun Open` `writeReady=Aliyun Open` `writeNeedsFix=189 Share Profile, Guangya Primary` `needsSecretRefresh=Aliyun Open`" in markdown,
-                "exportedHasAliyunRecreateProbeCommand": "### Aliyun Open [aliyundrive_open]" in markdown
-                and "- missingFieldHints: `domainId, driveId`" in markdown
-                and "- placeholderFieldHints: `token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token`" in markdown
-                and "- placeholderSecretFieldHints: `token`" in markdown
-                and "- liveRejected: profiles=`Aliyun Open` placeholderProfiles=`Aliyun Open` statuses=`404`" in markdown
-                and "- liveRejectedSummaries: `Aliyun Open:404`" in markdown
-                and "- recommendedRecreateProbeCommand: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name Aliyun Open --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe`"
-                in markdown,
-                "exportedHas189ReadonlyDetails": "### 189 Share Profile [189cloud]" in markdown
-                and "- writeMissingFieldHints: `signature, date`" in markdown
-                and "- writeBlockerNote: 当前 189Cloud share 档案仍为只读。" in markdown
-                and "- recommendedPatchCommand: `.\\.venv\\Scripts\\python.exe scripts\\patch_189cloud_account_auth.py --profile-id 189-share --raw-file captured_189_headers.txt --write --revalidate`"
-                in markdown,
+                "exportedFileExists": exported_file_exists,
+                "exportedHasTitle": exported_has_title,
+                "exportedHasSummary": exported_has_summary,
+                "exportedHasAliyunRecreateProbeCommand": exported_has_aliyun_recreate_probe_command,
+                "exportedHas189ReadonlyDetails": exported_has_189_readonly_details,
+                "exportAuthRemediationBundleFlowMatchesExpectedMarkdown": export_auth_remediation_bundle_flow_matches_expected_markdown,
             },
             ensure_ascii=False,
             indent=2,

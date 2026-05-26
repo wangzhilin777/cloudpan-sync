@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐认证补救包导出回归断言`
+- 完成范围：
+  - 已把 [verify_export_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_remediation_bundle.py) 从导出文件存在、标题、summary、Aliyun recreate probe 段落、189 share readonly 段落等分散检查，补成真正会给出整条认证补救包导出链结论的 verifier
+  - 同一条回归现在会用 `exportAuthRemediationBundleFlowMatchesExpectedMarkdown` 直接锁住这条导出链：synthetic payload 经 `export_auth_remediation_bundle.py` 生成的 `docs/09-AUTH_REMEDIATION_GUIDE.md` 必须稳定带出 remediation summary、Aliyun 的 recreate probe 指引，以及 189 share 的 write blocker 与 patch 指引
+  - 当前效果是：认证补救包导出能力不再只是很多 Markdown 片段各自为真，而是多了一条从 payload 到导出文件内容的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_auth_remediation_bundle.py` 已验证认证补救包导出链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐认证证据包导出回归断言`
 - 完成范围：
   - 已把 [verify_export_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_evidence_bundle.py) 从导出文件存在、标题、summary、Guangya profile 段落、189 share hints/blocker 段落等分散检查，补成真正会给出整条认证证据包导出链结论的 verifier

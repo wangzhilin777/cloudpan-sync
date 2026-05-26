@@ -81,8 +81,11 @@ def main() -> None:
                             and "parentId" in ((created_payload.get("item") or {}).get("extra") or {})
                             and "token" in ((created_payload.get("item") or {}).get("placeholderSecretFieldHints") or [])
                             and "patch_and_probe_auth_profile.py --profile-id gy-orphan-api --write" in str(created_payload.get("recommendedRefreshEvidenceCommand") or "")
+                            and "patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-orphan-api" in str(created_payload.get("exactRefreshEvidenceHelper") or "")
                             and "create_runtime_probe_task.py --target-provider guangya --target-profile-id gy-orphan-api" in str(created_payload.get("recommendedRuntimeProbeCommand") or "")
+                            and "create_runtime_probe_task.py --from-runtime-orphan-profile gy-orphan-api" in str(created_payload.get("exactRuntimeProbeHelper") or "")
                             and "create_live_upload_task.py --target-provider guangya --target-profile-id gy-orphan-api" in str(created_payload.get("recommendedRuntimeSuccessCommand") or "")
+                            and "create_live_upload_task.py --from-runtime-orphan-profile gy-orphan-api" in str(created_payload.get("exactRuntimeSuccessHelper") or "")
                         ),
                         "storedProfileUsesRequestedId": (
                             created_profile is not None
@@ -105,8 +108,11 @@ def main() -> None:
                             and recreated_again_payload.get("created") is False
                             and str(recreated_again_payload.get("recommendedBootstrapCommand") or "") == ""
                             and str(recreated_again_payload.get("recommendedRefreshEvidenceCommand") or "") == expected_refresh
+                            and "patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-orphan-api" in str(recreated_again_payload.get("exactRefreshEvidenceHelper") or "")
                             and expected_runtime_probe in str(recreated_again_payload.get("recommendedRuntimeProbeCommand") or "")
+                            and "create_runtime_probe_task.py --from-runtime-orphan-profile gy-orphan-api" in str(recreated_again_payload.get("exactRuntimeProbeHelper") or "")
                             and expected_runtime_success in str(recreated_again_payload.get("recommendedRuntimeSuccessCommand") or "")
+                            and "create_live_upload_task.py --from-runtime-orphan-profile gy-orphan-api" in str(recreated_again_payload.get("exactRuntimeSuccessHelper") or "")
                             and "--conflict-policy overwrite_existing"
                             in str(recreated_again_payload.get("recommendedOverwriteVariantCommand") or "")
                         ),

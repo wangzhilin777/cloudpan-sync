@@ -297,6 +297,9 @@ def build_runtime_orphan_recovery() -> dict[str, object]:
             runtime_success_command=runtime_success_command,
             has_existing_provider_profiles=bool(same_provider_profiles),
         )
+        exact_refresh_helper = _exact_refresh_helper(refresh_command, profile_id)
+        exact_runtime_probe_helper = _exact_runtime_helper(runtime_probe_command, profile_id)
+        exact_runtime_success_helper = _exact_runtime_helper(runtime_success_command, profile_id)
         items.append(
             {
                 "providerKey": provider_key,
@@ -325,6 +328,9 @@ def build_runtime_orphan_recovery() -> dict[str, object]:
                 "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command),
                 "recommendedPrimaryCommandLabel": primary_label,
                 "recommendedPrimaryCommand": primary_command,
+                "exactRefreshEvidenceHelper": exact_refresh_helper,
+                "exactRuntimeProbeHelper": exact_runtime_probe_helper,
+                "exactRuntimeSuccessHelper": exact_runtime_success_helper,
                 "nextStep": "先按原 runtime profileId 重建一个可复验 auth profile stub，再用真实凭证补字段并重跑 validation / live probe；只有这样，这条历史 runtime success 样本才有机会重新变成当前仓库可复验的证据。",
                 "note": "这一步只是把历史 runtime success 样本对应的 profileId 恢复回当前仓库，不会自动把样本算成新的真实完成证据；仍需后续用真实凭证重新验证。",
             }
@@ -376,6 +382,9 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
         refresh_command = _refresh_evidence_command(provider, profile_id)
         runtime_probe_command = _runtime_probe_command(provider, profile_id)
         runtime_success_command = _runtime_success_command(provider, profile_id)
+        exact_refresh_helper = _exact_refresh_helper(refresh_command, profile_id)
+        exact_runtime_probe_helper = _exact_runtime_helper(runtime_probe_command, profile_id)
+        exact_runtime_success_helper = _exact_runtime_helper(runtime_success_command, profile_id)
         primary_label, primary_command = _recommended_primary_command(
             create_command="",
             refresh_command=refresh_command,
@@ -395,6 +404,9 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
             "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command),
             "recommendedPrimaryCommandLabel": primary_label,
             "recommendedPrimaryCommand": primary_command,
+            "exactRefreshEvidenceHelper": exact_refresh_helper,
+            "exactRuntimeProbeHelper": exact_runtime_probe_helper,
+            "exactRuntimeSuccessHelper": exact_runtime_success_helper,
         }
 
     payload = build_runtime_orphan_recovery()
@@ -426,6 +438,9 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
     refresh_command = _refresh_evidence_command(provider, profile_id)
     runtime_probe_command = _runtime_probe_command(provider, profile_id)
     runtime_success_command = _runtime_success_command(provider, profile_id)
+    exact_refresh_helper = _exact_refresh_helper(refresh_command, profile_id)
+    exact_runtime_probe_helper = _exact_runtime_helper(runtime_probe_command, profile_id)
+    exact_runtime_success_helper = _exact_runtime_helper(runtime_success_command, profile_id)
     primary_label, primary_command = _recommended_primary_command(
         create_command="",
         refresh_command=refresh_command,
@@ -447,6 +462,9 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
         "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command),
         "recommendedPrimaryCommandLabel": primary_label,
         "recommendedPrimaryCommand": primary_command,
+        "exactRefreshEvidenceHelper": exact_refresh_helper,
+        "exactRuntimeProbeHelper": exact_runtime_probe_helper,
+        "exactRuntimeSuccessHelper": exact_runtime_success_helper,
         "nextStep": str(target_item.get("nextStep") or ""),
     }
 
@@ -510,26 +528,17 @@ def runtime_orphan_recovery_to_markdown(payload: dict[str, object]) -> str:
             )
         if item.get("recommendedRefreshEvidenceCommand"):
             lines.append(f"- recommendedRefreshEvidenceCommand: `{item.get('recommendedRefreshEvidenceCommand', '')}`")
-            exact_refresh_helper = _exact_refresh_helper(
-                str(item.get("recommendedRefreshEvidenceCommand") or ""),
-                str(item.get("orphanProfileId") or ""),
-            )
+            exact_refresh_helper = str(item.get("exactRefreshEvidenceHelper") or "")
             if exact_refresh_helper:
                 lines.append(f"- exactRefreshEvidenceHelper: `{exact_refresh_helper}`")
         if item.get("recommendedRuntimeProbeCommand"):
             lines.append(f"- recommendedRuntimeProbeCommand: `{item.get('recommendedRuntimeProbeCommand', '')}`")
-            exact_runtime_probe_helper = _exact_runtime_helper(
-                str(item.get("recommendedRuntimeProbeCommand") or ""),
-                str(item.get("orphanProfileId") or ""),
-            )
+            exact_runtime_probe_helper = str(item.get("exactRuntimeProbeHelper") or "")
             if exact_runtime_probe_helper:
                 lines.append(f"- exactRuntimeProbeHelper: `{exact_runtime_probe_helper}`")
         if item.get("recommendedRuntimeSuccessCommand"):
             lines.append(f"- recommendedRuntimeSuccessCommand: `{item.get('recommendedRuntimeSuccessCommand', '')}`")
-            exact_runtime_success_helper = _exact_runtime_helper(
-                str(item.get("recommendedRuntimeSuccessCommand") or ""),
-                str(item.get("orphanProfileId") or ""),
-            )
+            exact_runtime_success_helper = str(item.get("exactRuntimeSuccessHelper") or "")
             if exact_runtime_success_helper:
                 lines.append(f"- exactRuntimeSuccessHelper: `{exact_runtime_success_helper}`")
         if item.get("recommendedOverwriteVariantCommand"):

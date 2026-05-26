@@ -107,8 +107,11 @@ def main() -> None:
                         and str(row.get("recommendedPrimaryCommandLabel") or "") == "Refresh Existing Orphan Profile"
                         and "patch_and_probe_auth_profile.py --profile-id gy-orphan --write" in str(row.get("recommendedPrimaryCommand") or "")
                         and "patch_and_probe_auth_profile.py --profile-id gy-orphan --write" in str(row.get("recommendedRefreshEvidenceCommand") or "")
+                        and "patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactRefreshEvidenceHelper") or "")
                         and "create_runtime_probe_task.py --target-provider guangya --target-profile-id gy-orphan" in str(row.get("recommendedRuntimeProbeCommand") or "")
+                        and "create_runtime_probe_task.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactRuntimeProbeHelper") or "")
                         and "create_live_upload_task.py --target-provider guangya --target-profile-id gy-orphan" in str(row.get("recommendedRuntimeSuccessCommand") or "")
+                        and "create_live_upload_task.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactRuntimeSuccessHelper") or "")
                         and "--conflict-policy overwrite_existing" in str(row.get("recommendedOverwriteVariantCommand") or "")
                         for row in (payload.get("items") or [])
                     ),

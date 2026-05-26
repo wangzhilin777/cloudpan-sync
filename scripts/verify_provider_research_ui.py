@@ -25,6 +25,11 @@ def main() -> None:
                 and 'fully_verified=${Boolean(realEvidence?.fullyVerified)}' in app_js
                 and 'runtime_orphan_profiles=${((realEvidence?.taskRuntimeEvidence || {}).orphanProfileCount || 0)}' in app_js
                 and 'appendProviderRecoveryActions(actions, firstProviderResearchGap.providerKey)' in app_js,
+                "jsProviderResearchHasSummaryOrphanRecovery": 'const firstProviderResearchOrphanItem = (state.runtimeOrphanRecovery?.items || [])[0] || null;' in app_js
+                and 'runtime_orphan_recovery: providers=${state.realEvidenceSummary?.taskRuntimeOrphanProviderCount || 0}, profiles=${state.realEvidenceSummary?.taskRuntimeOrphanProfileCount || 0}, firstProvider=${firstProviderResearchOrphanItem?.providerKey || "(none)"}, firstProfile=${firstProviderResearchOrphanItem?.orphanProfileId || "(none)"}' in app_js
+                and 'openOrphanBtn.textContent = "Open Runtime Orphan Recovery";' in app_js
+                and 'recreateBtn.textContent = "Recreate First Orphan Stub";' in app_js
+                and 'recreateRuntimeOrphanProfile(firstProviderResearchOrphanItem.providerKey, firstProviderResearchOrphanItem.orphanProfileId)' in app_js,
             },
             ensure_ascii=False,
             indent=2,

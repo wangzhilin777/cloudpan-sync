@@ -2156,6 +2156,35 @@ function renderProviderPanel() {
       summaryWrap.appendChild(node);
     }
   }
+  const firstProviderPanelOrphanItem = (state.runtimeOrphanRecovery?.items || [])[0] || null;
+  if ((state.statusMatrix?.summary?.taskRuntimeOrphanProfileCount || 0) > 0) {
+    const node = document.createElement("div");
+    node.className = "summary-card compact";
+    const copy = document.createElement("span");
+    copy.textContent = `runtime_orphan_recovery: providers=${state.statusMatrix.summary.taskRuntimeOrphanProviderCount || 0}, profiles=${state.statusMatrix.summary.taskRuntimeOrphanProfileCount || 0}, firstProvider=${firstProviderPanelOrphanItem?.providerKey || "(none)"}, firstProfile=${firstProviderPanelOrphanItem?.orphanProfileId || "(none)"}`;
+    node.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    const openOrphanBtn = document.createElement("button");
+    openOrphanBtn.className = "ghost";
+    openOrphanBtn.textContent = "Open Runtime Orphan Recovery";
+    openOrphanBtn.addEventListener("click", () => {
+      state.activeTab = "nav.settings";
+      render();
+    });
+    actions.appendChild(openOrphanBtn);
+    if (firstProviderPanelOrphanItem?.providerKey && firstProviderPanelOrphanItem?.orphanProfileId) {
+      const recreateBtn = document.createElement("button");
+      recreateBtn.className = "ghost";
+      recreateBtn.textContent = "Recreate First Orphan Stub";
+      recreateBtn.addEventListener("click", () =>
+        recreateRuntimeOrphanProfile(firstProviderPanelOrphanItem.providerKey, firstProviderPanelOrphanItem.orphanProfileId)
+      );
+      actions.appendChild(recreateBtn);
+    }
+    node.appendChild(actions);
+    summaryWrap.appendChild(node);
+  }
 
   function appendProviderRecoveryActions(actions, providerKey) {
     const matchedProfile = (state.authProfiles || []).find((profile) => profile.providerKey === providerKey);
@@ -2368,6 +2397,35 @@ function renderProviderPanel() {
         (probe && !probe.ok)
       );
     }) || null;
+  const firstProviderResearchOrphanItem = (state.runtimeOrphanRecovery?.items || [])[0] || null;
+  if ((state.realEvidenceSummary?.taskRuntimeOrphanProfileCount || 0) > 0) {
+    const node = document.createElement("li");
+    node.className = "auth-item";
+    const copy = document.createElement("div");
+    copy.textContent = `runtime_orphan_recovery: providers=${state.realEvidenceSummary?.taskRuntimeOrphanProviderCount || 0}, profiles=${state.realEvidenceSummary?.taskRuntimeOrphanProfileCount || 0}, firstProvider=${firstProviderResearchOrphanItem?.providerKey || "(none)"}, firstProfile=${firstProviderResearchOrphanItem?.orphanProfileId || "(none)"}`;
+    node.appendChild(copy);
+    const actions = document.createElement("div");
+    actions.className = "row-actions";
+    const openOrphanBtn = document.createElement("button");
+    openOrphanBtn.className = "ghost";
+    openOrphanBtn.textContent = "Open Runtime Orphan Recovery";
+    openOrphanBtn.addEventListener("click", () => {
+      state.activeTab = "nav.settings";
+      render();
+    });
+    actions.appendChild(openOrphanBtn);
+    if (firstProviderResearchOrphanItem?.providerKey && firstProviderResearchOrphanItem?.orphanProfileId) {
+      const recreateBtn = document.createElement("button");
+      recreateBtn.className = "ghost";
+      recreateBtn.textContent = "Recreate First Orphan Stub";
+      recreateBtn.addEventListener("click", () =>
+        recreateRuntimeOrphanProfile(firstProviderResearchOrphanItem.providerKey, firstProviderResearchOrphanItem.orphanProfileId)
+      );
+      actions.appendChild(recreateBtn);
+    }
+    node.appendChild(actions);
+    researchList.appendChild(node);
+  }
   if (firstProviderResearchGap) {
     const node = document.createElement("li");
     node.className = "auth-item";

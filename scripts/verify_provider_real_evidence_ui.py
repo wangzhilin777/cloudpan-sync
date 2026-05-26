@@ -39,6 +39,11 @@ def main() -> None:
                 and 'runtime_orphan_profiles=${((realEvidence?.taskRuntimeEvidence || {}).orphanProfileCount || 0)}' in app_js
                 and 'gaps=${(realEvidence?.gaps || []).join(" | ") || "(none)"}' in app_js
                 and 'appendProviderRecoveryActions(actions, firstProviderPanelGap.providerKey)' in app_js,
+                "jsProviderPanelSummaryHasOrphanRecovery": 'const firstProviderPanelOrphanItem = (state.runtimeOrphanRecovery?.items || [])[0] || null;' in app_js
+                and 'runtime_orphan_recovery: providers=${state.statusMatrix.summary.taskRuntimeOrphanProviderCount || 0}, profiles=${state.statusMatrix.summary.taskRuntimeOrphanProfileCount || 0}, firstProvider=${firstProviderPanelOrphanItem?.providerKey || "(none)"}, firstProfile=${firstProviderPanelOrphanItem?.orphanProfileId || "(none)"}' in app_js
+                and 'openOrphanBtn.textContent = "Open Runtime Orphan Recovery";' in app_js
+                and 'recreateBtn.textContent = "Recreate First Orphan Stub";' in app_js
+                and 'recreateRuntimeOrphanProfile(firstProviderPanelOrphanItem.providerKey, firstProviderPanelOrphanItem.orphanProfileId)' in app_js,
                 "jsProviderPanelShowsRuntimeTrack": 'task_runtime_track=${item.task_runtime_track || "runtime_planned"}, blocked=${item.task_runtime_blocked || 0}, conflictHandled=${item.task_runtime_conflict_handled || 0}' in app_js,
                 "jsProviderPanelSummaryShowsConflictCounts": 'label: "autoRenameProbeOnly"' in app_js and 'label: "conflictUnsupported"' in app_js and 'label: "runtimeBlocked"' in app_js and 'label: "runtimeConflictHandled"' in app_js and 'label: "runtimeOrphan"' in app_js,
                 "jsLoadRealEvidenceTriggersProviderRender": 'state.realEvidenceReport = data;' in app_js and 'renderProviderPanel();' in app_js,

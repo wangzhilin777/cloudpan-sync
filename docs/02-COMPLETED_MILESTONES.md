@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`提供方面板总览与研究总览也补直达孤儿恢复入口`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 provider 面板顶部 `providerMatrixSummary` 继续补强：当当前仓库存在 orphan 运行样本时，现在会额外出现一条 `runtime_orphan_recovery` 摘要，直接写出 orphan provider/profile 数以及当前第一条 orphan 记录
+  - 这条 provider 面板总览摘要也会直接提供 `Open Runtime Orphan Recovery` 和 `Recreate First Orphan Stub`，不必先滚到 `firstProviderPanelGap` 才能进入 orphan 恢复链
+  - 已把 `Provider Research` 列表的最上层摘要也同步补上同一条 `runtime_orphan_recovery` 行，并绑定同样的两个动作；当前效果是 provider 级“状态面板”和“研究面板”都已经从顶部摘要层正式接通 orphan 恢复入口，和前面已补好的 `Provider Status / Real Evidence / Plan Audit` 总览层口径保持一致
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_real_evidence_ui.py` 已验证 provider 面板顶部 summary 当前会识别 orphan 汇总，并绑定 `Open Runtime Orphan Recovery / Recreate First Orphan Stub -> recreateRuntimeOrphanProfile(...)`
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_research_ui.py` 已验证 `Provider Research` 顶部摘要当前会识别 orphan 汇总，并绑定 `Open Runtime Orphan Recovery / Recreate First Orphan Stub -> recreateRuntimeOrphanProfile(...)`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`提供方状态总览也补直达孤儿恢复入口`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Provider Status` 顶部总览层继续补强：当当前仓库存在 orphan 运行样本时，会额外出现一条 `runtime_orphan_recovery` 摘要，直接写出 orphan provider/profile 数以及当前第一条 orphan 记录

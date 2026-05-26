@@ -70,11 +70,11 @@ def main() -> None:
                 ),
                 "summaryShowsCurrentRuntimeSuccessDistribution": (
                     summary.get("taskRuntimeEvidenceProviderCount") == 3
-                    and summary.get("taskRuntimeSuccessCount") == 4
-                    and summary.get("taskRuntimeSampleCount") == 4
-                    and summary.get("taskRuntimeConflictHandledCount") == 4
+                    and summary.get("taskRuntimeSuccessCount") == 6
+                    and summary.get("taskRuntimeSampleCount") == 6
+                    and summary.get("taskRuntimeConflictHandledCount") == 6
                     and summary.get("taskRuntimeOrphanProviderCount") == 3
-                    and summary.get("taskRuntimeOrphanProfileCount") == 4
+                    and summary.get("taskRuntimeOrphanProfileCount") == 6
                 ),
                 "summaryShowsCurrentProviderDistribution": (
                     summary.get("authReadyProviders") == []
@@ -93,7 +93,7 @@ def main() -> None:
                     and summary.get("taskRuntimeBlockedProviders") == []
                     and summary.get("taskRuntimeConflictHandledProviders") == ["guangya", "uc", "pikpak"]
                 ),
-                "guangyaRowShowsRuntimeSuccess": "| guangya |" in guangya_row and "| 2 | 2 | 0 | 0 | 0 | 0 | 2 |" in guangya_row,
+                "guangyaRowShowsRuntimeSuccess": "| guangya |" in guangya_row and "| 4 | 4 | 0 | 0 | 0 | 0 | 4 |" in guangya_row,
                 "ucRowShowsRuntimeSuccess": "| uc |" in uc_row and "| 1 | 1 | 0 | 0 | 0 | 0 | 1 |" in uc_row,
                 "pikpakRowShowsRuntimeSuccess": "| pikpak |" in pikpak_row and "| 1 | 1 | 0 | 0 | 0 | 0 | 1 |" in pikpak_row,
                 "runtimeSuccessRowsShowCurrentProfiles": (

@@ -77,16 +77,16 @@ def main() -> None:
                     and summary.get("taskRuntimeFailedProviderCount") == 0
                     and summary.get("taskRuntimeCandidateProviderCount") == 0
                     and summary.get("taskRuntimeProbeProviderCount") == 0
-                    and summary.get("taskRuntimeSampleCount") == 4
-                    and summary.get("taskRuntimeSuccessCount") == 4
+                    and summary.get("taskRuntimeSampleCount") == 6
+                    and summary.get("taskRuntimeSuccessCount") == 6
                     and summary.get("taskRuntimeFailedCount") == 0
                     and summary.get("taskRuntimeCandidateCount") == 0
                     and summary.get("taskRuntimeProbeCount") == 0
                     and summary.get("taskRuntimeBlockedProviderCount") == 0
                     and summary.get("taskRuntimeBlockedCount") == 0
-                    and summary.get("taskRuntimeConflictHandledCount") == 4
+                    and summary.get("taskRuntimeConflictHandledCount") == 6
                     and summary.get("taskRuntimeOrphanProviderCount") == 3
-                    and summary.get("taskRuntimeOrphanProfileCount") == 4
+                    and summary.get("taskRuntimeOrphanProfileCount") == 6
                 ),
                 "summaryShowsCurrentProviderDistribution": (
                     summary.get("authEvidenceProviders") == []
@@ -100,7 +100,7 @@ def main() -> None:
                     and summary.get("taskRuntimeProbeProviders") == []
                     and summary.get("taskRuntimeBlockedProviders") == []
                 ),
-                "guangyaSectionShowsRuntimeSuccess": "samples=2 success=2 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=2 orphanProfiles=2" in guangya,
+                "guangyaSectionShowsRuntimeSuccess": "samples=4 success=4 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=4 orphanProfiles=4" in guangya,
                 "ucSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in uc,
                 "pikpakSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in pikpak,
                 "runtimeSuccessSectionsShowCurrentProfiles": (

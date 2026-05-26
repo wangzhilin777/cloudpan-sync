@@ -32,16 +32,16 @@ def main() -> None:
                     and f"`runtimeOrphanProfileCount={summary.get('runtimeOrphanProfileCount', 0)}`" in markdown
                 ),
                 "summaryShowsExpectedRuntimeCounts": (
-                    summary.get("sampleCount") == 4
+                    summary.get("sampleCount") == 6
                     and summary.get("providerCount") == 3
-                    and summary.get("profileCount") == 4
+                    and summary.get("profileCount") == 6
                     and summary.get("successProviderCount") == 3
-                    and summary.get("successCount") == 4
+                    and summary.get("successCount") == 6
                     and summary.get("failedCount") == 0
-                    and summary.get("verifyOkCount") == 4
-                    and summary.get("conflictHandledCount") == 4
+                    and summary.get("verifyOkCount") == 6
+                    and summary.get("conflictHandledCount") == 6
                     and summary.get("runtimeOrphanProviderCount") == 3
-                    and summary.get("runtimeOrphanProfileCount") == 4
+                    and summary.get("runtimeOrphanProfileCount") == 6
                 ),
                 "profileSummaryShowsCurrentProfiles": (
                     "profileSummary:" in markdown
@@ -75,7 +75,17 @@ def main() -> None:
                     and "conflictAction=auto_rename_new" in markdown
                     and "orphanProfileId=gy-live-defaults-1" in markdown
                 ),
-                "allRowsKeepConflictDowngrade": markdown.count("conflictAction=overwrite_downgraded_to_auto_rename") == 3,
+                "hasGuangyaLive2SuccessRow": (
+                    "- guangya profile=gy-live-2" in markdown
+                    and "conflictAction=overwrite_downgraded_to_auto_rename" in markdown
+                    and "orphanProfileId=gy-live-2" in markdown
+                ),
+                "hasGuangyaOrphanLiveSuccessRow": (
+                    "- guangya profile=gy-orphan-live-1" in markdown
+                    and "conflictAction=overwrite_downgraded_to_auto_rename" in markdown
+                    and "orphanProfileId=gy-orphan-live-1" in markdown
+                ),
+                "allRowsKeepConflictDowngrade": markdown.count("conflictAction=overwrite_downgraded_to_auto_rename") == 5,
             },
             ensure_ascii=False,
             indent=2,

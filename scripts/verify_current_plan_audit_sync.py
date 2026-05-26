@@ -10,6 +10,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from cloudpan_sync.plan_audit import run_plan_audit
+from cloudpan_sync.real_evidence_report import build_real_evidence_report
 
 
 def _section(markdown: str, marker: str) -> str:
@@ -25,6 +26,13 @@ def _section(markdown: str, marker: str) -> str:
 def main() -> None:
     audit = run_plan_audit()
     summary = dict(audit.get("summary") or {})
+    real_evidence = build_real_evidence_report()
+    real_summary = dict(real_evidence.get("summary") or {})
+    real_items = [dict(item or {}) for item in list(real_evidence.get("items") or [])]
+    guangya_item = next((item for item in real_items if str(item.get("providerKey") or "") == "guangya"), {})
+    guangya_runtime = dict(guangya_item.get("taskRuntimeEvidence") or {})
+    guangya_runtime_profiles = [str(value or "") for value in list(guangya_runtime.get("profiles") or []) if str(value or "")]
+    guangya_orphan_profiles = [str(value or "") for value in list(guangya_runtime.get("orphanProfiles") or []) if str(value or "")]
     markdown = (ROOT / "docs" / "04-PLAN_AUDIT_REPORT.md").read_text(encoding="utf-8")
 
     m4 = _section(markdown, "### M4 - 光鸭 Provider")
@@ -58,20 +66,21 @@ def main() -> None:
                     and "runtime_orphan" in m4
                     and "gy-live-1" in m4
                     and "gy-live-defaults-1" in m4
-                    and "当前 Guangya 已有 `2` 条 runtime success 记录" in m4
+                    and f"当前 Guangya 已有 `{len(guangya_runtime_profiles)}` 条 runtime success 记录" in m4
                 ),
                 "m5SectionStillPartial": (
                     "- 状态：`partial`" in m5
                     and "仍缺真实在线成功样本" in m5
                     and "runtime_orphan" in m5
-                    and "pikpak / uc" in m5
-                    and "gy-live-1 / gy-live-defaults-1" in m5
+                    and f"共有 `{real_summary.get('taskRuntimeOrphanProfileCount', 0)}` 条 `runtime_orphan` 成功样本" in m5
+                    and "gy-live-2" in m5
+                    and "gy-orphan-live-1" in m5
                 ),
                 "prealSectionStillTodo": (
                     "- 状态：`todo`" in preal
-                    and "仓库里有 `4` 条 runtime success 样本" in preal
-                    and "当前 `guangya / uc / pikpak` 的 `4` 条 runtime success 样本都属于 auth profile 已脱节的 `runtime_orphan` 记录" in preal
-                    and "gy-live-1 / gy-live-defaults-1" in preal
+                    and f"仓库里有 `{real_summary.get('taskRuntimeSuccessCount', 0)}` 条 runtime success 样本" in preal
+                    and f"当前 `guangya, uc, pikpak` 的 `{real_summary.get('taskRuntimeSuccessCount', 0)}` 条 runtime success 样本都属于 auth profile 已脱节的 `runtime_orphan` 记录" in preal
+                    and f"其中 Guangya 还包含 `{', '.join(guangya_orphan_profiles)}` 共 `{len(guangya_orphan_profiles)}` 条 orphan success" in preal
                 ),
                 "markdownExplainsFeatureFormula": "featureCompletionPercent" in markdown and "M1-M7" in markdown,
                 "markdownExplainsStrictFormula": "strictCompletionPercent" in markdown and "P-REAL" in markdown,

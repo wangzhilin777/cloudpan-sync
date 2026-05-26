@@ -10,6 +10,22 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`审计与真实证据文档也同步到当前六条孤儿样本`
+- 完成范围：
+  - 已把 [plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/plan_audit.py) 的 `M4 / M5 / P-REAL` 叙述从旧的固定口径改成基于当前真实证据汇总生成，不再把 Guangya 说成只有 `2` 条、全仓说成只有 `4` 条 orphan/runtime success
+  - 当前效果是：[04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md) 现在会诚实反映当前仓库里 `guangya / uc / pikpak` 的 `6` 条 runtime success 现状，并明确 Guangya 当前 orphan profiles 已扩展到 `gy-live-1 / gy-live-2 / gy-live-defaults-1 / gy-orphan-live-1`
+  - 已把 [06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md)、[10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md)、[11-TASK_RUNTIME_EVIDENCE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/11-TASK_RUNTIME_EVIDENCE.md) 全部重导出到当前实况，不再停留在旧的 `4` 样本快照
+  - 已同步补强 [verify_current_plan_audit_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_plan_audit_sync.py)、[verify_current_provider_status_matrix_runtime_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_provider_status_matrix_runtime_sync.py)、[verify_current_real_evidence_status_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_status_sync.py)、[verify_current_task_runtime_evidence_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_task_runtime_evidence_report_sync.py)，把 `6` 条 runtime success、`6` 条 runtime orphan，以及 Guangya 4 条成功样本一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\export_plan_audit.py` 已重导出当前 [04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md)
+  - `.\.venv\Scripts\python.exe scripts\export_provider_status_matrix.py` 已重导出当前 [06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md)
+  - `.\.venv\Scripts\python.exe scripts\export_real_evidence_report.py` 已重导出当前 [10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md)
+  - `.\.venv\Scripts\python.exe scripts\export_task_runtime_evidence_report.py` 已重导出当前 [11-TASK_RUNTIME_EVIDENCE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/11-TASK_RUNTIME_EVIDENCE.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_current_plan_audit_sync.py`、`verify_current_provider_status_matrix_runtime_sync.py`、`verify_current_real_evidence_status_sync.py`、`verify_current_task_runtime_evidence_report_sync.py` 已全部通过，确认导出文档和当前仓库证据口径一致
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`运行孤儿恢复链也支持按档案精确带默认值`
 - 完成范围：
   - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 三支 runtime helper 继续补齐到 `runtime orphan` 链路：除了 remediation 默认值入口外，现在都新增 `--from-runtime-orphan-profile`

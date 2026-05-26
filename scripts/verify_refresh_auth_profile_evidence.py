@@ -79,13 +79,32 @@ def main() -> None:
             webapp.refresh_auth_profile_evidence = original_refresh
             webapp.ADMIN_PASSWORD = original_password
 
+        evidence = payload.get("evidence") or {}
+        summary = evidence.get("summary") or {}
+        request_echo = evidence.get("requestEcho") or {}
+        markdown = str(payload.get("markdown", ""))
+        auth_profile_evidence_refresh_flow_matches_expected_profile = (
+            summary.get("profileReady") is True
+            and summary.get("validationOk") is True
+            and summary.get("probeOk") is True
+            and summary.get("resolvedParentId") == "dir-100"
+            and summary.get("resolvedFileId") == "file-9"
+            and request_echo.get("pageSize") == 55
+            and request_echo.get("dirName") == "verify-dir"
+            and request_echo.get("persist") is True
+            and "# Auth Profile Evidence" in markdown
+            and "`gy-refresh-1`" in markdown
+        )
+
         print(
             json.dumps(
                 {
-                    "validationOk": ((payload.get("evidence") or {}).get("summary") or {}).get("validationOk"),
-                    "probeOk": ((payload.get("evidence") or {}).get("summary") or {}).get("probeOk"),
-                    "markdownHasTitle": "# Auth Profile Evidence" in str(payload.get("markdown", "")),
-                    "markdownHasProfileId": "`gy-refresh-1`" in str(payload.get("markdown", "")),
+                    "validationOk": summary.get("validationOk"),
+                    "probeOk": summary.get("probeOk"),
+                    "profileReady": summary.get("profileReady"),
+                    "markdownHasTitle": "# Auth Profile Evidence" in markdown,
+                    "markdownHasProfileId": "`gy-refresh-1`" in markdown,
+                    "authProfileEvidenceRefreshFlowMatchesExpectedProfile": auth_profile_evidence_refresh_flow_matches_expected_profile,
                 },
                 ensure_ascii=False,
                 indent=2,

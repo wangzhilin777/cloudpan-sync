@@ -119,7 +119,7 @@ def main() -> None:
         "items": [
             {
                 "providerKey": "115_open",
-                "profileIds": ["115-fast-1"],
+                "profileIds": ["115-fast-1", "115-fast-2"],
                 "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["cookie"],
@@ -127,7 +127,7 @@ def main() -> None:
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode manual_cookie --display-name 115-fast --cookie YOUR_COOKIE --set parentId=YOUR_PARENT_ID --probe",
                 "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode manual_cookie --display-name 115-fast --cookie YOUR_COOKIE --set parentId=YOUR_PARENT_ID --probe",
                 "recommendedFastCandidateCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-fast-1 --target-parent-id 115-root --sha1 auto --auto-temp-file --conflict-policy auto_rename_new --evidence-dir tmp\115_open-fast-candidate-evidence",
-                "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-fast-1 --target-parent-id 115-root --sha1 auto --auto-temp-file --conflict-policy auto_rename_new --evidence-dir tmp\115_open-fast-candidate-evidence",
+                "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-fast-2 --target-parent-id 115-root-2 --sha1 auto --auto-temp-file --conflict-policy auto_rename_new --evidence-dir tmp\115_open-fast-candidate-evidence-2",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-fast-1 --target-parent-id 115-root --sha1 auto --auto-temp-file --conflict-policy overwrite_existing --evidence-dir tmp\115_open-fast-candidate-evidence",
             }
         ],
@@ -175,6 +175,18 @@ def main() -> None:
                     str(ROOT / "tmp" / "verify-fast-candidate-auth-evidence.md"),
                 ]
             )
+
+        exact_stdout = io.StringIO()
+        with contextlib.redirect_stdout(exact_stdout):
+            exact_result = fast_candidate_script.main(
+                [
+                    "--from-remediation-profile-id",
+                    "115-fast-2",
+                    "--auto-temp-file",
+                    "--sha1",
+                    "auto",
+                ]
+            )
     finally:
         task_runtime.create_task = original_create_task
         task_runtime.run_task = original_run_task
@@ -186,6 +198,7 @@ def main() -> None:
 
     output = json.loads(stdout_buffer.getvalue())
     second_output = json.loads(second_stdout.getvalue())
+    exact_output = json.loads(exact_stdout.getvalue())
     source_entry = ((output.get("sourceEntries") or [{}])[0]) if output.get("sourceEntries") else {}
     task_json = evidence_dir / "task.json"
     task_markdown = evidence_dir / "task.md"
@@ -221,6 +234,7 @@ def main() -> None:
             {
                 "exitCode": result,
                 "secondExitCode": second_result,
+                "exactExitCode": exact_result,
                 "scriptEmittedTaskJson": output.get("taskId") == "task-fast-candidate-1",
                 "scriptResolvedTargetParentId": output.get("resolvedTargetParentId") == "115-root",
                 "scriptEvidenceDirOutput": output.get("evidenceDir") == str(evidence_dir),
@@ -231,16 +245,19 @@ def main() -> None:
                 "scriptRemediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["cookie"]
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", ""),
-                "scriptRemediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedRuntimeSuccessCommand", "").endswith("tmp\\115_open-fast-candidate-evidence")
+                "scriptRemediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedRuntimeSuccessCommand", "").endswith("tmp\\115_open-fast-candidate-evidence-2")
                 and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\115_open-fast-candidate-evidence"),
                 "scriptExplicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-fast-parent",
                 "scriptNoRefreshSkipsAuthRefresh": len(refresh_calls) == 1 and second_output.get("refreshedAuthEvidence") is False,
                 "scriptExplicitOutputsCreated": second_outputs_ok
                 and second_output.get("taskJsonOutput") == str(second_task_json)
                 and second_output.get("authEvidenceOutput") == str(second_auth_evidence),
+                "scriptExactProfileDefaultsApplied": exact_output.get("defaultsSource") == "remediation:recommendedRuntimeSuccessCommand"
+                and exact_output.get("resolvedTargetParentId") == "115-root-2",
                 "scriptRequiredFastInputs": output.get("requiredFastInputs") == ["sha1", "size"],
                 "scriptAutoComputedSha1": bool(source_entry.get("sha1")),
                 "scriptHasAutoTempFile": "--auto-temp-file" in SCRIPT_PATH.read_text(encoding="utf-8"),
+                "scriptHasExactProfileArg": "--from-remediation-profile-id" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasSha1Arg": "--sha1" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasGcidArg": "--gcid" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasEvidenceDirArg": "--evidence-dir" in SCRIPT_PATH.read_text(encoding="utf-8"),

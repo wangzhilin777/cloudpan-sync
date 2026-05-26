@@ -267,6 +267,29 @@ def _defaults_from_remediation_provider(provider_key: str) -> dict[str, object]:
     return {}
 
 
+def _defaults_from_remediation_profile_id(profile_id: str) -> dict[str, object]:
+    target = str(profile_id or "").strip()
+    if not target:
+        return {}
+    payload = build_real_evidence_remediation_bundle()
+    for item in payload.get("items", []):
+        row = dict(item or {})
+        profile_ids = [str(value or "").strip() for value in (row.get("profileIds") or []) if str(value or "").strip()]
+        if target not in profile_ids:
+            continue
+        for candidate_key in (
+            "recommendedFastCandidateCommand",
+            "recommendedRuntimeSuccessCommand",
+            "recommendedPrimaryCommand",
+        ):
+            defaults = _extract_fast_candidate_defaults(str(row.get(candidate_key) or ""))
+            if str(defaults.get("targetProfileId") or "").strip() != target:
+                continue
+            defaults["source"] = f"remediation:{candidate_key}"
+            return defaults
+    return {}
+
+
 def main(argv: list[str] | None = None) -> int:
     custom_data_dir = str(os.environ.get("CLOUDPAN_SYNC_DATA_DIR") or "").strip()
     if custom_data_dir:
@@ -274,6 +297,7 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser(description="Create and run a lightweight fast-upload candidate task.")
     parser.add_argument("--from-remediation-provider", default="", help="Autofill fast-upload candidate defaults from the remediation bundle for this provider.")
+    parser.add_argument("--from-remediation-profile-id", default="", help="Autofill exact fast-upload candidate defaults from the remediation bundle for this profileId.")
     parser.add_argument("--source-provider", default="", help="Source provider. Defaults to target provider.")
     parser.add_argument("--target-provider", default="", help="Target provider key.")
     parser.add_argument("--target-profile-id", default="", help="Saved target auth profile id.")
@@ -297,7 +321,10 @@ def main(argv: list[str] | None = None) -> int:
 
     defaults: dict[str, object] = {}
     defaults_source = ""
-    if args.from_remediation_provider:
+    if args.from_remediation_profile_id:
+        defaults = _defaults_from_remediation_profile_id(str(args.from_remediation_profile_id or "").strip())
+        defaults_source = str(defaults.get("source") or "")
+    elif args.from_remediation_provider:
         defaults = _defaults_from_remediation_provider(str(args.from_remediation_provider or "").strip())
         defaults_source = str(defaults.get("source") or "")
 

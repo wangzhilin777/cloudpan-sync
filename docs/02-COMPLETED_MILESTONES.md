@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`运行辅助脚本也支持按档案精确带默认值`
+- 完成范围：
+  - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 三支 runtime helper 的 remediation 默认值入口继续补齐：除了原来的 `--from-remediation-provider` 外，现在都新增 `--from-remediation-profile-id`
+  - 当前效果是：当同一 provider 下存在多条可跑的 runtime helper profile 时，不再只能默认吃第一条 provider 级命令；现在可以直接指定某条 `profileId`，精确带出对应的 `targetProfileId / targetParentId / evidenceDir / conflictPolicy` 等默认值，避免把 probe/live/candidate 任务误打到另一条档案上
+  - 这次补齐覆盖了三类典型 runtime 路径：`runtime_probe`、`live_upload / runtime_success`、`fast_candidate / runtime_success`，这样围绕 `M4 / M5 / P-REAL` 的当前补救链路，已经从“重建档案”“patch 档案”进一步延伸到“按精确档案直接跑下一条真实任务 helper”
+  - 已同步补强 [verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py)、[verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py)、[verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py)，把 provider 级默认值、显式 parent 覆盖、无 refresh 模式以及 profile 级精确默认值四条路径一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_runtime_probe_task.py` 已验证 `create_runtime_probe_task.py` 现在支持 `--from-remediation-profile-id`，并能命中对应 `targetProfileId / resolvedTargetParentId`
+  - `.\.venv\Scripts\python.exe scripts\verify_create_live_upload_task.py` 已验证 `create_live_upload_task.py` 现在支持 `--from-remediation-profile-id`，且精确命中第二条 runtime success helper
+  - `.\.venv\Scripts\python.exe scripts\verify_create_fast_upload_candidate_task.py` 已验证 `create_fast_upload_candidate_task.py` 现在支持 `--from-remediation-profile-id`，且精确命中对应 fast candidate / runtime success helper
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补丁探针脚本也支持按档案精确带默认值`
 - 完成范围：
   - 已把 [patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_and_probe_auth_profile.py) 的 remediation 默认值入口继续补齐：除了原来的 `--from-remediation-provider` 外，现在新增 `--from-remediation-profile-id`

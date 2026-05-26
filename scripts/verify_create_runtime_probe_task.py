@@ -118,7 +118,7 @@ def main() -> None:
         "items": [
             {
                 "providerKey": "aliyundrive_open",
-                "profileIds": ["ali-runtime-1"],
+                "profileIds": ["ali-runtime-1", "ali-runtime-2"],
                 "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["token"],
@@ -126,6 +126,7 @@ def main() -> None:
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name ali-runtime --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe",
                 "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name ali-runtime --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe",
                 "recommendedRuntimeProbeCommand": r".\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-1 --target-parent-id folder-demo --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-runtime-probe-evidence",
+                "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-2 --target-parent-id folder-demo-2 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-live-evidence-2",
                 "recommendedPostRefreshRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-1 --target-parent-id folder-demo --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-live-evidence",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-1 --target-parent-id folder-demo --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\aliyundrive_open-live-evidence",
             }
@@ -170,6 +171,16 @@ def main() -> None:
                     str(ROOT / "tmp" / "verify-runtime-auth-evidence.md"),
                 ]
             )
+
+        exact_stdout = io.StringIO()
+        with contextlib.redirect_stdout(exact_stdout):
+            exact_result = runtime_probe_script.main(
+                [
+                    "--from-remediation-profile-id",
+                    "ali-runtime-1",
+                    "--auto-temp-file",
+                ]
+            )
     finally:
         task_runtime.create_task = original_create_task
         task_runtime.run_task = original_run_task
@@ -181,6 +192,7 @@ def main() -> None:
 
     output = json.loads(stdout_buffer.getvalue())
     second_output = json.loads(second_stdout.getvalue())
+    exact_output = json.loads(exact_stdout.getvalue())
     task_json = evidence_dir / "task.json"
     task_markdown = evidence_dir / "task.md"
     auth_evidence = evidence_dir / "auth_evidence.md"
@@ -215,10 +227,13 @@ def main() -> None:
             {
                 "exitCode": result,
                 "secondExitCode": second_result,
+                "exactExitCode": exact_result,
                 "scriptEmittedTaskJson": output.get("taskId") == "task-runtime-1",
                 "scriptResolvedTargetParentId": output.get("resolvedTargetParentId") == "folder-demo",
                 "scriptEvidenceDirOutput": output.get("evidenceDir") == str(evidence_dir),
-                "scriptAuthEvidenceRefreshed": len(refresh_calls) == 1 and refresh_calls[0].get("profileId") == "ali-runtime-1",
+                "scriptAuthEvidenceRefreshed": output.get("refreshedAuthEvidence") is True
+                and len(refresh_calls) >= 1
+                and refresh_calls[0].get("profileId") == "ali-runtime-1",
                 "scriptEvidenceBundleCreated": evidence_titles_ok,
                 "scriptRemediationPrimaryCommandIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommandLabel") == "recreate_probe"
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommand", ""),
@@ -228,11 +243,15 @@ def main() -> None:
                 "scriptRemediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedPostRefreshRuntimeCommand", "").endswith("tmp\\aliyundrive_open-live-evidence")
                 and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\aliyundrive_open-live-evidence"),
                 "scriptExplicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-parent",
-                "scriptNoRefreshSkipsAuthRefresh": len(refresh_calls) == 1 and second_output.get("refreshedAuthEvidence") is False,
+                "scriptNoRefreshSkipsAuthRefresh": second_output.get("refreshedAuthEvidence") is False,
                 "scriptExplicitOutputsCreated": second_outputs_ok
                 and second_output.get("taskJsonOutput") == str(second_task_json)
                 and second_output.get("authEvidenceOutput") == str(second_auth_evidence),
+                "scriptExactProfileDefaultsApplied": exact_output.get("defaultsSource") == "remediation:recommendedRuntimeProbeCommand"
+                and exact_output.get("targetProfileId") == "ali-runtime-1"
+                and exact_output.get("resolvedTargetParentId") == "folder-demo",
                 "scriptHasAutoTempFile": "--auto-temp-file" in SCRIPT_PATH.read_text(encoding="utf-8"),
+                "scriptHasExactProfileArg": "--from-remediation-profile-id" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasThresholdDefault": "--threshold-mb" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasTargetProfileArg": "--target-profile-id" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasEvidenceDirArg": "--evidence-dir" in SCRIPT_PATH.read_text(encoding="utf-8"),

@@ -151,7 +151,7 @@ def main() -> None:
         "items": [
             {
                 "providerKey": "guangya",
-                "profileIds": ["gy-live-1"],
+                "profileIds": ["gy-live-1", "gy-live-2"],
                 "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["token"],
@@ -159,7 +159,7 @@ def main() -> None:
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name gy-live --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                 "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name gy-live --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                 "recommendedLiveUploadCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --target-parent-id folder-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
-                "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --target-parent-id folder-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
+                "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-2 --target-parent-id folder-live-2 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence-2",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --target-parent-id folder-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-live-evidence",
             }
         ],
@@ -201,6 +201,16 @@ def main() -> None:
                     str(ROOT / "tmp" / "verify-live-auth-only.md"),
                 ]
             )
+
+        exact_stdout = io.StringIO()
+        with contextlib.redirect_stdout(exact_stdout):
+            exact_result = live_upload_script.main(
+                [
+                    "--from-remediation-profile-id",
+                    "gy-live-2",
+                    "--auto-temp-file",
+                ]
+            )
     finally:
         live_upload_script.get_profile = original_get_profile
         live_upload_script.refresh_auth_profile_evidence = original_refresh_auth_evidence
@@ -212,6 +222,7 @@ def main() -> None:
 
     output = json.loads(stdout_buffer.getvalue())
     second_output = json.loads(second_stdout.getvalue())
+    exact_output = json.loads(exact_stdout.getvalue())
     task_json = evidence_dir / "task.json"
     task_markdown = evidence_dir / "task.md"
     auth_evidence = evidence_dir / "auth_evidence.md"
@@ -243,6 +254,7 @@ def main() -> None:
             {
                 "exitCode": result,
                 "secondExitCode": second_result,
+                "exactExitCode": exact_result,
                 "resolvedTargetParentId": output.get("resolvedTargetParentId") == "folder-live-1",
                 "evidenceDirOutput": output.get("evidenceDir") == str(evidence_dir),
                 "stateCompleted": output.get("state") == "completed",
@@ -256,13 +268,16 @@ def main() -> None:
                 "remediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["token"]
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", ""),
-                "remediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedRuntimeSuccessCommand", "").endswith("tmp\\guangya-live-evidence")
+                "remediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedRuntimeSuccessCommand", "").endswith("tmp\\guangya-live-evidence-2")
                 and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\guangya-live-evidence"),
                 "explicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-live-parent",
                 "noRefreshSkipsAuthRefresh": len(refresh_calls) == 1 and second_output.get("refreshedAuthEvidence") is False,
                 "explicitOutputsCreated": second_outputs_ok
                 and second_output.get("taskJsonOutput") == str(second_task_json)
                 and second_output.get("authEvidenceOutput") == str(second_auth_evidence),
+                "exactProfileDefaultsApplied": exact_output.get("defaultsSource") == "remediation:recommendedRuntimeSuccessCommand"
+                and exact_output.get("targetProfileId") == "gy-live-2"
+                and exact_output.get("resolvedTargetParentId") == "folder-live-2",
                 "noAcknowledgeFlagHonored": second_output.get("acknowledgedDownloadUpload") is False,
                 "jsonSavedState": task_payload.get("state") == "completed",
                 "jsonSavedVerifyMode": (((((task_payload.get("results") or [None])[0]) or {}).get("liveAttempt") or {}).get("verifyMode")) == "list_by_parent_name",
@@ -277,6 +292,7 @@ def main() -> None:
                     for path in (task_json, task_markdown, auth_evidence, runtime_evidence, real_evidence, remediation)
                 ),
                 "scriptHasEvidenceDirArg": "--evidence-dir" in SCRIPT_PATH.read_text(encoding="utf-8"),
+                "scriptHasExactProfileArg": "--from-remediation-profile-id" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasMarkdownOutputArg": "--markdown-output" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasTaskJsonOutputArg": "--task-json-output" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasAuthEvidenceOutputArg": "--auth-evidence-output" in SCRIPT_PATH.read_text(encoding="utf-8"),

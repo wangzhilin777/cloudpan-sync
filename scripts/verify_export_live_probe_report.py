@@ -129,29 +129,52 @@ def main() -> None:
 
         output_path = tmp_root / "docs" / "05-PROVIDER_LIVE_PROBE_REPORT.md"
         markdown = output_path.read_text(encoding="utf-8")
+    exported_file_exists = True
+    exported_has_title = "# CloudPan Sync Provider Live Probe Report" in markdown
+    exported_has_summary_counts = (
+        "providerCount=3" in markdown
+        and "totalChecks=4" in markdown
+        and "okChecks=2" in markdown
+        and "failedChecks=2" in markdown
+        and "profileProbeProviderCount=2" in markdown
+        and "profileProbeOkCount=1" in markdown
+        and "profileProbeFailedCount=1" in markdown
+        and "- profileProbeProfiles: `ok=gy-1` `failed=189-1`" in markdown
+        and "- profileProbeProviderSummary: `ok_providers=guangya` `failed_providers=189cloud` `failed_modes=share_probe`" in markdown
+    )
+    exported_has_guangya_rows = (
+        "## guangya - Guangya" in markdown
+        and "- official_docs: ok=True status=200 url=https://docs.guangya.example final=https://docs.guangya.example error=" in markdown
+        and "- web_login: ok=False status=403 url=https://login.guangya.example final=https://login.guangya.example/blocked error=http_error:403" in markdown
+    )
+    exported_has_profile_probe_rows = (
+        "- profile_probe: ok=True mode=cookie_refresh checks=2 summary=2 checks passed" in markdown
+        and "- profile_probe: ok=False mode=share_probe checks=1 summary=share profile is readonly" in markdown
+    )
+    exported_has_no_empty_profile_probe_row = (
+        "## 115_open - 115 Open" in markdown
+        and "- web_login: ok=True status=302 url=https://115.example/login final=https://115.example/home error=" in markdown
+        and "checks=0 summary=" not in markdown
+    )
+    export_live_probe_report_flow_matches_expected_markdown = (
+        exported_file_exists
+        and exported_has_title
+        and exported_has_summary_counts
+        and exported_has_guangya_rows
+        and exported_has_profile_probe_rows
+        and exported_has_no_empty_profile_probe_row
+    )
 
     print(
         json.dumps(
             {
-                "exportedFileExists": True,
-                "exportedHasTitle": "# CloudPan Sync Provider Live Probe Report" in markdown,
-                "exportedHasSummaryCounts": "providerCount=3" in markdown
-                and "totalChecks=4" in markdown
-                and "okChecks=2" in markdown
-                and "failedChecks=2" in markdown
-                and "profileProbeProviderCount=2" in markdown
-                and "profileProbeOkCount=1" in markdown
-                and "profileProbeFailedCount=1" in markdown
-                and "- profileProbeProfiles: `ok=gy-1` `failed=189-1`" in markdown
-                and "- profileProbeProviderSummary: `ok_providers=guangya` `failed_providers=189cloud` `failed_modes=share_probe`" in markdown,
-                "exportedHasGuangyaRows": "## guangya - Guangya" in markdown
-                and "- official_docs: ok=True status=200 url=https://docs.guangya.example final=https://docs.guangya.example error=" in markdown
-                and "- web_login: ok=False status=403 url=https://login.guangya.example final=https://login.guangya.example/blocked error=http_error:403" in markdown,
-                "exportedHasProfileProbeRows": "- profile_probe: ok=True mode=cookie_refresh checks=2 summary=2 checks passed" in markdown
-                and "- profile_probe: ok=False mode=share_probe checks=1 summary=share profile is readonly" in markdown,
-                "exportedHasNoEmptyProfileProbeRow": "## 115_open - 115 Open" in markdown
-                and "- web_login: ok=True status=302 url=https://115.example/login final=https://115.example/home error=" in markdown
-                and "checks=0 summary=" not in markdown,
+                "exportedFileExists": exported_file_exists,
+                "exportedHasTitle": exported_has_title,
+                "exportedHasSummaryCounts": exported_has_summary_counts,
+                "exportedHasGuangyaRows": exported_has_guangya_rows,
+                "exportedHasProfileProbeRows": exported_has_profile_probe_rows,
+                "exportedHasNoEmptyProfileProbeRow": exported_has_no_empty_profile_probe_row,
+                "exportLiveProbeReportFlowMatchesExpectedMarkdown": export_live_probe_report_flow_matches_expected_markdown,
             },
             ensure_ascii=False,
             indent=2,

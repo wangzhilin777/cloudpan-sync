@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐实时探测报告导出回归断言`
+- 完成范围：
+  - 已把 [verify_export_live_probe_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_live_probe_report.py) 从导出文件存在、标题、summary、Guangya rows、profile probe rows 与“无空 profile probe 行”检查等分散断言，补成真正会给出整条实时探测报告导出链结论的 verifier
+  - 同一条回归现在会用 `exportLiveProbeReportFlowMatchesExpectedMarkdown` 直接锁住这条导出链：synthetic probe payload 经 `export_live_probe_report.py` 生成的 `docs/05-PROVIDER_LIVE_PROBE_REPORT.md` 必须稳定带出总览汇总、Guangya 检查行、profile probe 行，以及 115 行不应误带空 probe 摘要
+  - 当前效果是：实时探测报告导出能力不再只是很多 Markdown 片段各自为真，而是多了一条从 payload 到导出文件内容的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_live_probe_report.py` 已验证实时探测报告导出链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权实时校验导出回归断言`
 - 完成范围：
   - 已把 [verify_export_auth_live_validation_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_live_validation_report.py) 从导出文件存在、标题、summary、latest rows、recent history rows 等分散检查，补成真正会给出整条授权实时校验导出链结论的 verifier

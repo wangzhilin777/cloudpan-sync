@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐Provider状态设置页回归断言`
+- 完成范围：
+  - 已把 [verify_provider_status_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_status_settings_ui.py) 从 provider status 面板、statusMatrix 刷新、first gap 恢复动作、runtime orphan recovery 入口与统计汇总等分散片段检查，补成真正会给出整条设置页 wiring 结论的 verifier
+  - 同一条回归现在会用 `providerStatusSettingsUiFlowIsWired` 直接锁住这条 Provider Status Matrix 设置页链：面板 DOM、状态矩阵刷新联动、首个 gap 的 provider recovery/runtime orphan 恢复动作、冲突能力与 runtime 统计摘要、标题渲染与 logout 清理都必须一起存在
+  - 当前效果是：Provider 状态设置页不再只是很多摘要字段和按钮还在，而是多了一条从 `statusMatrix` 数据消费到恢复动作入口的完整 UI 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_status_settings_ui.py` 已验证 Provider 状态设置页链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐真实证据设置页回归断言`
 - 完成范围：
   - 已把 [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py) 从设置页真实证据面板、summary loader、first gap remediation actions、runtime orphan recovery 入口等分散片段检查，补成真正会给出整条设置页 wiring 结论的 verifier

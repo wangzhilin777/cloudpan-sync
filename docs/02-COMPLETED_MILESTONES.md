@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐会话设置页总链回归断言`
+- 完成范围：
+  - 已把 [verify_session_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_session_settings_ui.py) 从 Session 面板存在、session summary 渲染和首个 gap 动作等分散检查，补成真正会给出整条会话设置页链结论的 verifier
+  - 同一条回归现在会用 `sessionSettingsUiFlowIsWired` 直接锁住这条链：`index.html` 里的 Session 面板骨架、`app.js` 里的 session summary 渲染，以及 `missing_auth_profiles / missing_tasks` 两类首个缺口动作和 tab 跳转都必须一起存在
+  - 当前效果是：会话设置页能力不再只是几个 UI 片段各自为真，而是多了一条从 HTML 面板到 JS 汇总渲染与首个 gap 动作绑定的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_session_settings_ui.py` 已验证会话设置页链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐单档案证据总链回归断言`
 - 完成范围：
   - 已把 [verify_auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_evidence.py) 从本地 summary、API validation/probe、Markdown profileId 与 probe summary 片段等分散检查，补成真正会给出整条单档案证据总链结论的 verifier

@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务列表里的冲突支持汇总摘要`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `renderTaskList` 再补一层：当前任务列表主摘要除了 `conflictPolicy` 和首条 `firstConflictSupport / firstConflictNote`，也会直接带出 `summary.conflictSupportSummaryStatuses` 汇总后的 `conflictSummary`
+  - 当前效果是：列表首屏不再只能看到“第一条计划项”的冲突状态，也能直接看出这整条任务当前涉及了哪些冲突支持状态，和前面已补齐的 task summary / task.md `supportSummary` 更接近同口径
+  - 这样任务列表终于和任务摘要、任务视图 API、任务 Markdown 导出链的冲突状态汇总保持同步了，不再出现“summary 已经有汇总状态，但列表主摘要还只显示首条状态”的断层
+  - 已同步补强 [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py)，把 `conflictSupportSummaryStatuses -> conflictSummary` 的渲染一起锁进 UI 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_list_runtime_ui.py` 已验证任务列表主摘要当前会输出 `conflictSummary`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务摘要里的冲突支持摘要`
 - 完成范围：
   - 已把 [task_runtime.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime.py) 的 `build_task_summary` 再补一层：当前任务 `summary` 本身不再只管 `state / risk / live/probe/candidate` 计数，也会直接返回 `conflictSupportSummaryStatuses / firstConflictSupportStatus / firstConflictNote`

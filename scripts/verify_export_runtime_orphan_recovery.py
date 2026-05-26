@@ -93,20 +93,39 @@ def main() -> None:
 
         output_path = tmp_root / "docs" / "13-RUNTIME_ORPHAN_RECOVERY.md"
         markdown = output_path.read_text(encoding="utf-8")
+    exported_file_exists = True
+    exported_has_title = "# CloudPan Sync Runtime Orphan Recovery Guide" in markdown
+    exported_has_summary = "orphanProfileCount=2" in markdown and "providersWithSavedProfiles=1" in markdown
+    exported_has_orphan_summary = "orphanSummary:" in markdown and "profiles=gy-orphan, uc-orphan" in markdown
+    exported_has_batch_commands = (
+        "batchCommands:" in markdown
+        and "recreate_runtime_orphan_stubs.py --write" in markdown
+        and "## Batch Recreate Commands" in markdown
+        and "--provider-key guangya" in markdown
+    )
+    exported_has_provider_section = "## guangya - Guangya - gy-orphan" in markdown
+    exported_has_create_command = "--profile-id gy-orphan" in markdown and "create_auth_profile_stub.py" in markdown
+    export_runtime_orphan_recovery_flow_matches_expected_markdown = (
+        exported_file_exists
+        and exported_has_title
+        and exported_has_summary
+        and exported_has_orphan_summary
+        and exported_has_batch_commands
+        and exported_has_provider_section
+        and exported_has_create_command
+    )
 
     print(
         json.dumps(
             {
-                "exportedFileExists": True,
-                "exportedHasTitle": "# CloudPan Sync Runtime Orphan Recovery Guide" in markdown,
-                "exportedHasSummary": "orphanProfileCount=2" in markdown and "providersWithSavedProfiles=1" in markdown,
-                "exportedHasOrphanSummary": "orphanSummary:" in markdown and "profiles=gy-orphan, uc-orphan" in markdown,
-                "exportedHasBatchCommands": "batchCommands:" in markdown
-                and "recreate_runtime_orphan_stubs.py --write" in markdown
-                and "## Batch Recreate Commands" in markdown
-                and "--provider-key guangya" in markdown,
-                "exportedHasProviderSection": "## guangya - Guangya - gy-orphan" in markdown,
-                "exportedHasCreateCommand": "--profile-id gy-orphan" in markdown and "create_auth_profile_stub.py" in markdown,
+                "exportedFileExists": exported_file_exists,
+                "exportedHasTitle": exported_has_title,
+                "exportedHasSummary": exported_has_summary,
+                "exportedHasOrphanSummary": exported_has_orphan_summary,
+                "exportedHasBatchCommands": exported_has_batch_commands,
+                "exportedHasProviderSection": exported_has_provider_section,
+                "exportedHasCreateCommand": exported_has_create_command,
+                "exportRuntimeOrphanRecoveryFlowMatchesExpectedMarkdown": export_runtime_orphan_recovery_flow_matches_expected_markdown,
             },
             ensure_ascii=False,
             indent=2,

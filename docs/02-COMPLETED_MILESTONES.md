@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐补救档案的profile级exact helper`
+- 完成范围：
+  - 已把 [create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 补上 `--from-remediation-profile-id`，让当前仓库里已经存在的补救档案也能直接按精确 `profileId` 反推默认 `provider/auth/display/extra`，不再只支持 orphan 样本
+  - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的 `exactPatchHelper / exactRecreateHelper` 逻辑补齐到当前 profile 级别：现在只要当前 provider 有单条 `recommendedPatchProbeCommand` 或 `recommendedRecreateProbeCommand`，就会直接给出可复制的 exact helper，而不是只在多条 patch 或 orphan 场景下才出现
+  - 当前 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 已同步把 `guangya / aliyundrive_open / uc / pikpak` 这四类“已落库但仍是 placeholder secret”的档案补齐 `exactPatchHelper / exactRecreateHelper`，后续 secret refresh 或重建时不必再手抄 `--profile-id` 长命令
+  - 同一轮还把相关 verifier 一起补强，重点锁定“当前 profile 级 exact helper 可用”这条链，避免文档已经写出 exact helper，但 CLI/API 默认解析仍回不到目标 profile 的假闭环
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_auth_profile_stub_defaults.py` 已验证 `--from-remediation-profile-id` 能正确解析到当前目标 profile，并保留精确 `profileIdOverride`
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_api.py` 已验证 remediation create API 在 `already_exists / stub_created` 场景下都会返回 profile 级 `exactRecreateHelper`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py`、`.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py`、`.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证 bundle、导出文档与当前 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 已同步包含这组 profile 级 exact helper
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`真实证据与补救文档补上占位凭证被线上拒绝状态`
 - 完成范围：
   - 已把 [real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_report.py) 补成会明确区分三类阻塞：缺字段、占位 secret、以及“已命中线上 API 但被当前占位凭证拒绝”

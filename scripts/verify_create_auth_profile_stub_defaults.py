@@ -107,6 +107,7 @@ def main() -> None:
                 },
                 {
                     "providerKey": "guangya",
+                    "profileIds": ["gy-live-1", "gy-live-defaults-1"],
                     "runtimeOrphanProfiles": ["gy-live-1", "gy-live-defaults-1"],
                     "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                     "recommendedRecreateProbeCommands": [
@@ -165,6 +166,14 @@ def main() -> None:
                 ],
                 save_calls,
             )
+            remediation_profile_exact_payload = _run_with(
+                [
+                    str(SCRIPT_PATH),
+                    "--from-remediation-profile-id",
+                    "gy-live-defaults-1",
+                ],
+                save_calls,
+            )
         finally:
             if original_env is None:
                 os.environ.pop("CLOUDPAN_SYNC_DATA_DIR", None)
@@ -206,6 +215,12 @@ def main() -> None:
                 and remediation_exact_payload.get("displayName") == "guangya-restore-gy-live-defaults-1"
                 and dict(remediation_exact_payload.get("extra") or {}).get("parentId") == "YOUR_REAL_PARENT_ID"
                 and remediation_exact_payload.get("defaultsSource") == "remediation_orphan:recommendedRecreateProbeCommands",
+                "remediationProfileDefaultsResolved": remediation_profile_exact_payload.get("profileId") == "gy-live-defaults-1"
+                and remediation_profile_exact_payload.get("providerKey") == "guangya"
+                and remediation_profile_exact_payload.get("authMode") == "manual_token"
+                and remediation_profile_exact_payload.get("displayName") == "guangya-restore-gy-live-1"
+                and dict(remediation_profile_exact_payload.get("extra") or {}).get("parentId") == "YOUR_REAL_PARENT_ID"
+                and remediation_profile_exact_payload.get("defaultsSource") == "remediation_profile:recommendedRecreateProbeCommand",
                 "saveCallsKeepResolvedDefaults": save_calls == [
                     {
                         "providerKey": "aliyundrive_open",
@@ -238,6 +253,15 @@ def main() -> None:
                         "providerKey": "guangya",
                         "authMode": "manual_token",
                         "displayName": "guangya-restore-gy-live-defaults-1",
+                        "token": "YOUR_TOKEN",
+                        "cookie": "",
+                        "extra": {"parentId": "YOUR_REAL_PARENT_ID"},
+                        "profileIdOverride": "gy-live-defaults-1",
+                    },
+                    {
+                        "providerKey": "guangya",
+                        "authMode": "manual_token",
+                        "displayName": "guangya-restore-gy-live-1",
                         "token": "YOUR_TOKEN",
                         "cookie": "",
                         "extra": {"parentId": "YOUR_REAL_PARENT_ID"},

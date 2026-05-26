@@ -161,6 +161,33 @@ def _defaults_from_remediation_provider(provider_key: str) -> dict[str, object]:
     return {}
 
 
+def _defaults_from_remediation_profile(profile_id: str) -> dict[str, object]:
+    target = str(profile_id or "").strip()
+    if not target:
+        return {}
+    payload = build_real_evidence_remediation_bundle()
+    for item in payload.get("items", []):
+        row = dict(item or {})
+        profile_ids = [str(value or "").strip() for value in (row.get("profileIds") or []) if str(value or "").strip()]
+        if target not in profile_ids:
+            continue
+        for candidate_key in (
+            "recommendedRecreateProbeCommand",
+            "recommendedPrimaryCommand",
+            "recommendedBootstrapCommand",
+            "recommendedCreateCommand",
+        ):
+            defaults = _defaults_from_commands(
+                [str(row.get(candidate_key) or "")],
+                source_prefix="remediation_profile",
+                source_key=candidate_key,
+            )
+            if defaults:
+                defaults["profileId"] = target
+                return defaults
+    return {}
+
+
 def _defaults_from_remediation_orphan_profile(profile_id: str) -> dict[str, object]:
     target = str(profile_id or "").strip()
     if not target:
@@ -243,6 +270,7 @@ def main() -> None:
     parser.add_argument("--cookie", default="", help="Optional cookie value.")
     parser.add_argument("--set", dest="extra", action="append", default=[], help="Extra field in key=value form.")
     parser.add_argument("--from-remediation-provider", default="", help="Autofill defaults from the remediation bundle for this provider.")
+    parser.add_argument("--from-remediation-profile-id", default="", help="Autofill exact profile defaults from the remediation bundle.")
     parser.add_argument("--from-remediation-orphan-profile", default="", help="Autofill exact orphan-profile defaults from the remediation bundle.")
     parser.add_argument("--from-runtime-orphan-provider", default="", help="Autofill defaults from runtime orphan recovery for this provider.")
     parser.add_argument("--from-runtime-orphan-profile", default="", help="Autofill exact orphan-profile defaults from runtime orphan recovery.")
@@ -257,6 +285,9 @@ def main() -> None:
     defaults_source = ""
     if args.from_runtime_orphan_profile:
         defaults = _defaults_from_runtime_orphan_profile(str(args.from_runtime_orphan_profile or "").strip())
+        defaults_source = str(defaults.get("source") or "")
+    elif args.from_remediation_profile_id:
+        defaults = _defaults_from_remediation_profile(str(args.from_remediation_profile_id or "").strip())
         defaults_source = str(defaults.get("source") or "")
     elif args.from_remediation_orphan_profile:
         defaults = _defaults_from_remediation_orphan_profile(str(args.from_remediation_orphan_profile or "").strip())

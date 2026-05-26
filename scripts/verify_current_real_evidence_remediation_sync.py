@@ -141,6 +141,8 @@ def main() -> None:
                     "recommendedRecreateProbeCommand" in aliyun
                     and "label=recreate_probe" in aliyun
                     and "create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name aliyun-bootstrap --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe" in aliyun
+                    and "exactPatchHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b`" in aliyun
+                    and "exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b`" in aliyun
                     and "placeholderSecretFieldHints: `token`" in aliyun
                     and "liveRejected: profiles=`aliyun-bootstrap` placeholderProfiles=`aliyun-bootstrap` statuses=`404`" in aliyun
                     and "当前档案仍含占位 token/cookie 等 secret 字段" in aliyun
@@ -151,6 +153,7 @@ def main() -> None:
                     and "recommendedPatchCommands: count=`6`" in guangya
                     and "recommendedPatchProbeCommands: count=`6`" in guangya
                     and "exactPatchHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id 0318479d-4669-415f-9083-7aecc102bf90`" in guangya
+                    and "exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-profile-id 0318479d-4669-415f-9083-7aecc102bf90`" in guangya
                     and "patch_auth_profile_extra.py --profile-id gy-live-1 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate" in guangya
                     and "patch_and_probe_auth_profile.py --profile-id gy-live-1 --set parentId=YOUR_REAL_PARENT_ID --write" in guangya
                     and "placeholderSecretFieldHints: `token`" in guangya
@@ -161,6 +164,8 @@ def main() -> None:
                     "recommendedRecreateProbeCommand" in uc
                     and "label=recreate_probe" in uc
                     and "create_auth_profile_stub.py --provider-key uc --auth-mode manual_cookie --display-name uc-restore-uc-live-1 --cookie YOUR_COOKIE --set pwdId=YOUR_SHARE_PWD_ID --probe" in uc
+                    and "exactPatchHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id uc-live-1`" in uc
+                    and "exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-profile-id uc-live-1`" in uc
                     and "liveRejected: profiles=`uc-restore-uc-live-1` placeholderProfiles=`uc-restore-uc-live-1` statuses=`404`" in uc
                     and "recommendedPostBootstrapRuntimeCommand" not in uc
                 ),
@@ -168,6 +173,8 @@ def main() -> None:
                     "recommendedRecreateProbeCommand" in pikpak
                     and "label=recreate_probe" in pikpak
                     and "create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_token --display-name pikpak-restore-pikpak-live-1 --token YOUR_TOKEN --set deviceId=YOUR_DEVICE_ID --probe" in pikpak
+                    and "exactPatchHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id pikpak-live-1`" in pikpak
+                    and "exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-profile-id pikpak-live-1`" in pikpak
                     and "liveRejected: profiles=`pikpak-restore-pikpak-live-1` placeholderProfiles=`pikpak-restore-pikpak-live-1` statuses=`401`" in pikpak
                     and "recommendedPostBootstrapRuntimeCommand" not in pikpak
                 ),

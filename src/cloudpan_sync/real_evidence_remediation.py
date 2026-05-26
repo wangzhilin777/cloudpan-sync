@@ -364,6 +364,13 @@ def _exact_recreate_helper(orphan_profile_id: str) -> str:
     return f".\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-orphan-profile {profile_id}"
 
 
+def _exact_recreate_profile_helper(profile_id: str) -> str:
+    target = str(profile_id or "").strip()
+    if not target:
+        return ""
+    return f".\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-profile-id {target}"
+
+
 def _exact_create_helper(provider_key: str) -> str:
     provider = str(provider_key or "").strip()
     if not provider:
@@ -719,9 +726,13 @@ def build_real_evidence_remediation_bundle(
         )
         exact_profile_id = str((item_payload.get("profileIds") or [""])[0] or "")
         exact_orphan_profile_id = runtime_orphan_profiles[0] if runtime_orphan_profiles else ""
-        item_payload["exactPatchHelper"] = _exact_patch_probe_helper(exact_profile_id) if len(patch_probe_commands) > 1 else ""
+        item_payload["exactPatchHelper"] = _exact_patch_probe_helper(exact_profile_id) if str(item_payload.get("recommendedPatchProbeCommand") or "") else ""
         item_payload["exactCreateHelper"] = _exact_create_helper(provider_key) if str(item_payload.get("recommendedCreateCommand") or "") else ""
-        item_payload["exactRecreateHelper"] = _exact_recreate_helper(exact_orphan_profile_id) if str(item_payload.get("recommendedRecreateProbeCommand") or "") else ""
+        item_payload["exactRecreateHelper"] = (
+            _exact_recreate_helper(exact_orphan_profile_id)
+            if exact_orphan_profile_id
+            else _exact_recreate_profile_helper(exact_profile_id)
+        ) if str(item_payload.get("recommendedRecreateProbeCommand") or "") else ""
         item_payload["exactRefreshEvidenceHelper"] = _exact_patch_probe_helper(exact_profile_id) if str(item_payload.get("recommendedRefreshEvidenceCommand") or "") else ""
         item_payload["exactRuntimeProbeHelper"] = _exact_runtime_helper(
             str(item_payload.get("recommendedRuntimeProbeCommand") or ""),
@@ -921,7 +932,7 @@ def create_remediation_profile(provider_key: str) -> dict[str, object]:
         runtime_probe_command = _runtime_probe_command_for_profile(existing_view or {})
         runtime_success_command = _runtime_success_command_for_profile(existing_view or {})
         overwrite_variant_command = _overwrite_variant_command(runtime_success_command or runtime_probe_command) or str(target_item.get("recommendedOverwriteVariantCommand") or "")
-        exact_recreate_helper = _exact_recreate_helper(str(((target_item.get("runtimeOrphanProfiles") or [""])[0]) or ""))
+        exact_recreate_helper = _exact_recreate_helper(str(((target_item.get("runtimeOrphanProfiles") or [""])[0]) or "")) or _exact_recreate_profile_helper(existing_id)
         return {
             "ok": True,
             "created": False,
@@ -970,7 +981,7 @@ def create_remediation_profile(provider_key: str) -> dict[str, object]:
     runtime_probe_command = _runtime_probe_command_for_profile(profile_view)
     runtime_success_command = _runtime_success_command_for_profile(profile_view)
     overwrite_variant_command = _overwrite_variant_command(runtime_success_command or runtime_probe_command) or str(target_item.get("recommendedOverwriteVariantCommand") or "")
-    exact_recreate_helper = _exact_recreate_helper(str(((target_item.get("runtimeOrphanProfiles") or [""])[0]) or ""))
+    exact_recreate_helper = _exact_recreate_helper(str(((target_item.get("runtimeOrphanProfiles") or [""])[0]) or "")) or _exact_recreate_profile_helper(profile_id)
     return {
         "ok": True,
         "created": True,
@@ -1122,6 +1133,9 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedPatchCommand: `{row.get('recommendedPatchCommand', '')}`")
         if row.get("recommendedPatchProbeCommand"):
             lines.append(f"- recommendedPatchProbeCommand: `{row.get('recommendedPatchProbeCommand', '')}`")
+            exact_patch_helper = str(row.get("exactPatchHelper") or "")
+            if exact_patch_helper:
+                lines.append(f"- exactPatchHelper: `{exact_patch_helper}`")
         patch_commands = [str(value or "") for value in (row.get("recommendedPatchCommands") or []) if str(value or "")]
         if len(patch_commands) > 1:
             lines.append(f"- recommendedPatchCommands: count=`{len(patch_commands)}`")
@@ -1132,9 +1146,6 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedPatchProbeCommands: count=`{len(patch_probe_commands)}`")
             for index, command in enumerate(patch_probe_commands, start=1):
                 lines.append(f"  - [{index}] `{command}`")
-            exact_patch_helper = str(row.get("exactPatchHelper") or "")
-            if exact_patch_helper:
-                lines.append(f"- exactPatchHelper: `{exact_patch_helper}`")
         if row.get("recommendedRecreateProbeCommand"):
             lines.append(f"- recommendedRecreateProbeCommand: `{row.get('recommendedRecreateProbeCommand', '')}`")
             exact_recreate_helper = str(row.get("exactRecreateHelper") or "")

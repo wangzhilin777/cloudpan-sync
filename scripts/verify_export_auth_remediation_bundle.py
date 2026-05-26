@@ -62,6 +62,10 @@ def main() -> None:
                 "placeholderFieldHints": ["token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token"],
                 "placeholderSecretFieldHints": ["token"],
                 "needsSecretRefresh": True,
+                "liveRejectedProfiles": ["Aliyun Open"],
+                "placeholderLiveRejectedProfiles": ["Aliyun Open"],
+                "liveRejectedStatuses": ["404"],
+                "liveRejectedSummaries": ["Aliyun Open:404"],
                 "writeMissingFieldHints": [],
                 "writeBlockerNote": "",
                 "recommendedPatchCommand": "",
@@ -125,6 +129,8 @@ def main() -> None:
                 and "- missingFieldHints: `domainId, driveId`" in markdown
                 and "- placeholderFieldHints: `token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token`" in markdown
                 and "- placeholderSecretFieldHints: `token`" in markdown
+                and "- liveRejected: profiles=`Aliyun Open` placeholderProfiles=`Aliyun Open` statuses=`404`" in markdown
+                and "- liveRejectedSummaries: `Aliyun Open:404`" in markdown
                 and "- recommendedRecreateProbeCommand: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name Aliyun Open --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe`"
                 in markdown,
                 "exportedHas189ReadonlyDetails": "### 189 Share Profile [189cloud]" in markdown

@@ -31,6 +31,9 @@ def main() -> None:
     smoke_guangya = _section(markdown, "### smoke-guangya [guangya]")
     risk_smoke_guangya = _section(markdown, "### risk-smoke-guangya [guangya]")
     aliyun_bootstrap = _section(markdown, "### aliyun-bootstrap [aliyundrive_open]")
+    guangya_restore_live = _section(markdown, "### guangya-restore-gy-live-1 [guangya]")
+    pikpak_restore_live = _section(markdown, "### pikpak-restore-pikpak-live-1 [pikpak]")
+    uc_restore_live = _section(markdown, "### uc-restore-uc-live-1 [uc]")
 
     print(
         json.dumps(
@@ -42,20 +45,53 @@ def main() -> None:
                     and f"- writeReadyCount: `{summary.get('writeReadyCount', 0)}`" in markdown
                     and f"- writeNeedsFixCount: `{summary.get('writeNeedsFixCount', 0)}`" in markdown
                     and f"- needsSecretRefreshCount: `{summary.get('needsSecretRefreshCount', 0)}`" in markdown
-                    and f"- profileSummary: `ready={', '.join(summary.get('readyProfiles', [])) or '(none)'}` `needsFix={', '.join(summary.get('needsFixProfiles', [])) or '(none)'}` `writeReady={', '.join(summary.get('writeReadyProfiles', [])) or '(none)'}` `writeNeedsFix={', '.join(summary.get('writeNeedsFixProfiles', [])) or '(none)'}` `needsSecretRefresh={', '.join(summary.get('needsSecretRefreshProfiles', [])) or '(none)'}`" in markdown
+                        and f"- profileSummary: `ready={', '.join(summary.get('readyProfiles', [])) or '(none)'}` `needsFix={', '.join(summary.get('needsFixProfiles', [])) or '(none)'}` `writeReady={', '.join(summary.get('writeReadyProfiles', [])) or '(none)'}` `writeNeedsFix={', '.join(summary.get('writeNeedsFixProfiles', [])) or '(none)'}` `needsSecretRefresh={', '.join(summary.get('needsSecretRefreshProfiles', [])) or '(none)'}`" in markdown
                 ),
                 "summaryShowsExpectedAuthRemediationCounts": (
-                    summary.get("profileCount") == 3
+                    summary.get("profileCount") == 9
                     and summary.get("readyCount") == 0
-                    and summary.get("needsFixCount") == 3
-                    and summary.get("writeReadyCount") == 3
+                    and summary.get("needsFixCount") == 9
+                    and summary.get("writeReadyCount") == 9
                     and summary.get("writeNeedsFixCount") == 0
-                    and summary.get("needsSecretRefreshCount") == 3
+                    and summary.get("needsSecretRefreshCount") == 9
                     and summary.get("readyProfiles") == []
-                    and summary.get("needsFixProfiles") == ["aliyun-bootstrap", "risk-smoke-guangya", "smoke-guangya"]
-                    and summary.get("writeReadyProfiles") == ["aliyun-bootstrap", "risk-smoke-guangya", "smoke-guangya"]
+                    and summary.get("needsFixProfiles")
+                    == [
+                        "aliyun-bootstrap",
+                        "guangya-restore-gy-live-1",
+                        "guangya-restore-gy-live-2",
+                        "guangya-restore-gy-live-defaults-1",
+                        "guangya-restore-gy-orphan-live-1",
+                        "pikpak-restore-pikpak-live-1",
+                        "risk-smoke-guangya",
+                        "smoke-guangya",
+                        "uc-restore-uc-live-1",
+                    ]
+                    and summary.get("writeReadyProfiles")
+                    == [
+                        "aliyun-bootstrap",
+                        "guangya-restore-gy-live-1",
+                        "guangya-restore-gy-live-2",
+                        "guangya-restore-gy-live-defaults-1",
+                        "guangya-restore-gy-orphan-live-1",
+                        "pikpak-restore-pikpak-live-1",
+                        "risk-smoke-guangya",
+                        "smoke-guangya",
+                        "uc-restore-uc-live-1",
+                    ]
                     and summary.get("writeNeedsFixProfiles") == []
-                    and summary.get("needsSecretRefreshProfiles") == ["aliyun-bootstrap", "risk-smoke-guangya", "smoke-guangya"]
+                    and summary.get("needsSecretRefreshProfiles")
+                    == [
+                        "aliyun-bootstrap",
+                        "guangya-restore-gy-live-1",
+                        "guangya-restore-gy-live-2",
+                        "guangya-restore-gy-live-defaults-1",
+                        "guangya-restore-gy-orphan-live-1",
+                        "pikpak-restore-pikpak-live-1",
+                        "risk-smoke-guangya",
+                        "smoke-guangya",
+                        "uc-restore-uc-live-1",
+                    ]
                 ),
                 "hasSmokeGuangyaRecreateProbeCommand": (
                     "- placeholderSecretFieldHints: `token`" in smoke_guangya
@@ -74,8 +110,30 @@ def main() -> None:
                     and "- writeReady: `True`" in aliyun_bootstrap
                     and "- resolvedParentId: `root`" in aliyun_bootstrap
                     and "- placeholderSecretFieldHints: `token`" in aliyun_bootstrap
+                    and "- liveRejected: profiles=`aliyun-bootstrap` placeholderProfiles=`aliyun-bootstrap` statuses=`404`" in aliyun_bootstrap
+                    and "- liveRejectedSummaries: `aliyun-bootstrap:404`" in aliyun_bootstrap
                     and "- recommendedPatchCommand:" not in aliyun_bootstrap
                     and "create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name aliyun-bootstrap --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe" in aliyun_bootstrap
+                ),
+                "hasGuangyaRestoreLiveRejectedSync": (
+                    "- profileReady: `False`" in guangya_restore_live
+                    and "- writeReady: `True`" in guangya_restore_live
+                    and "- placeholderSecretFieldHints: `token`" in guangya_restore_live
+                    and "- liveRejected: profiles=`guangya-restore-gy-live-1` placeholderProfiles=`guangya-restore-gy-live-1` statuses=`401`" in guangya_restore_live
+                    and "- liveRejectedSummaries: `guangya-restore-gy-live-1:401`" in guangya_restore_live
+                    and "create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe" in guangya_restore_live
+                ),
+                "hasPikpakRestoreLiveRejectedSync": (
+                    "- placeholderSecretFieldHints: `token`" in pikpak_restore_live
+                    and "- liveRejected: profiles=`pikpak-restore-pikpak-live-1` placeholderProfiles=`pikpak-restore-pikpak-live-1` statuses=`401`" in pikpak_restore_live
+                    and "- liveRejectedSummaries: `pikpak-restore-pikpak-live-1:401`" in pikpak_restore_live
+                    and "create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_token --display-name pikpak-restore-pikpak-live-1 --token YOUR_TOKEN --set deviceId=YOUR_DEVICE_ID --probe" in pikpak_restore_live
+                ),
+                "hasUcRestoreLiveRejectedSync": (
+                    "- placeholderSecretFieldHints: `cookie`" in uc_restore_live
+                    and "- liveRejected: profiles=`uc-restore-uc-live-1` placeholderProfiles=`uc-restore-uc-live-1` statuses=`404`" in uc_restore_live
+                    and "- liveRejectedSummaries: `uc-restore-uc-live-1:404`" in uc_restore_live
+                    and "create_auth_profile_stub.py --provider-key uc --auth-mode manual_cookie --display-name uc-restore-uc-live-1 --cookie YOUR_COOKIE --set pwdId=YOUR_SHARE_PWD_ID --probe" in uc_restore_live
                 ),
             },
             ensure_ascii=False,

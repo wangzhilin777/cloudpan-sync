@@ -10,6 +10,21 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权补救文档导出链里的live rejected状态`
+- 完成范围：
+  - 已把 [09-AUTH_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/09-AUTH_REMEDIATION_GUIDE.md) 刷新到当前口径：授权补救文档现在不止会写 `needsSecretRefresh / placeholderSecretFieldHints`，也会把已命中过线上拒绝的档案同步写成 `liveRejected / liveRejectedSummaries`
+  - 当前文档里已经能直接看到 `aliyun-bootstrap`、`guangya-restore-gy-live-1`、`pikpak-restore-pikpak-live-1`、`uc-restore-uc-live-1` 等样本对应的 `401/404` 拒绝状态，不再出现“bundle 已补齐，但导出 docs/09 还是旧口径”的断层
+  - 已把 [verify_export_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_remediation_bundle.py) 的导出断言同步补强，把 `liveRejectedProfiles / placeholderLiveRejectedProfiles / liveRejectedStatuses / liveRejectedSummaries` 一起锁进导出回归
+  - 已把 [verify_current_auth_remediation_bundle_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_remediation_bundle_sync.py) 改成按当前仓库真实档案集合校验，避免继续写死旧的 3 条样本名，同时确保当前文档里的 `liveRejected*` 区块与现有 bundle 状态保持同步
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\export_auth_remediation_bundle.py` 已重新导出当前 [09-AUTH_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/09-AUTH_REMEDIATION_GUIDE.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_export_auth_remediation_bundle.py` 已验证授权补救导出链当前包含 `liveRejected` 相关字段
+  - `.\.venv\Scripts\python.exe scripts\verify_current_auth_remediation_bundle_sync.py` 已验证当前 docs/09 与仓库里的授权补救 bundle 状态同步一致
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_remediation_bundle.py` 已补跑确认授权补救 bundle 主链仍可通过
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权补救链里的live rejected状态`
 - 完成范围：
   - 已把 [auth_profile_view.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_view.py) 补上一层轻量拒绝状态识别：当前会基于 `lastError` 中的 `http_error:401/404/...` 解析出 `liveRejectedProfiles / placeholderLiveRejectedProfiles / liveRejectedStatuses / liveRejectedSummaries`

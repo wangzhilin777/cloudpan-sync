@@ -12,14 +12,16 @@ if str(SRC) not in sys.path:
 
 from fastapi.testclient import TestClient
 
-from cloudpan_sync import task_runtime, webapp
+from cloudpan_sync import task_guard, task_runtime, webapp
 from cloudpan_sync.guangya_upload_live import GuangyaUploadResult
-from cloudpan_sync.models import SourceEntry, TaskCreateRequest
+from cloudpan_sync.models import AuthProfile, SourceEntry, TaskCreateRequest
 
 
 def main() -> None:
     original_fast_check = task_runtime.fetch_guangya_live_fast_check
     original_upload = task_runtime.upload_guangya_local_file
+    original_task_guard_get_profile = task_guard.get_profile
+    original_task_runtime_get_profile = task_runtime.get_profile
     original_tasks = dict(task_runtime._TASKS)
     original_password = webapp.ADMIN_PASSWORD
     task_runtime._TASKS.clear()
@@ -83,6 +85,27 @@ def main() -> None:
 
         task_runtime.fetch_guangya_live_fast_check = fake_fast_check
         task_runtime.upload_guangya_local_file = fake_upload
+        mock_profile = AuthProfile(
+            profileId="gy-1",
+            providerKey="guangya",
+            authMode="manual_token",
+            displayName="mock-guangya",
+            token="tok",
+            cookie="",
+            extra={"parentId": "dir-100"},
+            status="verified",
+            lastError="",
+            createdAt="2026-05-27T00:00:00+00:00",
+            updatedAt="2026-05-27T00:00:00+00:00",
+        )
+
+        def fake_get_profile(profile_id: str):
+            if profile_id == "gy-1":
+                return mock_profile
+            return None
+
+        task_guard.get_profile = fake_get_profile
+        task_runtime.get_profile = fake_get_profile
 
         webapp.ADMIN_PASSWORD = "admin123"
         try:
@@ -109,6 +132,8 @@ def main() -> None:
                     targetParentId="dir-100",
                     thresholdMB=200,
                     conflictPolicy="overwrite_existing",
+                    acknowledgePendingManual=True,
+                    acknowledgeDownloadUpload=True,
                     selectedRoots=["/demo.bin"],
                     entries=[
                         SourceEntry(
@@ -124,21 +149,35 @@ def main() -> None:
         finally:
             task_runtime.fetch_guangya_live_fast_check = original_fast_check
             task_runtime.upload_guangya_local_file = original_upload
+            task_guard.get_profile = original_task_guard_get_profile
+            task_runtime.get_profile = original_task_runtime_get_profile
             task_runtime._TASKS.clear()
             task_runtime._TASKS.update(original_tasks)
             webapp.ADMIN_PASSWORD = original_password
 
     row = (result.get("results") or [{}])[0]
     live_attempt = row.get("liveAttempt") or {}
+    api_plan_item = (api_plan.get("items") or [{}])[0]
     print(
         json.dumps(
             {
                 "apiPlanConflictPolicy": api_plan.get("conflictPolicy"),
-                "apiPlanItemConflictPolicy": ((api_plan.get("items") or [{}])[0]).get("conflictPolicy"),
+                "apiPlanItemConflictPolicy": api_plan_item.get("conflictPolicy"),
                 "taskConflictPolicy": task.get("conflictPolicy"),
                 "rowConflictPolicy": row.get("conflictPolicy"),
                 "conflictAction": live_attempt.get("conflictAction"),
                 "resolvedTargetName": live_attempt.get("resolvedTargetName"),
+                "runtimeConflictPolicyPersistsThroughExecution": (
+                    api_plan.get("conflictPolicy") == "overwrite_existing"
+                    and api_plan_item.get("conflictPolicy") == "overwrite_existing"
+                    and task.get("conflictPolicy") == "overwrite_existing"
+                    and row.get("conflictPolicy") == "overwrite_existing"
+                    and live_attempt.get("conflictPolicy") == "overwrite_existing"
+                    and live_attempt.get("conflictAction") == "overwrite_downgraded_to_auto_rename"
+                    and live_attempt.get("resolvedTargetName") == "demo (1).bin"
+                    and live_attempt.get("verifyOk") is True
+                    and live_attempt.get("verifyMode") == "list_by_parent_name"
+                ),
             },
             ensure_ascii=False,
             indent=2,

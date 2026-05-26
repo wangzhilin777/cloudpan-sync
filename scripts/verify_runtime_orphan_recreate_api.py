@@ -80,6 +80,7 @@ def main() -> None:
                             and (created_payload.get("item") or {}).get("providerKey") == "guangya"
                             and "parentId" in ((created_payload.get("item") or {}).get("extra") or {})
                             and "token" in ((created_payload.get("item") or {}).get("placeholderSecretFieldHints") or [])
+                            and "create_auth_profile_stub.py --from-runtime-orphan-profile gy-orphan-api" in str(created_payload.get("exactCreateHelper") or "")
                             and "patch_and_probe_auth_profile.py --profile-id gy-orphan-api --write" in str(created_payload.get("recommendedRefreshEvidenceCommand") or "")
                             and "patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-orphan-api" in str(created_payload.get("exactRefreshEvidenceHelper") or "")
                             and "create_runtime_probe_task.py --target-provider guangya --target-profile-id gy-orphan-api" in str(created_payload.get("recommendedRuntimeProbeCommand") or "")
@@ -107,6 +108,7 @@ def main() -> None:
                             recreated_again.status_code == 200
                             and recreated_again_payload.get("status") == "already_exists"
                             and recreated_again_payload.get("created") is False
+                            and "create_auth_profile_stub.py --from-runtime-orphan-profile gy-orphan-api" in str(recreated_again_payload.get("exactCreateHelper") or "")
                             and str(recreated_again_payload.get("recommendedBootstrapCommand") or "") == ""
                             and str(recreated_again_payload.get("recommendedRefreshEvidenceCommand") or "") == expected_refresh
                             and "patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-orphan-api" in str(recreated_again_payload.get("exactRefreshEvidenceHelper") or "")

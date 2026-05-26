@@ -13,6 +13,7 @@ def main() -> None:
             {
                 "jsHasOrphanFollowupDetection": "const hasOrphanFollowup = Boolean(" in app_js
                 and "data?.recommendedBootstrapCommand" in app_js
+                and "data?.exactCreateHelper" in app_js
                 and "data?.recommendedRefreshEvidenceCommand" in app_js
                 and "data?.exactRefreshEvidenceHelper" in app_js
                 and "data?.recommendedRuntimeProbeCommand" in app_js
@@ -42,7 +43,8 @@ def main() -> None:
                 and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(followupProfileId));' in app_js
                 and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(followupProfileId));' in app_js
                 and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(followupProviderKey));' in app_js,
-                "jsLatestOrphanActionShowsExactHelpers": "exactRefresh=" in app_js
+                "jsLatestOrphanActionShowsExactHelpers": "exactRecreate=" in app_js
+                and "exactRefresh=" in app_js
                 and "exactRuntimeProbe=" in app_js
                 and "exactRuntimeSuccess=" in app_js
                 and "exactOverwriteVariant=" in app_js,

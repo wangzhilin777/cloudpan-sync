@@ -231,6 +231,16 @@ def _exact_refresh_helper(command: str, orphan_profile_id: str) -> str:
     return ""
 
 
+def _exact_create_helper(command: str, orphan_profile_id: str) -> str:
+    text = str(command or "").strip()
+    profile_id = str(orphan_profile_id or "").strip()
+    if not text or not profile_id:
+        return ""
+    if "scripts\\create_auth_profile_stub.py" in text:
+        return f".\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-runtime-orphan-profile {profile_id}"
+    return ""
+
+
 def _recommended_primary_command(
     *,
     create_command: str,
@@ -298,6 +308,7 @@ def build_runtime_orphan_recovery() -> dict[str, object]:
             has_existing_provider_profiles=bool(same_provider_profiles),
         )
         exact_refresh_helper = _exact_refresh_helper(refresh_command, profile_id)
+        exact_create_helper = _exact_create_helper(command, profile_id)
         exact_runtime_probe_helper = _exact_runtime_helper(runtime_probe_command, profile_id)
         exact_runtime_success_helper = _exact_runtime_helper(runtime_success_command, profile_id)
         exact_overwrite_variant_helper = _exact_runtime_helper(
@@ -332,6 +343,7 @@ def build_runtime_orphan_recovery() -> dict[str, object]:
                 "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command),
                 "recommendedPrimaryCommandLabel": primary_label,
                 "recommendedPrimaryCommand": primary_command,
+                "exactCreateHelper": exact_create_helper,
                 "exactRefreshEvidenceHelper": exact_refresh_helper,
                 "exactRuntimeProbeHelper": exact_runtime_probe_helper,
                 "exactRuntimeSuccessHelper": exact_runtime_success_helper,
@@ -387,6 +399,17 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
         refresh_command = _refresh_evidence_command(provider, profile_id)
         runtime_probe_command = _runtime_probe_command(provider, profile_id)
         runtime_success_command = _runtime_success_command(provider, profile_id)
+        exact_create_helper = _exact_create_helper(
+            str(
+                _command_with_field_hints(
+                    provider,
+                    profile_id,
+                    _preferred_stub_auth_mode(provider, provider_auth_modes(provider)),
+                    capture_field_hints(provider),
+                )
+            ),
+            profile_id,
+        )
         exact_refresh_helper = _exact_refresh_helper(refresh_command, profile_id)
         exact_runtime_probe_helper = _exact_runtime_helper(runtime_probe_command, profile_id)
         exact_runtime_success_helper = _exact_runtime_helper(runtime_success_command, profile_id)
@@ -413,6 +436,7 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
             "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command),
             "recommendedPrimaryCommandLabel": primary_label,
             "recommendedPrimaryCommand": primary_command,
+            "exactCreateHelper": exact_create_helper,
             "exactRefreshEvidenceHelper": exact_refresh_helper,
             "exactRuntimeProbeHelper": exact_runtime_probe_helper,
             "exactRuntimeSuccessHelper": exact_runtime_success_helper,
@@ -448,6 +472,7 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
     refresh_command = _refresh_evidence_command(provider, profile_id)
     runtime_probe_command = _runtime_probe_command(provider, profile_id)
     runtime_success_command = _runtime_success_command(provider, profile_id)
+    exact_create_helper = _exact_create_helper(str(target_item.get("recommendedCreateCommand") or ""), profile_id)
     exact_refresh_helper = _exact_refresh_helper(refresh_command, profile_id)
     exact_runtime_probe_helper = _exact_runtime_helper(runtime_probe_command, profile_id)
     exact_runtime_success_helper = _exact_runtime_helper(runtime_success_command, profile_id)
@@ -476,6 +501,7 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
         "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command),
         "recommendedPrimaryCommandLabel": primary_label,
         "recommendedPrimaryCommand": primary_command,
+        "exactCreateHelper": exact_create_helper,
         "exactRefreshEvidenceHelper": exact_refresh_helper,
         "exactRuntimeProbeHelper": exact_runtime_probe_helper,
         "exactRuntimeSuccessHelper": exact_runtime_success_helper,
@@ -536,6 +562,9 @@ def runtime_orphan_recovery_to_markdown(payload: dict[str, object]) -> str:
         lines.append(f"- nextStep: {item.get('nextStep', '')}")
         lines.append(f"- note: {item.get('note', '')}")
         lines.append(f"- recommendedCreateCommand: `{item.get('recommendedCreateCommand', '')}`")
+        exact_create_helper = str(item.get("exactCreateHelper") or "")
+        if exact_create_helper:
+            lines.append(f"- exactCreateHelper: `{exact_create_helper}`")
         if item.get("recommendedPrimaryCommand"):
             lines.append(
                 f"- recommendedPrimaryCommand: `{item.get('recommendedPrimaryCommand', '')}` "

@@ -1,6 +1,6 @@
 # CloudPan Sync Runtime Orphan Recovery Guide
 
-- 生成时间：`2026-05-26T10:34:23.512794+00:00`
+- 生成时间：`2026-05-26T10:55:26.561618+00:00`
 - 汇总： `providerCount=3` `orphanProfileCount=6` `runtimeSampleCount=6` `providersWithSavedProfiles=1` `providersWithoutSavedProfiles=2`
 - orphanSummary: `providers=guangya, pikpak, uc` `profiles=gy-live-1, gy-live-2, gy-live-defaults-1, gy-orphan-live-1, pikpak-live-1, uc-live-1` `savedProfileProviders=guangya` `missingProfileProviders=pikpak, uc`
 
@@ -16,6 +16,7 @@
 - nextStep: 先按原 runtime profileId 重建一个可复验 auth profile stub，再用真实凭证补字段并重跑 validation / live probe；只有这样，这条历史 runtime success 样本才有机会重新变成当前仓库可复验的证据。
 - note: 这一步只是把历史 runtime success 样本对应的 profileId 恢复回当前仓库，不会自动把样本算成新的真实完成证据；仍需后续用真实凭证重新验证。
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_VALUE --probe`
+- exactCreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-runtime-orphan-profile gy-live-1`
 - recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-1 --write` `label=Refresh Existing Orphan Profile`
 - recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-1 --write`
 - exactRefreshEvidenceHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-live-1`
@@ -36,6 +37,7 @@
 - nextStep: 先按原 runtime profileId 重建一个可复验 auth profile stub，再用真实凭证补字段并重跑 validation / live probe；只有这样，这条历史 runtime success 样本才有机会重新变成当前仓库可复验的证据。
 - note: 这一步只是把历史 runtime success 样本对应的 profileId 恢复回当前仓库，不会自动把样本算成新的真实完成证据；仍需后续用真实凭证重新验证。
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-2 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-2 --token YOUR_TOKEN --set parentId=YOUR_VALUE --probe`
+- exactCreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-runtime-orphan-profile gy-live-2`
 - recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-2 --write` `label=Refresh Existing Orphan Profile`
 - recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-2 --write`
 - exactRefreshEvidenceHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-live-2`
@@ -56,6 +58,7 @@
 - nextStep: 先按原 runtime profileId 重建一个可复验 auth profile stub，再用真实凭证补字段并重跑 validation / live probe；只有这样，这条历史 runtime success 样本才有机会重新变成当前仓库可复验的证据。
 - note: 这一步只是把历史 runtime success 样本对应的 profileId 恢复回当前仓库，不会自动把样本算成新的真实完成证据；仍需后续用真实凭证重新验证。
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-defaults-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-defaults-1 --token YOUR_TOKEN --set parentId=YOUR_VALUE --probe`
+- exactCreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-runtime-orphan-profile gy-live-defaults-1`
 - recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-defaults-1 --write` `label=Refresh Existing Orphan Profile`
 - recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-defaults-1 --write`
 - exactRefreshEvidenceHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-live-defaults-1`
@@ -76,6 +79,7 @@
 - nextStep: 先按原 runtime profileId 重建一个可复验 auth profile stub，再用真实凭证补字段并重跑 validation / live probe；只有这样，这条历史 runtime success 样本才有机会重新变成当前仓库可复验的证据。
 - note: 这一步只是把历史 runtime success 样本对应的 profileId 恢复回当前仓库，不会自动把样本算成新的真实完成证据；仍需后续用真实凭证重新验证。
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-orphan-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-orphan-live-1 --token YOUR_TOKEN --set parentId=YOUR_VALUE --probe`
+- exactCreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-runtime-orphan-profile gy-orphan-live-1`
 - recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-orphan-live-1 --write` `label=Refresh Existing Orphan Profile`
 - recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-orphan-live-1 --write`
 - exactRefreshEvidenceHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-orphan-live-1`
@@ -97,6 +101,7 @@
 - nextStep: 先按原 runtime profileId 重建一个可复验 auth profile stub，再用真实凭证补字段并重跑 validation / live probe；只有这样，这条历史 runtime success 样本才有机会重新变成当前仓库可复验的证据。
 - note: 这一步只是把历史 runtime success 样本对应的 profileId 恢复回当前仓库，不会自动把样本算成新的真实完成证据；仍需后续用真实凭证重新验证。
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id pikpak-live-1 --provider-key pikpak --auth-mode manual_token --display-name pikpak-restore-pikpak-live-1 --token YOUR_TOKEN --set deviceId=YOUR_VALUE --probe`
+- exactCreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-runtime-orphan-profile pikpak-live-1`
 - recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id pikpak-live-1 --provider-key pikpak --auth-mode manual_token --display-name pikpak-restore-pikpak-live-1 --token YOUR_TOKEN --set deviceId=YOUR_VALUE --probe` `label=Recreate Orphan Stub`
 - recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id pikpak-live-1 --write`
 - exactRefreshEvidenceHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-runtime-orphan-profile pikpak-live-1`
@@ -117,6 +122,7 @@
 - nextStep: 先按原 runtime profileId 重建一个可复验 auth profile stub，再用真实凭证补字段并重跑 validation / live probe；只有这样，这条历史 runtime success 样本才有机会重新变成当前仓库可复验的证据。
 - note: 这一步只是把历史 runtime success 样本对应的 profileId 恢复回当前仓库，不会自动把样本算成新的真实完成证据；仍需后续用真实凭证重新验证。
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id uc-live-1 --provider-key uc --auth-mode manual_cookie --display-name uc-restore-uc-live-1 --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE --probe`
+- exactCreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-runtime-orphan-profile uc-live-1`
 - recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id uc-live-1 --provider-key uc --auth-mode manual_cookie --display-name uc-restore-uc-live-1 --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE --probe` `label=Recreate Orphan Stub`
 - recommendedRefreshEvidenceCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id uc-live-1 --write`
 - exactRefreshEvidenceHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-runtime-orphan-profile uc-live-1`

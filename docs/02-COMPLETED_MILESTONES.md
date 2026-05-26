@@ -10,6 +10,23 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`孤儿重建辅助命令也收成精确 helper`
+- 完成范围：
+  - 已把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 的 orphan create/recreate 链再补齐一层：当前每条 orphan item、`recreate_profile` API 的 `stub_created / already_exists` 返回值，都会直接带 `exactCreateHelper`
+  - 当前效果是：当历史 runtime orphan 样本需要先把同一个 `profileId` 重建回当前仓库时，不必再手抄 `create_auth_profile_stub.py --profile-id ... --provider-key ... --probe` 这一整条长命令；现在可以直接复用 `create_auth_profile_stub.py --from-runtime-orphan-profile ...`
+  - 已把 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 重新导出到当前口径：每条 orphan 分段现在除了 `recommendedCreateCommand`，也会同步写出 `exactCreateHelper`
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 orphan follow-up 检测、`latestRuntimeOrphanAction` 摘要、`Runtime Orphan Recovery` 设置行、以及首个 orphan gap 摘要一起补上 `exactRecreate` 展示；这样从设置页就能直接拿到最短“重建 stub” helper，而不必回头抄长命令
+  - 已同步补强 [verify_runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery.py)、[verify_runtime_orphan_recreate_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_api.py)、[verify_runtime_orphan_recreate_followup_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_followup_ui.py)、[verify_runtime_orphan_recovery_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery_settings_ui.py)、[verify_current_runtime_orphan_recovery_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_runtime_orphan_recovery_sync.py)，把 payload、API、设置页、当前文档四层一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery.py` 已验证 runtime orphan recovery 的 payload / markdown 当前会输出 `exactCreateHelper`
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_api.py` 已验证 orphan recreate API 在 `created=true/false` 两条路径下都会返回 `exactCreateHelper`
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_followup_ui.py` 与 `scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证设置页 follow-up / 摘要当前都会展示 `exactRecreate`
+  - `.\.venv\Scripts\python.exe scripts\export_runtime_orphan_recovery.py` 已重导出当前 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_current_runtime_orphan_recovery_sync.py` 已验证当前 `docs/13` 中 Guangya / PikPak / UC 各 orphan 分段都已同步写出 `exactCreateHelper`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `POST_RUN_PROCESSES=[]`，提交前会再次确认 `POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`真实补救接口与界面也显示精确辅助命令`
 - 完成范围：
   - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的 remediation item / create API 再补齐一层 exact helper 口径：当前除了已有 markdown 里的 `exactPatchHelper / exactRecreateHelper`，API 载荷和当前文档也会直接带 `exactRefreshEvidenceHelper`、`exactRuntimeProbeHelper`、`exactRuntimeSuccessHelper`、`exactOverwriteVariantHelper`

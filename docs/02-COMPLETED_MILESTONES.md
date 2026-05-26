@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐运行成功样本汇总回归断言`
+- 完成范围：
+  - 已把 [verify_task_runtime_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence.py) 从单纯打印成功 runtime evidence 与 report 现场，补成真正的断言型 verifier
+  - 当前会直接锁住成功样本里的 `mode=binary_upload_multipart`、`executionMode=live`、`verifyMode=list_by_parent_name`、`conflictAction=overwrite_downgraded_to_auto_rename`
+  - 同一条回归也会继续锁住这条成功样本进入 `real_evidence_report` 后的 provider 级 `taskRuntimeEvidence` 汇总，以及总 summary 里的 `taskRuntimeEvidenceProviderCount / taskRuntimeSuccessCount / taskRuntimeConflictHandledCount`
+  - 当前效果是：任务运行成功样本从 evidence 存储层进入 real evidence 汇总层这条链终于被真正卡进回归，不再只是打印一眼当前 report
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_evidence.py` 已验证成功 runtime evidence 当前会稳定进入 `real_evidence_report`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务动作守卫回归断言`
 - 完成范围：
   - 已把 [verify_task_action_guards.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_action_guards.py) 从单纯打印 action guard 现场，补成真正的断言型 verifier

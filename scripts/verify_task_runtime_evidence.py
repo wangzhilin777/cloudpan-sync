@@ -157,6 +157,29 @@ def main() -> None:
     print(
         json.dumps(
             {
+                "taskRuntimeEvidenceFlowsIntoReport": (
+                    len(rows) == 1
+                    and row.get("providerKey") == "guangya"
+                    and row.get("profileId") == "gy-1"
+                    and row.get("mode") == "binary_upload_multipart"
+                    and row.get("executionMode") == "live"
+                    and row.get("success") is True
+                    and row.get("status") == "done"
+                    and row.get("verifyOk") is True
+                    and row.get("verifyMode") == "list_by_parent_name"
+                    and row.get("verifyNote") == "verified by list"
+                    and row.get("conflictAction") == "overwrite_downgraded_to_auto_rename"
+                    and row.get("resolvedTargetName") == "demo (1).bin"
+                    and dict(provider_row.get("taskRuntimeEvidence") or {}).get("ok") is True
+                    and dict(provider_row.get("taskRuntimeEvidence") or {}).get("sampleCount") == 1
+                    and dict(provider_row.get("taskRuntimeEvidence") or {}).get("successCount") == 1
+                    and dict(provider_row.get("taskRuntimeEvidence") or {}).get("conflictHandledCount") == 1
+                    and dict(provider_row.get("taskRuntimeEvidence") or {}).get("profiles") == ["Guangya Smoke"]
+                    and report.get("summary", {}).get("taskRuntimeEvidenceProviderCount") == 1
+                    and report.get("summary", {}).get("taskRuntimeSuccessCount") == 1
+                    and report.get("summary", {}).get("taskRuntimeConflictHandledCount") == 1
+                    and report.get("summary", {}).get("taskRuntimeOrphanProviderCount") == 0
+                ),
                 "runtimeEvidenceCount": len(rows),
                 "firstRuntimeRow": row,
                 "reportTaskRuntimeEvidence": provider_row.get("taskRuntimeEvidence"),

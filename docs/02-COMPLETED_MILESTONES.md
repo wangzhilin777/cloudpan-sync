@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权列表动作总链回归断言`
+- 完成范围：
+  - 已把 [verify_auth_profile_actions_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_actions_ui.py) 从 patch hint、write blocker、capture 条件和若干按钮绑定等分散检查，补成真正会给出整条授权列表动作链结论的 verifier
+  - 同一条回归现在会用 `authProfileActionsUiFlowIsWired` 直接锁住这条链：授权列表里的 `patch_hint / write_blocker` 展示、`Open Capture For Existing Profile / Refresh Existing Profile / Probe Existing Profile` 三类动作文案与事件绑定都必须一起存在
+  - 当前效果是：授权列表动作能力不再只是几段按钮文案各自为真，而是多了一条从缺口提示到 capture/evidence/probe 三类动作绑定的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_profile_actions_ui.py` 已验证授权列表动作链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐会话设置页总链回归断言`
 - 完成范围：
   - 已把 [verify_session_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_session_settings_ui.py) 从 Session 面板存在、session summary 渲染和首个 gap 动作等分散检查，补成真正会给出整条会话设置页链结论的 verifier

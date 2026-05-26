@@ -554,6 +554,9 @@ function setAuthEvidenceSummary(evidence, markdown) {
   const profile = evidence?.profile || {};
   const validation = evidence?.latestValidation || null;
   const probe = evidence?.latestProbe || null;
+  const liveRejectedStatuses = (profile.liveRejectedStatuses || []).join("/") || "";
+  const placeholderLiveRejectedProfiles = (profile.placeholderLiveRejectedProfiles || []).join("/") || "";
+  const liveRejectedSummaries = (profile.liveRejectedSummaries || []).join(" | ") || "";
   box.hidden = false;
   box.className = `auth-validation-summary${summary.validationOk || summary.probeOk ? " ok" : " fail"}`;
   box.innerHTML = "";
@@ -567,6 +570,12 @@ function setAuthEvidenceSummary(evidence, markdown) {
   meta.className = "auth-validation-meta";
   meta.textContent = `profileReady=${Boolean(summary.profileReady)}, writeReady=${Boolean(summary.writeReady)}, validationOk=${Boolean(summary.validationOk)}, probeOk=${Boolean(summary.probeOk)}`;
   box.appendChild(meta);
+  if (liveRejectedStatuses || placeholderLiveRejectedProfiles || liveRejectedSummaries) {
+    const rejectedMeta = document.createElement("div");
+    rejectedMeta.className = "auth-validation-meta";
+    rejectedMeta.textContent = `liveRejectedStatuses=${liveRejectedStatuses || "(none)"}, placeholderLiveRejectedProfiles=${placeholderLiveRejectedProfiles || "(none)"}, liveRejectedSummaries=${liveRejectedSummaries || "(none)"}`;
+    box.appendChild(rejectedMeta);
+  }
 
   const pills = [
     `provider=${profile.providerKey || "(unknown)"}`,
@@ -665,6 +674,7 @@ function setAuthRemediationSummary(bundle, markdown) {
     return;
   }
   const summary = bundle?.summary || {};
+  const firstNeedsFix = (bundle?.items || []).find((item) => item?.needsFix || item?.writeNeedsFix || item?.needsSecretRefresh) || null;
   box.hidden = false;
   box.className = `auth-validation-summary${summary.needsFixCount ? " fail" : " ok"}`;
   box.innerHTML = "";
@@ -698,7 +708,12 @@ function setAuthRemediationSummary(bundle, markdown) {
   summaryProfiles.className = "auth-validation-meta";
   summaryProfiles.textContent = `readyProfiles=${(summary.readyProfiles || []).join("/") || "(none)"}, needsFixProfiles=${(summary.needsFixProfiles || []).join("/") || "(none)"}, writeReadyProfiles=${(summary.writeReadyProfiles || []).join("/") || "(none)"}, writeNeedsFixProfiles=${(summary.writeNeedsFixProfiles || []).join("/") || "(none)"}, needsSecretRefreshProfiles=${(summary.needsSecretRefreshProfiles || []).join("/") || "(none)"}`;
   box.appendChild(summaryProfiles);
-  const firstNeedsFix = (bundle?.items || []).find((item) => item?.needsFix || item?.writeNeedsFix || item?.needsSecretRefresh) || null;
+  if (firstNeedsFix) {
+    const rejectedMeta = document.createElement("div");
+    rejectedMeta.className = "auth-validation-meta";
+    rejectedMeta.textContent = `liveRejectedStatuses=${(firstNeedsFix.liveRejectedStatuses || []).join("/") || "(none)"}, placeholderLiveRejectedProfiles=${(firstNeedsFix.placeholderLiveRejectedProfiles || []).join("/") || "(none)"}, liveRejectedSummaries=${(firstNeedsFix.liveRejectedSummaries || []).join(" | ") || "(none)"}`;
+    box.appendChild(rejectedMeta);
+  }
   if (firstNeedsFix) {
     const actions = document.createElement("div");
     actions.className = "row-actions";

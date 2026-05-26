@@ -45,13 +45,16 @@ def main() -> None:
                 and "profileReadyProfiles=" in app_js
                 and "writeReadyProfiles=" in app_js
                 and "validationOkProfiles=" in app_js
-                and "probeOkProfiles=" in app_js,
+                and "probeOkProfiles=" in app_js
+                and 'heading.textContent = `Auth Evidence: ${profile.displayName || profile.profileId || "(unknown)"}`;' in app_js
+                and 'rejectedMeta.textContent = `liveRejectedStatuses=${liveRejectedStatuses || "(none)"}, placeholderLiveRejectedProfiles=${placeholderLiveRejectedProfiles || "(none)"}, liveRejectedSummaries=${liveRejectedSummaries || "(none)"}`;' in app_js,
                 "jsRenderSettingsUsesAuthRemediation": "const authRemediationSummary = state.authRemediationBundle?.summary || {};" in app_js
                 and 'const firstAuthRemediationGap = (state.authRemediationBundle?.items || []).find((item) => item?.needsFix || item?.writeNeedsFix || item?.needsSecretRefresh) || null;' in app_js
                 and 'focusBtn.textContent = "Focus First Fix"' in app_js
                 and 'captureBtn.textContent = "Open Capture First Fix"' in app_js
                 and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstAuthRemediationGap.profileId));' in app_js
                 and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstAuthRemediationGap.providerKey || ""));' in app_js
+                and 'heading.textContent = "Auth Remediation Guide";' in app_js
                 and "const firstLiveRejectedStatuses = (firstAuthRemediationGap.liveRejectedStatuses || []).join(\"/\") || \"\";" in app_js
                 and "const firstPlaceholderLiveRejectedProfiles = (firstAuthRemediationGap.placeholderLiveRejectedProfiles || []).join(\"/\") || \"\";" in app_js
                 and "const firstLiveRejectedSummaries = (firstAuthRemediationGap.liveRejectedSummaries || []).join(\" | \") || \"\";" in app_js
@@ -68,6 +71,7 @@ def main() -> None:
                 and "liveRejectedStatuses=${firstLiveRejectedStatuses}" in app_js
                 and "placeholderLiveRejectedProfiles=${firstPlaceholderLiveRejectedProfiles}" in app_js
                 and "liveRejectedSummaries=${firstLiveRejectedSummaries}" in app_js
+                and 'rejectedMeta.textContent = `liveRejectedStatuses=${(firstNeedsFix.liveRejectedStatuses || []).join("/") || "(none)"}, placeholderLiveRejectedProfiles=${(firstNeedsFix.placeholderLiveRejectedProfiles || []).join("/") || "(none)"}, liveRejectedSummaries=${(firstNeedsFix.liveRejectedSummaries || []).join(" | ") || "(none)"}`;' in app_js
                 and "recreateProbe=" in app_js,
                 "jsLogoutClearsAuthBundles": "state.authEvidenceBundle = null;" in app_js and "state.authRemediationBundle = null;" in app_js,
             },

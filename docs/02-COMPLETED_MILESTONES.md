@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权详情面板里的live rejected状态`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `setAuthEvidenceSummary` 补上一层 `rejectedMeta`：当单档案 evidence 已经带有 `liveRejectedStatuses / placeholderLiveRejectedProfiles / liveRejectedSummaries` 时，详情面板会在 `profileReady / writeReady / validationOk / probeOk` 下方直接展开这组状态
+  - 同一轮也把 `setAuthRemediationSummary` 补到同口径：当前授权补救详情面板会基于 `firstNeedsFix` 直接显示这条补救项的 `liveRejectedStatuses / placeholderLiveRejectedProfiles / liveRejectedSummaries`
+  - 当前效果是：无论从单档案授权证据详情，还是从授权补救详情进入，都不需要再切回 Markdown 或设置页摘要，面板本身就能直接说明“是否已命中过线上拒绝、状态码和概要是什么”
+  - 已同步补强 [verify_auth_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_settings_ui.py)，把 `setAuthEvidenceSummary` 与 `setAuthRemediationSummary` 两处 `rejectedMeta` 文案一起锁进 UI 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_settings_ui.py` 已验证授权详情面板与设置页摘要链当前都已包含 `liveRejected` 相关文本
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权补救设置摘要里的live rejected概要`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `Auth Remediation` 设置页 first-fix 摘要再补一层：现在除了 `liveRejectedStatuses / placeholderLiveRejectedProfiles`，也会把 `liveRejectedSummaries` 一并带进复制文本

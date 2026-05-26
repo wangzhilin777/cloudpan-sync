@@ -47,6 +47,16 @@ def main() -> None:
 
     row = ((plan.get("items") or [{}])[0])
     fingerprints = row.get("normalizedFingerprints") or {}
+    fingerprint_set_normalization_flow_matches_expected_inputs = (
+        row.get("strategy") == "fast_upload"
+        and (row.get("availableFastInputs") or []) == ["size", "name", "md5", "sha1", "etag", "pickcode", "blockListMd5"]
+        and (row.get("missingFastInputs") or []) == []
+        and fingerprints.get("md5") == "abcdef0123456789abcdef0123456789"
+        and fingerprints.get("sha1") == "aabbcc"
+        and fingerprints.get("etag") == "et-tag-1"
+        and fingerprints.get("pickcode") == "pc-1"
+        and fingerprints.get("blockListMd5") == ["0011", "2233"]
+    )
     print(
         json.dumps(
             {
@@ -60,6 +70,7 @@ def main() -> None:
                     "pickcode": fingerprints.get("pickcode"),
                     "blockListMd5": fingerprints.get("blockListMd5"),
                 },
+                "fingerprintSetNormalizationFlowMatchesExpectedInputs": fingerprint_set_normalization_flow_matches_expected_inputs,
             },
             ensure_ascii=False,
             indent=2,

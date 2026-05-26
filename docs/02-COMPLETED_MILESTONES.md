@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐指纹归一化总链回归断言`
+- 完成范围：
+  - 已把 [verify_fingerprint_set_normalization.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_fingerprint_set_normalization.py) 从 `strategy`、`availableFastInputs/missingFastInputs` 和 `normalizedFingerprints` 各字段的分散检查，补成真正会给出整条指纹归一化链结论的 verifier
+  - 同一条回归现在会用 `fingerprintSetNormalizationFlowMatchesExpectedInputs` 直接锁住这条链：`POST /api/plan/mock` 必须同时返回 `fast_upload` 策略、完整 `availableFastInputs=["size","name","md5","sha1","etag","pickcode","blockListMd5"]`，以及被标准化后的 `md5/sha1/etag/pickcode/blockListMd5`
+  - 当前效果是：指纹归一化能力不再只是几个字段各自为真，而是多了一条从 mock plan 入参到标准化输出和秒传输入判定都一致的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_fingerprint_set_normalization.py` 已验证指纹归一化链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐Provider快速校验矩阵总链回归断言`
 - 完成范围：
   - 已把 [verify_provider_fast_check_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_fast_check_matrix.py) 从 `fastCheckCount` 与 10 个 provider 的 `fast_check/metadata_ready` 分散检查，补成真正会给出整条 Provider 快速校验矩阵链结论的 verifier

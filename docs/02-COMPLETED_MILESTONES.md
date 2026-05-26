@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐单档案证据导出回归断言`
+- 完成范围：
+  - 已把 [verify_export_auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_profile_evidence.py) 从 main 返回值、data dir 配置、标题、profile summary、readonly 细节、validation/probe 段落与缺失 profile 错误等分散检查，补成真正会给出整条单档案证据导出链结论的 verifier
+  - 同一条回归现在会用 `exportAuthProfileEvidenceFlowMatchesExpectedMarkdown` 直接锁住这条导出链：`export_auth_profile_evidence.py` 在指定 data dir、指定 profile、指定 output 的场景下，必须稳定导出 profile 证据 Markdown，并对缺失 profile 给出一致的 `profile_not_found` 退出信息
+  - 当前效果是：单档案证据导出能力不再只是很多 Markdown 片段和返回码各自为真，而是多了一条从 CLI 入参、data dir 配置到导出文件内容与错误分支的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_auth_profile_evidence.py` 已验证单档案证据导出链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐本地联调适配导出回归断言`
 - 完成范围：
   - 已把 [verify_export_local_live_adapter_verification.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_local_live_adapter_verification.py) 从导出文件存在、标题、providerSummary、Guangya/189cloud 段落、probeChecks 与 matrixRows 等分散检查，补成真正会给出整条本地联调适配导出链结论的 verifier

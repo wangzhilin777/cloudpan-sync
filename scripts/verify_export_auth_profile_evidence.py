@@ -110,28 +110,51 @@ def main() -> None:
             export_script.get_profile = original_get_profile
             export_script._auth_profile_evidence = original_build_payload
             export_script.auth_profile_evidence_to_markdown = original_renderer
+    main_returned_zero = exit_code == 0
+    configured_data_dir = configured_dirs == [str(data_dir)]
+    exported_has_title = "# Auth Profile Evidence" in markdown
+    exported_has_profile_summary = (
+        "- profileId: `189-share`" in markdown
+        and "- providerKey: `189cloud`" in markdown
+        and "- displayName: `189 Share Profile`" in markdown
+        and "- resolvedParentId: `share-parent`" in markdown
+    )
+    exported_has_readonly_details = (
+        "- missingFieldHints: `accessToken`" in markdown
+        and "- placeholderSecretFieldHints: `token`" in markdown
+        and "- liveRejected: profiles=`189 Share Profile` placeholderProfiles=`189 Share Profile` statuses=`403`" in markdown
+        and "- liveRejectedSummaries: `189 Share Profile:403`" in markdown
+        and "- writeMissingFieldHints: `signature, date`" in markdown
+        and "- writeBlockerNote: 当前 189Cloud share 档案仍为只读。" in markdown
+    )
+    exported_has_validation_and_probe = (
+        "## Latest Validation" in markdown
+        and "- error: `share_auth_readonly`" in markdown
+        and "## Latest Probe" in markdown
+        and "  - `create_dir` ok=False status=403 error=share_auth_readonly note=share profile readonly" in markdown
+    )
+    missing_profile_raises = not_found_error == "profile_not_found: missing-profile"
+    export_auth_profile_evidence_flow_matches_expected_markdown = (
+        main_returned_zero
+        and configured_data_dir
+        and exported_has_title
+        and exported_has_profile_summary
+        and exported_has_readonly_details
+        and exported_has_validation_and_probe
+        and missing_profile_raises
+    )
 
     print(
         json.dumps(
             {
-                "mainReturnedZero": exit_code == 0,
-                "configuredDataDir": configured_dirs == [str(data_dir)],
-                "exportedHasTitle": "# Auth Profile Evidence" in markdown,
-                "exportedHasProfileSummary": "- profileId: `189-share`" in markdown
-                and "- providerKey: `189cloud`" in markdown
-                and "- displayName: `189 Share Profile`" in markdown
-                and "- resolvedParentId: `share-parent`" in markdown,
-                "exportedHasReadonlyDetails": "- missingFieldHints: `accessToken`" in markdown
-                and "- placeholderSecretFieldHints: `token`" in markdown
-                and "- liveRejected: profiles=`189 Share Profile` placeholderProfiles=`189 Share Profile` statuses=`403`" in markdown
-                and "- liveRejectedSummaries: `189 Share Profile:403`" in markdown
-                and "- writeMissingFieldHints: `signature, date`" in markdown
-                and "- writeBlockerNote: 当前 189Cloud share 档案仍为只读。" in markdown,
-                "exportedHasValidationAndProbe": "## Latest Validation" in markdown
-                and "- error: `share_auth_readonly`" in markdown
-                and "## Latest Probe" in markdown
-                and "  - `create_dir` ok=False status=403 error=share_auth_readonly note=share profile readonly" in markdown,
-                "missingProfileRaises": not_found_error == "profile_not_found: missing-profile",
+                "mainReturnedZero": main_returned_zero,
+                "configuredDataDir": configured_data_dir,
+                "exportedHasTitle": exported_has_title,
+                "exportedHasProfileSummary": exported_has_profile_summary,
+                "exportedHasReadonlyDetails": exported_has_readonly_details,
+                "exportedHasValidationAndProbe": exported_has_validation_and_probe,
+                "missingProfileRaises": missing_profile_raises,
+                "exportAuthProfileEvidenceFlowMatchesExpectedMarkdown": export_auth_profile_evidence_flow_matches_expected_markdown,
             },
             ensure_ascii=False,
             indent=2,

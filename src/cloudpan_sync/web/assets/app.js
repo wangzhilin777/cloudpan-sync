@@ -3048,6 +3048,36 @@ function renderSettingsPanel() {
     li.textContent = row;
     realEvidenceRemediationList.appendChild(li);
   }
+  const firstRemediationOrphanItem =
+    remediationItems.find((item) => Boolean((item.runtimeOrphanProfiles || [])[0] || "")) || null;
+  const firstRemediationOrphanProfileId = (firstRemediationOrphanItem?.runtimeOrphanProfiles || [])[0] || "";
+  if ((remediationSummary.providersRuntimeOrphanOnly || 0) > 0) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    copy.textContent = `runtime_orphan_recovery: providers=${remediationSummary.providersRuntimeOrphanOnly || 0}, providerList=${(remediationSummary.providersRuntimeOrphanOnlyList || []).join("/") || "(none)"}, firstProvider=${firstRemediationOrphanItem?.providerKey || "(none)"}, firstProfile=${firstRemediationOrphanProfileId || "(none)"}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    const openOrphanBtn = document.createElement("button");
+    openOrphanBtn.className = "ghost";
+    openOrphanBtn.textContent = "Open Runtime Orphan Recovery";
+    openOrphanBtn.addEventListener("click", () => {
+      state.activeTab = "nav.settings";
+      render();
+    });
+    actions.appendChild(openOrphanBtn);
+    if (firstRemediationOrphanItem?.providerKey && firstRemediationOrphanProfileId) {
+      const recreateBtn = document.createElement("button");
+      recreateBtn.className = "ghost";
+      recreateBtn.textContent = "Recreate First Remediation Orphan Stub";
+      recreateBtn.addEventListener("click", () =>
+        recreateRuntimeOrphanProfile(firstRemediationOrphanItem.providerKey, firstRemediationOrphanProfileId)
+      );
+      actions.appendChild(recreateBtn);
+    }
+    li.appendChild(actions);
+    realEvidenceRemediationList.appendChild(li);
+  }
   for (const item of remediationItems.filter((row) => row.nextStep).slice(0, 3)) {
     const li = document.createElement("li");
     const authModes = (item.recommendedAuthModes || []).join("/") || "(none)";

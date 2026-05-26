@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`真实证据补救总览也补直达孤儿恢复入口`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Real Evidence Remediation` 总览层继续补强：当当前仓库存在 `runtimeOrphanOnly` provider 时，现在会额外出现一条 `runtime_orphan_recovery` 摘要，直接写出 orphan-only provider 数、provider 列表以及当前第一条 orphan 档案
+  - 这条补救总览摘要也会直接提供 `Open Runtime Orphan Recovery` 和 `Recreate First Remediation Orphan Stub`，不必先滚到下方逐 provider 补救行才能把第一条 orphan 档案补回 stub
+  - 当前效果是：`Real Evidence Remediation` 已经从“量化哪些 provider 仍是 runtimeOrphanOnly”继续推进到“在补救总览层就能直接触发恢复动作”，和前面已经补好的其他 orphan 总览入口保持一致
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证 `Real Evidence Remediation` 总览当前会识别 orphan-only 汇总，并绑定 `Open Runtime Orphan Recovery / Recreate First Remediation Orphan Stub -> recreateRuntimeOrphanProfile(...)`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`任务运行证据总览也补直达孤儿恢复入口`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Task Runtime Evidence` 顶部摘要层继续补强：当当前仓库存在 orphan 运行样本时，现在会额外出现一条 `runtime_orphan_recovery` 摘要，直接写出 orphan provider/profile 数以及当前第一条 runtime orphan 记录

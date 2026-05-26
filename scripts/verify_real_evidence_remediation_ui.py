@@ -54,6 +54,12 @@ def main() -> None:
                 "jsRemediationRowsShowConflictPolicyNote": "conflictPolicyNote=${item.conflictPolicyNote}" in app_js,
                 "jsRemediationRowsShowConflictSupportStatus": "overwriteSupport=${item.overwriteSupportStatus || \"unknown\"}" in app_js and "autoRenameSupport=${item.autoRenameSupportStatus || \"unknown\"}" in app_js and "overwriteBehavior=${item.overwriteBehavior || \"unknown\"}" in app_js and "conflictDeclared=${(item.declaredConflictPolicies || []).join(\"/\") || \"(none)\"}" in app_js,
                 "jsRemediationRowsShowProviderConflictNotes": "providerConflictNotes=${item.providerConflictNotes}" in app_js,
+                "jsRemediationSummaryHasOrphanRecovery": 'const firstRemediationOrphanItem =' in app_js
+                and 'const firstRemediationOrphanProfileId = (firstRemediationOrphanItem?.runtimeOrphanProfiles || [])[0] || "";' in app_js
+                and 'runtime_orphan_recovery: providers=${remediationSummary.providersRuntimeOrphanOnly || 0}, providerList=${(remediationSummary.providersRuntimeOrphanOnlyList || []).join("/") || "(none)"}, firstProvider=${firstRemediationOrphanItem?.providerKey || "(none)"}, firstProfile=${firstRemediationOrphanProfileId || "(none)"}' in app_js
+                and 'openOrphanBtn.textContent = "Open Runtime Orphan Recovery";' in app_js
+                and 'recreateBtn.textContent = "Recreate First Remediation Orphan Stub";' in app_js
+                and 'recreateRuntimeOrphanProfile(firstRemediationOrphanItem.providerKey, firstRemediationOrphanProfileId)' in app_js,
                 "jsRemediationRowsBindCreateStub": 'createBtn.addEventListener("click", () => createRemediationProfile(item.providerKey));' in app_js,
                 "jsRemediationRowsBindProfileActions": 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(profileId));' in app_js
                 and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(profileId));' in app_js

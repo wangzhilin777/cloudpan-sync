@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`研究状态审计摘要也支持多孤儿入口`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里剩余三块还停留在“第一条 orphan”口径的摘要动作继续收齐：`Provider Research`、`Provider Status Matrix`、`Audit` 这三块现在也都复用 `appendRuntimeOrphanRecreateButtons(...)`
+  - 当前效果是：这些摘要区虽然仍保留 `firstProvider / firstProfile` 的概览文字，但动作区已经不再只给 `Recreate First Orphan Stub`；遇到 Guangya 这种同一 provider 下有多条 orphan profile 的情况，会直接按具体 `orphanProfileId` 逐条生成恢复按钮
+  - `Audit` 的首个缺口动作也已同步收口：当当前缺口是 `M4` 时，会针对 Guangya 全部 orphan profile 生成 `Recreate Guangya Orphan Stub (...)` 按钮；当缺口落在 `M5 / P-REAL` 时，则会按当前所有 orphan profile 生成对应恢复入口，不再只盯首条样本
+  - 已同步补强 [verify_provider_research_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_research_ui.py)、[verify_provider_status_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_status_settings_ui.py)、[verify_audit_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_audit_settings_ui.py)，把这三块摘要层的新多 orphan 入口一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_research_ui.py` 已验证 `Provider Research` 摘要当前会复用 `appendRuntimeOrphanRecreateButtons(...)`
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_status_settings_ui.py` 已验证 `Provider Status Matrix` 摘要当前会复用同一组多 orphan 恢复按钮
+  - `.\.venv\Scripts\python.exe scripts\verify_audit_settings_ui.py` 已验证 `Audit` 摘要与首个缺口动作当前都已切到多 orphan 入口，且 `M4` 仍会专门聚焦 Guangya
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `POST_RUN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`摘要入口也支持按孤儿档案逐条重建`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里多个只会指向“第一条 orphan”的摘要动作收成共用 helper：新增 `appendRuntimeOrphanRecreateButtons(...)`，统一按 `providerKey + orphanProfileId` 去重后生成逐条恢复按钮

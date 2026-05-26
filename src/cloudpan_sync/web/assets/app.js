@@ -2433,15 +2433,7 @@ function renderProviderPanel() {
       render();
     });
     actions.appendChild(openOrphanBtn);
-    if (firstProviderResearchOrphanItem?.providerKey && firstProviderResearchOrphanItem?.orphanProfileId) {
-      const recreateBtn = document.createElement("button");
-      recreateBtn.className = "ghost";
-      recreateBtn.textContent = "Recreate First Orphan Stub";
-      recreateBtn.addEventListener("click", () =>
-        recreateRuntimeOrphanProfile(firstProviderResearchOrphanItem.providerKey, firstProviderResearchOrphanItem.orphanProfileId)
-      );
-      actions.appendChild(recreateBtn);
-    }
+    appendRuntimeOrphanRecreateButtons(actions, state.runtimeOrphanRecovery?.items || [], "Recreate Orphan Stub");
     node.appendChild(actions);
     researchList.appendChild(node);
   }
@@ -2793,13 +2785,7 @@ function renderSettingsPanel() {
       render();
     });
     actions.appendChild(openOrphanBtn);
-    if (firstProviderStatusOrphanItem?.providerKey && firstProviderStatusOrphanItem?.orphanProfileId) {
-      const recreateBtn = document.createElement("button");
-      recreateBtn.className = "ghost";
-      recreateBtn.textContent = "Recreate First Orphan Stub";
-      recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(firstProviderStatusOrphanItem.providerKey, firstProviderStatusOrphanItem.orphanProfileId));
-      actions.appendChild(recreateBtn);
-    }
+    appendRuntimeOrphanRecreateButtons(actions, state.runtimeOrphanRecovery?.items || [], "Recreate Orphan Stub");
     li.appendChild(actions);
     providerStatusList.appendChild(li);
   }
@@ -3506,13 +3492,7 @@ function renderSettingsPanel() {
       render();
     });
     actions.appendChild(openOrphanBtn);
-    if (auditRuntimeOrphanItem?.providerKey && auditRuntimeOrphanItem?.orphanProfileId) {
-      const recreateBtn = document.createElement("button");
-      recreateBtn.className = "ghost";
-      recreateBtn.textContent = "Recreate First Orphan Stub";
-      recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(auditRuntimeOrphanItem.providerKey, auditRuntimeOrphanItem.orphanProfileId));
-      actions.appendChild(recreateBtn);
-    }
+    appendRuntimeOrphanRecreateButtons(actions, state.runtimeOrphanRecovery?.items || [], "Recreate Orphan Stub");
     li.appendChild(actions);
     auditList.appendChild(li);
   }
@@ -3522,6 +3502,7 @@ function renderSettingsPanel() {
     const copy = document.createElement("span");
     const firstAuditGapRuntimeDetails = [];
     let firstAuditGapOrphanItem = null;
+    let firstAuditGapOrphanItems = [];
     if (["M4", "M5", "P-REAL"].includes(firstAuditGap.key)) {
       const auditRuntime = state.realEvidenceSummary || {};
       firstAuditGapRuntimeDetails.push(`runtime_samples=${auditRuntime.taskRuntimeSampleCount || 0}`);
@@ -3529,9 +3510,10 @@ function renderSettingsPanel() {
       firstAuditGapRuntimeDetails.push(`runtime_orphan_providers=${auditRuntime.taskRuntimeOrphanProviderCount || 0}`);
       firstAuditGapRuntimeDetails.push(`runtime_orphan_profiles=${auditRuntime.taskRuntimeOrphanProfileCount || 0}`);
       const runtimeOrphanItems = state.runtimeOrphanRecovery?.items || [];
-      firstAuditGapOrphanItem = firstAuditGap.key === "M4"
-        ? runtimeOrphanItems.find((item) => item.providerKey === "guangya") || runtimeOrphanItems[0] || null
-        : runtimeOrphanItems[0] || null;
+      firstAuditGapOrphanItems = firstAuditGap.key === "M4"
+        ? runtimeOrphanItems.filter((item) => item.providerKey === "guangya")
+        : runtimeOrphanItems;
+      firstAuditGapOrphanItem = firstAuditGapOrphanItems[0] || null;
       if (firstAuditGap.key === "M4") {
         const guangyaRuntime = ((state.realEvidenceReport?.items || []).find((item) => item.providerKey === "guangya") || {}).taskRuntimeEvidence || {};
         firstAuditGapRuntimeDetails.push(`guangya_runtime_success=${guangyaRuntime.successCount || 0}`);
@@ -3567,13 +3549,11 @@ function renderSettingsPanel() {
         render();
       });
       actions.appendChild(openAuthBtn);
-      if (firstAuditGapOrphanItem?.providerKey && firstAuditGapOrphanItem?.orphanProfileId) {
-        const recreateBtn = document.createElement("button");
-        recreateBtn.className = "ghost";
-        recreateBtn.textContent = firstAuditGap.key === "M4" ? "Recreate Guangya Orphan Stub" : "Recreate First Orphan Stub";
-        recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(firstAuditGapOrphanItem.providerKey, firstAuditGapOrphanItem.orphanProfileId));
-        actions.appendChild(recreateBtn);
-      }
+      appendRuntimeOrphanRecreateButtons(
+        actions,
+        firstAuditGapOrphanItems,
+        firstAuditGap.key === "M4" ? "Recreate Guangya Orphan Stub" : "Recreate Orphan Stub"
+      );
     }
     li.appendChild(actions);
     auditList.appendChild(li);

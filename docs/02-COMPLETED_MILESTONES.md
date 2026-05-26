@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`运行脚本补救输出也补齐重建列表与冲突提示`
+- 完成范围：
+  - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 的 `remediationFollowup` 再补一层：当前除了单条 `recommendedRecreateProbeCommand` 之外，也会同步返回 `recommendedRecreateProbeCommands`，可直接透出多条 orphan recreate/probe 命令列表
+  - 同一轮也把冲突策略说明一起带回 CLI 输出：现在脚本结果会直接带 `conflictPolicyNote` 与 `providerConflictNotes`，把“支持 direct_select，若同路径同名已存在可选覆盖或自动重命名”的规则带到终端结果里，而不必只回看文档
+  - 当前效果是：当 remediation provider 同时存在多条 orphan profile、或者用户正好关心互传时同名文件如何处理时，probe / live upload / fast candidate 三支 helper 的 follow-up 能直接把重建列表和冲突选择一起接住，CLI 链路又向当前 remediation bundle 全量字段靠近一步
+  - 已同步补强 [verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py)、[verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py)、[verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py)，把重建列表和冲突提示一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_runtime_probe_task.py` 已验证 runtime probe 脚本输出的 `remediationFollowup` 当前会返回 `recommendedRecreateProbeCommands / conflictPolicyNote / providerConflictNotes`
+  - `.\.venv\Scripts\python.exe scripts\verify_create_live_upload_task.py` 已验证 live upload 脚本输出的 `remediationFollowup` 当前会返回 `recommendedRecreateProbeCommands / conflictPolicyNote / providerConflictNotes`
+  - `.\.venv\Scripts\python.exe scripts\verify_create_fast_upload_candidate_task.py` 已验证 fast candidate 脚本输出的 `remediationFollowup` 当前会返回 `recommendedRecreateProbeCommands / conflictPolicyNote / providerConflictNotes`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`运行脚本补救输出也补齐多 patch 列表`
 - 完成范围：
   - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 的 `remediationFollowup` 再补一层：现在除了单条 `recommendedPatchCommand / recommendedPatchProbeCommand`，也会同步带出 `recommendedPatchCommands / recommendedPatchProbeCommands`

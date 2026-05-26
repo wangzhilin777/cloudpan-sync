@@ -126,6 +126,10 @@ def main() -> None:
                 "placeholderSecretFieldHints": ["cookie"],
                 "recommendedPrimaryCommandLabel": "recreate_probe",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode manual_cookie --display-name 115-fast --cookie YOUR_COOKIE --set parentId=YOUR_PARENT_ID --probe",
+                "recommendedRecreateProbeCommands": [
+                    r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id 115-orphan-fast-1 --provider-key 115_open --auth-mode manual_cookie --display-name 115-fast --cookie YOUR_COOKIE --set parentId=YOUR_PARENT_ID --probe",
+                    r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id 115-orphan-fast-2 --provider-key 115_open --auth-mode manual_cookie --display-name 115-fast-2 --cookie YOUR_COOKIE_2 --set parentId=YOUR_PARENT_ID_2 --probe",
+                ],
                 "recommendedPatchCommand": r".\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id 115-fast-1 --set cid=115-root --write --revalidate",
                 "recommendedPatchProbeCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 115-fast-1 --set cid=115-root --write",
                 "recommendedPatchCommands": [
@@ -145,6 +149,8 @@ def main() -> None:
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-fast-1 --target-parent-id 115-root --sha1 auto --auto-temp-file --conflict-policy overwrite_existing --evidence-dir tmp\115_open-fast-candidate-evidence",
                 "exactRuntimeSuccessHelper": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --from-remediation-profile-id 115-fast-2",
                 "exactOverwriteVariantHelper": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --from-remediation-profile-id 115-fast-1",
+                "conflictPolicyNote": "支持 direct_select；若同路径同名已存在，可选 overwrite_existing 或 auto_rename_new。",
+                "providerConflictNotes": "115 秒传候选默认建议 auto_rename_new，避免误覆盖现有同名文件。",
             }
         ],
     }
@@ -286,6 +292,8 @@ def main() -> None:
                 "scriptRemediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["cookie"]
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")
+                and len(dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommands", [])) == 2
+                and any("--profile-id 115-orphan-fast-2" in value for value in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommands", []))
                 and "create_auth_profile_stub.py --from-remediation-provider 115_open" in dict(output.get("remediationFollowup") or {}).get("exactCreateHelper", "")
                 and "create_auth_profile_stub.py --from-remediation-orphan-profile 115-orphan-fast-1" in dict(output.get("remediationFollowup") or {}).get("exactRecreateHelper", ""),
                 "scriptRemediationPatchIncluded": "patch_auth_profile_extra.py --profile-id 115-fast-1" in dict(output.get("remediationFollowup") or {}).get("recommendedPatchCommand", "")
@@ -298,7 +306,9 @@ def main() -> None:
                 "scriptRemediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedRuntimeSuccessCommand", "").endswith("tmp\\115_open-fast-candidate-evidence-2")
                 and "create_fast_upload_candidate_task.py --from-remediation-profile-id 115-fast-2" in dict(output.get("remediationFollowup") or {}).get("exactRuntimeSuccessHelper", "")
                 and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\115_open-fast-candidate-evidence")
-                and "create_fast_upload_candidate_task.py --from-remediation-profile-id 115-fast-1" in dict(output.get("remediationFollowup") or {}).get("exactOverwriteVariantHelper", ""),
+                and "create_fast_upload_candidate_task.py --from-remediation-profile-id 115-fast-1" in dict(output.get("remediationFollowup") or {}).get("exactOverwriteVariantHelper", "")
+                and "direct_select" in dict(output.get("remediationFollowup") or {}).get("conflictPolicyNote", "")
+                and "auto_rename_new" in dict(output.get("remediationFollowup") or {}).get("providerConflictNotes", ""),
                 "scriptExplicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-fast-parent",
                 "scriptNoRefreshSkipsAuthRefresh": len(refresh_calls) == 1 and second_output.get("refreshedAuthEvidence") is False,
                 "scriptExplicitOutputsCreated": second_outputs_ok

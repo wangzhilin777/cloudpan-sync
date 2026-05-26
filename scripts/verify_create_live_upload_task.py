@@ -158,6 +158,10 @@ def main() -> None:
                 "placeholderSecretFieldHints": ["token"],
                 "recommendedPrimaryCommandLabel": "recreate_probe",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name gy-live --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
+                "recommendedRecreateProbeCommands": [
+                    r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-orphan-live-1 --provider-key guangya --auth-mode manual_token --display-name gy-live --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
+                    r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-orphan-live-2 --provider-key guangya --auth-mode manual_token --display-name gy-live-2 --token YOUR_TOKEN_2 --set parentId=YOUR_REAL_PARENT_ID_2 --probe",
+                ],
                 "recommendedPatchCommand": r".\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id gy-live-1 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate",
                 "recommendedPatchProbeCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-1 --set parentId=YOUR_REAL_PARENT_ID --write",
                 "recommendedPatchCommands": [
@@ -177,6 +181,8 @@ def main() -> None:
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --target-parent-id folder-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-live-evidence",
                 "exactRuntimeSuccessHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-profile-id gy-live-2",
                 "exactOverwriteVariantHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-profile-id gy-live-1",
+                "conflictPolicyNote": "支持 direct_select；若同路径同名已存在，可选 overwrite_existing 或 auto_rename_new。",
+                "providerConflictNotes": "光鸭 live upload 默认优先 auto_rename_new，overwrite_existing 可能退化为自动改名。",
             }
         ],
     }
@@ -307,6 +313,8 @@ def main() -> None:
                 "remediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["token"]
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")
+                and len(dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommands", [])) == 2
+                and any("--profile-id gy-orphan-live-2" in value for value in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommands", []))
                 and "create_auth_profile_stub.py --from-remediation-provider guangya" in dict(output.get("remediationFollowup") or {}).get("exactCreateHelper", "")
                 and "create_auth_profile_stub.py --from-remediation-orphan-profile gy-orphan-live-1" in dict(output.get("remediationFollowup") or {}).get("exactRecreateHelper", ""),
                 "remediationPatchIncluded": "patch_auth_profile_extra.py --profile-id gy-live-1" in dict(output.get("remediationFollowup") or {}).get("recommendedPatchCommand", "")
@@ -319,7 +327,9 @@ def main() -> None:
                 "remediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedRuntimeSuccessCommand", "").endswith("tmp\\guangya-live-evidence-2")
                 and "create_live_upload_task.py --from-remediation-profile-id gy-live-2" in dict(output.get("remediationFollowup") or {}).get("exactRuntimeSuccessHelper", "")
                 and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\guangya-live-evidence")
-                and "create_live_upload_task.py --from-remediation-profile-id gy-live-1" in dict(output.get("remediationFollowup") or {}).get("exactOverwriteVariantHelper", ""),
+                and "create_live_upload_task.py --from-remediation-profile-id gy-live-1" in dict(output.get("remediationFollowup") or {}).get("exactOverwriteVariantHelper", "")
+                and "direct_select" in dict(output.get("remediationFollowup") or {}).get("conflictPolicyNote", "")
+                and "auto_rename_new" in dict(output.get("remediationFollowup") or {}).get("providerConflictNotes", ""),
                 "explicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-live-parent",
                 "noRefreshSkipsAuthRefresh": len(refresh_calls) == 1 and second_output.get("refreshedAuthEvidence") is False,
                 "explicitOutputsCreated": second_outputs_ok

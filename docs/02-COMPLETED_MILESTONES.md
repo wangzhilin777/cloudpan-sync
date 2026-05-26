@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐真实证据报告导出回归断言`
+- 完成范围：
+  - 已把 [verify_export_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_report.py) 从导出文件存在、标题、summary 计数、providerSummary、provider 行、runtime profiles、savedProfiles 与 gap 文案等分散检查，补成真正会给出整条真实证据报告导出链结论的 verifier
+  - 同一条回归现在会用 `exportRealEvidenceReportFlowMatchesExpectedMarkdown` 直接锁住这条导出链：synthetic payload 经 `export_real_evidence_report.py` 生成的 `docs/10-REAL_EVIDENCE_STATUS.md` 必须稳定带出 runtime 计数、providerSummary、provider 运行态行、runtime profile 摘要、savedProfiles 状态与 gap 文案
+  - 当前效果是：真实证据报告导出能力不再只是很多 Markdown 片段各自为真，而是多了一条从 payload 到导出文件内容的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_report.py` 已验证真实证据报告导出链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐运行孤儿恢复设置页回归断言`
 - 完成范围：
   - 已把 [verify_runtime_orphan_recovery_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery_settings_ui.py) 从 runtime orphan recovery 面板、summary loader、单条 orphan recreate/capture 动作、批量 recreate/overwrite 动作、existing profile 行动作、first gap 动作、settings 汇总渲染与 logout 清理等分散片段检查，补成真正会给出整条设置页 wiring 结论的 verifier

@@ -170,34 +170,66 @@ def main() -> None:
 
         output_path = tmp_root / "docs" / "10-REAL_EVIDENCE_STATUS.md"
         markdown = output_path.read_text(encoding="utf-8")
+    exported_file_exists = True
+    exported_has_title = "# CloudPan Sync 真实证据状态报告" in markdown
+    exported_has_summary_counts = (
+        "runtime_samples=4" in markdown
+        and "runtime_success=1" in markdown
+        and "runtime_failed=1" in markdown
+        and "runtime_candidate=1" in markdown
+        and "runtime_probe=1" in markdown
+        and "runtime_blocked_providers=1" in markdown
+        and "runtime_blocked=1" in markdown
+        and "runtime_orphan_providers=1" in markdown
+        and "runtime_orphan_profiles=1" in markdown
+        and "placeholder_secret_providers=1" in markdown
+        and "live_rejected_providers=1" in markdown
+        and "placeholder_live_rejected_providers=1" in markdown
+    )
+    exported_has_provider_summary = "- providerSummary: `auth=guangya` `list=guangya` `metadata=guangya` `create_dir=guangya` `fully_verified=(none)` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=189cloud` `runtime_probe=189cloud` `runtime_blocked=189cloud` `runtime_orphan=guangya` `needs_secret_refresh=189cloud` `live_rejected=189cloud` `placeholder_live_rejected=189cloud`" in markdown
+    exported_has_guangya_success_row = (
+        "## guangya - Guangya" in markdown
+        and "samples=1 success=1 failed=0" in markdown
+        and "orphanProfiles=1" in markdown
+    )
+    exported_has_189_mixed_runtime_row = (
+        "## 189cloud - Tianyi 189Cloud" in markdown
+        and "samples=3 success=0 failed=1 candidate=1 probe=1 blocked=1" in markdown
+    )
+    exported_has_runtime_profiles = (
+        "taskRuntimeProfiles: success=gy-1 failed=(none) candidate=(none) probe=(none) orphan=gy-orphan" in markdown
+        and "taskRuntimeProfiles: success=(none) failed=189-1 candidate=189-candidate probe=189-probe" in markdown
+    )
+    exported_has_saved_profile_state = (
+        "savedProfiles: count=1 all=189-1 needsSecretRefresh=189-1 liveRejected=189-1 placeholderLiveRejected=189-1" in markdown
+        and "liveRejectedStatuses=401" in markdown
+    )
+    exported_has_gap_text = "缺少真实 runtime 成功样本" in markdown
+    export_real_evidence_report_flow_matches_expected_markdown = (
+        exported_file_exists
+        and exported_has_title
+        and exported_has_summary_counts
+        and exported_has_provider_summary
+        and exported_has_guangya_success_row
+        and exported_has_189_mixed_runtime_row
+        and exported_has_runtime_profiles
+        and exported_has_saved_profile_state
+        and exported_has_gap_text
+    )
 
     print(
         json.dumps(
             {
-                "exportedFileExists": True,
-                "exportedHasTitle": "# CloudPan Sync 真实证据状态报告" in markdown,
-                "exportedHasSummaryCounts": "runtime_samples=4" in markdown
-                and "runtime_success=1" in markdown
-                and "runtime_failed=1" in markdown
-                and "runtime_candidate=1" in markdown
-                and "runtime_probe=1" in markdown
-                and "runtime_blocked_providers=1" in markdown
-                and "runtime_blocked=1" in markdown
-                and "runtime_orphan_providers=1" in markdown
-                and "runtime_orphan_profiles=1" in markdown
-                and "placeholder_secret_providers=1" in markdown
-                and "live_rejected_providers=1" in markdown
-                and "placeholder_live_rejected_providers=1" in markdown,
-                "exportedHasProviderSummary": "- providerSummary: `auth=guangya` `list=guangya` `metadata=guangya` `create_dir=guangya` `fully_verified=(none)` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=189cloud` `runtime_probe=189cloud` `runtime_blocked=189cloud` `runtime_orphan=guangya` `needs_secret_refresh=189cloud` `live_rejected=189cloud` `placeholder_live_rejected=189cloud`" in markdown,
-                "exportedHasGuangyaSuccessRow": "## guangya - Guangya" in markdown
-                and "samples=1 success=1 failed=0" in markdown
-                and "orphanProfiles=1" in markdown,
-                "exportedHas189MixedRuntimeRow": "## 189cloud - Tianyi 189Cloud" in markdown
-                and "samples=3 success=0 failed=1 candidate=1 probe=1 blocked=1" in markdown,
-                "exportedHasRuntimeProfiles": "taskRuntimeProfiles: success=gy-1 failed=(none) candidate=(none) probe=(none) orphan=gy-orphan" in markdown
-                and "taskRuntimeProfiles: success=(none) failed=189-1 candidate=189-candidate probe=189-probe" in markdown,
-                "exportedHasSavedProfileState": "savedProfiles: count=1 all=189-1 needsSecretRefresh=189-1 liveRejected=189-1 placeholderLiveRejected=189-1" in markdown and "liveRejectedStatuses=401" in markdown,
-                "exportedHasGapText": "缺少真实 runtime 成功样本" in markdown,
+                "exportedFileExists": exported_file_exists,
+                "exportedHasTitle": exported_has_title,
+                "exportedHasSummaryCounts": exported_has_summary_counts,
+                "exportedHasProviderSummary": exported_has_provider_summary,
+                "exportedHasGuangyaSuccessRow": exported_has_guangya_success_row,
+                "exportedHas189MixedRuntimeRow": exported_has_189_mixed_runtime_row,
+                "exportedHasRuntimeProfiles": exported_has_runtime_profiles,
+                "exportedHasSavedProfileState": exported_has_saved_profile_state,
+                "exportedHasGapText": exported_has_gap_text,
+                "exportRealEvidenceReportFlowMatchesExpectedMarkdown": export_real_evidence_report_flow_matches_expected_markdown,
             },
             ensure_ascii=False,
             indent=2,

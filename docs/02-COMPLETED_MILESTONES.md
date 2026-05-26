@@ -10,6 +10,19 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`摘要入口也支持按孤儿档案逐条重建`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里多个只会指向“第一条 orphan”的摘要动作收成共用 helper：新增 `appendRuntimeOrphanRecreateButtons(...)`，统一按 `providerKey + orphanProfileId` 去重后生成逐条恢复按钮
+  - 当前效果是：`Provider` 面板、`Real Evidence` 摘要、`Real Evidence Remediation` 摘要、`Task Runtime Evidence` 摘要，以及 provider 级恢复动作区，遇到 Guangya 这种同一 provider 下存在多条 orphan profile 时，不再只给第一条 `Recreate First ...`，而是能直接按具体 `orphanProfileId` 点对应恢复入口
+  - 已同步补强 [verify_provider_real_evidence_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_real_evidence_ui.py)、[verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)、[verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py)、[verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py)，把这些摘要层入口都锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_real_evidence_ui.py` 已验证 provider 面板与 provider 级恢复动作区当前会复用 `appendRuntimeOrphanRecreateButtons(...)`
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证 remediation 摘要与逐 provider 行当前会按 `runtimeOrphanProfiles` 生成逐条重建按钮
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_settings_ui.py` 与 `scripts\verify_task_runtime_evidence_settings_ui.py` 已验证 `Real Evidence / Task Runtime Evidence` 两处摘要当前都会复用新的逐条 orphan 恢复 helper
+  - 本轮 verifier 残留的项目 `.venv` `python` 进程已主动清理为 `POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`恢复脚本也支持按孤儿档案精确带默认值`
 - 完成范围：
   - 已把 [create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 的默认值带出能力继续补齐：除了原来的 `--from-remediation-provider` 与 `--from-runtime-orphan-provider` 外，现在新增 `--from-remediation-orphan-profile` 与 `--from-runtime-orphan-profile`

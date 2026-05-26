@@ -44,8 +44,8 @@ def main() -> None:
                 "jsRemediationRowsShowRecreateProbeCommand": "recreateProbe=${item.recommendedRecreateProbeCommand}" in app_js,
                 "jsRemediationRowsBindRecreateOrphanStub": 'const orphanProfileId = (item.runtimeOrphanProfiles || [])[0] || "";' in app_js
                 and 'if (profileId || item.recommendedCreateCommand || item.needsSecretRefresh || orphanProfileId) {' in app_js
-                and 'recreateBtn.textContent = "Recreate Orphan Stub"' in app_js
-                and 'recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(item.providerKey, orphanProfileId));' in app_js,
+                and 'const orphanItems = (item.runtimeOrphanProfiles || []).map((runtimeOrphanProfileId) => ({' in app_js
+                and 'appendRuntimeOrphanRecreateButtons(actions, orphanItems, "Recreate Orphan Stub");' in app_js,
                 "jsRemediationRowsShowSecretRefreshState": "needsSecretRefresh=${Boolean(item.needsSecretRefresh)}" in app_js and "placeholderSecretHints=${placeholderSecretHints}" in app_js,
                 "jsRemediationRowsPreserveRuntimeCommandText": "runtimeSuccess=${item.recommendedRuntimeSuccessCommand}" in app_js
                 and "postRefreshRuntime=${item.recommendedPostRefreshRuntimeCommand}" in app_js
@@ -56,10 +56,10 @@ def main() -> None:
                 "jsRemediationRowsShowProviderConflictNotes": "providerConflictNotes=${item.providerConflictNotes}" in app_js,
                 "jsRemediationSummaryHasOrphanRecovery": 'const firstRemediationOrphanItem =' in app_js
                 and 'const firstRemediationOrphanProfileId = (firstRemediationOrphanItem?.runtimeOrphanProfiles || [])[0] || "";' in app_js
+                and 'const remediationOrphanItems = remediationItems.flatMap((item) =>' in app_js
                 and 'runtime_orphan_recovery: providers=${remediationSummary.providersRuntimeOrphanOnly || 0}, providerList=${(remediationSummary.providersRuntimeOrphanOnlyList || []).join("/") || "(none)"}, firstProvider=${firstRemediationOrphanItem?.providerKey || "(none)"}, firstProfile=${firstRemediationOrphanProfileId || "(none)"}' in app_js
                 and 'openOrphanBtn.textContent = "Open Runtime Orphan Recovery";' in app_js
-                and 'recreateBtn.textContent = "Recreate First Remediation Orphan Stub";' in app_js
-                and 'recreateRuntimeOrphanProfile(firstRemediationOrphanItem.providerKey, firstRemediationOrphanProfileId)' in app_js,
+                and 'appendRuntimeOrphanRecreateButtons(actions, remediationOrphanItems, "Recreate Remediation Orphan Stub");' in app_js,
                 "jsRemediationRowsBindCreateStub": 'createBtn.addEventListener("click", () => createRemediationProfile(item.providerKey));' in app_js,
                 "jsRemediationRowsBindProfileActions": 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(profileId));' in app_js
                 and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(profileId));' in app_js

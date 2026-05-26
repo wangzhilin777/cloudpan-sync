@@ -1339,6 +1339,36 @@ async function recreateRuntimeOrphanProfile(providerKey, orphanProfileId) {
   }
 }
 
+function appendRuntimeOrphanRecreateButtons(actions, orphanItems, buttonPrefix = "Recreate Orphan Stub") {
+  const uniqueItems = [];
+  const seen = new Set();
+  for (const item of orphanItems || []) {
+    const currentProviderKey = String(item?.providerKey || "").trim();
+    const currentOrphanProfileId = String(item?.orphanProfileId || item?.profileId || "").trim();
+    if (!currentProviderKey || !currentOrphanProfileId) {
+      continue;
+    }
+    const dedupeKey = `${currentProviderKey}:${currentOrphanProfileId}`;
+    if (seen.has(dedupeKey)) {
+      continue;
+    }
+    seen.add(dedupeKey);
+    uniqueItems.push({ providerKey: currentProviderKey, orphanProfileId: currentOrphanProfileId });
+  }
+  for (const item of uniqueItems) {
+    const currentOrphanProfileId = String(item.orphanProfileId || "").trim();
+    const recreateBtn = document.createElement("button");
+    recreateBtn.className = "ghost";
+    recreateBtn.textContent =
+      uniqueItems.length > 1 ? `${buttonPrefix} (${currentOrphanProfileId})` : buttonPrefix;
+    recreateBtn.addEventListener("click", () =>
+      recreateRuntimeOrphanProfile(item.providerKey, currentOrphanProfileId)
+    );
+    actions.appendChild(recreateBtn);
+  }
+  return uniqueItems.length;
+}
+
 async function loadLiveValidations() {
   if (!state.loggedIn) {
     return;
@@ -2173,15 +2203,7 @@ function renderProviderPanel() {
       render();
     });
     actions.appendChild(openOrphanBtn);
-    if (firstProviderPanelOrphanItem?.providerKey && firstProviderPanelOrphanItem?.orphanProfileId) {
-      const recreateBtn = document.createElement("button");
-      recreateBtn.className = "ghost";
-      recreateBtn.textContent = "Recreate First Orphan Stub";
-      recreateBtn.addEventListener("click", () =>
-        recreateRuntimeOrphanProfile(firstProviderPanelOrphanItem.providerKey, firstProviderPanelOrphanItem.orphanProfileId)
-      );
-      actions.appendChild(recreateBtn);
-    }
+    appendRuntimeOrphanRecreateButtons(actions, state.runtimeOrphanRecovery?.items || [], "Recreate Orphan Stub");
     node.appendChild(actions);
     summaryWrap.appendChild(node);
   }
@@ -2189,8 +2211,11 @@ function renderProviderPanel() {
   function appendProviderRecoveryActions(actions, providerKey) {
     const matchedProfile = (state.authProfiles || []).find((profile) => profile.providerKey === providerKey);
     const remediationItem = (state.realEvidenceRemediation?.items || []).find((row) => row.providerKey === providerKey) || null;
-    const orphanProfileId = String((remediationItem?.runtimeOrphanProfiles || [])[0] || "").trim();
-    if (!matchedProfile && !remediationItem?.recommendedCreateCommand && !remediationItem?.needsSecretRefresh && !orphanProfileId) {
+    const orphanItems = (remediationItem?.runtimeOrphanProfiles || []).map((runtimeOrphanProfileId) => ({
+      providerKey,
+      orphanProfileId: runtimeOrphanProfileId,
+    }));
+    if (!matchedProfile && !remediationItem?.recommendedCreateCommand && !remediationItem?.needsSecretRefresh && !orphanItems.length) {
       return false;
     }
     if (matchedProfile) {
@@ -2232,13 +2257,7 @@ function renderProviderPanel() {
       createBtn.addEventListener("click", () => createRemediationProfile(providerKey));
       actions.appendChild(createBtn);
     }
-    if (orphanProfileId) {
-      const recreateBtn = document.createElement("button");
-      recreateBtn.className = "ghost";
-      recreateBtn.textContent = "Recreate Orphan Stub";
-      recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(providerKey, orphanProfileId));
-      actions.appendChild(recreateBtn);
-    }
+    appendRuntimeOrphanRecreateButtons(actions, orphanItems, "Recreate Orphan Stub");
     return actions.childNodes.length > 0;
   }
 
@@ -2921,13 +2940,7 @@ function renderSettingsPanel() {
       render();
     });
     actions.appendChild(openOrphanBtn);
-    if (firstRealEvidenceOrphanItem?.providerKey && firstRealEvidenceOrphanItem?.orphanProfileId) {
-      const recreateBtn = document.createElement("button");
-      recreateBtn.className = "ghost";
-      recreateBtn.textContent = "Recreate First Orphan Stub";
-      recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(firstRealEvidenceOrphanItem.providerKey, firstRealEvidenceOrphanItem.orphanProfileId));
-      actions.appendChild(recreateBtn);
-    }
+    appendRuntimeOrphanRecreateButtons(actions, state.runtimeOrphanRecovery?.items || [], "Recreate Orphan Stub");
     li.appendChild(actions);
     realEvidenceList.appendChild(li);
   }
@@ -3051,6 +3064,12 @@ function renderSettingsPanel() {
   const firstRemediationOrphanItem =
     remediationItems.find((item) => Boolean((item.runtimeOrphanProfiles || [])[0] || "")) || null;
   const firstRemediationOrphanProfileId = (firstRemediationOrphanItem?.runtimeOrphanProfiles || [])[0] || "";
+  const remediationOrphanItems = remediationItems.flatMap((item) =>
+    (item.runtimeOrphanProfiles || []).map((runtimeOrphanProfileId) => ({
+      providerKey: item.providerKey,
+      orphanProfileId: runtimeOrphanProfileId,
+    }))
+  );
   if ((remediationSummary.providersRuntimeOrphanOnly || 0) > 0) {
     const li = document.createElement("li");
     const copy = document.createElement("span");
@@ -3066,15 +3085,7 @@ function renderSettingsPanel() {
       render();
     });
     actions.appendChild(openOrphanBtn);
-    if (firstRemediationOrphanItem?.providerKey && firstRemediationOrphanProfileId) {
-      const recreateBtn = document.createElement("button");
-      recreateBtn.className = "ghost";
-      recreateBtn.textContent = "Recreate First Remediation Orphan Stub";
-      recreateBtn.addEventListener("click", () =>
-        recreateRuntimeOrphanProfile(firstRemediationOrphanItem.providerKey, firstRemediationOrphanProfileId)
-      );
-      actions.appendChild(recreateBtn);
-    }
+    appendRuntimeOrphanRecreateButtons(actions, remediationOrphanItems, "Recreate Remediation Orphan Stub");
     li.appendChild(actions);
     realEvidenceRemediationList.appendChild(li);
   }
@@ -3086,6 +3097,10 @@ function renderSettingsPanel() {
     const placeholderSecretHints = (item.placeholderSecretFieldHints || []).join("/") || "";
     const profileId = (item.profileIds || [])[0] || "";
     const orphanProfileId = (item.runtimeOrphanProfiles || [])[0] || "";
+    const orphanItems = (item.runtimeOrphanProfiles || []).map((runtimeOrphanProfileId) => ({
+      providerKey: item.providerKey,
+      orphanProfileId: runtimeOrphanProfileId,
+    }));
     const copy = document.createElement("span");
     copy.textContent = `${item.providerKey || "(unknown)"}: profiles=${item.profileCount || 0}, authModes=${authModes}, nextStep=${item.nextStep}, blockedOnly=${Boolean(item.runtimeBlockedOnly)}, candidateOnly=${Boolean(item.runtimeCandidateOnly)}, probeOnly=${Boolean(item.runtimeProbeOnly)}, runtimeOrphanOnly=${Boolean(item.runtimeOrphanOnly)}, needsSecretRefresh=${Boolean(item.needsSecretRefresh)}, conflictDeclared=${(item.declaredConflictPolicies || []).join("/") || "(none)"}, overwriteSupport=${item.overwriteSupportStatus || "unknown"}, autoRenameSupport=${item.autoRenameSupportStatus || "unknown"}, overwriteBehavior=${item.overwriteBehavior || "unknown"}${loginUrl ? `, login=${loginUrl}` : ""}${fieldHints ? `, hints=${fieldHints}` : ""}${placeholderSecretHints ? `, placeholderSecretHints=${placeholderSecretHints}` : ""}${(item.runtimeOrphanProfiles || []).length ? `, runtimeOrphanProfiles=${(item.runtimeOrphanProfiles || []).join("/")}` : ""}${item.providerConflictNotes ? `, providerConflictNotes=${item.providerConflictNotes}` : ""}${item.recommendedPrimaryCommand ? `, primary=${item.recommendedPrimaryCommand}` : ""}${item.recommendedPrimaryCommandLabel ? `, primaryLabel=${item.recommendedPrimaryCommandLabel}` : ""}${item.recommendedCreateCommand ? `, create=${item.recommendedCreateCommand}` : ""}${item.recommendedBootstrapCommand ? `, bootstrap=${item.recommendedBootstrapCommand}` : ""}${item.recommendedPatchCommand ? `, patch=${item.recommendedPatchCommand}` : ""}${item.recommendedPatchProbeCommand ? `, patchProbe=${item.recommendedPatchProbeCommand}` : ""}${item.recommendedRecreateProbeCommand ? `, recreateProbe=${item.recommendedRecreateProbeCommand}` : ""}${item.recommendedRefreshEvidenceCommand ? `, refresh=${item.recommendedRefreshEvidenceCommand}` : ""}${item.recommendedPostRefreshRuntimeCommand ? `, postRefreshRuntime=${item.recommendedPostRefreshRuntimeCommand}` : ""}${item.recommendedRuntimeProbeCommand ? `, runtime=${item.recommendedRuntimeProbeCommand}` : ""}${item.recommendedLiveUploadCommand ? `, liveUpload=${item.recommendedLiveUploadCommand}` : ""}${item.recommendedFastCandidateCommand ? `, fastCandidate=${item.recommendedFastCandidateCommand}` : ""}${item.recommendedRuntimeSuccessCommand ? `, runtimeSuccess=${item.recommendedRuntimeSuccessCommand}` : ""}${item.recommendedPostBootstrapRuntimeCommand ? `, postBootstrapRuntime=${item.recommendedPostBootstrapRuntimeCommand}` : ""}${item.recommendedOverwriteVariantCommand ? `, overwriteVariant=${item.recommendedOverwriteVariantCommand}` : ""}${item.conflictPolicyNote ? `, conflictPolicyNote=${item.conflictPolicyNote}` : ""}`;
     li.appendChild(copy);
@@ -3131,13 +3146,7 @@ function renderSettingsPanel() {
         createBtn.addEventListener("click", () => createRemediationProfile(item.providerKey));
         actions.appendChild(createBtn);
       }
-      if (orphanProfileId) {
-        const recreateBtn = document.createElement("button");
-        recreateBtn.className = "ghost";
-        recreateBtn.textContent = "Recreate Orphan Stub";
-        recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(item.providerKey, orphanProfileId));
-        actions.appendChild(recreateBtn);
-      }
+      appendRuntimeOrphanRecreateButtons(actions, orphanItems, "Recreate Orphan Stub");
       li.appendChild(actions);
     }
     realEvidenceRemediationList.appendChild(li);
@@ -3182,15 +3191,7 @@ function renderSettingsPanel() {
       render();
     });
     actions.appendChild(openOrphanBtn);
-    if (firstRuntimeOrphanItem?.providerKey && firstRuntimeOrphanItem?.profileId) {
-      const recreateBtn = document.createElement("button");
-      recreateBtn.className = "ghost";
-      recreateBtn.textContent = "Recreate First Runtime Orphan Stub";
-      recreateBtn.addEventListener("click", () =>
-        recreateRuntimeOrphanProfile(firstRuntimeOrphanItem.providerKey, firstRuntimeOrphanItem.profileId)
-      );
-      actions.appendChild(recreateBtn);
-    }
+    appendRuntimeOrphanRecreateButtons(actions, runtimeOrphanRows, "Recreate Runtime Orphan Stub");
     li.appendChild(actions);
     taskRuntimeEvidenceList.appendChild(li);
   }

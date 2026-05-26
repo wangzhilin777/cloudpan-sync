@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐待处理折叠总链回归断言`
+- 完成范围：
+  - 已把 [verify_pending_fold_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_pending_fold_ui.py) 从待处理折叠的 HTML 结构、JS 文案绑定、摘要计数、折叠开关、CSS 样式和 i18n 文案等分散检查，补成真正会给出整条待处理折叠链结论的 verifier
+  - 同一条回归现在会用 `pendingFoldUiFlowIsWired` 直接锁住这条链：`details/summary` 折叠结构、`pendingDetails/pendingSummary/pendingFoldHint/pendingSummaryMeta` 节点、`tasks/pending` 摘要更新逻辑、`展开/收起` 样式，以及中英文 `panel.pending.fold_hint` 文案都必须一起对齐
+  - 当前效果是：待处理折叠能力不再只是 HTML/JS/CSS/i18n 各片段各自为真，而是多了一条覆盖结构、行为、样式和文案的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_pending_fold_ui.py` 已验证待处理折叠链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权解析默认值总链回归断言`
 - 完成范围：
   - 已把 [verify_auth_profile_resolved_defaults.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_resolved_defaults.py) 从 `resolvedParentId/resolvedFileId` 的分散输出，补成真正会给出整条授权解析默认值链结论的 verifier

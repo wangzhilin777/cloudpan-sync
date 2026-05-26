@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务视图API里的冲突支持汇总状态`
+- 完成范围：
+  - 已把 [task_runtime.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime.py) 的 `build_task_list_view` 与 `build_task_detail_view` 再补一层：当前除了首条 `firstConflictSupportStatus / firstConflictNote`，还会直接返回聚合后的 `conflictSupportSummaryStatuses`
+  - 当前效果是：任务视图 API 不再只能读到“第一条计划项怎么处理同名冲突”，也能直接知道这整条任务当前涉及了哪些冲突支持状态，和 `task.md` 里的 `supportSummary` 更接近同口径
+  - 这样 `POST /api/tasks`、`GET /api/tasks`、`GET /api/tasks/{id}` 与 `POST /api/tasks/{id}/action` 这几条任务视图返回又少了一层调用方自行汇总的工作，不再需要每次自己遍历 `pendingItems/items` 去拼状态列表
+  - 已同步补强 [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py)，把 create/list/get/action 四条视图里的 `conflictSupportSummaryStatuses` 一起锁进 API 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_views_api.py` 已验证任务 create/list/get/action 视图当前都会返回 `conflictSupportSummaryStatuses`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务视图API里的首条冲突支持摘要`
 - 完成范围：
   - 已把 [task_runtime.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime.py) 的 `build_task_list_view` 与 `build_task_detail_view` 再补一层：当前 `listView / detailView` 不再只返回整包 `plan.items/pendingItems`，还会直接给出结构化的 `firstConflictSupportStatus / firstConflictNote`

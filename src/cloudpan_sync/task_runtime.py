@@ -311,6 +311,13 @@ def build_task_list_view(task: dict[str, object]) -> dict[str, object]:
     last_action_error = dict(task.get("lastActionError") or {})
     latest_results = list(task.get("results") or [])[:3]
     conflict_rows = [dict(item or {}) for item in list(plan.get("pendingItems") or []) + list(plan.get("items") or [])]
+    conflict_statuses = sorted(
+        {
+            str(row.get("conflictSupportStatus") or "").strip()
+            for row in conflict_rows
+            if str(row.get("conflictSupportStatus") or "").strip()
+        }
+    )
     first_conflict_row = next(
         (
             row
@@ -335,6 +342,7 @@ def build_task_list_view(task: dict[str, object]) -> dict[str, object]:
         "hasRealTransferSuccess": bool(summary.get("hasRealTransferSuccess")),
         "guard": guard,
         "lastActionError": last_action_error,
+        "conflictSupportSummaryStatuses": conflict_statuses,
         "firstConflictSupportStatus": str(first_conflict_row.get("conflictSupportStatus") or ""),
         "firstConflictNote": str(first_conflict_row.get("conflictNote") or ""),
         "pendingItems": list(plan.get("pendingItems") or []),
@@ -347,6 +355,13 @@ def build_task_detail_view(task: dict[str, object]) -> dict[str, object]:
     plan = dict(task.get("plan") or {})
     results = list(task.get("results") or [])
     conflict_rows = [dict(item or {}) for item in list(plan.get("pendingItems") or []) + list(plan.get("items") or [])]
+    conflict_statuses = sorted(
+        {
+            str(row.get("conflictSupportStatus") or "").strip()
+            for row in conflict_rows
+            if str(row.get("conflictSupportStatus") or "").strip()
+        }
+    )
     first_conflict_row = next(
         (
             row
@@ -372,6 +387,7 @@ def build_task_detail_view(task: dict[str, object]) -> dict[str, object]:
         "guard": dict(task.get("guard") or {}),
         "risk": dict(task.get("risk") or {}),
         "lastActionError": dict(task.get("lastActionError") or {}),
+        "conflictSupportSummaryStatuses": conflict_statuses,
         "firstConflictSupportStatus": str(first_conflict_row.get("conflictSupportStatus") or ""),
         "firstConflictNote": str(first_conflict_row.get("conflictNote") or ""),
         "planSummary": dict(plan.get("summary") or {}),

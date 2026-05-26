@@ -149,6 +149,10 @@ def main() -> None:
                 "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["cookie"],
+                "liveRejectedProfiles": ["115-fast-1"],
+                "placeholderLiveRejectedProfiles": ["115-fast-1"],
+                "liveRejectedStatuses": ["405"],
+                "liveRejectedSummaries": ["115-fast-1:405"],
                 "recommendedPrimaryCommandLabel": "recreate_probe",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode manual_cookie --display-name 115-fast --cookie YOUR_COOKIE --set parentId=YOUR_PARENT_ID --probe",
                 "recommendedRecreateProbeCommands": [
@@ -345,6 +349,10 @@ def main() -> None:
                 and dict(output.get("remediationFollowup") or {}).get("gaps") == ["缺少通过的 auth validation 证据", "已有 probe-only 样本，但尚未记录到真实传输成功样本"],
                 "scriptRemediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["cookie"]
+                and dict(output.get("remediationFollowup") or {}).get("liveRejectedProfiles") == ["115-fast-1"]
+                and dict(output.get("remediationFollowup") or {}).get("placeholderLiveRejectedProfiles") == ["115-fast-1"]
+                and dict(output.get("remediationFollowup") or {}).get("liveRejectedStatuses") == ["405"]
+                and dict(output.get("remediationFollowup") or {}).get("liveRejectedSummaries") == ["115-fast-1:405"]
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")
                 and len(dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommands", [])) == 2
                 and any("--profile-id 115-orphan-fast-2" in value for value in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommands", []))

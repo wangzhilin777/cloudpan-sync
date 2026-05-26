@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务脚本补救输出的live rejected状态`
+- 完成范围：
+  - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 的 `remediationFollowup` 再补一层：当前除了 `needsSecretRefresh / placeholderSecretFieldHints`，也会直接返回 `liveRejectedProfiles / placeholderLiveRejectedProfiles / liveRejectedStatuses / liveRejectedSummaries`
+  - 当前效果是：从这三条任务脚本跑完一次后，终端结果就能直接区分“只是缺字段”还是“占位 secret 已经真正打到线上并被 401/404/405 拒绝”，不必再回看 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 或 [10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 才知道当前卡点属于哪一种
+  - 这次补齐尤其贴近当前真实阻塞：`aliyundrive_open / guangya / 115_open` 这类 verifier 场景现在都能在脚本输出里直接带出“当前 profile 的 live rejected 状态”与概要，补救链从 CLI 继续往下走时不再只是看见 `needsSecretRefresh=true`
+  - 已同步补强三份 verifier，把 `liveRejectedProfiles / placeholderLiveRejectedProfiles / liveRejectedStatuses / liveRejectedSummaries` 一起锁进回归，避免后续又退回只剩布尔值、看不见实际拒绝状态码的弱提示
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_runtime_probe_task.py` 已验证 runtime probe 脚本输出的 `remediationFollowup` 当前会直接返回 live rejected 相关字段
+  - `.\.venv\Scripts\python.exe scripts\verify_create_live_upload_task.py` 已验证 live upload 脚本输出的 `remediationFollowup` 当前会直接返回 live rejected 相关字段
+  - `.\.venv\Scripts\python.exe scripts\verify_create_fast_upload_candidate_task.py` 已验证 fast candidate 脚本输出的 `remediationFollowup` 当前会直接返回 live rejected 相关字段
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐补救档案的profile级exact helper`
 - 完成范围：
   - 已把 [create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 补上 `--from-remediation-profile-id`，让当前仓库里已经存在的补救档案也能直接按精确 `profileId` 反推默认 `provider/auth/display/extra`，不再只支持 orphan 样本

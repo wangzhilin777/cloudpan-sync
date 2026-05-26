@@ -158,6 +158,10 @@ def main() -> None:
                 "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["token"],
+                "liveRejectedProfiles": ["ali-runtime-1"],
+                "placeholderLiveRejectedProfiles": ["ali-runtime-1"],
+                "liveRejectedStatuses": ["404"],
+                "liveRejectedSummaries": ["ali-runtime-1:404"],
                 "recommendedPrimaryCommandLabel": "recreate_probe",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name ali-runtime --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe",
                 "recommendedRecreateProbeCommands": [
@@ -343,6 +347,10 @@ def main() -> None:
                 and dict(output.get("remediationFollowup") or {}).get("gaps") == ["缺少通过的 auth validation 证据", "缺少通过的 live list 证据"],
                 "scriptRemediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["token"]
+                and dict(output.get("remediationFollowup") or {}).get("liveRejectedProfiles") == ["ali-runtime-1"]
+                and dict(output.get("remediationFollowup") or {}).get("placeholderLiveRejectedProfiles") == ["ali-runtime-1"]
+                and dict(output.get("remediationFollowup") or {}).get("liveRejectedStatuses") == ["404"]
+                and dict(output.get("remediationFollowup") or {}).get("liveRejectedSummaries") == ["ali-runtime-1:404"]
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")
                 and len(dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommands", [])) == 2
                 and any("--profile-id ali-orphan-runtime-2" in value for value in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommands", []))

@@ -181,6 +181,10 @@ def main() -> None:
                 "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["token"],
+                "liveRejectedProfiles": ["gy-live-1"],
+                "placeholderLiveRejectedProfiles": ["gy-live-1"],
+                "liveRejectedStatuses": ["401"],
+                "liveRejectedSummaries": ["gy-live-1:401"],
                 "recommendedPrimaryCommandLabel": "recreate_probe",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name gy-live --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                 "recommendedRecreateProbeCommands": [
@@ -366,6 +370,10 @@ def main() -> None:
                 and dict(output.get("remediationFollowup") or {}).get("gaps") == ["缺少通过的 auth validation 证据", "已有 runtime 样本，但对应 auth profile 未保存在当前仓库"],
                 "remediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["token"]
+                and dict(output.get("remediationFollowup") or {}).get("liveRejectedProfiles") == ["gy-live-1"]
+                and dict(output.get("remediationFollowup") or {}).get("placeholderLiveRejectedProfiles") == ["gy-live-1"]
+                and dict(output.get("remediationFollowup") or {}).get("liveRejectedStatuses") == ["401"]
+                and dict(output.get("remediationFollowup") or {}).get("liveRejectedSummaries") == ["gy-live-1:401"]
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")
                 and len(dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommands", [])) == 2
                 and any("--profile-id gy-orphan-live-2" in value for value in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommands", []))

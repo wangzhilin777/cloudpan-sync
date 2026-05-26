@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐认证设置页回归断言`
+- 完成范围：
+  - 已把 [verify_auth_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_settings_ui.py) 从 auth evidence 面板、auth remediation 面板、bundle loader、first gap/fix 动作与 rejected/placeholder 摘要等分散片段检查，补成真正会给出整条设置页 wiring 结论的 verifier
+  - 同一条回归现在会用 `authSettingsUiFlowIsWired` 直接锁住认证设置页链：auth evidence 与 remediation 两套 settings 面板、`/api/auth/evidence_bundle` 与 `/api/auth/remediation_bundle` 加载、首个 gap/fix 的 focus/refresh/capture 动作、缺失字段与 liveRejected 摘要渲染，以及 logout 清理都必须一起存在
+  - 当前效果是：认证设置页不再只是许多文案、摘要和按钮还在，而是多了一条从 bundle 数据加载到 remediation 动作的完整 UI 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_settings_ui.py` 已验证认证设置页链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐Provider状态设置页回归断言`
 - 完成范围：
   - 已把 [verify_provider_status_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_status_settings_ui.py) 从 provider status 面板、statusMatrix 刷新、first gap 恢复动作、runtime orphan recovery 入口与统计汇总等分散片段检查，补成真正会给出整条设置页 wiring 结论的 verifier

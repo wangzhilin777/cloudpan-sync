@@ -65,6 +65,16 @@ def main() -> None:
             file_path.parent.rmdir()
 
     payload = result.to_dict()
+    quark_fast_upload_live_flow_matches_expected_requests = (
+        payload.get("ok") is True
+        and payload.get("mode") == "rapid_upload_by_hash"
+        and payload.get("verifyOk") is True
+        and payload.get("verifyMode") == "finish_response"
+        and ((payload.get("payload") or {}).get("resolvedTargetName")) == "movie.mkv"
+        and any("/file/upload/pre?" in url for _, url, _ in request_calls)
+        and any("/file/update/hash?" in url for _, url, _ in request_calls)
+        and any("/file/upload/finish?" in url for _, url, _ in request_calls)
+    )
     print(
         json.dumps(
             {
@@ -76,6 +86,7 @@ def main() -> None:
                 "preCalled": any("/file/upload/pre?" in url for _, url, _ in request_calls),
                 "hashCalled": any("/file/update/hash?" in url for _, url, _ in request_calls),
                 "finishCalled": any("/file/upload/finish?" in url for _, url, _ in request_calls),
+                "quarkFastUploadLiveFlowMatchesExpectedRequests": quark_fast_upload_live_flow_matches_expected_requests,
             },
             ensure_ascii=False,
             indent=2,

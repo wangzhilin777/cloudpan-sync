@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐计划进度总链回归断言`
+- 完成范围：
+  - 已把 [verify_plan_audit_progress.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_plan_audit_progress.py) 从 milestone 数量、双口径百分比、milestoneSummary 与公式说明等分散检查，补成真正会给出整条计划进度链结论的 verifier
+  - 同一条回归现在会用 `planAuditProgressFlowMatchesExpectedFormula` 直接锁住这条链：`run_plan_audit()` summary 里的 `featureMilestoneCount / strictMilestoneCount / 85.7 / 75.0`，以及 `to_markdown()` 输出里的百分比、`milestoneSummary` 和双口径公式说明都必须一起对齐
+  - 当前效果是：计划进度能力不再只是几个进度字段各自为真，而是多了一条从审计 summary 到 Markdown 公式说明的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_plan_audit_progress.py` 已验证计划进度链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权列表动作总链回归断言`
 - 完成范围：
   - 已把 [verify_auth_profile_actions_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_actions_ui.py) 从 patch hint、write blocker、capture 条件和若干按钮绑定等分散检查，补成真正会给出整条授权列表动作链结论的 verifier

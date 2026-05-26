@@ -18,6 +18,19 @@ def main() -> None:
     markdown = to_markdown(audit)
     feature_percent = summary.get("featureCompletionPercent")
     strict_percent = summary.get("strictCompletionPercent")
+    plan_audit_progress_flow_matches_expected_formula = (
+        summary.get("featureMilestoneCount") == 7
+        and summary.get("strictMilestoneCount") == 8
+        and feature_percent == 85.7
+        and strict_percent == 75.0
+        and "featureCompletionPercent=85.7" in markdown
+        and "strictCompletionPercent=75.0" in markdown
+        and "milestoneSummary: `done=M1, M2, M3, M6, M7` `partial=M4, M5` `todo=P-REAL`" in markdown
+        and "featureCompletionPercent" in markdown
+        and "M1-M7" in markdown
+        and "strictCompletionPercent" in markdown
+        and "P-REAL" in markdown
+    )
     print(
         json.dumps(
             {
@@ -32,6 +45,7 @@ def main() -> None:
                 "markdownHasMilestoneSummary": "milestoneSummary: `done=M1, M2, M3, M6, M7` `partial=M4, M5` `todo=P-REAL`" in markdown,
                 "markdownExplainsFeatureFormula": "featureCompletionPercent" in markdown and "M1-M7" in markdown,
                 "markdownExplainsStrictFormula": "strictCompletionPercent" in markdown and "P-REAL" in markdown,
+                "planAuditProgressFlowMatchesExpectedFormula": plan_audit_progress_flow_matches_expected_formula,
             },
             ensure_ascii=False,
             indent=2,

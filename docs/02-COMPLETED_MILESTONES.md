@@ -10,6 +10,24 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`真实补救建档也支持精确 helper`
+- 完成范围：
+  - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的“当前仓库还没有 profile，先建 stub”这条链补齐为统一 helper：当前 remediation item payload 会直接带 `exactCreateHelper`
+  - 当前效果是：像 `115_open / 189cloud / baidu_netdisk / quark / xunlei / 123_open` 这类 `recommendedCreateCommand` 仍然存在但命令偏长的 provider，不必再手抄整条 `create_auth_profile_stub.py --provider-key ... --auth-mode ...`，现在可以直接复用 `create_auth_profile_stub.py --from-remediation-provider ...`
+  - 已把 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 重新导出到当前口径：每条带 `recommendedCreateCommand` 的 remediation 分段现在都会同步写出 `exactCreateHelper`，并保留对旧 synthetic payload 的 markdown 兜底兼容
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 remediation 设置摘要、授权补救摘要和 `latestRemediationAction` 一起补上 `exactCreate` 展示；这样从设置页和最近动作里都能直接复制最短建档 helper
+  - 已同步补强 [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py)、[verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)、[verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)、[verify_real_evidence_remediation_create_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_api.py)、[verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)，把 payload、导出 markdown、当前文档、设置页摘要与 create API 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 synthetic remediation bundle / API markdown 当前会产出 `exactCreateHelper`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证临时导出的 remediation markdown 当前会写出 `exactCreateHelper`
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证 remediation 设置页摘要与 `latestRemediationAction` 当前都会展示 `exactCreate`
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_api.py` 已验证 `create_profile` API 当前会在 `stub_created` 路径返回 `exactCreateHelper`，并且 `already_exists` 路径不会误回这条字段
+  - `.\.venv\Scripts\python.exe scripts\export_real_evidence_remediation.py` 已重导出当前 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前 `docs/12` 中各 `recommendedCreateCommand` provider 分段都已同步写出 `exactCreateHelper`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`真实补救孤儿重建也支持精确 helper`
 - 完成范围：
   - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的 orphan recreate 链再补齐一层：当前 remediation item payload 会直接带 `exactRecreateHelper`，`create_remediation_profile()` 的 `stub_created / already_exists` 返回值在存在 orphan profile 时也会同步带上这条最短 helper

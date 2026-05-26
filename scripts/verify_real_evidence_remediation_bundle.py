@@ -272,6 +272,7 @@ def main() -> None:
                 "providersRuntimeOrphanOnlyList": ((bundle.get("summary") or {}).get("providersRuntimeOrphanOnlyList")),
                 "markdownHasProviderSummary": "- providerSummary: `noProfiles=123_open, 189cloud, baidu_netdisk, quark, uc, xunlei` `needAuth=123_open, 189cloud, baidu_netdisk, quark, xunlei` `needRuntime=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `recreateProbe=aliyundrive_open, guangya, uc` `primaryCommand=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `overwriteVariant=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `blockedOnly=(none)` `candidateOnly=115_open` `probeOnly=aliyundrive_open` `runtimeOrphanOnly=guangya, uc`" in markdown,
                 "markdownHasCreateCommand": "create_auth_profile_stub.py" in markdown,
+                "markdownHasExactCreateHelper": "exactCreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-provider 189cloud`" in markdown,
                 "markdownHasBootstrapCommand": "recommendedBootstrapCommand" in markdown and "--probe" in markdown,
                 "guangyaHasPatchCommand": "patch_auth_profile_extra.py" in markdown,
                 "guangyaHasPatchProbeCommand": "patch_and_probe_auth_profile.py" in markdown,
@@ -330,6 +331,17 @@ def main() -> None:
                 "markdownHasFieldHints": "requiredFieldHints" in markdown,
                 "markdownHasNextStep": "nextStep:" in markdown,
                 "apiHasSummary": bool((api_bundle.get("summary") or {}).get("providerCount", 0) >= 0),
+                "apiHasExactCreateHelper": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "189cloud"
+                            and "create_auth_profile_stub.py --from-remediation-provider 189cloud" in str((row or {}).get("exactCreateHelper") or "")
+                        ),
+                        None,
+                    )
+                ),
                 "apiHasRuntimeSuccessSummary": ((api_bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")) == ((bundle.get("summary") or {}).get("providersWithRuntimeSuccessCommand")),
                 "apiHasPostBootstrapRuntimeSummary": ((api_bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == ((bundle.get("summary") or {}).get("providersWithPostBootstrapRuntimeCommand")) == 6,
                 "apiHasExpectedLiveUploadSummaryCount": ((api_bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == ((bundle.get("summary") or {}).get("providersWithLiveUploadCommand")) == 1,

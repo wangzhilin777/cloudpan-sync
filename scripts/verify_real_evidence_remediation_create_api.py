@@ -66,6 +66,7 @@ def main() -> None:
                         and ((created_item.get("extra") or {}).get("domainId") == "YOUR_DOMAIN_ID")
                         and ((created_item.get("extra") or {}).get("driveId") == "YOUR_DRIVE_ID")
                         and "token" in (created_item.get("placeholderSecretFieldHints") or [])
+                        and "create_auth_profile_stub.py --from-remediation-provider aliyundrive_open" in str(created_payload.get("exactCreateHelper") or "")
                         and "create_auth_profile_stub.py --provider-key aliyundrive_open" in str(created_payload.get("recommendedBootstrapCommand") or "")
                         and "create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id YOUR_PROFILE_ID" in str(created_payload.get("recommendedPostBootstrapRuntimeCommand") or "")
                         and str(created_payload.get("exactRecreateHelper") or "") == ""
@@ -92,6 +93,7 @@ def main() -> None:
                         and created_again_payload.get("created") is False
                         and (created_again_item.get("profileId") == profile_id)
                         and str(created_again_payload.get("nextStep") or "").strip() != ""
+                        and str(created_again_payload.get("exactCreateHelper") or "") == ""
                         and str(created_again_payload.get("recommendedBootstrapCommand") or "") == ""
                         and str(created_again_payload.get("exactRecreateHelper") or "") == ""
                         and str(created_again_payload.get("recommendedRefreshEvidenceCommand") or "") == expected_refresh

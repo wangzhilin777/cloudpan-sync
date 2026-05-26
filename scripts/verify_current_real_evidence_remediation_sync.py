@@ -89,6 +89,7 @@ def main() -> None:
                 "cloud115SectionKeepsFastPostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in cloud115
                     and "create_fast_upload_candidate_task.py" in cloud115
+                    and "exactCreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-provider 115_open`" in cloud115
                     and "--conflict-policy auto_rename_new" in cloud115
                     and "recommendedOverwriteVariantCommand" in cloud115
                     and "recommendedPrimaryCommand" in cloud115
@@ -104,6 +105,7 @@ def main() -> None:
                 "quarkSectionUsesLivePostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in quark
                     and "create_live_upload_task.py" in quark
+                    and "exactCreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-provider quark`" in quark
                     and "--conflict-policy auto_rename_new" in quark
                     and "recommendedOverwriteVariantCommand" in quark
                     and "recommendedPrimaryCommand" in quark
@@ -119,6 +121,7 @@ def main() -> None:
                 "cloud189SectionKeepsFastPostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in cloud189
                     and "create_fast_upload_candidate_task.py" in cloud189
+                    and "exactCreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-provider 189cloud`" in cloud189
                     and "--conflict-policy auto_rename_new" in cloud189
                     and "recommendedOverwriteVariantCommand" in cloud189
                     and "recommendedPrimaryCommand" in cloud189
@@ -133,6 +136,7 @@ def main() -> None:
                 "baiduSectionUsesLivePostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in baidu
                     and "create_live_upload_task.py" in baidu
+                    and "exactCreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-provider baidu_netdisk`" in baidu
                     and "--conflict-policy auto_rename_new" in baidu
                     and "recommendedOverwriteVariantCommand" in baidu
                     and "recommendedPrimaryCommand" in baidu
@@ -147,6 +151,7 @@ def main() -> None:
                 "xunleiSectionUsesLivePostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in xunlei
                     and "create_live_upload_task.py" in xunlei
+                    and "exactCreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-provider xunlei`" in xunlei
                     and "--conflict-policy auto_rename_new" in xunlei
                     and "recommendedOverwriteVariantCommand" in xunlei
                     and "recommendedPrimaryCommand" in xunlei
@@ -161,6 +166,7 @@ def main() -> None:
                 "pan123SectionUsesLivePostBootstrapHelper": (
                     "recommendedPostBootstrapRuntimeCommand" in pan123
                     and "create_live_upload_task.py" in pan123
+                    and "exactCreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-provider 123_open`" in pan123
                     and "--conflict-policy auto_rename_new" in pan123
                     and "recommendedOverwriteVariantCommand" in pan123
                     and "recommendedPrimaryCommand" in pan123

@@ -364,6 +364,13 @@ def _exact_recreate_helper(orphan_profile_id: str) -> str:
     return f".\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-orphan-profile {profile_id}"
 
 
+def _exact_create_helper(provider_key: str) -> str:
+    provider = str(provider_key or "").strip()
+    if not provider:
+        return ""
+    return f".\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-provider {provider}"
+
+
 def _profile_views() -> list[dict[str, object]]:
     return [auth_profile_view(profile) for profile in list_profiles()]
 
@@ -683,6 +690,7 @@ def build_real_evidence_remediation_bundle(
         exact_profile_id = str((item_payload.get("profileIds") or [""])[0] or "")
         exact_orphan_profile_id = runtime_orphan_profiles[0] if runtime_orphan_profiles else ""
         item_payload["exactPatchHelper"] = _exact_patch_probe_helper(exact_profile_id) if len(patch_probe_commands) > 1 else ""
+        item_payload["exactCreateHelper"] = _exact_create_helper(provider_key) if str(item_payload.get("recommendedCreateCommand") or "") else ""
         item_payload["exactRecreateHelper"] = _exact_recreate_helper(exact_orphan_profile_id) if str(item_payload.get("recommendedRecreateProbeCommand") or "") else ""
         item_payload["exactRefreshEvidenceHelper"] = _exact_patch_probe_helper(exact_profile_id) if str(item_payload.get("recommendedRefreshEvidenceCommand") or "") else ""
         item_payload["exactRuntimeProbeHelper"] = _exact_runtime_helper(
@@ -864,6 +872,7 @@ def create_remediation_profile(provider_key: str) -> dict[str, object]:
             "message": "This provider already has a saved auth profile in the current repository; edit that profile directly and continue remediation.",
             "item": existing_view,
             "nextStep": str(target_item.get("nextStep") or ""),
+            "exactCreateHelper": str(target_item.get("exactCreateHelper") or ""),
             "recommendedBootstrapCommand": str(target_item.get("recommendedBootstrapCommand") or ""),
             "recommendedRefreshEvidenceCommand": refresh_command or str(target_item.get("recommendedRefreshEvidenceCommand") or ""),
             "recommendedRuntimeProbeCommand": runtime_probe_command or str(target_item.get("recommendedRuntimeProbeCommand") or ""),
@@ -907,6 +916,7 @@ def create_remediation_profile(provider_key: str) -> dict[str, object]:
         "item": profile_view,
         "requiredFieldHints": field_hints,
         "recommendedCreateCommand": str(target_item.get("recommendedCreateCommand") or ""),
+        "exactCreateHelper": str(target_item.get("exactCreateHelper") or "") or _exact_create_helper(provider),
         "recommendedBootstrapCommand": str(target_item.get("recommendedBootstrapCommand") or ""),
         "recommendedRefreshEvidenceCommand": refresh_command or str(target_item.get("recommendedRefreshEvidenceCommand") or ""),
         "recommendedRuntimeProbeCommand": runtime_probe_command or str(target_item.get("recommendedRuntimeProbeCommand") or ""),
@@ -1020,6 +1030,11 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             )
         if row.get("recommendedCreateCommand"):
             lines.append(f"- recommendedCreateCommand: `{row.get('recommendedCreateCommand', '')}`")
+            exact_create_helper = str(row.get("exactCreateHelper") or "")
+            if not exact_create_helper:
+                exact_create_helper = _exact_create_helper(str(row.get("providerKey") or ""))
+            if exact_create_helper:
+                lines.append(f"- exactCreateHelper: `{exact_create_helper}`")
         if row.get("recommendedBootstrapCommand"):
             lines.append(f"- recommendedBootstrapCommand: `{row.get('recommendedBootstrapCommand', '')}`")
         if row.get("recommendedPatchCommand"):

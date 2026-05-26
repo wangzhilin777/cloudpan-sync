@@ -371,6 +371,7 @@ def main() -> None:
                 "exportedHasPrimaryCommand": "recommendedPrimaryCommand" in markdown
                 and "label=recreate_probe" in markdown
                 and "label=bootstrap" in markdown,
+                "exportedHasExactCreateHelper": "exactCreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-provider 189cloud`" in markdown,
                 "exportedHasMultiPatchCommandList": "recommendedPatchCommands: count=`2`" in markdown
                 and "--profile-id gy-1 " in markdown
                 and "--profile-id gy-2 " in markdown,

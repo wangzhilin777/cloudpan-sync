@@ -10,6 +10,16 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`运行孤儿恢复同步校验也补第二条光鸭样本`
+- 完成范围：
+  - 已把 [verify_current_runtime_orphan_recovery_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_runtime_orphan_recovery_sync.py) 的 current-sync 校验继续补强：不再只验证第一条 Guangya orphan 分段，现在也会显式校验 `gy-live-defaults-1` 这条第二个 Guangya orphan section
+  - 当前效果是：`13-RUNTIME_ORPHAN_RECOVERY.md` 里的 Guangya 双 orphan 样本都会被 current-sync verifier 真正盯住，不再出现“汇总口径已经承认 Guangya 有两条 orphan success，但同步校验只看第一条”的覆盖空档
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_current_runtime_orphan_recovery_sync.py` 已验证当前文档中的 `gy-live-1 / gy-live-defaults-1 / pikpak-live-1 / uc-live-1` 四条 profile section 与 `build_runtime_orphan_recovery()` 保持同步
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`运行孤儿恢复汇总也去重 provider 列表`
 - 完成范围：
   - 已把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 的 summary 汇总再收口一层：`orphanProviders / providersWithSavedProfilesList / providersWithoutSavedProfilesList` 现在都会按 provider 去重，不再因为同一 provider 下存在多个 orphan profile，就在 provider 级汇总里重复列出

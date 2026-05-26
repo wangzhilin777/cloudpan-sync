@@ -27,6 +27,7 @@ def main() -> None:
     summary = dict(payload.get("summary") or {})
     markdown = (ROOT / "docs" / "13-RUNTIME_ORPHAN_RECOVERY.md").read_text(encoding="utf-8")
     guangya = _section(markdown, "## guangya - ")
+    guangya_defaults = _section(markdown, "## guangya - Guangya - gy-live-defaults-1")
     pikpak = _section(markdown, "## pikpak - ")
     uc = _section(markdown, "## uc - ")
 
@@ -51,6 +52,8 @@ def main() -> None:
                 ),
                 "guangyaSectionHasRecoveryCommand": "--profile-id gy-live-1" in guangya and "existingProviderProfiles: count=`2`" in guangya,
                 "guangyaSectionHasPrimaryCommand": "recommendedPrimaryCommand:" in guangya and "label=Refresh Existing Orphan Profile" in guangya,
+                "guangyaDefaultsSectionHasRecoveryCommand": "--profile-id gy-live-defaults-1" in guangya_defaults and "existingProviderProfiles: count=`2`" in guangya_defaults,
+                "guangyaDefaultsSectionHasPrimaryCommand": "recommendedPrimaryCommand:" in guangya_defaults and "label=Refresh Existing Orphan Profile" in guangya_defaults,
                 "pikpakSectionHasRecoveryCommand": "--profile-id pikpak-live-1" in pikpak and "preferred=`manual_token`" in pikpak,
                 "pikpakSectionHasPrimaryCommand": "recommendedPrimaryCommand:" in pikpak and "label=Recreate Orphan Stub" in pikpak,
                 "ucSectionHasRecoveryCommand": "--profile-id uc-live-1" in uc and "preferred=`manual_cookie`" in uc,

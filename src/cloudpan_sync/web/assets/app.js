@@ -2141,6 +2141,7 @@ function renderProviderPanel() {
       { label: "conflictUnsupported", value: state.statusMatrix.summary.conflictUnsupportedProviderCount || 0 },
       { label: "runtimeBlocked", value: state.statusMatrix.summary.taskRuntimeBlockedEvidenceCount || 0 },
       { label: "runtimeConflictHandled", value: state.statusMatrix.summary.taskRuntimeConflictHandledCount || 0 },
+      { label: "runtimeOrphan", value: state.statusMatrix.summary.taskRuntimeOrphanProfileCount || 0 },
       { label: "runtime", value: state.statusMatrix.summary.taskRuntimeSampleCount || 0 },
     ];
     for (const card of cards) {
@@ -2235,7 +2236,7 @@ function renderProviderPanel() {
     if (realEvidence) {
       const evidenceMeta = document.createElement("div");
       evidenceMeta.className = "auth-item-meta";
-      evidenceMeta.textContent = `real_evidence auth=${Boolean(realEvidence.authEvidence?.ok)}, list=${Boolean(realEvidence.listEvidence?.ok)}, metadata=${Boolean(realEvidence.metadataEvidence?.ok)}, create_dir=${Boolean(realEvidence.createDirEvidence?.ok)}, task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}, candidate=${realEvidence.taskRuntimeEvidence?.candidateCount || 0}, probe=${realEvidence.taskRuntimeEvidence?.probeCount || 0}, blocked=${realEvidence.taskRuntimeEvidence?.blockedCount || 0}, conflict=${realEvidence.taskRuntimeEvidence?.conflictHandledCount || 0}), fully_verified=${Boolean(realEvidence.fullyVerified)}`;
+      evidenceMeta.textContent = `real_evidence auth=${Boolean(realEvidence.authEvidence?.ok)}, list=${Boolean(realEvidence.listEvidence?.ok)}, metadata=${Boolean(realEvidence.metadataEvidence?.ok)}, create_dir=${Boolean(realEvidence.createDirEvidence?.ok)}, task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}, candidate=${realEvidence.taskRuntimeEvidence?.candidateCount || 0}, probe=${realEvidence.taskRuntimeEvidence?.probeCount || 0}, blocked=${realEvidence.taskRuntimeEvidence?.blockedCount || 0}, conflict=${realEvidence.taskRuntimeEvidence?.conflictHandledCount || 0}, orphan=${realEvidence.taskRuntimeEvidence?.orphanProfileCount || 0}), fully_verified=${Boolean(realEvidence.fullyVerified)}`;
       node.appendChild(evidenceMeta);
       if ((realEvidence.gaps || []).length) {
         const evidenceGaps = document.createElement("div");
@@ -2304,7 +2305,7 @@ function renderProviderPanel() {
     if (realEvidence) {
       const evidenceMeta = document.createElement("div");
       evidenceMeta.className = "auth-item-meta";
-      evidenceMeta.textContent = `real_evidence auth=${Boolean(realEvidence.authEvidence?.ok)}, list=${Boolean(realEvidence.listEvidence?.ok)}, metadata=${Boolean(realEvidence.metadataEvidence?.ok)}, create_dir=${Boolean(realEvidence.createDirEvidence?.ok)}, task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}, candidate=${realEvidence.taskRuntimeEvidence?.candidateCount || 0}, probe=${realEvidence.taskRuntimeEvidence?.probeCount || 0}, blocked=${realEvidence.taskRuntimeEvidence?.blockedCount || 0}, conflict=${realEvidence.taskRuntimeEvidence?.conflictHandledCount || 0}), fully_verified=${Boolean(realEvidence.fullyVerified)}`;
+      evidenceMeta.textContent = `real_evidence auth=${Boolean(realEvidence.authEvidence?.ok)}, list=${Boolean(realEvidence.listEvidence?.ok)}, metadata=${Boolean(realEvidence.metadataEvidence?.ok)}, create_dir=${Boolean(realEvidence.createDirEvidence?.ok)}, task_runtime=${Boolean(realEvidence.taskRuntimeEvidence?.ok)}(${realEvidence.taskRuntimeEvidence?.successCount || 0}/${realEvidence.taskRuntimeEvidence?.failedCount || 0}, candidate=${realEvidence.taskRuntimeEvidence?.candidateCount || 0}, probe=${realEvidence.taskRuntimeEvidence?.probeCount || 0}, blocked=${realEvidence.taskRuntimeEvidence?.blockedCount || 0}, conflict=${realEvidence.taskRuntimeEvidence?.conflictHandledCount || 0}, orphan=${realEvidence.taskRuntimeEvidence?.orphanProfileCount || 0}), fully_verified=${Boolean(realEvidence.fullyVerified)}`;
       node.appendChild(title);
       node.appendChild(meta);
       node.appendChild(notes);

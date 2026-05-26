@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`提供方面板摘要也显式提示孤儿运行风险`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 provider 面板的顶部 summary cards 和每行 `real_evidence` 摘要继续补强：summary cards 现会新增 `runtimeOrphan` 指标，行内 `task_runtime(...)` 摘要现也会显式写出 `orphan=...`
+  - 当前效果是：用户在 provider 面板里不只知道某个 provider 有多少 runtime success/failed/probe/blocked/conflictHandled，还能一眼看到它是否存在“历史 runtime 成功已记录，但 auth profile 已脱节”的 orphan 风险，不必切到更深层设置页才知道为什么 `P-REAL` 还不能算完成
+  - 这次补齐把 `runtime_orphan` 的可见性从恢复入口和状态总览继续推进到了 provider 面板日常摘要层，进一步收紧了这类关键缺口在 UI 里的表达闭环
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_real_evidence_ui.py` 已验证 provider 面板当前会在 `real_evidence task_runtime(...)` 摘要里显示 `orphan=...`，并在顶部 summary cards 中新增 `runtimeOrphan`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`提供方状态总览也量化孤儿运行风险`
 - 完成范围：
   - 已把 [provider_status_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/provider_status_matrix.py) 与 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `Provider Status Matrix` 汇总层继续补强：现在会显式统计 `taskRuntimeOrphanProviderCount / taskRuntimeOrphanProfileCount`，并展示 `taskRuntimeOrphanProviders / taskRuntimeOrphanProfiles`

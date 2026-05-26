@@ -10,6 +10,21 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`计划审计文案改成按当前 orphan 状态诚实描述`
+- 完成范围：
+  - 已把 [plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/plan_audit.py) 的 `M4 / M5 / P-REAL` 文案改成按当前 `runtime_orphan` 实际状态分支生成，不再把“历史 runtime success 样本已经补回仓库”的场景继续写成“auth profile 已脱节”
+  - 当前当 `runtime_orphan_profiles=0` 时，审计会明确描述为“历史 runtime success 样本对应的 auth profile stub 已恢复/已补回当前仓库，但仍缺可复验的 auth/list/metadata/create_dir 成功证据”；只有真的还存在 orphan 样本时，才继续使用“档案未保存在当前仓库”的口径
+  - 已同步补强 [verify_current_plan_audit_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_plan_audit_sync.py)，让回归同时覆盖“仍有 orphan”与“orphan 已清零但仍是 placeholder stub”两种叙述分支
+  - 已把当前导出状态一起刷新到 [04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md)、[10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md)、[13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md)：现在 docs/10 已明确 `profilesSaved=9`、`runtime_orphan_providers=0`、`runtime_orphan_profiles=0`，docs/13 也已收敛成 `- none`
+  - 这样当前 repo 状态终于和计划审计口径对齐了：旧的 `runtime_orphan` 硬阻塞已经从“当前仓库状态”里移除，但 `M4 / M5 / P-REAL` 仍不会被误判为完成，因为恢复回来的只是占位 stub，不是已通过真实联调验证的可复验证据
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_current_plan_audit_sync.py` 已验证当前 [04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md) 的 `M4 / M5 / P-REAL` 文案会随 `runtime_orphan` 是否存在而诚实切换
+  - `.\.venv\Scripts\python.exe scripts\verify_plan_audit_progress.py` 已验证当前进度汇总仍保持 `done=5 partial=2 todo=1`、`featureCompletionPercent=85.7`、`strictCompletionPercent=75.0`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_plan_audit.py` 已验证计划审计导出链仍保持可用
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`runtime orphan 恢复补上批量重建 API`
 - 完成范围：
   - 已把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 从“只支持单条 orphan stub 重建”继续推进成支持批量恢复：当前新增 `recreate_runtime_orphan_profiles()`，默认可批量补齐当前缺失的 orphan stub；当显式 `overwriteExisting=true` 时，也可直接基于历史 runtime success 样本覆盖同 `profileId` 的现有本地档案

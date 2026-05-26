@@ -33,6 +33,8 @@ def main() -> None:
     guangya_runtime = dict(guangya_item.get("taskRuntimeEvidence") or {})
     guangya_runtime_profiles = [str(value or "") for value in list(guangya_runtime.get("profiles") or []) if str(value or "")]
     guangya_orphan_profiles = [str(value or "") for value in list(guangya_runtime.get("orphanProfiles") or []) if str(value or "")]
+    has_runtime_orphan = int(real_summary.get("taskRuntimeOrphanProfileCount", 0) or 0) > 0
+    has_guangya_runtime_orphan = len(guangya_orphan_profiles) > 0
     markdown = (ROOT / "docs" / "04-PLAN_AUDIT_REPORT.md").read_text(encoding="utf-8")
 
     m4 = _section(markdown, "### M4 - 光鸭 Provider")
@@ -63,24 +65,36 @@ def main() -> None:
                 "m4SectionStillPartial": (
                     "- 状态：`partial`" in m4
                     and "仍缺稳定的真实在线联调成功样本" in m4
-                    and "runtime_orphan" in m4
-                    and "gy-live-1" in m4
-                    and "gy-live-defaults-1" in m4
                     and f"当前 Guangya 已有 `{len(guangya_runtime_profiles)}` 条 runtime success 记录" in m4
+                    and (
+                        ("runtime_orphan" in m4 and "并未保存在当前仓库" in m4)
+                        if has_guangya_runtime_orphan
+                        else ("对应 auth profile stub 已恢复" in m4 and "占位 auth profile stub" in m4)
+                    )
                 ),
                 "m5SectionStillPartial": (
                     "- 状态：`partial`" in m5
                     and "仍缺真实在线成功样本" in m5
-                    and "runtime_orphan" in m5
                     and f"共有 `{real_summary.get('taskRuntimeOrphanProfileCount', 0)}` 条 `runtime_orphan` 成功样本" in m5
-                    and "gy-live-2" in m5
-                    and "gy-orphan-live-1" in m5
+                    and (
+                        "并不在仓库内" in m5
+                        if has_runtime_orphan
+                        else "auth profile stub 已经补回当前仓库" in m5
+                    )
                 ),
                 "prealSectionStillTodo": (
                     "- 状态：`todo`" in preal
                     and f"仓库里有 `{real_summary.get('taskRuntimeSuccessCount', 0)}` 条 runtime success 样本" in preal
-                    and f"当前 `guangya, uc, pikpak` 的 `{real_summary.get('taskRuntimeSuccessCount', 0)}` 条 runtime success 样本都属于 auth profile 已脱节的 `runtime_orphan` 记录" in preal
-                    and f"其中 Guangya 还包含 `{', '.join(guangya_orphan_profiles)}` 共 `{len(guangya_orphan_profiles)}` 条 orphan success" in preal
+                    and (
+                        f"当前 `guangya, uc, pikpak` 的 `{real_summary.get('taskRuntimeSuccessCount', 0)}` 条 runtime success 样本都属于 auth profile 已脱节的 `runtime_orphan` 记录" in preal
+                        if has_runtime_orphan
+                        else "这些历史成功样本对应的 auth profile stub 已补回当前仓库" in preal
+                    )
+                    and (
+                        f"其中 Guangya 还包含 `{', '.join(guangya_orphan_profiles)}` 共 `{len(guangya_orphan_profiles)}` 条 orphan success" in preal
+                        if has_guangya_runtime_orphan
+                        else "已不再属于 `runtime_orphan`" in preal
+                    )
                 ),
                 "markdownExplainsFeatureFormula": "featureCompletionPercent" in markdown and "M1-M7" in markdown,
                 "markdownExplainsStrictFormula": "strictCompletionPercent" in markdown and "P-REAL" in markdown,

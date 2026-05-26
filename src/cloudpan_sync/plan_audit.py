@@ -43,6 +43,54 @@ def run_plan_audit() -> dict[str, object]:
     runtime_orphan_profiles_text = ", ".join(real_summary.get("taskRuntimeOrphanProfiles", []) or []) or "(none)"
     guangya_runtime_success_profiles_text = ", ".join(guangya_runtime_success_profiles) or "(none)"
     guangya_runtime_orphan_profiles_text = ", ".join(guangya_runtime_orphan_profiles) or "(none)"
+    has_runtime_orphan = total_runtime_orphan_profiles > 0
+    has_guangya_runtime_orphan = len(guangya_runtime_orphan_profiles) > 0
+    m4_runtime_state_text = (
+        "当前真实证据报告也已明确量化出 Guangya 存在 `runtime_orphan` 样本："
+        f"当前仓库里已有 `{guangya_runtime_success_profiles_text}` 共 `{len(guangya_runtime_success_profiles)}` 条 runtime success 记录，"
+        "但对应 auth profile 并未保存在当前仓库。"
+        if has_guangya_runtime_orphan
+        else
+        "当前真实证据报告已显示 Guangya 的历史 runtime success 样本已重新挂回当前仓库档案："
+        f"当前仓库里已有 `{guangya_runtime_success_profiles_text}` 共 `{len(guangya_runtime_success_profiles)}` 条 runtime success 记录，"
+        "对应 auth profile stub 已恢复，但这些样本仍缺少可复验的 auth/list/metadata/create_dir 成功证据。"
+    )
+    m4_gap_text = (
+        "仍缺稳定的真实在线联调成功样本；"
+        f"当前 Guangya 已有 `{len(guangya_runtime_success_profiles)}` 条 runtime success 记录，且 orphan profiles 为 `{guangya_runtime_orphan_profiles_text}`，"
+        "但对应 auth profile 已脱节，尚不能作为可复验的 M4 完成证据，因此 M4 继续保持 partial。"
+        if has_guangya_runtime_orphan
+        else
+        "仍缺稳定的真实在线联调成功样本；"
+        f"当前 Guangya 已有 `{len(guangya_runtime_success_profiles)}` 条 runtime success 记录，且 orphan profiles 为 `{guangya_runtime_orphan_profiles_text}`，"
+        "但当前恢复回仓库的仍是占位 auth profile stub，尚未补齐可通过的 auth validation、live list、live metadata 与 live create_dir 证据，因此 M4 继续保持 partial。"
+    )
+    m5_runtime_state_text = (
+        f"当前真实证据报告里共有 `{total_runtime_orphan_profiles}` 条 `runtime_orphan` 成功样本，分布在 `{runtime_orphan_providers}`，profiles 为 `{runtime_orphan_profiles_text}`；"
+        "这说明它们的历史成功记录对应 auth profile 当前并不在仓库内，只能证明链路曾跑通过，暂不能当成当前仓库可复验的 M5/P-REAL 完成证据。"
+        if has_runtime_orphan
+        else
+        f"当前真实证据报告里共有 `{total_runtime_orphan_profiles}` 条 `runtime_orphan` 成功样本，分布在 `{runtime_orphan_providers}`，profiles 为 `{runtime_orphan_profiles_text}`；"
+        f"这说明历史 runtime success 样本对应的 auth profile stub 已经补回当前仓库，但这些样本仍未补齐可通过的 auth/list/metadata/create_dir 成功证据，暂不能当成当前仓库可复验的 M5/P-REAL 完成证据。"
+    )
+    preal_runtime_state_text = (
+        f"当前真实证据状态报告已进一步明确：仓库里有 `{total_runtime_success}` 条 runtime success 样本，分布在 `{runtime_success_providers}`，"
+        "但它们全部都落在 `runtime_orphan` 场景，也就是存在历史成功记录、但缺少当前仓库可复验的 auth profile。"
+        if has_runtime_orphan
+        else
+        f"当前真实证据状态报告已进一步明确：仓库里有 `{total_runtime_success}` 条 runtime success 样本，分布在 `{runtime_success_providers}`，"
+        "这些历史成功样本对应的 auth profile stub 已补回当前仓库，但仍未补齐可通过的 auth/list/metadata/create_dir 成功证据。"
+    )
+    preal_gap_text = (
+        "尚未提供首批 provider 的真实联调成功证据（认证、目录、元数据、秒传/降级路径）；"
+        f"任务运行阶段虽已支持成功/失败样本持久化，但当前 `{runtime_success_providers}` 的 `{total_runtime_success}` 条 runtime success 样本都属于 auth profile 已脱节的 `runtime_orphan` 记录，"
+        f"其中 Guangya 还包含 `{guangya_runtime_orphan_profiles_text}` 共 `{len(guangya_runtime_orphan_profiles)}` 条 orphan success，仍缺足够的可复验真实成功样本来收敛 P-REAL。"
+        if has_runtime_orphan
+        else
+        "尚未提供首批 provider 的真实联调成功证据（认证、目录、元数据、秒传/降级路径）；"
+        f"任务运行阶段虽已支持成功/失败样本持久化，且当前 `{runtime_success_providers}` 的 `{total_runtime_success}` 条 runtime success 样本已不再属于 `runtime_orphan`，"
+        "但当前仓库里这些档案仍是占位 stub，尚未补齐可通过的 auth validation、live list、live metadata 与 live create_dir 证据，仍缺足够的可复验真实成功样本来收敛 P-REAL。"
+    )
 
     items = [
         AuditItem(
@@ -75,14 +123,9 @@ def run_plan_audit() -> dict[str, object]:
                 "已支持真实二进制上传链路（guangyaclient file_upload / upload_token + cdn_upload）。上传成功后现会继续尝试 post-upload verify：优先用返回 fileId 做 live metadata 确认，"
                 "拿不到 fileId 时退回 parentId + 文件名的 live list 确认。失败时会返回更明确的授权/输入/风控/限流类风险提示；save-time/provider-aware 校验已补 "
                 "`parent_id / parentFileId / dirId / pid` 等常见别名兼容，并会直接返回 `requiredFieldHints`。"
-                f"当前真实证据报告也已明确量化出 Guangya 存在 `runtime_orphan` 样本：当前仓库里已有 `{guangya_runtime_success_profiles_text}` 共 `{len(guangya_runtime_success_profiles)}` 条 runtime success 记录，"
-                "但对应 auth profile 并未保存在当前仓库。"
+                + m4_runtime_state_text
             ),
-            gaps=(
-                "仍缺稳定的真实在线联调成功样本；"
-                f"当前 Guangya 已有 `{len(guangya_runtime_success_profiles)}` 条 runtime success 记录，且 orphan profiles 为 `{guangya_runtime_orphan_profiles_text}`，"
-                "但对应 auth profile 已脱节，尚不能作为可复验的 M4 完成证据，因此 M4 继续保持 partial。"
-            ),
+            gaps=m4_gap_text,
         ),
         AuditItem(
             key="M5",
@@ -93,8 +136,7 @@ def run_plan_audit() -> dict[str, object]:
                 "115 Open 与 189Cloud 目前都仍缺真实在线成功样本；189Cloud 的账号级写鉴权虽已补到 captured headers/curl 提取与回填脚本，且现在也已补到完整上传链路，"
                 "但稳定可复用的真实来源样本仍缺，shareCode/accessCode-only 档案依旧不可写。"
                 "PikPak、Aliyun Drive Open、123Pan Open、Baidu Netdisk、115 Open、Xunlei、Quark、UC、189Cloud 的真实秒传 API 成功样本仍缺。"
-                f"当前真实证据报告里共有 `{total_runtime_orphan_profiles}` 条 `runtime_orphan` 成功样本，分布在 `{runtime_orphan_providers}`，profiles 为 `{runtime_orphan_profiles_text}`；"
-                "这说明它们的历史成功记录对应 auth profile 当前并不在仓库内，只能证明链路曾跑通过，暂不能当成当前仓库可复验的 M5/P-REAL 完成证据。"
+                + m5_runtime_state_text
             ),
         ),
         AuditItem(
@@ -120,14 +162,9 @@ def run_plan_audit() -> dict[str, object]:
                 "其中 Guangya 已接真实上传链路，aliyundrive_open、123_open、baidu_netdisk、xunlei、pikpak、quark 与 uc 现也已接任务运行阶段真实本地文件上传链路，"
                 "115_open 现已接完整的 open/upload/init + sign_check + upload/get_token + OSS 上传链路，189cloud 则已接完整的 createUploadFile -> fileUploadUrl PUT -> getUploadFileStatus -> fileCommitUrl 上传链路；"
                 "189cloud 也已能在 share-only 场景落出 blocked probe 样本，并在账号级鉴权齐备时发起 createFolder.action 写目录尝试。"
-                f"当前真实证据状态报告已进一步明确：仓库里有 `{total_runtime_success}` 条 runtime success 样本，分布在 `{runtime_success_providers}`，"
-                f"但它们全部都落在 `runtime_orphan` 场景，也就是存在历史成功记录、但缺少当前仓库可复验的 auth profile。"
+                + preal_runtime_state_text
             ),
-            gaps=(
-                "尚未提供首批 provider 的真实联调成功证据（认证、目录、元数据、秒传/降级路径）；"
-                f"任务运行阶段虽已支持成功/失败样本持久化，但当前 `{runtime_success_providers}` 的 `{total_runtime_success}` 条 runtime success 样本都属于 auth profile 已脱节的 `runtime_orphan` 记录，"
-                f"其中 Guangya 还包含 `{guangya_runtime_orphan_profiles_text}` 共 `{len(guangya_runtime_orphan_profiles)}` 条 orphan success，仍缺足够的可复验真实成功样本来收敛 P-REAL。"
-            ),
+            gaps=preal_gap_text,
         ),
     ]
 

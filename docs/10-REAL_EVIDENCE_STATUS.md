@@ -1,9 +1,9 @@
 # CloudPan Sync 真实证据状态报告
 
-- 生成时间：`2026-05-26T10:18:23.401438+00:00`
-- 汇总： `providerCount=10` `profilesSaved=3` `latestValidationProfileCount=3` `latestProbeProfileCount=4`
-- 真实证据覆盖： `auth=0` `list=0` `metadata=0` `create_dir=0` `fully_verified=0` `task_runtime=3` `task_runtime_failed=0` `task_runtime_candidate=0` `task_runtime_probe=0` `runtime_samples=6` `runtime_success=6` `runtime_failed=0` `runtime_candidate=0` `runtime_probe=0` `runtime_blocked_providers=0` `runtime_blocked=0` `runtime_conflict_handled=6` `runtime_orphan_providers=3` `runtime_orphan_profiles=6`
-- providerSummary: `auth=(none)` `list=(none)` `metadata=(none)` `create_dir=(none)` `fully_verified=(none)` `runtime_success=guangya, uc, pikpak` `runtime_failed=(none)` `runtime_candidate=(none)` `runtime_probe=(none)` `runtime_blocked=(none)` `runtime_orphan=guangya, uc, pikpak`
+- 生成时间：`2026-05-26T13:34:34.336940+00:00`
+- 汇总： `providerCount=10` `profilesSaved=9` `latestValidationProfileCount=3` `latestProbeProfileCount=4`
+- 真实证据覆盖： `auth=0` `list=0` `metadata=0` `create_dir=0` `fully_verified=0` `task_runtime=3` `task_runtime_failed=0` `task_runtime_candidate=0` `task_runtime_probe=0` `runtime_samples=6` `runtime_success=6` `runtime_failed=0` `runtime_candidate=0` `runtime_probe=0` `runtime_blocked_providers=0` `runtime_blocked=0` `runtime_conflict_handled=6` `runtime_orphan_providers=0` `runtime_orphan_profiles=0`
+- providerSummary: `auth=(none)` `list=(none)` `metadata=(none)` `create_dir=(none)` `fully_verified=(none)` `runtime_success=guangya, uc, pikpak` `runtime_failed=(none)` `runtime_candidate=(none)` `runtime_probe=(none)` `runtime_blocked=(none)` `runtime_orphan=(none)`
 
 > 说明：本报告只统计当前仓库已保存的最新真实校验/探测证据，不把 mock 成功、静态能力声明或未持久化的临时运行结果算成真实成功。
 
@@ -13,9 +13,9 @@
 - listEvidence: `False` profiles=(none)
 - metadataEvidence: `False` profiles=(none)
 - createDirEvidence: `False` profiles=(none)
-- taskRuntimeEvidence: `True` samples=4 success=4 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=4 orphanProfiles=4 note=当前已记录到任务运行阶段真实成功样本。
-- taskRuntimeProfiles: success=gy-live-1, gy-live-2, gy-live-defaults-1, gy-orphan-live-1 failed=(none) candidate=(none) probe=(none) orphan=gy-live-1, gy-live-2, gy-live-defaults-1, gy-orphan-live-1
-- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 已有 runtime 样本，但对应 auth profile 未保存在当前仓库
+- taskRuntimeEvidence: `True` samples=4 success=4 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=4 orphanProfiles=0 note=当前已记录到任务运行阶段真实成功样本。
+- taskRuntimeProfiles: success=guangya-restore-gy-live-1, guangya-restore-gy-live-2, guangya-restore-gy-live-defaults-1, guangya-restore-gy-orphan-live-1 failed=(none) candidate=(none) probe=(none) orphan=(none)
+- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - notes: M4 precheck done; get_file_list, get_res_download_url, create_dir, live fast-upload inventory check, and localPath-driven fallback live attempt in task runtime are available with saved auth profile, but real binary upload and stable online validation still need work.
 
 ## aliyundrive_open - Aliyun Drive Open
@@ -79,9 +79,9 @@
 - listEvidence: `False` profiles=(none)
 - metadataEvidence: `False` profiles=(none)
 - createDirEvidence: `False` profiles=(none)
-- taskRuntimeEvidence: `True` samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1 orphanProfiles=1 note=当前已记录到任务运行阶段真实成功样本。
-- taskRuntimeProfiles: success=uc-live-1 failed=(none) candidate=(none) probe=(none) orphan=uc-live-1
-- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 已有 runtime 样本，但对应 auth profile 未保存在当前仓库
+- taskRuntimeEvidence: `True` samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1 orphanProfiles=0 note=当前已记录到任务运行阶段真实成功样本。
+- taskRuntimeProfiles: success=uc-restore-uc-live-1 failed=(none) candidate=(none) probe=(none) orphan=(none)
+- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - notes: share-based live list/metadata(MD5 via file/download) attempts are online on the pc-api.uc.cn chain with saved cookie + pwdId, same-stack cookie-based create_dir attempts are now wired, and task runtime can now also drive direct local-file upload by starting with upload/pre + update/hash and continuing into upload/auth + multipart PUT + commit + upload/finish when hash miss occurs; same-name conflicts now support auto_rename_new with overwrite_existing downgraded to auto rename, while stable real online samples are still pending.
 
 ## xunlei - Xunlei Drive
@@ -101,9 +101,9 @@
 - listEvidence: `False` profiles=(none)
 - metadataEvidence: `False` profiles=(none)
 - createDirEvidence: `False` profiles=(none)
-- taskRuntimeEvidence: `True` samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1 orphanProfiles=1 note=当前已记录到任务运行阶段真实成功样本。
-- taskRuntimeProfiles: success=pikpak-live-1 failed=(none) candidate=(none) probe=(none) orphan=pikpak-live-1
-- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 已有 runtime 样本，但对应 auth profile 未保存在当前仓库
+- taskRuntimeEvidence: `True` samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1 orphanProfiles=0 note=当前已记录到任务运行阶段真实成功样本。
+- taskRuntimeProfiles: success=pikpak-restore-pikpak-live-1 failed=(none) candidate=(none) probe=(none) orphan=(none)
+- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - notes: token + optional device headers can now drive live list/metadata/create_dir attempts on api-drive.mypikpak.com, and task runtime can now reuse the same create-by-hash plus resumable binary path for both fast_upload and download_upload items when a usable local file plus gcid is available; same-name conflicts now support auto_rename_new with overwrite_existing downgraded to auto rename, while stable real samples are still pending.
 
 ## 123_open - 123Pan Open

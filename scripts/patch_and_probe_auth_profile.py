@@ -175,6 +175,13 @@ def _defaults_from_runtime_orphan_profile(profile_id: str) -> dict[str, object]:
                 continue
             defaults["source"] = f"runtime_orphan:{candidate_key}"
             return defaults
+    if get_profile(target) is not None:
+        return {
+            "profileId": target,
+            "write": True,
+            "sets": [],
+            "source": "runtime_orphan:restored_profile",
+        }
     return {}
 
 

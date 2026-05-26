@@ -10,6 +10,19 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`orphan 清零后 exact helper 仍可继续复用已恢复档案`
+- 完成范围：
+  - 已把 [patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_and_probe_auth_profile.py)、[create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 的 `--from-runtime-orphan-profile` 默认解析补成“先查当前 orphan recovery；若当前 orphan 已清零但同 `profileId` 的 stub 已恢复回仓库，则直接回落到现有 profile”
+  - 这次修复解决的是一个真实断链：此前 `runtime_orphan_profiles=0` 之后，文档和界面里仍会给出 `--from-runtime-orphan-profile ...` 的 exact helper，但实际执行时会因为拿不到当前 orphan item 而退化成 `profile_id_required / target_profile_id_required`
+  - 现在这四条 helper 在“orphan 已清零、但恢复回来的 profile 仍要继续 refresh / runtime probe / live upload / fast candidate”的真实场景下已经能继续工作，不需要用户手动再把 exact helper 改写成 `--profile-id` 或 `--target-profile-id`
+  - 已同步新增 [verify_runtime_orphan_exact_helpers_after_restore.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_exact_helpers_after_restore.py)，专门锁定“runtime orphan recovery 已空、但 restored profile 仍存在”时四条 helper 的回落逻辑
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_exact_helpers_after_restore.py` 已验证 patch/probe、runtime probe、live upload、fast candidate 四条 `--from-runtime-orphan-profile` helper 在 orphan 清零后都会正确回落到当前已恢复的 profile
+  - `.\.venv\Scripts\python.exe scripts\verify_patch_and_probe_auth_profile_defaults.py` 已验证原有 runtime orphan 默认补丁逻辑与显式 `--set` 合并路径仍未被这次修复破坏
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`计划审计文案改成按当前 orphan 状态诚实描述`
 - 完成范围：
   - 已把 [plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/plan_audit.py) 的 `M4 / M5 / P-REAL` 文案改成按当前 `runtime_orphan` 实际状态分支生成，不再把“历史 runtime success 样本已经补回仓库”的场景继续写成“auth profile 已脱节”

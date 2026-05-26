@@ -324,6 +324,13 @@ def _defaults_from_runtime_orphan_profile(profile_id: str) -> dict[str, object]:
                 continue
             defaults["source"] = f"runtime_orphan:{candidate_key}"
             return defaults
+    profile = get_profile(target)
+    if profile is not None:
+        return {
+            "targetProvider": str(profile.providerKey or "").strip(),
+            "targetProfileId": target,
+            "source": "runtime_orphan:restored_profile",
+        }
     return {}
 
 

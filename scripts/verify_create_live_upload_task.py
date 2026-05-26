@@ -153,6 +153,10 @@ def main() -> None:
             {
                 "providerKey": "guangya",
                 "profileIds": ["gy-live-1", "gy-live-2"],
+                "recommendedAuthModes": ["web_login_capture", "manual_token"],
+                "requiredFieldHints": ["token or extra.authorization", "extra.parentId"],
+                "webLoginUrl": "https://guangyapan.com/",
+                "officialDocsUrl": "",
                 "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["token"],
@@ -312,6 +316,10 @@ def main() -> None:
                 "authEvidenceRefreshed": len(refresh_calls) == 1 and refresh_calls[0].get("profileId") == "gy-live-1" and refresh_calls[0].get("persist") is True,
                 "remediationPrimaryCommandIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommandLabel") == "recreate_probe"
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommand", ""),
+                "remediationAuthContextIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedAuthModes") == ["web_login_capture", "manual_token"]
+                and dict(output.get("remediationFollowup") or {}).get("requiredFieldHints") == ["token or extra.authorization", "extra.parentId"]
+                and dict(output.get("remediationFollowup") or {}).get("webLoginUrl") == "https://guangyapan.com/"
+                and dict(output.get("remediationFollowup") or {}).get("officialDocsUrl") == "",
                 "remediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["token"]
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")

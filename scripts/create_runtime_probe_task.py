@@ -118,6 +118,10 @@ def _remediation_followup(profile_id: str) -> dict[str, object]:
         if profile_id not in profile_ids:
             continue
         return {
+            "recommendedAuthModes": list(row.get("recommendedAuthModes") or []),
+            "requiredFieldHints": list(row.get("requiredFieldHints") or []),
+            "webLoginUrl": str(row.get("webLoginUrl") or ""),
+            "officialDocsUrl": str(row.get("officialDocsUrl") or ""),
             "nextStep": str(row.get("nextStep") or ""),
             "needsSecretRefresh": bool(row.get("needsSecretRefresh")),
             "placeholderSecretFieldHints": list(row.get("placeholderSecretFieldHints") or []),

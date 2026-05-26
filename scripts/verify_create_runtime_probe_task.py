@@ -120,6 +120,10 @@ def main() -> None:
             {
                 "providerKey": "aliyundrive_open",
                 "profileIds": ["ali-runtime-1", "ali-runtime-2"],
+                "recommendedAuthModes": ["official_oauth"],
+                "requiredFieldHints": ["token or extra.authorization", "extra.domainId", "extra.driveId"],
+                "webLoginUrl": "https://www.alipan.com/",
+                "officialDocsUrl": "https://www.alipan.com/",
                 "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["token"],
@@ -287,6 +291,10 @@ def main() -> None:
                 "scriptEvidenceBundleCreated": evidence_titles_ok,
                 "scriptRemediationPrimaryCommandIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommandLabel") == "recreate_probe"
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommand", ""),
+                "scriptRemediationAuthContextIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedAuthModes") == ["official_oauth"]
+                and dict(output.get("remediationFollowup") or {}).get("requiredFieldHints") == ["token or extra.authorization", "extra.domainId", "extra.driveId"]
+                and dict(output.get("remediationFollowup") or {}).get("webLoginUrl") == "https://www.alipan.com/"
+                and dict(output.get("remediationFollowup") or {}).get("officialDocsUrl") == "https://www.alipan.com/",
                 "scriptRemediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["token"]
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")

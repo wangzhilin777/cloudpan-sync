@@ -121,6 +121,10 @@ def main() -> None:
             {
                 "providerKey": "115_open",
                 "profileIds": ["115-fast-1", "115-fast-2"],
+                "recommendedAuthModes": ["manual_cookie", "official_oauth"],
+                "requiredFieldHints": ["cookie or extra.cookie_header", "optional extra.parentId or extra.cid"],
+                "webLoginUrl": "",
+                "officialDocsUrl": "",
                 "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["cookie"],
@@ -291,6 +295,10 @@ def main() -> None:
                 "scriptEvidenceBundleCreated": evidence_titles_ok,
                 "scriptRemediationPrimaryCommandIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommandLabel") == "recreate_probe"
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommand", ""),
+                "scriptRemediationAuthContextIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedAuthModes") == ["manual_cookie", "official_oauth"]
+                and dict(output.get("remediationFollowup") or {}).get("requiredFieldHints") == ["cookie or extra.cookie_header", "optional extra.parentId or extra.cid"]
+                and dict(output.get("remediationFollowup") or {}).get("webLoginUrl") == ""
+                and dict(output.get("remediationFollowup") or {}).get("officialDocsUrl") == "",
                 "scriptRemediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["cookie"]
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")

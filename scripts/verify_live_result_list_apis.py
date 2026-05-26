@@ -92,6 +92,28 @@ def main() -> None:
     assert probe_result["historyCount"] == 3, "probe history count mismatch"
     assert probe_result["latestCount"] == 2, "probe latest count mismatch"
     assert probe_result["summary"] == probe_summary, "probe summary mismatch"
+    live_result_list_apis_flow_matches_expected_histories = (
+        auth_result["historyCount"] == 3
+        and auth_result["latestCount"] == 2
+        and auth_result["summary"] == auth_summary
+        and probe_result["historyCount"] == 3
+        and probe_result["latestCount"] == 2
+        and probe_result["summary"] == probe_summary
+        and auth_result["summary"].get("profileCount") == 2
+        and auth_result["summary"].get("okCount") == 1
+        and auth_result["summary"].get("failedCount") == 1
+        and auth_result["summary"].get("providerKeys") == ["123_open", "guangya"]
+        and probe_result["summary"].get("profileCount") == 2
+        and probe_result["summary"].get("okCount") == 1
+        and probe_result["summary"].get("failedCount") == 1
+        and probe_result["summary"].get("okProfiles") == ["p3"]
+        and probe_result["summary"].get("failedProfiles") == ["p1"]
+        and probe_result["summary"].get("providerKeys") == ["aliyundrive_open", "guangya"]
+        and auth_payload.get("items") == auth_history
+        and auth_payload.get("latestItems") == auth_latest
+        and probe_payload.get("items") == probe_history
+        and probe_payload.get("latestItems") == probe_latest
+    )
 
     print(
         json.dumps(
@@ -99,6 +121,7 @@ def main() -> None:
                 "auth": auth_result,
                 "probe": probe_result,
                 "verifiedKeys": ["items", "latestItems", "summary"],
+                "liveResultListApisFlowMatchesExpectedHistories": live_result_list_apis_flow_matches_expected_histories,
             },
             ensure_ascii=False,
             indent=2,

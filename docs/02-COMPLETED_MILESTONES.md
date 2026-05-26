@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐实时结果列表API回归断言`
+- 完成范围：
+  - 已把 [verify_live_result_list_apis.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_live_result_list_apis.py) 从 auth live validations API、provider live probe results API 各自的 shape/count/summary 局部断言，补成真正会给出两条列表 API 总链结论的 verifier
+  - 同一条回归现在会用 `liveResultListApisFlowMatchesExpectedHistories` 直接锁住这两条 API 列表链：`items/latestItems/summary` 结构必须齐全，history/latest 数量必须对上，summary 里的 `profileCount/okCount/failedCount/providerKeys` 与 probe 侧的 `okProfiles/failedProfiles` 必须一致，而且返回的历史与 latest 样本内容也要和注入数据完全对齐
+  - 当前效果是：实时结果列表 API 不再只是各自几个字段断言为真，而是多了一条同时覆盖 auth validation 与 provider probe 列表历史/最新/汇总的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_live_result_list_apis.py` 已验证实时结果列表 API 链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐认证汇总设置页回归断言`
 - 完成范围：
   - 已把 [verify_auth_bundle_summary_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_bundle_summary_ui.py) 从 auth evidence bundle summary、auth remediation summary、首个 gap/fix 动作等分散检查，补成真正会给出整条认证汇总设置页链结论的 verifier

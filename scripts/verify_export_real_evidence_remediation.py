@@ -117,6 +117,7 @@ def main() -> None:
                 "exactRuntimeProbeHelper": r".\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --from-remediation-profile-id gy-1",
                 "exactRuntimeSuccessHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-profile-id gy-1",
                 "recommendedPostRefreshRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
+                "exactPostRefreshRuntimeHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-profile-id gy-1",
                 "recommendedPrimaryCommandLabel": "recreate_probe",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name Guangya --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-live-evidence",
@@ -185,6 +186,7 @@ def main() -> None:
                 "recommendedPrimaryCommandLabel": "bootstrap",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 189cloud --auth-mode manual_cookie --display-name 189cloud-manual_cookie --cookie YOUR_COOKIE --set shareCode=YOUR_VALUE --set accessCode=YOUR_VALUE --probe",
                 "recommendedPostBootstrapRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 189cloud --target-profile-id YOUR_PROFILE_ID --md5 auto --auto-temp-file --conflict-policy auto_rename_new --evidence-dir tmp\189cloud-post-bootstrap-runtime-evidence",
+                "exactPostBootstrapRuntimeHelper": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --from-remediation-provider 189cloud",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 189cloud --target-profile-id YOUR_PROFILE_ID --md5 auto --auto-temp-file --conflict-policy overwrite_existing --evidence-dir tmp\189cloud-post-bootstrap-runtime-evidence",
                 "conflictPolicyNote": "当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。",
                 "nextStep": "先创建 `189cloud` 的 auth profile 并完成最小 validation / live probe；拿到真实 profileId 后立刻继续跑 post-bootstrap runtime helper，补第一条 runtime success 样本。",
@@ -218,6 +220,7 @@ def main() -> None:
                 "recommendedPrimaryCommandLabel": "bootstrap",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key quark --auth-mode manual_cookie --display-name quark-manual_cookie --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE --probe",
                 "recommendedPostBootstrapRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider quark --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\quark-post-bootstrap-runtime-evidence",
+                "exactPostBootstrapRuntimeHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-provider quark",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider quark --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\quark-post-bootstrap-runtime-evidence",
                 "conflictPolicyNote": "当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。",
                 "nextStep": "先创建 `quark` 的 auth profile 并完成最小 validation / live probe；拿到真实 profileId 后立刻继续跑 post-bootstrap runtime helper，补第一条 runtime success 样本。",
@@ -251,6 +254,7 @@ def main() -> None:
                 "recommendedPrimaryCommandLabel": "bootstrap",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key baidu_netdisk --auth-mode manual_cookie --display-name baidu_netdisk-manual_cookie --cookie YOUR_COOKIE --set fileId=YOUR_VALUE --probe",
                 "recommendedPostBootstrapRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider baidu_netdisk --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\baidu_netdisk-post-bootstrap-runtime-evidence",
+                "exactPostBootstrapRuntimeHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-provider baidu_netdisk",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider baidu_netdisk --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\baidu_netdisk-post-bootstrap-runtime-evidence",
                 "conflictPolicyNote": "当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。",
                 "nextStep": "先创建 `baidu_netdisk` 的 auth profile 并完成最小 validation / live probe；拿到真实 profileId 后立刻继续跑 post-bootstrap runtime helper，补第一条 runtime success 样本。",
@@ -284,6 +288,7 @@ def main() -> None:
                 "recommendedPrimaryCommandLabel": "bootstrap",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key xunlei --auth-mode manual_token --display-name xunlei-manual_token --token YOUR_TOKEN --set deviceId=YOUR_VALUE --probe",
                 "recommendedPostBootstrapRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider xunlei --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\xunlei-post-bootstrap-runtime-evidence",
+                "exactPostBootstrapRuntimeHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-provider xunlei",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider xunlei --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\xunlei-post-bootstrap-runtime-evidence",
                 "conflictPolicyNote": "当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。",
                 "nextStep": "先创建 `xunlei` 的 auth profile 并完成最小 validation / live probe；拿到真实 profileId 后立刻继续跑 post-bootstrap runtime helper，补第一条 runtime success 样本。",
@@ -317,6 +322,7 @@ def main() -> None:
                 "recommendedPrimaryCommandLabel": "bootstrap",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 123_open --auth-mode manual_token --display-name 123_open-manual_token --token YOUR_TOKEN --set parentFileId=YOUR_VALUE --probe",
                 "recommendedPostBootstrapRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider 123_open --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\123_open-post-bootstrap-runtime-evidence",
+                "exactPostBootstrapRuntimeHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-provider 123_open",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider 123_open --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\123_open-post-bootstrap-runtime-evidence",
                 "conflictPolicyNote": "当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。",
                 "nextStep": "先创建 `123_open` 的 auth profile 并完成最小 validation / live probe；拿到真实 profileId 后立刻继续跑 post-bootstrap runtime helper，补第一条 runtime success 样本。",
@@ -368,6 +374,7 @@ def main() -> None:
                 and r"tmp\115_open-fast-candidate-evidence" in markdown,
                 "exportedHasPostRefreshRuntimeCommand": "recommendedPostRefreshRuntimeCommand" in markdown
                 and r"tmp\guangya-live-evidence" in markdown,
+                "exportedHasExactPostRefreshRuntimeHelper": "exactPostRefreshRuntimeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-profile-id gy-1`" in markdown,
                 "exportedHasPrimaryCommand": "recommendedPrimaryCommand" in markdown
                 and "label=recreate_probe" in markdown
                 and "label=bootstrap" in markdown,
@@ -389,6 +396,8 @@ def main() -> None:
                 "exportedHasExactOverwriteVariantHelper": "exactOverwriteVariantHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-profile-id gy-1`" in markdown,
                 "exportedHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown
                 and r"tmp\189cloud-post-bootstrap-runtime-evidence" in markdown,
+                "exportedHasExactPostBootstrapRuntimeHelper": "exactPostBootstrapRuntimeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_fast_upload_candidate_task.py --from-remediation-provider 189cloud`" in markdown
+                and "exactPostBootstrapRuntimeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-provider quark`" in markdown,
                 "exportedHasLivePostBootstrapHelpers": r"tmp\quark-post-bootstrap-runtime-evidence" in markdown
                 and r"tmp\baidu_netdisk-post-bootstrap-runtime-evidence" in markdown
                 and r"tmp\xunlei-post-bootstrap-runtime-evidence" in markdown

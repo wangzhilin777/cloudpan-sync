@@ -100,6 +100,7 @@
 - exactCreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-provider 115_open`
 - recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode manual_cookie --display-name 115_open-manual_cookie --cookie YOUR_COOKIE --set parentId=YOUR_VALUE --probe`
 - recommendedPostBootstrapRuntimeCommand: `.\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id YOUR_PROFILE_ID --sha1 auto --auto-temp-file --conflict-policy auto_rename_new --evidence-dir tmp\115_open-post-bootstrap-runtime-evidence`
+- exactPostBootstrapRuntimeHelper: `.\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --from-remediation-provider 115_open`
 - recommendedOverwriteVariantCommand: `.\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id YOUR_PROFILE_ID --sha1 auto --auto-temp-file --conflict-policy overwrite_existing --evidence-dir tmp\115_open-post-bootstrap-runtime-evidence`
 - conflictPolicyNote: 当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。
 
@@ -120,6 +121,7 @@
 - exactCreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-provider quark`
 - recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key quark --auth-mode manual_cookie --display-name quark-manual_cookie --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE --probe`
 - recommendedPostBootstrapRuntimeCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider quark --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\quark-post-bootstrap-runtime-evidence`
+- exactPostBootstrapRuntimeHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-provider quark`
 - recommendedOverwriteVariantCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider quark --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\quark-post-bootstrap-runtime-evidence`
 - conflictPolicyNote: 当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。
 
@@ -140,6 +142,7 @@
 - exactCreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-provider 189cloud`
 - recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 189cloud --auth-mode manual_cookie --display-name 189cloud-manual_cookie --cookie YOUR_COOKIE --set shareCode=YOUR_VALUE --set accessCode=YOUR_VALUE --probe`
 - recommendedPostBootstrapRuntimeCommand: `.\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 189cloud --target-profile-id YOUR_PROFILE_ID --md5 auto --auto-temp-file --conflict-policy auto_rename_new --evidence-dir tmp\189cloud-post-bootstrap-runtime-evidence`
+- exactPostBootstrapRuntimeHelper: `.\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --from-remediation-provider 189cloud`
 - recommendedOverwriteVariantCommand: `.\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 189cloud --target-profile-id YOUR_PROFILE_ID --md5 auto --auto-temp-file --conflict-policy overwrite_existing --evidence-dir tmp\189cloud-post-bootstrap-runtime-evidence`
 - conflictPolicyNote: 当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。
 
@@ -161,6 +164,7 @@
 - exactCreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-provider baidu_netdisk`
 - recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key baidu_netdisk --auth-mode manual_cookie --display-name baidu_netdisk-manual_cookie --cookie YOUR_COOKIE --set fileId=YOUR_VALUE --probe`
 - recommendedPostBootstrapRuntimeCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider baidu_netdisk --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\baidu_netdisk-post-bootstrap-runtime-evidence`
+- exactPostBootstrapRuntimeHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-provider baidu_netdisk`
 - recommendedOverwriteVariantCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider baidu_netdisk --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\baidu_netdisk-post-bootstrap-runtime-evidence`
 - conflictPolicyNote: 当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。
 
@@ -201,6 +205,7 @@
 - exactCreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-provider xunlei`
 - recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key xunlei --auth-mode manual_token --display-name xunlei-manual_token --token YOUR_TOKEN --set deviceId=YOUR_VALUE --probe`
 - recommendedPostBootstrapRuntimeCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider xunlei --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\xunlei-post-bootstrap-runtime-evidence`
+- exactPostBootstrapRuntimeHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-provider xunlei`
 - recommendedOverwriteVariantCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider xunlei --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\xunlei-post-bootstrap-runtime-evidence`
 - conflictPolicyNote: 当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。
 
@@ -243,5 +248,6 @@
 - exactCreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-provider 123_open`
 - recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 123_open --auth-mode manual_token --display-name 123_open-manual_token --token YOUR_TOKEN --set parentFileId=YOUR_VALUE --probe`
 - recommendedPostBootstrapRuntimeCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider 123_open --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\123_open-post-bootstrap-runtime-evidence`
+- exactPostBootstrapRuntimeHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-provider 123_open`
 - recommendedOverwriteVariantCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider 123_open --target-profile-id YOUR_PROFILE_ID --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\123_open-post-bootstrap-runtime-evidence`
 - conflictPolicyNote: 当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。

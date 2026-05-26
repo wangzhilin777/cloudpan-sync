@@ -409,6 +409,21 @@ def _exact_runtime_helper(command: str, profile_id: str) -> str:
     return ""
 
 
+def _exact_post_bootstrap_runtime_helper(command: str, provider_key: str, profile_id: str = "") -> str:
+    exact_from_profile = _exact_runtime_helper(command, profile_id)
+    if exact_from_profile:
+        return exact_from_profile
+    text = str(command or "").strip()
+    provider = str(provider_key or "").strip()
+    if not text or not provider:
+        return ""
+    if "scripts\\create_live_upload_task.py" in text:
+        return f".\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-provider {provider}"
+    if "scripts\\create_fast_upload_candidate_task.py" in text:
+        return f".\\.venv\\Scripts\\python.exe scripts\\create_fast_upload_candidate_task.py --from-remediation-provider {provider}"
+    return ""
+
+
 def _provider_conflict_snapshot(provider_key: str) -> dict[str, object]:
     profile = get_provider_profile(provider_key)
     overwrite_status, _ = _resolve_conflict_support(
@@ -701,6 +716,15 @@ def build_real_evidence_remediation_bundle(
             str(item_payload.get("recommendedRuntimeSuccessCommand") or ""),
             exact_profile_id,
         )
+        item_payload["exactPostRefreshRuntimeHelper"] = _exact_runtime_helper(
+            str(item_payload.get("recommendedPostRefreshRuntimeCommand") or ""),
+            exact_profile_id,
+        )
+        item_payload["exactPostBootstrapRuntimeHelper"] = _exact_post_bootstrap_runtime_helper(
+            str(item_payload.get("recommendedPostBootstrapRuntimeCommand") or ""),
+            provider_key,
+            exact_profile_id,
+        )
         item_payload["exactOverwriteVariantHelper"] = _exact_runtime_helper(
             str(item_payload.get("recommendedOverwriteVariantCommand") or ""),
             exact_profile_id,
@@ -883,6 +907,12 @@ def create_remediation_profile(provider_key: str) -> dict[str, object]:
             "exactRefreshEvidenceHelper": _exact_patch_probe_helper(existing_id),
             "exactRuntimeProbeHelper": _exact_runtime_helper(runtime_probe_command, existing_id),
             "exactRuntimeSuccessHelper": _exact_runtime_helper(runtime_success_command, existing_id),
+            "exactPostRefreshRuntimeHelper": _exact_runtime_helper(str(target_item.get("recommendedPostRefreshRuntimeCommand") or ""), existing_id),
+            "exactPostBootstrapRuntimeHelper": _exact_post_bootstrap_runtime_helper(
+                str(target_item.get("recommendedPostBootstrapRuntimeCommand") or ""),
+                provider,
+                existing_id,
+            ),
             "exactOverwriteVariantHelper": _exact_runtime_helper(overwrite_variant_command, existing_id),
         }
 
@@ -927,6 +957,12 @@ def create_remediation_profile(provider_key: str) -> dict[str, object]:
         "exactRefreshEvidenceHelper": _exact_patch_probe_helper(profile_id),
         "exactRuntimeProbeHelper": _exact_runtime_helper(runtime_probe_command, profile_id),
         "exactRuntimeSuccessHelper": _exact_runtime_helper(runtime_success_command, profile_id),
+        "exactPostRefreshRuntimeHelper": _exact_runtime_helper(str(target_item.get("recommendedPostRefreshRuntimeCommand") or ""), profile_id),
+        "exactPostBootstrapRuntimeHelper": _exact_post_bootstrap_runtime_helper(
+            str(target_item.get("recommendedPostBootstrapRuntimeCommand") or ""),
+            provider,
+            profile_id,
+        ),
         "exactOverwriteVariantHelper": _exact_runtime_helper(overwrite_variant_command, profile_id),
         "nextStep": str(target_item.get("nextStep") or ""),
     }
@@ -1074,6 +1110,9 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
                 lines.append(f"- exactRefreshEvidenceHelper: `{exact_refresh_helper}`")
         if row.get("recommendedPostRefreshRuntimeCommand"):
             lines.append(f"- recommendedPostRefreshRuntimeCommand: `{row.get('recommendedPostRefreshRuntimeCommand', '')}`")
+            exact_post_refresh_runtime_helper = str(row.get("exactPostRefreshRuntimeHelper") or "")
+            if exact_post_refresh_runtime_helper:
+                lines.append(f"- exactPostRefreshRuntimeHelper: `{exact_post_refresh_runtime_helper}`")
         if row.get("recommendedRuntimeProbeCommand"):
             lines.append(f"- recommendedRuntimeProbeCommand: `{row.get('recommendedRuntimeProbeCommand', '')}`")
             exact_runtime_probe_helper = str(row.get("exactRuntimeProbeHelper") or "")
@@ -1090,6 +1129,14 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
                 lines.append(f"- exactRuntimeSuccessHelper: `{exact_runtime_success_helper}`")
         if row.get("recommendedPostBootstrapRuntimeCommand"):
             lines.append(f"- recommendedPostBootstrapRuntimeCommand: `{row.get('recommendedPostBootstrapRuntimeCommand', '')}`")
+            exact_post_bootstrap_runtime_helper = str(row.get("exactPostBootstrapRuntimeHelper") or "")
+            if not exact_post_bootstrap_runtime_helper:
+                exact_post_bootstrap_runtime_helper = _exact_post_bootstrap_runtime_helper(
+                    str(row.get("recommendedPostBootstrapRuntimeCommand") or ""),
+                    str(row.get("providerKey") or ""),
+                )
+            if exact_post_bootstrap_runtime_helper:
+                lines.append(f"- exactPostBootstrapRuntimeHelper: `{exact_post_bootstrap_runtime_helper}`")
         if row.get("recommendedOverwriteVariantCommand"):
             lines.append(f"- recommendedOverwriteVariantCommand: `{row.get('recommendedOverwriteVariantCommand', '')}`")
             exact_overwrite_variant_helper = str(row.get("exactOverwriteVariantHelper") or "")

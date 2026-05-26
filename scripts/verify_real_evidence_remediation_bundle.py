@@ -295,6 +295,8 @@ def main() -> None:
                 "fastCandidateCommandShowsConflictChoice": "tmp\\115_open-fast-candidate-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "markdownHasRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown,
                 "markdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown and "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown,
+                "markdownHasExactPostBootstrapRuntimeHelper": "exactPostBootstrapRuntimeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_fast_upload_candidate_task.py --from-remediation-provider 189cloud`" in markdown
+                and "exactPostBootstrapRuntimeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-provider quark`" in markdown,
                 "markdownHasPrimaryCommand": "recommendedPrimaryCommand" in markdown and "label=recreate_probe" in markdown and "label=post_bootstrap_runtime" in markdown,
                 "markdownHasRecreateProbeCommand": "recommendedRecreateProbeCommand" in markdown and "placeholderSecretFieldHints: `token`" in markdown,
                 "markdownHasMultipleGuangyaRecreateCommands": "recommendedRecreateProbeCommands: count=`2`" in markdown
@@ -542,6 +544,7 @@ def main() -> None:
                             for row in (api_bundle.get("items") or [])
                             if str((row or {}).get("providerKey") or "") == "189cloud"
                             and "create_fast_upload_candidate_task.py" in str((row or {}).get("recommendedPostBootstrapRuntimeCommand") or "")
+                            and "create_fast_upload_candidate_task.py --from-remediation-provider 189cloud" in str((row or {}).get("exactPostBootstrapRuntimeHelper") or "")
                             and "--conflict-policy auto_rename_new" in str((row or {}).get("recommendedPostBootstrapRuntimeCommand") or "")
                             and "post-bootstrap runtime helper" in str((row or {}).get("nextStep") or "")
                         ),
@@ -555,6 +558,7 @@ def main() -> None:
                             for row in (api_bundle.get("items") or [])
                             if str((row or {}).get("providerKey") or "") == "quark"
                             and "create_live_upload_task.py" in str((row or {}).get("recommendedPostBootstrapRuntimeCommand") or "")
+                            and "create_live_upload_task.py --from-remediation-provider quark" in str((row or {}).get("exactPostBootstrapRuntimeHelper") or "")
                             and "--conflict-policy auto_rename_new" in str((row or {}).get("recommendedPostBootstrapRuntimeCommand") or "")
                         ),
                         None,

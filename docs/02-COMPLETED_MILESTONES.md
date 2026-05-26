@@ -10,6 +10,25 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`真实补救刷新后运行也补齐精确 helper`
+- 完成范围：
+  - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的 runtime follow-up 再补齐两条显式精确 helper：当前 remediation item payload、`create_remediation_profile()` 返回值、以及 markdown 导出都会直接带 `exactPostRefreshRuntimeHelper` 与 `exactPostBootstrapRuntimeHelper`
+  - 当前效果是：对“已有 profile，但刷新完 auth/list/metadata/create_dir 证据后要继续补 runtime success”的场景，现在不必再手抄 `recommendedPostRefreshRuntimeCommand` 长命令；可直接复用 `create_live_upload_task.py --from-remediation-profile-id ...` 或 `create_fast_upload_candidate_task.py --from-remediation-profile-id ...`
+  - 对“当前仓库还没有 profile，先 bootstrap 再立刻补第一条 runtime success”的场景，现在也不必再保留 `YOUR_PROFILE_ID` 占位；设置页与当前文档会直接给出 `create_live_upload_task.py --from-remediation-provider ...` / `create_fast_upload_candidate_task.py --from-remediation-provider ...` 这条最短 post-bootstrap helper，而 `create_profile` API 在 `stub_created` 路径下则会进一步返回已绑定真实 `profileId` 的 exact post-bootstrap helper
+  - 已把 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 重导出到当前口径：`recommendedPostRefreshRuntimeCommand` 与 `recommendedPostBootstrapRuntimeCommand` 所在分段现在都会同步写出对应 `exact*Helper`
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 remediation 设置摘要、`latestRemediationAction`、follow-up 检测一并补上 `exactPostRefreshRuntime` 与 `exactPostBootstrapRuntime` 展示，避免设置页只剩长命令口径
+  - 已同步补强 [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py)、[verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)、[verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)、[verify_real_evidence_remediation_create_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_api.py)、[verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)，把 payload、synthetic export、当前文档、设置页摘要和 create API 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 remediation bundle / API markdown 当前会输出 `exactPostBootstrapRuntimeHelper`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证 synthetic remediation markdown 当前会输出 `exactPostRefreshRuntimeHelper` 与 `exactPostBootstrapRuntimeHelper`
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证 remediation 设置页摘要与 `latestRemediationAction` 当前都会展示 `exactPostRefreshRuntime / exactPostBootstrapRuntime`
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_api.py` 已验证 `create_profile` API 在 `stub_created / already_exists` 路径下会诚实返回新的 exact post-refresh / post-bootstrap helper 字段
+  - `.\.venv\Scripts\python.exe scripts\export_real_evidence_remediation.py` 已重导出当前 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前 `docs/12` 中 `115_open / 189cloud / quark / baidu_netdisk / xunlei / 123_open` 各 post-bootstrap 分段都已同步写出 `exactPostBootstrapRuntimeHelper`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`真实补救建档也支持精确 helper`
 - 完成范围：
   - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的“当前仓库还没有 profile，先建 stub”这条链补齐为统一 helper：当前 remediation item payload 会直接带 `exactCreateHelper`

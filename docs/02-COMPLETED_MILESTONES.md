@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐认证证据包总链回归断言`
+- 完成范围：
+  - 已把 [verify_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_evidence_bundle.py) 从 bundle summary、API summary、API markdown 与本地 markdown 里的缺失 profile 片段等分散检查，补成真正会给出整条认证证据包链结论的 verifier
+  - 同一条回归现在会用 `authEvidenceBundleFlowMatchesExpectedProfiles` 直接锁住这条链：本地构建出的 bundle summary、`/api/auth/evidence_bundle` summary、`/api/auth/evidence_bundle_markdown` 以及本地 markdown 内容都必须一起对齐，尤其是 `writeReadyProfiles/validationOkProfiles/probeOkProfiles` 与缺失 profile 展示
+  - 当前效果是：认证证据包能力不再只是很多局部字段各自为真，而是多了一条从本地 bundle 构建到 API / Markdown 暴露的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_evidence_bundle.py` 已验证认证证据包链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务运行样本导出回归断言`
 - 完成范围：
   - 已把 [verify_export_task_runtime_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_runtime_evidence_report.py) 从导出文件存在、标题、summary、profileSummary、blocked/candidate/probe/conflictHandled 行等分散检查，补成真正会给出整条任务运行样本导出链结论的 verifier

@@ -130,19 +130,43 @@ def main() -> None:
             api_markdown = client.get("/api/auth/evidence_bundle_markdown").json()
         finally:
             webapp.ADMIN_PASSWORD = original_password
+        api_bundle_summary = api_bundle.get("summary") or {}
+        api_markdown_text = str(api_markdown.get("markdown", ""))
+        bundle_summary = bundle.get("summary", {})
+        auth_evidence_bundle_flow_matches_expected_profiles = (
+            bundle_summary.get("profileCount") == 2
+            and bundle_summary.get("profileReadyCount") == 0
+            and bundle_summary.get("writeReadyCount") == 2
+            and bundle_summary.get("validationOkCount") == 1
+            and bundle_summary.get("probeOkCount") == 1
+            and bundle_summary.get("profileReadyProfiles") == []
+            and bundle_summary.get("writeReadyProfiles") == ["gy-missing", "gy-ok"]
+            and bundle_summary.get("validationOkProfiles") == ["gy-ok"]
+            and bundle_summary.get("probeOkProfiles") == ["gy-ok"]
+            and api_bundle_summary.get("profileCount") == 2
+            and api_bundle_summary.get("profileReadyProfiles") == []
+            and api_bundle_summary.get("writeReadyProfiles") == ["gy-missing", "gy-ok"]
+            and api_bundle_summary.get("validationOkProfiles") == ["gy-ok"]
+            and api_bundle_summary.get("probeOkProfiles") == ["gy-ok"]
+            and "# Auth Evidence Bundle" in api_markdown_text
+            and "profileSummary:" in api_markdown_text
+            and "`writeReady=gy-missing, gy-ok`" in api_markdown_text
+            and "gy-missing" in markdown
+        )
 
         print(
             json.dumps(
                 {
-                    "summary": bundle.get("summary", {}),
-                    "apiProfileCount": ((api_bundle.get("summary") or {}).get("profileCount")),
-                    "apiProfileSummaryReadyProfiles": (api_bundle.get("summary") or {}).get("profileReadyProfiles"),
-                    "apiProfileSummaryWriteReadyProfiles": (api_bundle.get("summary") or {}).get("writeReadyProfiles"),
-                    "apiProfileSummaryValidationOkProfiles": (api_bundle.get("summary") or {}).get("validationOkProfiles"),
-                    "apiProfileSummaryProbeOkProfiles": (api_bundle.get("summary") or {}).get("probeOkProfiles"),
-                    "apiMarkdownHasTitle": "# Auth Evidence Bundle" in str(api_markdown.get("markdown", "")),
-                    "apiMarkdownHasProfileSummary": "profileSummary:" in str(api_markdown.get("markdown", "")) and "`writeReady=gy-missing, gy-ok`" in str(api_markdown.get("markdown", "")),
+                    "summary": bundle_summary,
+                    "apiProfileCount": api_bundle_summary.get("profileCount"),
+                    "apiProfileSummaryReadyProfiles": api_bundle_summary.get("profileReadyProfiles"),
+                    "apiProfileSummaryWriteReadyProfiles": api_bundle_summary.get("writeReadyProfiles"),
+                    "apiProfileSummaryValidationOkProfiles": api_bundle_summary.get("validationOkProfiles"),
+                    "apiProfileSummaryProbeOkProfiles": api_bundle_summary.get("probeOkProfiles"),
+                    "apiMarkdownHasTitle": "# Auth Evidence Bundle" in api_markdown_text,
+                    "apiMarkdownHasProfileSummary": "profileSummary:" in api_markdown_text and "`writeReady=gy-missing, gy-ok`" in api_markdown_text,
                     "markdownHasMissingProfile": "gy-missing" in markdown,
+                    "authEvidenceBundleFlowMatchesExpectedProfiles": auth_evidence_bundle_flow_matches_expected_profiles,
                 },
                 ensure_ascii=False,
                 indent=2,

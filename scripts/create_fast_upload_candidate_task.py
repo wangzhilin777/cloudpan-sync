@@ -149,6 +149,8 @@ def _remediation_followup(profile_id: str) -> dict[str, object]:
             "placeholderSecretFieldHints": list(row.get("placeholderSecretFieldHints") or []),
             "recommendedPrimaryCommandLabel": str(row.get("recommendedPrimaryCommandLabel") or ""),
             "recommendedPrimaryCommand": str(row.get("recommendedPrimaryCommand") or ""),
+            "recommendedPatchCommands": list(row.get("recommendedPatchCommands") or []),
+            "recommendedPatchProbeCommands": list(row.get("recommendedPatchProbeCommands") or []),
             "recommendedPatchCommand": str(row.get("recommendedPatchCommand") or ""),
             "recommendedPatchProbeCommand": str(row.get("recommendedPatchProbeCommand") or ""),
             "recommendedRecreateProbeCommand": str(row.get("recommendedRecreateProbeCommand") or ""),

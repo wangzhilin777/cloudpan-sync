@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务Markdown里的冲突支持摘要`
+- 完成范围：
+  - 已把 [task_runtime.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime.py) 的 `task_to_markdown` 再补一层：当前任务导出的 `task.md` 在 `selectedPolicy` 下面，不止会写任务结果和逐项 plan，还会先汇总当前计划里的 `conflictSupportStatus`
+  - 同一段现在还会直接写出 `firstPlannedConflict`，把首条计划项的 `path / strategy / conflictSupportStatus / conflictNote` 一起带进 Markdown，不再出现“任务 md 只看得到用户选了 overwrite 还是 rename，但看不到 provider 实际会不会降级、首条说明是什么”的断层
+  - 这样任务 Markdown 终于更贴近计划文档里“同名文件冲突策略要明确展示、不能只藏在内部默认值里”的要求；后续从 CLI helper 直接打开 `task.md` 时，不需要再回任务预览页或 remediation 文档确认这条任务的冲突支持口径
+  - 已同步补强 [verify_task_markdown_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_markdown_api.py)，把 `supportSummary / firstPlannedConflict` 一起锁进 API Markdown 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_markdown_api.py` 已验证任务 Markdown API 当前会输出 `selectedPolicy / supportSummary / firstPlannedConflict / result conflictAction`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权补救汇总面板的first fix摘要`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `setAuthRemediationSummary` 再补一层：当前在 `Auth Remediation` 汇总面板里，除了计数、按钮和 `liveRejected` 概要，也会直接写出第一条补救项的 `profileReady / writeReady`

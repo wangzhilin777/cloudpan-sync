@@ -48,6 +48,7 @@ def main() -> None:
 
         task = task_runtime.get_task(task_id)
         assert task is not None, task_id
+        first_item = dict(((task.get("plan") or {}).get("items") or [{}])[0] or {})
         task["results"] = [
             {
                 "path": "/demo.bin",
@@ -76,6 +77,13 @@ def main() -> None:
                     "hasTitle": "# CloudPan Sync 任务详情" in markdown,
                     "hasConflictSection": "## 同名文件冲突策略" in markdown,
                     "hasSelectedPolicy": "selectedPolicy: `overwrite_existing`" in markdown,
+                    "hasSupportSummary": f"supportSummary: `statuses={first_item.get('conflictSupportStatus', '') or '(none)'}`" in markdown,
+                    "hasFirstPlannedConflict": (
+                        f"firstPlannedConflict: path=`{first_item.get('path', '') or '(none)'}`" in markdown
+                        and f"strategy=`{first_item.get('strategy', '') or '(none)'}`" in markdown
+                        and f"conflictSupportStatus=`{first_item.get('conflictSupportStatus', '') or '(none)'}`" in markdown
+                        and f"conflictNote=`{first_item.get('conflictNote', '') or '(none)'}`" in markdown
+                    ),
                     "hasResultConflictPolicy": "conflictPolicy=`overwrite_existing`" in markdown,
                     "hasRuntimeConflictAction": "conflictAction=`overwrite_downgraded_to_auto_rename`" in markdown,
                     "hasResolvedTargetName": "resolvedTargetName=`demo (1).bin`" in markdown,

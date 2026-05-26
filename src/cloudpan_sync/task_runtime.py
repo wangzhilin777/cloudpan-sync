@@ -385,12 +385,36 @@ def task_to_markdown(task: dict[str, object]) -> str:
     lines.append("## 同名文件冲突策略")
     lines.append("")
     lines.append(f"- selectedPolicy: `{task.get('conflictPolicy', '') or 'auto_rename_new'}`")
+    conflict_rows = [dict(item or {}) for item in pending_items + plan_items]
+    conflict_statuses = sorted(
+        {
+            str(row.get("conflictSupportStatus") or "").strip()
+            for row in conflict_rows
+            if str(row.get("conflictSupportStatus") or "").strip()
+        }
+    )
+    first_conflict_row = next(
+        (
+            row
+            for row in conflict_rows
+            if str(row.get("conflictSupportStatus") or "").strip() or str(row.get("conflictNote") or "").strip()
+        ),
+        {},
+    )
     lines.append(
         f"- summary: `liveSuccess={summary.get('liveSuccessCount', 0)}`"
         f" `liveFailed={summary.get('liveFailedCount', 0)}`"
         f" `probeOnly={summary.get('probeOnlyCount', 0)}`"
         f" `candidateOnly={summary.get('candidateOnlyCount', 0)}`"
     )
+    lines.append(f"- supportSummary: `statuses={','.join(conflict_statuses) or '(none)'}`")
+    if first_conflict_row:
+        lines.append(
+            f"- firstPlannedConflict: path=`{first_conflict_row.get('path', '') or '(none)'}` "
+            f"strategy=`{first_conflict_row.get('strategy', '') or '(none)'}` "
+            f"conflictSupportStatus=`{first_conflict_row.get('conflictSupportStatus', '') or '(none)'}` "
+            f"conflictNote=`{first_conflict_row.get('conflictNote', '') or '(none)'}`"
+        )
     if results:
         for index, row in enumerate(results, start=1):
             item = dict(row or {})

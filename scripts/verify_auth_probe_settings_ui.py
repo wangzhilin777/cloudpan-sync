@@ -48,6 +48,37 @@ def main() -> None:
                 and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstFailedProbe.providerKey || ""));' in app_js,
                 "jsRefreshProtectedDataLoadsBoth": 'async function refreshProtectedData()' in app_js and 'state.liveValidationMeta = {' in app_js and 'state.providerLiveProbeMeta = {' in app_js,
                 "jsLogoutClearsBoth": 'state.liveValidationMeta = { historyCount: 0, summary: null };' in app_js and 'state.providerLiveProbeMeta = { historyCount: 0, summary: null };' in app_js,
+                "authProbeSettingsUiFlowIsWired": (
+                    "settingsValidationList" in html
+                    and "settingsProviderProbeList" in html
+                    and 'const validationSummary = state.liveValidationMeta?.summary || {};' in app_js
+                    and 'okProfiles=' in app_js
+                    and 'failedProfiles=' in app_js
+                    and 'okProviders=' in app_js
+                    and 'failedProviders=' in app_js
+                    and 'failedModes=' in app_js
+                    and 'const firstFailedValidation = latestValidationList.find((row) => !row.ok) || null;' in app_js
+                    and 'focusBtn.textContent = "Focus First Failed"' in app_js
+                    and 'validateBtn.textContent = "Validate First Failed"' in app_js
+                    and 'captureBtn.textContent = "Open Capture First Failed"' in app_js
+                    and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstFailedValidation.profileId));' in app_js
+                    and 'validateBtn.addEventListener("click", () => validateAuth(firstFailedValidation.profileId));' in app_js
+                    and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstFailedValidation.providerKey || ""));' in app_js
+                    and 'const probeSummary = state.providerLiveProbeMeta?.summary || {};' in app_js
+                    and 'providers=' in app_js
+                    and 'const firstFailedProbe = probeRows.find((probe) => !probe.ok) || null;' in app_js
+                    and 'refreshBtn.textContent = "Refresh First Failed"' in app_js
+                    and 'probeBtn.textContent = "Run First Probe"' in app_js
+                    and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstFailedProbe.profileId));' in app_js
+                    and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(firstFailedProbe.profileId));' in app_js
+                    and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(firstFailedProbe.profileId));' in app_js
+                    and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstFailedProbe.providerKey || ""));' in app_js
+                    and 'async function refreshProtectedData()' in app_js
+                    and 'state.liveValidationMeta = {' in app_js
+                    and 'state.providerLiveProbeMeta = {' in app_js
+                    and 'state.liveValidationMeta = { historyCount: 0, summary: null };' in app_js
+                    and 'state.providerLiveProbeMeta = { historyCount: 0, summary: null };' in app_js
+                ),
             },
             ensure_ascii=False,
             indent=2,

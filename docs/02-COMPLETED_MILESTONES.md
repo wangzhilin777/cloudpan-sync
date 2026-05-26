@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权探测设置页总链回归断言`
+- 完成范围：
+  - 已把 [verify_auth_probe_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_probe_settings_ui.py) 从授权校验面板、Provider 探测面板、首个失败项动作、受保护数据刷新和登出清理的分散检查，补成真正会给出整条授权探测设置页链结论的 verifier
+  - 同一条回归现在会用 `authProbeSettingsUiFlowIsWired` 直接锁住这条链：设置页必须同时保留 `settingsValidationList/settingsProviderProbeList` 两块面板，继续展示 validation/probe 的 summary profile/provider 维度信息，为首个失败校验提供 `Focus/Validate/Open Capture` 动作，为首个失败 probe 提供 `Focus/Refresh/Run Probe/Open Capture` 动作，并在 `refreshProtectedData()` 与 logout 过程中一起刷新和清空 `liveValidationMeta/providerLiveProbeMeta`
+  - 当前效果是：授权探测设置页能力不再只是 HTML 节点、JS 摘要和交互片段各自为真，而是多了一条覆盖面板结构、失败项动作和状态生命周期处理的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_probe_settings_ui.py` 已验证授权探测设置页链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权补救包总链回归断言`
 - 完成范围：
   - 已把 [verify_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_remediation_bundle.py) 从补救包 summary、各 provider 分段 markdown、API summary 和 markdown 导出的分散检查，补成真正会给出整条授权补救包链结论的 verifier

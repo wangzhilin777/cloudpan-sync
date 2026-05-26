@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐认证汇总设置页回归断言`
+- 完成范围：
+  - 已把 [verify_auth_bundle_summary_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_bundle_summary_ui.py) 从 auth evidence bundle summary、auth remediation summary、首个 gap/fix 动作等分散检查，补成真正会给出整条认证汇总设置页链结论的 verifier
+  - 同一条回归现在会用 `authBundleSummaryUiFlowIsWired` 直接锁住这条认证汇总链：`refresh_auth_evidence_bundle()` 产出的 `profileReadyProfiles/writeReadyProfiles/validationOkProfiles/probeOkProfiles` 汇总必须稳定，UI 里 evidence/remediation 两侧的摘要展示与首个 gap/fix 的 focus/refresh/capture 动作也必须一起存在
+  - 当前效果是：认证汇总设置页不再只是 bundle 汇总和几个按钮各自为真，而是多了一条从 bundle summary 到 UI remediation 动作的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_bundle_summary_ui.py` 已验证认证汇总设置页链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐认证设置页回归断言`
 - 完成范围：
   - 已把 [verify_auth_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_settings_ui.py) 从 auth evidence 面板、auth remediation 面板、bundle loader、first gap/fix 动作与 rejected/placeholder 摘要等分散片段检查，补成真正会给出整条设置页 wiring 结论的 verifier

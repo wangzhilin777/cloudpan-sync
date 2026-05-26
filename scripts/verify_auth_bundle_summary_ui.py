@@ -50,32 +50,55 @@ def main() -> None:
         sys.modules["cloudpan_sync.auth_profile_evidence"].refresh_auth_profile_evidence = original_refresh
 
     summary = dict(bundle.get("summary") or {})
+    refresh_bundle_keeps_profile_summary_lists = (
+        summary.get("profileReadyProfiles") == ["Guangya Primary"]
+        and summary.get("writeReadyProfiles") == ["Aliyun Open", "Guangya Primary"]
+        and summary.get("validationOkProfiles") == ["Guangya Primary"]
+        and summary.get("probeOkProfiles") == []
+    )
+    js_auth_evidence_bundle_shows_profile_summary = (
+        "profileReadyProfiles=" in app_js
+        and "writeReadyProfiles=" in app_js
+        and "validationOkProfiles=" in app_js
+        and "probeOkProfiles=" in app_js
+    )
+    js_auth_evidence_bundle_has_first_gap_actions = (
+        'focusBtn.textContent = "Focus First Gap"' in app_js
+        and 'refreshBtn.textContent = "Refresh First Gap"' in app_js
+        and 'captureBtn.textContent = "Open Capture First Gap"' in app_js
+        and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstProfile.profileId));' in app_js
+        and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(firstProfile.profileId));' in app_js
+        and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstProfile.providerKey || ""));' in app_js
+    )
+    js_auth_remediation_shows_profile_summary = (
+        "readyProfiles=" in app_js
+        and "needsFixProfiles=" in app_js
+        and "writeReadyProfiles=" in app_js
+        and "writeNeedsFixProfiles=" in app_js
+        and "needsSecretRefreshProfiles=" in app_js
+    )
+    js_auth_remediation_has_first_fix_actions = (
+        'focusBtn.textContent = "Focus First Fix"' in app_js
+        and 'captureBtn.textContent = "Open Capture First Fix"' in app_js
+        and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstNeedsFix.profileId));' in app_js
+        and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstNeedsFix.providerKey || ""));' in app_js
+    )
+    auth_bundle_summary_ui_flow_is_wired = (
+        refresh_bundle_keeps_profile_summary_lists
+        and js_auth_evidence_bundle_shows_profile_summary
+        and js_auth_evidence_bundle_has_first_gap_actions
+        and js_auth_remediation_shows_profile_summary
+        and js_auth_remediation_has_first_fix_actions
+    )
     print(
         json.dumps(
             {
-                "refreshBundleKeepsProfileSummaryLists": summary.get("profileReadyProfiles") == ["Guangya Primary"]
-                and summary.get("writeReadyProfiles") == ["Aliyun Open", "Guangya Primary"]
-                and summary.get("validationOkProfiles") == ["Guangya Primary"]
-                and summary.get("probeOkProfiles") == [],
-                "jsAuthEvidenceBundleShowsProfileSummary": "profileReadyProfiles=" in app_js
-                and "writeReadyProfiles=" in app_js
-                and "validationOkProfiles=" in app_js
-                and "probeOkProfiles=" in app_js,
-                "jsAuthEvidenceBundleHasFirstGapActions": 'focusBtn.textContent = "Focus First Gap"' in app_js
-                and 'refreshBtn.textContent = "Refresh First Gap"' in app_js
-                and 'captureBtn.textContent = "Open Capture First Gap"' in app_js
-                and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstProfile.profileId));' in app_js
-                and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(firstProfile.profileId));' in app_js
-                and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstProfile.providerKey || ""));' in app_js,
-                "jsAuthRemediationShowsProfileSummary": "readyProfiles=" in app_js
-                and "needsFixProfiles=" in app_js
-                and "writeReadyProfiles=" in app_js
-                and "writeNeedsFixProfiles=" in app_js
-                and "needsSecretRefreshProfiles=" in app_js,
-                "jsAuthRemediationHasFirstFixActions": 'focusBtn.textContent = "Focus First Fix"' in app_js
-                and 'captureBtn.textContent = "Open Capture First Fix"' in app_js
-                and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstNeedsFix.profileId));' in app_js
-                and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstNeedsFix.providerKey || ""));' in app_js,
+                "refreshBundleKeepsProfileSummaryLists": refresh_bundle_keeps_profile_summary_lists,
+                "jsAuthEvidenceBundleShowsProfileSummary": js_auth_evidence_bundle_shows_profile_summary,
+                "jsAuthEvidenceBundleHasFirstGapActions": js_auth_evidence_bundle_has_first_gap_actions,
+                "jsAuthRemediationShowsProfileSummary": js_auth_remediation_shows_profile_summary,
+                "jsAuthRemediationHasFirstFixActions": js_auth_remediation_has_first_fix_actions,
+                "authBundleSummaryUiFlowIsWired": auth_bundle_summary_ui_flow_is_wired,
             },
             ensure_ascii=False,
             indent=2,

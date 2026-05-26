@@ -23,7 +23,7 @@ SPEC.loader.exec_module(export_script)
 
 def main() -> None:
     synthetic_payload = {
-        "summary": {
+            "summary": {
             "providerCount": 2,
             "profilesSaved": 2,
             "latestValidationProfileCount": 2,
@@ -46,20 +46,29 @@ def main() -> None:
             "taskRuntimeFailedCount": 1,
             "taskRuntimeCandidateCount": 1,
             "taskRuntimeProbeCount": 1,
-            "taskRuntimeBlockedCount": 1,
-            "authEvidenceProviders": ["guangya"],
-            "listEvidenceProviders": ["guangya"],
-            "metadataEvidenceProviders": ["guangya"],
+                "taskRuntimeBlockedCount": 1,
+                "placeholderSecretProviderCount": 1,
+                "placeholderSecretProfileCount": 1,
+                "liveRejectedProviderCount": 1,
+                "liveRejectedProfileCount": 1,
+                "placeholderLiveRejectedProviderCount": 1,
+                "placeholderLiveRejectedProfileCount": 1,
+                "authEvidenceProviders": ["guangya"],
+                "listEvidenceProviders": ["guangya"],
+                "metadataEvidenceProviders": ["guangya"],
             "createDirEvidenceProviders": ["guangya"],
             "fullyVerifiedProviders": [],
             "taskRuntimeEvidenceProviders": ["guangya"],
             "taskRuntimeFailedProviders": ["189cloud"],
             "taskRuntimeCandidateProviders": ["189cloud"],
-            "taskRuntimeProbeProviders": ["189cloud"],
-            "taskRuntimeBlockedProviders": ["189cloud"],
-            "taskRuntimeOrphanProviders": ["guangya"],
-            "taskRuntimeOrphanProfiles": ["gy-orphan"],
-        },
+                "taskRuntimeProbeProviders": ["189cloud"],
+                "taskRuntimeBlockedProviders": ["189cloud"],
+                "taskRuntimeOrphanProviders": ["guangya"],
+                "taskRuntimeOrphanProfiles": ["gy-orphan"],
+                "placeholderSecretProviders": ["189cloud"],
+                "liveRejectedProviders": ["189cloud"],
+                "placeholderLiveRejectedProviders": ["189cloud"],
+            },
         "items": [
             {
                 "providerKey": "guangya",
@@ -86,6 +95,18 @@ def main() -> None:
                     "orphanProfileCount": 1,
                     "note": "当前已记录到任务运行阶段真实成功样本。",
                 },
+                "savedProfiles": {
+                    "count": 1,
+                    "profiles": ["gy-1"],
+                    "placeholderSecretProfiles": [],
+                    "placeholderSecretFields": [],
+                    "liveRejectedProfiles": [],
+                    "validationRejectedProfiles": [],
+                    "probeRejectedProfiles": [],
+                    "placeholderLiveRejectedProfiles": [],
+                    "liveRejectedStatuses": [],
+                    "liveRejectedSummaries": [],
+                },
                 "gaps": ["缺少 fully verified 汇总样本"],
                 "notes": "Guangya note",
             },
@@ -111,6 +132,18 @@ def main() -> None:
                     "candidateProfiles": ["189-candidate"],
                     "probeProfiles": ["189-probe"],
                     "note": "已有 failed / candidate / probe / blocked 样本，但尚无成功样本。",
+                },
+                "savedProfiles": {
+                    "count": 1,
+                    "profiles": ["189-1"],
+                    "placeholderSecretProfiles": ["189-1"],
+                    "placeholderSecretFields": ["token"],
+                    "liveRejectedProfiles": ["189-1"],
+                    "validationRejectedProfiles": ["189-1"],
+                    "probeRejectedProfiles": ["189-1"],
+                    "placeholderLiveRejectedProfiles": ["189-1"],
+                    "liveRejectedStatuses": ["401"],
+                    "liveRejectedSummaries": ["189Cloud live list reached the API but was rejected."],
                 },
                 "gaps": ["缺少通过的 auth validation 证据", "缺少真实 runtime 成功样本"],
                 "notes": "189 note",
@@ -151,8 +184,11 @@ def main() -> None:
                 and "runtime_blocked_providers=1" in markdown
                 and "runtime_blocked=1" in markdown
                 and "runtime_orphan_providers=1" in markdown
-                and "runtime_orphan_profiles=1" in markdown,
-                "exportedHasProviderSummary": "- providerSummary: `auth=guangya` `list=guangya` `metadata=guangya` `create_dir=guangya` `fully_verified=(none)` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=189cloud` `runtime_probe=189cloud` `runtime_blocked=189cloud` `runtime_orphan=guangya`" in markdown,
+                and "runtime_orphan_profiles=1" in markdown
+                and "placeholder_secret_providers=1" in markdown
+                and "live_rejected_providers=1" in markdown
+                and "placeholder_live_rejected_providers=1" in markdown,
+                "exportedHasProviderSummary": "- providerSummary: `auth=guangya` `list=guangya` `metadata=guangya` `create_dir=guangya` `fully_verified=(none)` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=189cloud` `runtime_probe=189cloud` `runtime_blocked=189cloud` `runtime_orphan=guangya` `needs_secret_refresh=189cloud` `live_rejected=189cloud` `placeholder_live_rejected=189cloud`" in markdown,
                 "exportedHasGuangyaSuccessRow": "## guangya - Guangya" in markdown
                 and "samples=1 success=1 failed=0" in markdown
                 and "orphanProfiles=1" in markdown,
@@ -160,6 +196,7 @@ def main() -> None:
                 and "samples=3 success=0 failed=1 candidate=1 probe=1 blocked=1" in markdown,
                 "exportedHasRuntimeProfiles": "taskRuntimeProfiles: success=gy-1 failed=(none) candidate=(none) probe=(none) orphan=gy-orphan" in markdown
                 and "taskRuntimeProfiles: success=(none) failed=189-1 candidate=189-candidate probe=189-probe" in markdown,
+                "exportedHasSavedProfileState": "savedProfiles: count=1 all=189-1 needsSecretRefresh=189-1 liveRejected=189-1 placeholderLiveRejected=189-1" in markdown and "liveRejectedStatuses=401" in markdown,
                 "exportedHasGapText": "缺少真实 runtime 成功样本" in markdown,
             },
             ensure_ascii=False,

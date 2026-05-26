@@ -147,14 +147,19 @@ def get_profile(profile_id: str) -> AuthProfile | None:
     return None
 
 
-def masked_profile(profile: AuthProfile) -> dict[str, object]:
+def masked_profile(profile: AuthProfile | object) -> dict[str, object]:
+    token = str(getattr(profile, "token", "") or "")
+    cookie = str(getattr(profile, "cookie", "") or "")
     token_masked = ""
     cookie_masked = ""
-    if profile.token:
-        token_masked = f"{profile.token[:4]}***{profile.token[-2:]}" if len(profile.token) > 6 else "***"
-    if profile.cookie:
-        cookie_masked = f"{profile.cookie[:6]}***" if len(profile.cookie) > 8 else "***"
-    data = profile.model_dump()
+    if token:
+        token_masked = f"{token[:4]}***{token[-2:]}" if len(token) > 6 else "***"
+    if cookie:
+        cookie_masked = f"{cookie[:6]}***" if len(cookie) > 8 else "***"
+    if hasattr(profile, "model_dump"):
+        data = dict(profile.model_dump())
+    else:
+        data = dict(getattr(profile, "__dict__", {}) or {})
     data["token"] = token_masked
     data["cookie"] = cookie_masked
     return data

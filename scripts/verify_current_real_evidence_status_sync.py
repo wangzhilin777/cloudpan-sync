@@ -68,9 +68,15 @@ def main() -> None:
                     and f"`runtime_conflict_handled={summary.get('taskRuntimeConflictHandledCount', 0)}`" in markdown
                     and f"`runtime_orphan_providers={summary.get('taskRuntimeOrphanProviderCount', 0)}`" in markdown
                     and f"`runtime_orphan_profiles={summary.get('taskRuntimeOrphanProfileCount', 0)}`" in markdown
+                    and f"`placeholder_secret_providers={summary.get('placeholderSecretProviderCount', 0)}`" in markdown
+                    and f"`placeholder_secret_profiles={summary.get('placeholderSecretProfileCount', 0)}`" in markdown
+                    and f"`live_rejected_providers={summary.get('liveRejectedProviderCount', 0)}`" in markdown
+                    and f"`live_rejected_profiles={summary.get('liveRejectedProfileCount', 0)}`" in markdown
+                    and f"`placeholder_live_rejected_providers={summary.get('placeholderLiveRejectedProviderCount', 0)}`" in markdown
+                    and f"`placeholder_live_rejected_profiles={summary.get('placeholderLiveRejectedProfileCount', 0)}`" in markdown
                 ),
                 "summaryHasCurrentProviderSummary": (
-                    f"- providerSummary: `auth={', '.join(summary.get('authEvidenceProviders', [])) or '(none)'}` `list={', '.join(summary.get('listEvidenceProviders', [])) or '(none)'}` `metadata={', '.join(summary.get('metadataEvidenceProviders', [])) or '(none)'}` `create_dir={', '.join(summary.get('createDirEvidenceProviders', [])) or '(none)'}` `fully_verified={', '.join(summary.get('fullyVerifiedProviders', [])) or '(none)'}` `runtime_success={', '.join(summary.get('taskRuntimeEvidenceProviders', [])) or '(none)'}` `runtime_failed={', '.join(summary.get('taskRuntimeFailedProviders', [])) or '(none)'}` `runtime_candidate={', '.join(summary.get('taskRuntimeCandidateProviders', [])) or '(none)'}` `runtime_probe={', '.join(summary.get('taskRuntimeProbeProviders', [])) or '(none)'}` `runtime_blocked={', '.join(summary.get('taskRuntimeBlockedProviders', [])) or '(none)'}` `runtime_orphan={', '.join(summary.get('taskRuntimeOrphanProviders', [])) or '(none)'}`" in markdown
+                    f"- providerSummary: `auth={', '.join(summary.get('authEvidenceProviders', [])) or '(none)'}` `list={', '.join(summary.get('listEvidenceProviders', [])) or '(none)'}` `metadata={', '.join(summary.get('metadataEvidenceProviders', [])) or '(none)'}` `create_dir={', '.join(summary.get('createDirEvidenceProviders', [])) or '(none)'}` `fully_verified={', '.join(summary.get('fullyVerifiedProviders', [])) or '(none)'}` `runtime_success={', '.join(summary.get('taskRuntimeEvidenceProviders', [])) or '(none)'}` `runtime_failed={', '.join(summary.get('taskRuntimeFailedProviders', [])) or '(none)'}` `runtime_candidate={', '.join(summary.get('taskRuntimeCandidateProviders', [])) or '(none)'}` `runtime_probe={', '.join(summary.get('taskRuntimeProbeProviders', [])) or '(none)'}` `runtime_blocked={', '.join(summary.get('taskRuntimeBlockedProviders', [])) or '(none)'}` `runtime_orphan={', '.join(summary.get('taskRuntimeOrphanProviders', [])) or '(none)'}` `needs_secret_refresh={', '.join(summary.get('placeholderSecretProviders', [])) or '(none)'}` `live_rejected={', '.join(summary.get('liveRejectedProviders', [])) or '(none)'}` `placeholder_live_rejected={', '.join(summary.get('placeholderLiveRejectedProviders', [])) or '(none)'}`" in markdown
                 ),
                 "summaryShowsCurrentRuntimeDistribution": (
                     summary.get("taskRuntimeEvidenceProviderCount") == 3
@@ -85,8 +91,11 @@ def main() -> None:
                     and summary.get("taskRuntimeBlockedProviderCount") == 0
                     and summary.get("taskRuntimeBlockedCount") == 0
                     and summary.get("taskRuntimeConflictHandledCount") == 6
-                    and summary.get("taskRuntimeOrphanProviderCount") == 3
-                    and summary.get("taskRuntimeOrphanProfileCount") == 6
+                    and summary.get("taskRuntimeOrphanProviderCount") == 0
+                    and summary.get("taskRuntimeOrphanProfileCount") == 0
+                    and summary.get("placeholderSecretProviderCount") == 4
+                    and summary.get("liveRejectedProviderCount") == 4
+                    and summary.get("placeholderLiveRejectedProviderCount") == 4
                 ),
                 "summaryShowsCurrentProviderDistribution": (
                     summary.get("authEvidenceProviders") == []
@@ -99,10 +108,23 @@ def main() -> None:
                     and summary.get("taskRuntimeCandidateProviders") == []
                     and summary.get("taskRuntimeProbeProviders") == []
                     and summary.get("taskRuntimeBlockedProviders") == []
+                    and summary.get("placeholderSecretProviders") == ["guangya", "aliyundrive_open", "uc", "pikpak"]
+                    and summary.get("liveRejectedProviders") == ["guangya", "aliyundrive_open", "uc", "pikpak"]
+                    and summary.get("placeholderLiveRejectedProviders") == ["guangya", "aliyundrive_open", "uc", "pikpak"]
                 ),
-                "guangyaSectionShowsRuntimeSuccess": "samples=4 success=4 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=4 orphanProfiles=4" in guangya,
+                "guangyaSectionShowsRuntimeSuccess": "samples=4 success=4 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=4 orphanProfiles=0" in guangya,
                 "ucSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in uc,
                 "pikpakSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in pikpak,
+                "runtimeRejectedSectionsShowSavedProfileState": (
+                    "savedProfiles: count=6" in guangya
+                    and "placeholderLiveRejected=guangya-restore-gy-live-1" in guangya
+                    and "liveRejectedStatuses=401" in guangya
+                    and "savedProfiles: count=1 all=uc-restore-uc-live-1 needsSecretRefresh=uc-restore-uc-live-1 liveRejected=uc-restore-uc-live-1 placeholderLiveRejected=uc-restore-uc-live-1" in uc
+                    and "liveRejectedStatuses=404" in uc
+                    and "savedProfiles: count=1 all=pikpak-restore-pikpak-live-1 needsSecretRefresh=pikpak-restore-pikpak-live-1 liveRejected=pikpak-restore-pikpak-live-1 placeholderLiveRejected=pikpak-restore-pikpak-live-1" in pikpak
+                    and "liveRejectedStatuses=401" in pikpak
+                    and "savedProfiles: count=1 all=aliyun-bootstrap needsSecretRefresh=aliyun-bootstrap liveRejected=aliyun-bootstrap placeholderLiveRejected=aliyun-bootstrap" in aliyun
+                ),
                 "runtimeSuccessSectionsShowCurrentProfiles": (
                     f"taskRuntimeProfiles: success={', '.join(((guangya_item.get('taskRuntimeEvidence') or {}).get('profiles') or [])) or '(none)'} failed=(none) candidate=(none) probe=(none) orphan={', '.join(((guangya_item.get('taskRuntimeEvidence') or {}).get('orphanProfiles') or [])) or '(none)'}" in guangya
                     and f"taskRuntimeProfiles: success={', '.join(((uc_item.get('taskRuntimeEvidence') or {}).get('profiles') or [])) or '(none)'} failed=(none) candidate=(none) probe=(none) orphan={', '.join(((uc_item.get('taskRuntimeEvidence') or {}).get('orphanProfiles') or [])) or '(none)'}" in uc
@@ -123,6 +145,8 @@ def main() -> None:
                     and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)" in quark
                     and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)" in baidu
                     and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)" in pan123
+                    and "savedProfiles: count=0 all=(none) needsSecretRefresh=(none) liveRejected=(none) placeholderLiveRejected=(none)" in cloud115
+                    and "savedProfiles: count=0 all=(none) needsSecretRefresh=(none) liveRejected=(none) placeholderLiveRejected=(none)" in cloud189
                 ),
                 "noRuntimeSuccessSectionsKeepTodoNote": (
                     "当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。" in cloud115

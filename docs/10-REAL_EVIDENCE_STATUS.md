@@ -1,9 +1,9 @@
 # CloudPan Sync 真实证据状态报告
 
-- 生成时间：`2026-05-26T13:34:34.336940+00:00`
-- 汇总： `providerCount=10` `profilesSaved=9` `latestValidationProfileCount=3` `latestProbeProfileCount=4`
-- 真实证据覆盖： `auth=0` `list=0` `metadata=0` `create_dir=0` `fully_verified=0` `task_runtime=3` `task_runtime_failed=0` `task_runtime_candidate=0` `task_runtime_probe=0` `runtime_samples=6` `runtime_success=6` `runtime_failed=0` `runtime_candidate=0` `runtime_probe=0` `runtime_blocked_providers=0` `runtime_blocked=0` `runtime_conflict_handled=6` `runtime_orphan_providers=0` `runtime_orphan_profiles=0`
-- providerSummary: `auth=(none)` `list=(none)` `metadata=(none)` `create_dir=(none)` `fully_verified=(none)` `runtime_success=guangya, uc, pikpak` `runtime_failed=(none)` `runtime_candidate=(none)` `runtime_probe=(none)` `runtime_blocked=(none)` `runtime_orphan=(none)`
+- 生成时间：`2026-05-26T16:45:22.059358+00:00`
+- 汇总： `providerCount=10` `profilesSaved=9` `latestValidationProfileCount=6` `latestProbeProfileCount=7`
+- 真实证据覆盖： `auth=0` `list=0` `metadata=0` `create_dir=0` `fully_verified=0` `task_runtime=3` `task_runtime_failed=0` `task_runtime_candidate=0` `task_runtime_probe=0` `runtime_samples=6` `runtime_success=6` `runtime_failed=0` `runtime_candidate=0` `runtime_probe=0` `runtime_blocked_providers=0` `runtime_blocked=0` `runtime_conflict_handled=6` `runtime_orphan_providers=0` `runtime_orphan_profiles=0` `placeholder_secret_providers=4` `placeholder_secret_profiles=9` `live_rejected_providers=4` `live_rejected_profiles=5` `placeholder_live_rejected_providers=4` `placeholder_live_rejected_profiles=4`
+- providerSummary: `auth=(none)` `list=(none)` `metadata=(none)` `create_dir=(none)` `fully_verified=(none)` `runtime_success=guangya, uc, pikpak` `runtime_failed=(none)` `runtime_candidate=(none)` `runtime_probe=(none)` `runtime_blocked=(none)` `runtime_orphan=(none)` `needs_secret_refresh=guangya, aliyundrive_open, uc, pikpak` `live_rejected=guangya, aliyundrive_open, uc, pikpak` `placeholder_live_rejected=guangya, aliyundrive_open, uc, pikpak`
 
 > 说明：本报告只统计当前仓库已保存的最新真实校验/探测证据，不把 mock 成功、静态能力声明或未持久化的临时运行结果算成真实成功。
 
@@ -15,7 +15,9 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `True` samples=4 success=4 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=4 orphanProfiles=0 note=当前已记录到任务运行阶段真实成功样本。
 - taskRuntimeProfiles: success=guangya-restore-gy-live-1, guangya-restore-gy-live-2, guangya-restore-gy-live-defaults-1, guangya-restore-gy-orphan-live-1 failed=(none) candidate=(none) probe=(none) orphan=(none)
-- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
+- savedProfiles: count=6 all=smoke-guangya, risk-smoke-guangya, guangya-restore-gy-live-1, guangya-restore-gy-live-2, guangya-restore-gy-live-defaults-1, guangya-restore-gy-orphan-live-1 needsSecretRefresh=guangya-restore-gy-live-1, guangya-restore-gy-live-2, guangya-restore-gy-live-defaults-1, guangya-restore-gy-orphan-live-1, risk-smoke-guangya, smoke-guangya liveRejected=guangya-restore-gy-live-1, gy-patch-probe-1 placeholderLiveRejected=guangya-restore-gy-live-1
+- savedProfileDetails: placeholderSecrets=token validationRejected=guangya-restore-gy-live-1 probeRejected=guangya-restore-gy-live-1, gy-patch-probe-1 liveRejectedStatuses=401 liveRejectedSummaries=Guangya live list request reached the API but was rejected., Guangya live list request reached the API but was rejected. | Guangya live metadata request reached the API but was rejected. | Guangya create_dir request reached the API but was rejected.
+- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 当前仓库已有占位 secret 档案，需替换真实 token/cookie 后重跑, 已命中线上 API 但被占位 secret 档案拒绝，需换成真实凭证后重跑
 - notes: M4 precheck done; get_file_list, get_res_download_url, create_dir, live fast-upload inventory check, and localPath-driven fallback live attempt in task runtime are available with saved auth profile, but real binary upload and stable online validation still need work.
 
 ## aliyundrive_open - Aliyun Drive Open
@@ -26,7 +28,9 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `False` samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0 orphanProfiles=0 note=当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。
 - taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)
-- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
+- savedProfiles: count=1 all=aliyun-bootstrap needsSecretRefresh=aliyun-bootstrap liveRejected=aliyun-bootstrap placeholderLiveRejected=aliyun-bootstrap
+- savedProfileDetails: placeholderSecrets=token validationRejected=aliyun-bootstrap probeRejected=aliyun-bootstrap liveRejectedStatuses=404 liveRejectedSummaries=Aliyun Drive Open live list reached the API but was rejected.
+- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 当前仓库已有占位 secret 档案，需替换真实 token/cookie 后重跑, 已命中线上 API 但被占位 secret 档案拒绝，需换成真实凭证后重跑
 - notes: M5 mock list/metadata online; saved access token plus domainId/driveId can now drive live list/get/create_dir attempts, but real online samples are still pending.
 
 ## 115_open - 115 Open
@@ -37,6 +41,7 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `False` samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0 orphanProfiles=0 note=当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。
 - taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)
+- savedProfiles: count=0 all=(none) needsSecretRefresh=(none) liveRejected=(none) placeholderLiveRejected=(none)
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - notes: cookie driven live list/metadata(create via webapi.115.com files/get_info/files/add) attempts are online, and task runtime can now drive the full proapi.115.com/open/upload/init plus sign_check plus upload/get_token plus OSS binary upload chain when a usable local file plus sha1 is available; stable real success samples and long-term official open-platform token refresh handling are still pending.
 
@@ -48,6 +53,7 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `False` samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0 orphanProfiles=0 note=当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。
 - taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)
+- savedProfiles: count=0 all=(none) needsSecretRefresh=(none) liveRejected=(none) placeholderLiveRejected=(none)
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - notes: share-based live list/metadata(MD5 via file/download) attempts are online from pc-api.uc.cn evidence, cookie-based create_dir attempts are now wired on the Quark PC drive API path, and task runtime can now also drive direct local-file upload by starting with upload/pre + update/hash and continuing into upload/auth + multipart PUT + commit + upload/finish when hash miss occurs; same-name conflicts now support auto_rename_new with overwrite_existing downgraded to auto rename, while stable real online samples are still pending.
 
@@ -59,6 +65,7 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `False` samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0 orphanProfiles=0 note=当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。
 - taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)
+- savedProfiles: count=0 all=(none) needsSecretRefresh=(none) liveRejected=(none) placeholderLiveRejected=(none)
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - notes: shareCode/accessCode based live list/metadata attempts are online, createFolder.action is now wired for account-level OAuth headers such as AccessToken/Signature/Date, and task runtime can now drive the full createUploadFile -> fileUploadUrl PUT -> getUploadFileStatus -> fileCommitUrl chain when a usable local file plus md5 is available; share-only profiles still remain read-only, while stable real success samples are still pending.
 
@@ -70,6 +77,7 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `False` samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0 orphanProfiles=0 note=当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。
 - taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)
+- savedProfiles: count=0 all=(none) needsSecretRefresh=(none) liveRejected=(none) placeholderLiveRejected=(none)
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - notes: access token or cookie can now drive conservative live list/metadata/create_dir attempts on the xpan file API; this provider remains high risk-control and still lacks stable real samples plus fast-transfer evidence.
 
@@ -81,7 +89,9 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `True` samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1 orphanProfiles=0 note=当前已记录到任务运行阶段真实成功样本。
 - taskRuntimeProfiles: success=uc-restore-uc-live-1 failed=(none) candidate=(none) probe=(none) orphan=(none)
-- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
+- savedProfiles: count=1 all=uc-restore-uc-live-1 needsSecretRefresh=uc-restore-uc-live-1 liveRejected=uc-restore-uc-live-1 placeholderLiveRejected=uc-restore-uc-live-1
+- savedProfileDetails: placeholderSecrets=cookie validationRejected=uc-restore-uc-live-1 probeRejected=uc-restore-uc-live-1 liveRejectedStatuses=404 liveRejectedSummaries=UC Drive live list reached the API but was rejected.
+- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 当前仓库已有占位 secret 档案，需替换真实 token/cookie 后重跑, 已命中线上 API 但被占位 secret 档案拒绝，需换成真实凭证后重跑
 - notes: share-based live list/metadata(MD5 via file/download) attempts are online on the pc-api.uc.cn chain with saved cookie + pwdId, same-stack cookie-based create_dir attempts are now wired, and task runtime can now also drive direct local-file upload by starting with upload/pre + update/hash and continuing into upload/auth + multipart PUT + commit + upload/finish when hash miss occurs; same-name conflicts now support auto_rename_new with overwrite_existing downgraded to auto rename, while stable real online samples are still pending.
 
 ## xunlei - Xunlei Drive
@@ -92,6 +102,7 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `False` samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0 orphanProfiles=0 note=当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。
 - taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)
+- savedProfiles: count=0 all=(none) needsSecretRefresh=(none) liveRejected=(none) placeholderLiveRejected=(none)
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - notes: token + x-device-id style live list/metadata(parentId-scoped lookup)/create_dir attempts are online from api-pan.xunlei.com evidence, and task runtime can now reuse the same create-by-hash plus resumable binary path for both fast_upload and download_upload items when a usable local file plus gcid is available; same-name conflicts now support auto_rename_new with overwrite_existing downgraded to auto rename, while stable real samples are still pending.
 
@@ -103,7 +114,9 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `True` samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1 orphanProfiles=0 note=当前已记录到任务运行阶段真实成功样本。
 - taskRuntimeProfiles: success=pikpak-restore-pikpak-live-1 failed=(none) candidate=(none) probe=(none) orphan=(none)
-- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
+- savedProfiles: count=1 all=pikpak-restore-pikpak-live-1 needsSecretRefresh=pikpak-restore-pikpak-live-1 liveRejected=pikpak-restore-pikpak-live-1 placeholderLiveRejected=pikpak-restore-pikpak-live-1
+- savedProfileDetails: placeholderSecrets=token validationRejected=pikpak-restore-pikpak-live-1 probeRejected=pikpak-restore-pikpak-live-1 liveRejectedStatuses=401 liveRejectedSummaries=PikPak live list reached the API but was rejected.
+- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 当前仓库已有占位 secret 档案，需替换真实 token/cookie 后重跑, 已命中线上 API 但被占位 secret 档案拒绝，需换成真实凭证后重跑
 - notes: token + optional device headers can now drive live list/metadata/create_dir attempts on api-drive.mypikpak.com, and task runtime can now reuse the same create-by-hash plus resumable binary path for both fast_upload and download_upload items when a usable local file plus gcid is available; same-name conflicts now support auto_rename_new with overwrite_existing downgraded to auto rename, while stable real samples are still pending.
 
 ## 123_open - 123Pan Open
@@ -114,5 +127,6 @@
 - createDirEvidence: `False` profiles=(none)
 - taskRuntimeEvidence: `False` samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0 orphanProfiles=0 note=当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。
 - taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)
+- savedProfiles: count=0 all=(none) needsSecretRefresh=(none) liveRejected=(none) placeholderLiveRejected=(none)
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
 - notes: token driven live list/metadata(create via parentFileId-scoped lookup) and create_dir attempts are online; stable real samples and upload chain are still pending.

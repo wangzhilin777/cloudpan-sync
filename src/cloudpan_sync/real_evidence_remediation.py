@@ -472,6 +472,8 @@ def _next_step(
     runtime_candidate_only: bool,
     runtime_probe_only: bool,
     runtime_orphan_only: bool,
+    placeholder_live_rejected_profiles: list[str],
+    live_rejected_statuses: list[str],
     runtime_success_command: str,
     post_bootstrap_runtime_command: str,
     overwrite_support_status: str,
@@ -491,6 +493,10 @@ def _next_step(
             )
         return f"先创建 `{provider_key}` 的 auth profile，再执行最小 validation 和 live probe。"
     if any(bool(profile.get("needsSecretRefresh")) for profile in provider_profiles):
+        if placeholder_live_rejected_profiles:
+            statuses = "/".join(str(value or "") for value in live_rejected_statuses if str(value or ""))
+            status_text = f"（当前已命中线上 API，返回状态 {statuses}）" if statuses else "（当前已命中线上 API 但被拒绝）"
+            return f"当前档案仍含占位 token/cookie 等 secret 字段，且 {', '.join(placeholder_live_rejected_profiles)} {status_text}；先换成真实凭证，再重跑 validation / live probe。"
         return "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。"
     if any(not bool(profile.get("profileReady")) for profile in provider_profiles):
         return "先补齐档案缺字段并重跑 validation / live probe，拿到 auth/list/metadata 最小成功证据。"
@@ -550,6 +556,7 @@ def build_real_evidence_remediation_bundle(
         metadata_evidence = dict(row.get("metadataEvidence") or {})
         create_dir_evidence = dict(row.get("createDirEvidence") or {})
         runtime_evidence = dict(row.get("taskRuntimeEvidence") or {})
+        saved_profiles = dict(row.get("savedProfiles") or {})
         profile_ready = bool(provider_profiles) and all(bool(profile.get("profileReady")) for profile in provider_profiles)
         write_ready = bool(provider_profiles) and all(bool(profile.get("writeReady", True)) for profile in provider_profiles)
         profile_needing_patch = next(
@@ -622,6 +629,12 @@ def build_real_evidence_remediation_bundle(
                     if str(value or "")
                 }
             ),
+            "liveRejectedProfiles": list(saved_profiles.get("liveRejectedProfiles") or []),
+            "validationRejectedProfiles": list(saved_profiles.get("validationRejectedProfiles") or []),
+            "probeRejectedProfiles": list(saved_profiles.get("probeRejectedProfiles") or []),
+            "placeholderLiveRejectedProfiles": list(saved_profiles.get("placeholderLiveRejectedProfiles") or []),
+            "liveRejectedStatuses": list(saved_profiles.get("liveRejectedStatuses") or []),
+            "liveRejectedSummaries": list(saved_profiles.get("liveRejectedSummaries") or []),
             "recommendedRecreateProbeCommand": runtime_orphan_recreate_probe_command
             if runtime_orphan_recreate_probe_command
             else (
@@ -685,6 +698,8 @@ def build_real_evidence_remediation_bundle(
                 runtime_candidate_only=runtime_candidate_only,
                 runtime_probe_only=runtime_probe_only,
                 runtime_orphan_only=runtime_orphan_only,
+                placeholder_live_rejected_profiles=list(saved_profiles.get("placeholderLiveRejectedProfiles") or []),
+                live_rejected_statuses=list(saved_profiles.get("liveRejectedStatuses") or []),
                 runtime_success_command=runtime_success_command,
                 post_bootstrap_runtime_command=post_bootstrap_runtime_command if not provider_profiles else "",
                 overwrite_support_status=str(conflict_snapshot.get("overwriteSupportStatus") or ""),
@@ -812,6 +827,20 @@ def build_real_evidence_remediation_bundle(
             if bool(item.get("runtimeOrphanOnly")) and str(item.get("providerKey") or "")
         }
     )
+    providers_needing_secret_refresh = sorted(
+        {
+            str(item.get("providerKey") or "")
+            for item in items
+            if bool(item.get("needsSecretRefresh")) and str(item.get("providerKey") or "")
+        }
+    )
+    providers_placeholder_live_rejected = sorted(
+        {
+            str(item.get("providerKey") or "")
+            for item in items
+            if list(item.get("placeholderLiveRejectedProfiles") or []) and str(item.get("providerKey") or "")
+        }
+    )
 
     return {
         "summary": {
@@ -850,6 +879,8 @@ def build_real_evidence_remediation_bundle(
             "providersCandidateOnly": sum(1 for item in items if bool(item.get("runtimeCandidateOnly"))),
             "providersProbeOnly": sum(1 for item in items if bool(item.get("runtimeProbeOnly"))),
             "providersRuntimeOrphanOnly": sum(1 for item in items if bool(item.get("runtimeOrphanOnly"))),
+            "providersNeedingSecretRefresh": sum(1 for item in items if bool(item.get("needsSecretRefresh"))),
+            "providersPlaceholderLiveRejected": sum(1 for item in items if list(item.get("placeholderLiveRejectedProfiles") or [])),
             "providersWithNoProfilesList": providers_with_no_profiles,
             "providersNeedingAuthEvidenceList": providers_needing_auth_evidence,
             "providersNeedingRuntimeSuccessList": providers_needing_runtime_success,
@@ -860,6 +891,8 @@ def build_real_evidence_remediation_bundle(
             "providersCandidateOnlyList": providers_candidate_only,
             "providersProbeOnlyList": providers_probe_only,
             "providersRuntimeOrphanOnlyList": providers_runtime_orphan_only,
+            "providersNeedingSecretRefreshList": providers_needing_secret_refresh,
+            "providersPlaceholderLiveRejectedList": providers_placeholder_live_rejected,
         },
         "items": items,
     }
@@ -1003,10 +1036,14 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
     lines.append(f"- providersCandidateOnly: `{summary.get('providersCandidateOnly', 0)}`")
     lines.append(f"- providersProbeOnly: `{summary.get('providersProbeOnly', 0)}`")
     lines.append(f"- providersRuntimeOrphanOnly: `{summary.get('providersRuntimeOrphanOnly', 0)}`")
+    lines.append(f"- providersNeedingSecretRefresh: `{summary.get('providersNeedingSecretRefresh', 0)}`")
+    lines.append(f"- providersPlaceholderLiveRejected: `{summary.get('providersPlaceholderLiveRejected', 0)}`")
     lines.append(
         f"- providerSummary: `noProfiles={', '.join(summary.get('providersWithNoProfilesList', [])) or '(none)'}` "
         f"`needAuth={', '.join(summary.get('providersNeedingAuthEvidenceList', [])) or '(none)'}` "
         f"`needRuntime={', '.join(summary.get('providersNeedingRuntimeSuccessList', [])) or '(none)'}` "
+        f"`needSecretRefresh={', '.join(summary.get('providersNeedingSecretRefreshList', [])) or '(none)'}` "
+        f"`placeholderLiveRejected={', '.join(summary.get('providersPlaceholderLiveRejectedList', [])) or '(none)'}` "
         f"`recreateProbe={', '.join(summary.get('providersWithRecreateProbeCommandList', [])) or '(none)'}` "
         f"`primaryCommand={', '.join(summary.get('providersWithPrimaryCommandList', [])) or '(none)'}` "
         f"`overwriteVariant={', '.join(summary.get('providersWithOverwriteVariantCommandList', [])) or '(none)'}` "
@@ -1056,6 +1093,14 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- gaps: {', '.join(row.get('gaps') or [])}")
         if row.get("placeholderSecretFieldHints"):
             lines.append(f"- placeholderSecretFieldHints: `{', '.join(row.get('placeholderSecretFieldHints') or [])}`")
+        if row.get("placeholderLiveRejectedProfiles") or row.get("liveRejectedProfiles"):
+            lines.append(
+                f"- liveRejected: profiles=`{', '.join(row.get('liveRejectedProfiles') or []) or '(none)'}` "
+                f"placeholderProfiles=`{', '.join(row.get('placeholderLiveRejectedProfiles') or []) or '(none)'}` "
+                f"statuses=`{', '.join(row.get('liveRejectedStatuses') or []) or '(none)'}`"
+            )
+        if row.get("liveRejectedSummaries"):
+            lines.append(f"- liveRejectedSummaries: `{ ' | '.join(row.get('liveRejectedSummaries') or []) }`")
         if row.get("providerConflictNotes"):
             lines.append(f"- providerConflictNotes: {row.get('providerConflictNotes', '')}")
         lines.append(f"- nextStep: {row.get('nextStep', '')}")

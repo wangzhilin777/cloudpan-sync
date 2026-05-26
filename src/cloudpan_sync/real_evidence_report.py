@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+from .auth_profile_view import auth_profile_view
 from .auth_live_validate import latest_live_validations
 from .auth_store import list_profiles
 from .provider_live_probe_store import latest_provider_live_probes
@@ -38,6 +39,16 @@ def _provider_notes_map() -> dict[str, str]:
 
 def _profile_map() -> dict[str, object]:
     return {str(profile.profileId or ""): profile for profile in list_profiles() if str(profile.profileId or "")}
+
+
+def _profile_views_map() -> dict[str, list[dict[str, object]]]:
+    grouped: dict[str, list[dict[str, object]]] = {}
+    for profile in list_profiles():
+        provider_key = str(getattr(profile, "providerKey", "") or "")
+        if not provider_key:
+            continue
+        grouped.setdefault(provider_key, []).append(auth_profile_view(profile))
+    return grouped
 
 
 def _profile_label(profile_map: dict[str, object], profile_id: str) -> str:
@@ -129,10 +140,56 @@ def _missing_profile_labels(
     return sorted(set(labels))
 
 
+def _failed_live_rows(rows: list[dict[str, object]]) -> list[dict[str, object]]:
+    failed: list[dict[str, object]] = []
+    for row in rows:
+        current = dict(row or {})
+        mode = str(current.get("mode") or "")
+        try:
+            status = int(current.get("status", 0) or 0)
+        except Exception:
+            status = 0
+        if bool(current.get("ok")):
+            continue
+        if mode != "live_error" and status <= 0:
+            continue
+        failed.append(current)
+    return failed
+
+
+def _labels_from_rows(rows: list[dict[str, object]], profile_map: dict[str, object]) -> list[str]:
+    labels: list[str] = []
+    for row in rows:
+        labels.append(_profile_label(profile_map, str(row.get("profileId") or "")))
+    return sorted(set(label for label in labels if label))
+
+
+def _statuses_from_rows(rows: list[dict[str, object]]) -> list[str]:
+    statuses: list[str] = []
+    for row in rows:
+        try:
+            status = int(row.get("status", 0) or 0)
+        except Exception:
+            status = 0
+        if status > 0:
+            statuses.append(str(status))
+    return sorted(set(statuses), key=lambda value: int(value))
+
+
+def _summaries_from_rows(rows: list[dict[str, object]]) -> list[str]:
+    summaries: list[str] = []
+    for row in rows:
+        text = str(row.get("riskHint") or row.get("summary") or "").strip()
+        if text:
+            summaries.append(text)
+    return sorted(set(summaries))
+
+
 def build_real_evidence_report() -> dict[str, object]:
     display_map = _provider_display_map()
     notes_map = _provider_notes_map()
     profile_map = _profile_map()
+    profile_views_map = _profile_views_map()
     validations = list(latest_live_validations())
     probes = list(latest_provider_live_probes())
     runtime_rows = list(latest_task_runtime_evidence())
@@ -149,8 +206,15 @@ def build_real_evidence_report() -> dict[str, object]:
     task_runtime_failed_provider_count = 0
     task_runtime_blocked_provider_count = 0
     task_runtime_conflict_handled_count = 0
+    placeholder_secret_provider_count = 0
+    placeholder_secret_profile_count = 0
+    live_rejected_provider_count = 0
+    live_rejected_profile_count = 0
+    placeholder_live_rejected_provider_count = 0
+    placeholder_live_rejected_profile_count = 0
 
     for provider_key in provider_keys:
+        provider_profile_views = list(profile_views_map.get(provider_key, []))
         provider_validations = [row for row in validations if str(row.get("providerKey") or "") == provider_key]
         provider_probes = [row for row in probes if str(row.get("providerKey") or "") == provider_key]
         provider_runtime_rows = [row for row in runtime_rows if str(row.get("providerKey") or "") == provider_key]
@@ -175,6 +239,29 @@ def build_real_evidence_report() -> dict[str, object]:
         runtime_candidate_labels = _candidate_runtime_profile_labels(provider_runtime_candidate_rows, profile_map)
         runtime_probe_labels = _probe_runtime_profile_labels(provider_runtime_probe_rows, profile_map)
         runtime_orphan_labels = _missing_profile_labels(provider_runtime_rows, profile_map)
+        placeholder_secret_labels = sorted(
+            {
+                str(profile.get("displayName") or profile.get("profileId") or "")
+                for profile in provider_profile_views
+                if bool(profile.get("needsSecretRefresh"))
+            }
+        )
+        placeholder_secret_fields = sorted(
+            {
+                str(value or "")
+                for profile in provider_profile_views
+                for value in (profile.get("placeholderSecretFieldHints") or [])
+                if str(value or "")
+            }
+        )
+        failed_validation_rows = _failed_live_rows(provider_validations)
+        failed_probe_rows = _failed_live_rows(provider_probes)
+        validation_rejected_labels = _labels_from_rows(failed_validation_rows, profile_map)
+        probe_rejected_labels = _labels_from_rows(failed_probe_rows, profile_map)
+        live_rejected_labels = sorted(set(validation_rejected_labels + probe_rejected_labels))
+        live_rejected_statuses = _statuses_from_rows(failed_validation_rows + failed_probe_rows)
+        live_rejected_summaries = _summaries_from_rows(failed_validation_rows + failed_probe_rows)
+        placeholder_live_rejected_labels = sorted(set(placeholder_secret_labels).intersection(live_rejected_labels))
 
         auth_ok = bool(auth_ok_labels)
         list_ok = bool(list_ok_labels)
@@ -202,6 +289,15 @@ def build_real_evidence_report() -> dict[str, object]:
         if runtime_blocked:
             task_runtime_blocked_provider_count += 1
         task_runtime_conflict_handled_count += runtime_conflict_handled
+        if placeholder_secret_labels:
+            placeholder_secret_provider_count += 1
+            placeholder_secret_profile_count += len(placeholder_secret_labels)
+        if live_rejected_labels:
+            live_rejected_provider_count += 1
+            live_rejected_profile_count += len(live_rejected_labels)
+        if placeholder_live_rejected_labels:
+            placeholder_live_rejected_provider_count += 1
+            placeholder_live_rejected_profile_count += len(placeholder_live_rejected_labels)
         if auth_ok and list_ok and metadata_ok and create_dir_ok:
             fully_verified_provider_count += 1
 
@@ -222,6 +318,10 @@ def build_real_evidence_report() -> dict[str, object]:
             gaps.append("已有 fast-upload candidate 样本，但尚未记录到真实 rapid-upload/runtime 成功样本")
         if runtime_orphan_labels:
             gaps.append("已有 runtime 样本，但对应 auth profile 未保存在当前仓库")
+        if placeholder_secret_labels:
+            gaps.append("当前仓库已有占位 secret 档案，需替换真实 token/cookie 后重跑")
+        if placeholder_live_rejected_labels:
+            gaps.append("已命中线上 API 但被占位 secret 档案拒绝，需换成真实凭证后重跑")
 
         items.append(
             {
@@ -284,6 +384,22 @@ def build_real_evidence_report() -> dict[str, object]:
                         )
                     ),
                 },
+                "savedProfiles": {
+                    "count": len(provider_profile_views),
+                    "profiles": [
+                        str(profile.get("displayName") or profile.get("profileId") or "")
+                        for profile in provider_profile_views
+                        if str(profile.get("displayName") or profile.get("profileId") or "")
+                    ],
+                    "placeholderSecretProfiles": placeholder_secret_labels,
+                    "placeholderSecretFields": placeholder_secret_fields,
+                    "liveRejectedProfiles": live_rejected_labels,
+                    "validationRejectedProfiles": validation_rejected_labels,
+                    "probeRejectedProfiles": probe_rejected_labels,
+                    "placeholderLiveRejectedProfiles": placeholder_live_rejected_labels,
+                    "liveRejectedStatuses": live_rejected_statuses,
+                    "liveRejectedSummaries": live_rejected_summaries,
+                },
                 "fullyVerified": auth_ok and list_ok and metadata_ok and create_dir_ok,
                 "gaps": gaps,
             }
@@ -327,6 +443,12 @@ def build_real_evidence_report() -> dict[str, object]:
             "taskRuntimeConflictHandledCount": task_runtime_conflict_handled_count,
             "taskRuntimeOrphanProviderCount": sum(1 for item in items if int(((item.get("taskRuntimeEvidence") or {}).get("orphanProfileCount", 0)) or 0) > 0),
             "taskRuntimeOrphanProfileCount": sum(int(((item.get("taskRuntimeEvidence") or {}).get("orphanProfileCount", 0)) or 0) for item in items),
+            "placeholderSecretProviderCount": placeholder_secret_provider_count,
+            "placeholderSecretProfileCount": placeholder_secret_profile_count,
+            "liveRejectedProviderCount": live_rejected_provider_count,
+            "liveRejectedProfileCount": live_rejected_profile_count,
+            "placeholderLiveRejectedProviderCount": placeholder_live_rejected_provider_count,
+            "placeholderLiveRejectedProfileCount": placeholder_live_rejected_profile_count,
             "authEvidenceProviders": [str(item.get("providerKey") or "") for item in items if bool(((item.get("authEvidence") or {}).get("ok")))],
             "listEvidenceProviders": [str(item.get("providerKey") or "") for item in items if bool(((item.get("listEvidence") or {}).get("ok")))],
             "metadataEvidenceProviders": [str(item.get("providerKey") or "") for item in items if bool(((item.get("metadataEvidence") or {}).get("ok")))],
@@ -338,6 +460,9 @@ def build_real_evidence_report() -> dict[str, object]:
             "taskRuntimeProbeProviders": [str(item.get("providerKey") or "") for item in items if int(((item.get("taskRuntimeEvidence") or {}).get("probeCount", 0)) or 0) > 0],
             "taskRuntimeBlockedProviders": [str(item.get("providerKey") or "") for item in items if int(((item.get("taskRuntimeEvidence") or {}).get("blockedCount", 0)) or 0) > 0],
             "taskRuntimeOrphanProviders": [str(item.get("providerKey") or "") for item in items if int(((item.get("taskRuntimeEvidence") or {}).get("orphanProfileCount", 0)) or 0) > 0],
+            "placeholderSecretProviders": [str(item.get("providerKey") or "") for item in items if list(((item.get("savedProfiles") or {}).get("placeholderSecretProfiles")) or [])],
+            "liveRejectedProviders": [str(item.get("providerKey") or "") for item in items if list(((item.get("savedProfiles") or {}).get("liveRejectedProfiles")) or [])],
+            "placeholderLiveRejectedProviders": [str(item.get("providerKey") or "") for item in items if list(((item.get("savedProfiles") or {}).get("placeholderLiveRejectedProfiles")) or [])],
             "taskRuntimeOrphanProfiles": [
                 str(profile_id or "")
                 for item in items
@@ -388,6 +513,12 @@ def real_evidence_to_markdown(payload: dict[str, object]) -> str:
         f" `runtime_conflict_handled={summary.get('taskRuntimeConflictHandledCount', 0)}`"
         f" `runtime_orphan_providers={summary.get('taskRuntimeOrphanProviderCount', 0)}`"
         f" `runtime_orphan_profiles={summary.get('taskRuntimeOrphanProfileCount', 0)}`"
+        f" `placeholder_secret_providers={summary.get('placeholderSecretProviderCount', 0)}`"
+        f" `placeholder_secret_profiles={summary.get('placeholderSecretProfileCount', 0)}`"
+        f" `live_rejected_providers={summary.get('liveRejectedProviderCount', 0)}`"
+        f" `live_rejected_profiles={summary.get('liveRejectedProfileCount', 0)}`"
+        f" `placeholder_live_rejected_providers={summary.get('placeholderLiveRejectedProviderCount', 0)}`"
+        f" `placeholder_live_rejected_profiles={summary.get('placeholderLiveRejectedProfileCount', 0)}`"
     )
     lines.append(
         "- providerSummary:"
@@ -402,6 +533,9 @@ def real_evidence_to_markdown(payload: dict[str, object]) -> str:
         f" `runtime_probe={', '.join(summary.get('taskRuntimeProbeProviders', [])) or '(none)'}`"
         f" `runtime_blocked={', '.join(summary.get('taskRuntimeBlockedProviders', [])) or '(none)'}`"
         f" `runtime_orphan={', '.join(summary.get('taskRuntimeOrphanProviders', [])) or '(none)'}`"
+        f" `needs_secret_refresh={', '.join(summary.get('placeholderSecretProviders', [])) or '(none)'}`"
+        f" `live_rejected={', '.join(summary.get('liveRejectedProviders', [])) or '(none)'}`"
+        f" `placeholder_live_rejected={', '.join(summary.get('placeholderLiveRejectedProviders', [])) or '(none)'}`"
     )
     lines.append("")
     lines.append("> 说明：本报告只统计当前仓库已保存的最新真实校验/探测证据，不把 mock 成功、静态能力声明或未持久化的临时运行结果算成真实成功。")
@@ -445,6 +579,24 @@ def real_evidence_to_markdown(payload: dict[str, object]) -> str:
             f"probe={_profiles_text((row.get('taskRuntimeEvidence') or {}).get('probeProfiles', []))} "
             f"orphan={_profiles_text((row.get('taskRuntimeEvidence') or {}).get('orphanProfiles', []))}"
         )
+        lines.append(
+            f"- savedProfiles: count={((row.get('savedProfiles') or {}).get('count', 0))} "
+            f"all={_profiles_text((row.get('savedProfiles') or {}).get('profiles', []))} "
+            f"needsSecretRefresh={_profiles_text((row.get('savedProfiles') or {}).get('placeholderSecretProfiles', []))} "
+            f"liveRejected={_profiles_text((row.get('savedProfiles') or {}).get('liveRejectedProfiles', []))} "
+            f"placeholderLiveRejected={_profiles_text((row.get('savedProfiles') or {}).get('placeholderLiveRejectedProfiles', []))}"
+        )
+        live_rejected_statuses = _profiles_text((row.get("savedProfiles") or {}).get("liveRejectedStatuses", []))
+        live_rejected_summaries = _profiles_text((row.get("savedProfiles") or {}).get("liveRejectedSummaries", []))
+        placeholder_secret_fields = _profiles_text((row.get("savedProfiles") or {}).get("placeholderSecretFields", []))
+        if live_rejected_statuses != "(none)" or live_rejected_summaries != "(none)" or placeholder_secret_fields != "(none)":
+            lines.append(
+                f"- savedProfileDetails: placeholderSecrets={placeholder_secret_fields} "
+                f"validationRejected={_profiles_text((row.get('savedProfiles') or {}).get('validationRejectedProfiles', []))} "
+                f"probeRejected={_profiles_text((row.get('savedProfiles') or {}).get('probeRejectedProfiles', []))} "
+                f"liveRejectedStatuses={live_rejected_statuses} "
+                f"liveRejectedSummaries={live_rejected_summaries}"
+            )
         if row.get("gaps"):
             lines.append(f"- gaps: {', '.join(row.get('gaps') or [])}")
         if row.get("notes"):

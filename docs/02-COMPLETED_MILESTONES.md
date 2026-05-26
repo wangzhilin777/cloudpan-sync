@@ -8,6 +8,20 @@
 
 ## 里程碑清单
 
+### 已完成补齐项 - `2026-05-27`
+
+- 提交：`真实证据与补救文档补上占位凭证被线上拒绝状态`
+- 完成范围：
+  - 已把 [real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_report.py) 补成会明确区分三类阻塞：缺字段、占位 secret、以及“已命中线上 API 但被当前占位凭证拒绝”
+  - 当前 [10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 已新增 `placeholder_secret_* / live_rejected_* / placeholder_live_rejected_*` 汇总计数，并在 `guangya / aliyundrive_open / uc / pikpak` provider 行里把 `savedProfiles / liveRejectedStatuses / placeholderLiveRejected` 全部展开
+  - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 与 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 同步到同一口径：补救摘要现在会直接列出 `providersNeedingSecretRefresh=4`、`providersPlaceholderLiveRejected=4`，对应 provider 的 `nextStep` 也会明确写出“先换真实凭证，再重跑 validation / live probe”
+  - 同一轮还把相关 verifier 全部对齐到当前文档口径，避免再出现“代码和导出已更新，但校验脚本仍按旧 orphan / 旧 summary 文案断言”的假性停滞
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_report.py` 已验证真实证据报告 payload / markdown / API markdown 现在会按当前口径输出 runtime、placeholder secret、live rejected 汇总
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_report.py`、`.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_status_sync.py` 已验证 [10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 导出链与当前仓库文档同步一致
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py`、`.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py`、`.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证补救 bundle / 导出文档 / 当前 docs 均已同步到“占位凭证已命中线上但被拒绝”的新口径
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `[]`
+
 ### 已完成补齐项 - `2026-05-26`
 
 - 提交：`orphan 清零后 exact helper 仍可继续复用已恢复档案`

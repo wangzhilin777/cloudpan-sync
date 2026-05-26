@@ -367,7 +367,7 @@ def main() -> None:
                 "exportedHasDeclaredConflictPolicySummary": "providersWithDeclaredConflictPolicies: `5`" in markdown,
                 "exportedHasOverwriteDowngradeSummary": "providersWithOverwriteDowngrade: `5`" in markdown,
                 "exportedHasConflictUnsupportedSummary": "providersWithConflictUnsupported: `2`" in markdown,
-                "exportedHasProviderSummary": "- providerSummary: `noProfiles=(none)` `needAuth=(none)` `needRuntime=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `recreateProbe=guangya` `primaryCommand=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `overwriteVariant=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `blockedOnly=(none)` `candidateOnly=115_open` `probeOnly=(none)`" in markdown,
+                "exportedHasProviderSummary": "- providerSummary: `noProfiles=(none)` `needAuth=(none)` `needRuntime=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `needSecretRefresh=(none)` `placeholderLiveRejected=(none)` `recreateProbe=guangya` `primaryCommand=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `overwriteVariant=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `blockedOnly=(none)` `candidateOnly=115_open` `probeOnly=(none)` `runtimeOrphanOnly=(none)`" in markdown,
                 "exportedHasLiveRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown
                 and r"tmp\guangya-live-evidence" in markdown,
                 "exportedHasFastRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown

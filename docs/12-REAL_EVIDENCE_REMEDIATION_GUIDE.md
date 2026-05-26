@@ -1,14 +1,14 @@
 # CloudPan Sync 真实联调补救指南
 
 - providerCount: `10`
-- providersWithNoProfiles: `8`
+- providersWithNoProfiles: `6`
 - providersNeedingAuthEvidence: `10`
 - providersNeedingListEvidence: `10`
 - providersNeedingMetadataEvidence: `10`
 - providersNeedingCreateDirEvidence: `10`
 - providersNeedingRuntimeSuccess: `7`
-- providersWithPatchCommand: `2`
-- providersWithPatchProbeCommand: `2`
+- providersWithPatchCommand: `4`
+- providersWithPatchProbeCommand: `4`
 - providersWithRecreateProbeCommand: `4`
 - providersWithRefreshEvidenceCommand: `0`
 - providersWithPostRefreshRuntimeCommand: `0`
@@ -24,47 +24,52 @@
 - providersWithProviderManagedOverwrite: `1`
 - providersWithOverwriteDowngrade: `7`
 - providersWithConflictUnsupported: `1`
-- providersWithCreateCommand: `8`
-- providersWithBootstrapCommand: `8`
+- providersWithCreateCommand: `6`
+- providersWithBootstrapCommand: `6`
 - providersBlockedOnly: `0`
 - providersCandidateOnly: `0`
 - providersProbeOnly: `0`
-- providersRuntimeOrphanOnly: `3`
-- providerSummary: `noProfiles=115_open, 123_open, 189cloud, baidu_netdisk, pikpak, quark, uc, xunlei` `needAuth=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `needRuntime=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, quark, xunlei` `recreateProbe=aliyundrive_open, guangya, pikpak, uc` `primaryCommand=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `overwriteVariant=115_open, 123_open, 189cloud, baidu_netdisk, quark, xunlei` `blockedOnly=(none)` `candidateOnly=(none)` `probeOnly=(none)` `runtimeOrphanOnly=guangya, pikpak, uc`
+- providersRuntimeOrphanOnly: `0`
+- providersNeedingSecretRefresh: `4`
+- providersPlaceholderLiveRejected: `4`
+- providerSummary: `noProfiles=115_open, 123_open, 189cloud, baidu_netdisk, quark, xunlei` `needAuth=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `needRuntime=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, quark, xunlei` `needSecretRefresh=aliyundrive_open, guangya, pikpak, uc` `placeholderLiveRejected=aliyundrive_open, guangya, pikpak, uc` `recreateProbe=aliyundrive_open, guangya, pikpak, uc` `primaryCommand=115_open, 123_open, 189cloud, aliyundrive_open, baidu_netdisk, guangya, pikpak, quark, uc, xunlei` `overwriteVariant=115_open, 123_open, 189cloud, baidu_netdisk, quark, xunlei` `blockedOnly=(none)` `candidateOnly=(none)` `probeOnly=(none)` `runtimeOrphanOnly=(none)`
 
 ## Provider 清单
 
 ### guangya - Guangya
-- profileCount: `2`
+- profileCount: `6`
 - authReadyProfiles: `0`
-- writeReadyProfiles: `2`
+- writeReadyProfiles: `6`
 - recommendedAuthModes: `web_login_capture, manual_token`
 - webLoginUrl: https://guangyapan.com/
 - requiredFieldHints: `token or extra.authorization, extra.parentId, optional extra.did, optional extra.dt`
-- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=False` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False` `runtimeOrphanOnly=True`
-- runtimeOrphanProfiles: `gy-live-1, gy-live-2, gy-live-defaults-1, gy-orphan-live-1`
+- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=False` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False` `runtimeOrphanOnly=False`
 - conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=downgrade_to_auto_rename` `auto_rename=supported` `supportsOverwrite=False` `supportsAutoRename=True` `overwriteBehavior=downgrade_to_auto_rename`
-- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 已有 runtime 样本，但对应 auth profile 未保存在当前仓库
+- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 当前仓库已有占位 secret 档案，需替换真实 token/cookie 后重跑, 已命中线上 API 但被占位 secret 档案拒绝，需换成真实凭证后重跑
 - placeholderSecretFieldHints: `token`
+- liveRejected: profiles=`guangya-restore-gy-live-1, gy-patch-probe-1` placeholderProfiles=`guangya-restore-gy-live-1` statuses=`401`
+- liveRejectedSummaries: `Guangya live list request reached the API but was rejected. | Guangya live list request reached the API but was rejected. | Guangya live metadata request reached the API but was rejected. | Guangya create_dir request reached the API but was rejected.`
 - providerConflictNotes: 当前 Guangya fallback 上传链路已接受 overwrite_existing / auto_rename_new，但 overwrite_existing 仍会诚实降级为 auto_rename_new。
-- nextStep: 当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。
-- recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe` `label=recreate_probe`
+- nextStep: 当前档案仍含占位 token/cookie 等 secret 字段，且 guangya-restore-gy-live-1 （当前已命中线上 API，返回状态 401）；先换成真实凭证，再重跑 validation / live probe。
+- recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name smoke-guangya --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe` `label=recreate_probe`
 - recommendedPatchCommand: `.\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id 0318479d-4669-415f-9083-7aecc102bf90 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate`
 - recommendedPatchProbeCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 0318479d-4669-415f-9083-7aecc102bf90 --set parentId=YOUR_REAL_PARENT_ID --write`
-- recommendedPatchCommands: count=`2`
+- recommendedPatchCommands: count=`6`
   - [1] `.\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id 0318479d-4669-415f-9083-7aecc102bf90 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate`
   - [2] `.\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id 08684618-ea29-48a4-b603-2e40cdc37c3d --set parentId=YOUR_REAL_PARENT_ID --write --revalidate`
-- recommendedPatchProbeCommands: count=`2`
+  - [3] `.\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id gy-live-1 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate`
+  - [4] `.\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id gy-live-2 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate`
+  - [5] `.\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id gy-live-defaults-1 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate`
+  - [6] `.\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id gy-orphan-live-1 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate`
+- recommendedPatchProbeCommands: count=`6`
   - [1] `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 0318479d-4669-415f-9083-7aecc102bf90 --set parentId=YOUR_REAL_PARENT_ID --write`
   - [2] `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 08684618-ea29-48a4-b603-2e40cdc37c3d --set parentId=YOUR_REAL_PARENT_ID --write`
+  - [3] `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-1 --set parentId=YOUR_REAL_PARENT_ID --write`
+  - [4] `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-2 --set parentId=YOUR_REAL_PARENT_ID --write`
+  - [5] `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-defaults-1 --set parentId=YOUR_REAL_PARENT_ID --write`
+  - [6] `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-orphan-live-1 --set parentId=YOUR_REAL_PARENT_ID --write`
 - exactPatchHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-remediation-profile-id 0318479d-4669-415f-9083-7aecc102bf90`
-- recommendedRecreateProbeCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
-- exactRecreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-orphan-profile gy-live-1`
-- recommendedRecreateProbeCommands: count=`4`
-  - [1] `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
-  - [2] `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-2 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-2 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
-  - [3] `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-defaults-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-defaults-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
-  - [4] `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-orphan-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-orphan-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
+- recommendedRecreateProbeCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name smoke-guangya --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
 
 ### aliyundrive_open - Aliyun Drive Open
 - profileCount: `1`
@@ -75,10 +80,12 @@
 - requiredFieldHints: `token or extra.authorization, extra.domainId, extra.driveId`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=True` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False` `runtimeOrphanOnly=False`
 - conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=supported` `auto_rename=supported` `supportsOverwrite=True` `supportsAutoRename=True` `overwriteBehavior=provider_managed`
-- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据
+- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 当前仓库已有占位 secret 档案，需替换真实 token/cookie 后重跑, 已命中线上 API 但被占位 secret 档案拒绝，需换成真实凭证后重跑
 - placeholderSecretFieldHints: `token`
+- liveRejected: profiles=`aliyun-bootstrap` placeholderProfiles=`aliyun-bootstrap` statuses=`404`
+- liveRejectedSummaries: `Aliyun Drive Open live list reached the API but was rejected.`
 - providerConflictNotes: 当前 Aliyun Drive Open 已接入任务运行阶段真实小文件上传；同名文件可按 overwrite_existing / auto_rename_new 显式选择。
-- nextStep: 当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。
+- nextStep: 当前档案仍含占位 token/cookie 等 secret 字段，且 aliyun-bootstrap （当前已命中线上 API，返回状态 404）；先换成真实凭证，再重跑 validation / live probe。
 - recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name aliyun-bootstrap --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe` `label=recreate_probe`
 - recommendedPatchCommand: `.\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write --revalidate`
 - recommendedPatchProbeCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 22173a49-2206-4da8-8624-9bab7bbbe64b --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write`
@@ -169,24 +176,24 @@
 - conflictPolicyNote: 当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。
 
 ### uc - UC Drive
-- profileCount: `0`
+- profileCount: `1`
 - authReadyProfiles: `0`
-- writeReadyProfiles: `0`
+- writeReadyProfiles: `1`
 - recommendedAuthModes: `web_login_capture, manual_cookie`
 - webLoginUrl: https://drive.uc.cn/
 - requiredFieldHints: `cookie or extra.cookie_header, extra.pwdId or extra.sharePwdId, optional extra.passcode, optional extra.fileId`
-- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=False` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False` `runtimeOrphanOnly=True`
-- runtimeOrphanProfiles: `uc-live-1`
+- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=False` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False` `runtimeOrphanOnly=False`
 - conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=downgrade_to_auto_rename` `auto_rename=supported` `supportsOverwrite=False` `supportsAutoRename=True` `overwriteBehavior=downgrade_to_auto_rename`
-- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 已有 runtime 样本，但对应 auth profile 未保存在当前仓库
+- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 当前仓库已有占位 secret 档案，需替换真实 token/cookie 后重跑, 已命中线上 API 但被占位 secret 档案拒绝，需换成真实凭证后重跑
+- placeholderSecretFieldHints: `cookie`
+- liveRejected: profiles=`uc-restore-uc-live-1` placeholderProfiles=`uc-restore-uc-live-1` statuses=`404`
+- liveRejectedSummaries: `UC Drive live list reached the API but was rejected.`
 - providerConflictNotes: 当前 UC Drive 已接入任务运行阶段真实本地文件上传；`auto_rename_new` 可直接支持，`overwrite_existing` 会诚实降级为自动改名。
-- nextStep: 当前已存在 runtime 成功样本，但对应 auth profile 未保存在当前仓库；先重建可复用 auth profile，再重跑 validation / live probe，把 auth/list/metadata/create_dir 证据补齐。
-- recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id uc-live-1 --provider-key uc --auth-mode manual_cookie --display-name uc-restore-uc-live-1 --cookie YOUR_COOKIE --set pwdId=YOUR_SHARE_PWD_ID --probe` `label=recreate_probe`
-- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key uc --auth-mode manual_cookie --display-name uc-manual_cookie --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE`
-- exactCreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-provider uc`
-- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key uc --auth-mode manual_cookie --display-name uc-manual_cookie --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE --probe`
-- recommendedRecreateProbeCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id uc-live-1 --provider-key uc --auth-mode manual_cookie --display-name uc-restore-uc-live-1 --cookie YOUR_COOKIE --set pwdId=YOUR_SHARE_PWD_ID --probe`
-- exactRecreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-orphan-profile uc-live-1`
+- nextStep: 当前档案仍含占位 token/cookie 等 secret 字段，且 uc-restore-uc-live-1 （当前已命中线上 API，返回状态 404）；先换成真实凭证，再重跑 validation / live probe。
+- recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key uc --auth-mode manual_cookie --display-name uc-restore-uc-live-1 --cookie YOUR_COOKIE --set pwdId=YOUR_SHARE_PWD_ID --probe` `label=recreate_probe`
+- recommendedPatchCommand: `.\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id uc-live-1 --set pwdId=YOUR_SHARE_PWD_ID --write --revalidate`
+- recommendedPatchProbeCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id uc-live-1 --set pwdId=YOUR_SHARE_PWD_ID --write`
+- recommendedRecreateProbeCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key uc --auth-mode manual_cookie --display-name uc-restore-uc-live-1 --cookie YOUR_COOKIE --set pwdId=YOUR_SHARE_PWD_ID --probe`
 
 ### xunlei - Xunlei Drive
 - profileCount: `0`
@@ -210,25 +217,25 @@
 - conflictPolicyNote: 当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。
 
 ### pikpak - PikPak
-- profileCount: `0`
+- profileCount: `1`
 - authReadyProfiles: `0`
-- writeReadyProfiles: `0`
+- writeReadyProfiles: `1`
 - recommendedAuthModes: `manual_token`
 - webLoginUrl: https://mypikpak.com/
 - officialDocsUrl: https://mypikpak.com/
 - requiredFieldHints: `token or extra.authorization, optional extra.deviceId, optional extra.fileId`
-- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=False` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False` `runtimeOrphanOnly=True`
-- runtimeOrphanProfiles: `pikpak-live-1`
+- needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=False` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False` `runtimeOrphanOnly=False`
 - conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=downgrade_to_auto_rename` `auto_rename=supported` `supportsOverwrite=False` `supportsAutoRename=True` `overwriteBehavior=downgrade_to_auto_rename`
-- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 已有 runtime 样本，但对应 auth profile 未保存在当前仓库
+- gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 当前仓库已有占位 secret 档案，需替换真实 token/cookie 后重跑, 已命中线上 API 但被占位 secret 档案拒绝，需换成真实凭证后重跑
+- placeholderSecretFieldHints: `token`
+- liveRejected: profiles=`pikpak-restore-pikpak-live-1` placeholderProfiles=`pikpak-restore-pikpak-live-1` statuses=`401`
+- liveRejectedSummaries: `PikPak live list reached the API but was rejected.`
 - providerConflictNotes: 当前 PikPak 已接入任务运行阶段真实本地文件上传；`auto_rename_new` 可直接支持，`overwrite_existing` 会诚实降级为自动改名。
-- nextStep: 当前已存在 runtime 成功样本，但对应 auth profile 未保存在当前仓库；先重建可复用 auth profile，再重跑 validation / live probe，把 auth/list/metadata/create_dir 证据补齐。
-- recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id pikpak-live-1 --provider-key pikpak --auth-mode manual_token --display-name pikpak-restore-pikpak-live-1 --token YOUR_TOKEN --set deviceId=YOUR_DEVICE_ID --probe` `label=recreate_probe`
-- recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_token --display-name pikpak-manual_token --token YOUR_TOKEN --set deviceId=YOUR_VALUE`
-- exactCreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-provider pikpak`
-- recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_token --display-name pikpak-manual_token --token YOUR_TOKEN --set deviceId=YOUR_VALUE --probe`
-- recommendedRecreateProbeCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id pikpak-live-1 --provider-key pikpak --auth-mode manual_token --display-name pikpak-restore-pikpak-live-1 --token YOUR_TOKEN --set deviceId=YOUR_DEVICE_ID --probe`
-- exactRecreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-orphan-profile pikpak-live-1`
+- nextStep: 当前档案仍含占位 token/cookie 等 secret 字段，且 pikpak-restore-pikpak-live-1 （当前已命中线上 API，返回状态 401）；先换成真实凭证，再重跑 validation / live probe。
+- recommendedPrimaryCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_token --display-name pikpak-restore-pikpak-live-1 --token YOUR_TOKEN --set deviceId=YOUR_DEVICE_ID --probe` `label=recreate_probe`
+- recommendedPatchCommand: `.\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id pikpak-live-1 --set key=value --write --revalidate`
+- recommendedPatchProbeCommand: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id pikpak-live-1 --set key=value --write`
+- recommendedRecreateProbeCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_token --display-name pikpak-restore-pikpak-live-1 --token YOUR_TOKEN --set deviceId=YOUR_DEVICE_ID --probe`
 
 ### 123_open - 123Pan Open
 - profileCount: `0`

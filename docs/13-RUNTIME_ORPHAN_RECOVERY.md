@@ -2,7 +2,7 @@
 
 - 生成时间：`2026-05-26T02:30:13.877455+00:00`
 - 汇总： `providerCount=3` `orphanProfileCount=4` `runtimeSampleCount=4` `providersWithSavedProfiles=1` `providersWithoutSavedProfiles=2`
-- orphanSummary: `providers=guangya, guangya, pikpak, uc` `profiles=gy-live-1, gy-live-defaults-1, pikpak-live-1, uc-live-1` `savedProfileProviders=guangya, guangya` `missingProfileProviders=pikpak, uc`
+- orphanSummary: `providers=guangya, pikpak, uc` `profiles=gy-live-1, gy-live-defaults-1, pikpak-live-1, uc-live-1` `savedProfileProviders=guangya` `missingProfileProviders=pikpak, uc`
 
 > 说明：这里的 recovery command 只是帮助你把历史 runtime success 对应的 `profileId` 重建回当前仓库，便于后续重新验证；它不会自动把旧样本算成新的真实完成证据。
 

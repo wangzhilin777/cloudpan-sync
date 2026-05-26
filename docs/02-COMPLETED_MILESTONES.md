@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`运行孤儿恢复汇总也去重 provider 列表`
+- 完成范围：
+  - 已把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 的 summary 汇总再收口一层：`orphanProviders / providersWithSavedProfilesList / providersWithoutSavedProfilesList` 现在都会按 provider 去重，不再因为同一 provider 下存在多个 orphan profile，就在 provider 级汇总里重复列出
+  - 当前效果是：像 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 现在会保持 `providerCount=3` 且 `orphanProviders=guangya, pikpak, uc`，同时继续保留 `orphanProfileCount=4` 与四条 profile 级明细，不再出现“provider 计数是 3，但 provider 列表里把 guangya 写两次”的视觉割裂
+  - 已把 current-sync verifier 同步到新口径，避免后续再把“provider 级去重”和“profile 级保留明细”混成同一套断言
+- 当前验证证据：
+  - 已把 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 的 `orphanSummary` 同步到去重后的 provider 汇总口径
+  - `.\.venv\Scripts\python.exe scripts\verify_current_runtime_orphan_recovery_sync.py` 已验证当前文档与 `build_runtime_orphan_recovery()` 在去重后的 provider 汇总口径上保持一致
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`运行孤儿恢复文档也同步主推荐命令`
 - 完成范围：
   - 已把 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 重导出到当前口径：每条 orphan provider 现在除了 `recommendedCreateCommand` 之外，也会同步写出 `recommendedPrimaryCommand` 与 `label=...`

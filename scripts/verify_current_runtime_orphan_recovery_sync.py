@@ -46,7 +46,7 @@ def main() -> None:
                     and summary.get("runtimeSampleCount") == 4
                     and summary.get("providersWithSavedProfiles") == 1
                     and summary.get("providersWithoutSavedProfiles") == 2
-                    and summary.get("orphanProviders") == ["guangya", "guangya", "pikpak", "uc"]
+                    and summary.get("orphanProviders") == ["guangya", "pikpak", "uc"]
                     and summary.get("orphanProfiles") == ["gy-live-1", "gy-live-defaults-1", "pikpak-live-1", "uc-live-1"]
                 ),
                 "guangyaSectionHasRecoveryCommand": "--profile-id gy-live-1" in guangya and "existingProviderProfiles: count=`2`" in guangya,

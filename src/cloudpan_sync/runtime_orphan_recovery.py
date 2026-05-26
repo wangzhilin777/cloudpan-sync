@@ -306,20 +306,33 @@ def build_runtime_orphan_recovery() -> dict[str, object]:
             }
         )
 
+    summary_orphan_providers = sorted(
+        {str(item.get("providerKey") or "") for item in items if str(item.get("providerKey") or "")}
+    )
+    summary_saved_profile_providers = sorted(
+        {
+            str(item.get("providerKey") or "")
+            for item in items
+            if int(item.get("existingProviderProfileCount") or 0) > 0 and str(item.get("providerKey") or "")
+        }
+    )
+    summary_missing_profile_providers = sorted(
+        {
+            str(item.get("providerKey") or "")
+            for item in items
+            if int(item.get("existingProviderProfileCount") or 0) <= 0 and str(item.get("providerKey") or "")
+        }
+    )
     summary = {
         "providerCount": len({str(item.get("providerKey") or "") for item in items if str(item.get("providerKey") or "")}),
         "orphanProfileCount": len(items),
         "runtimeSampleCount": sum(int(item.get("sampleCount") or 0) for item in items),
         "providersWithSavedProfiles": len({str(item.get("providerKey") or "") for item in items if int(item.get("existingProviderProfileCount") or 0) > 0}),
         "providersWithoutSavedProfiles": len({str(item.get("providerKey") or "") for item in items if int(item.get("existingProviderProfileCount") or 0) <= 0}),
-        "orphanProviders": [str(item.get("providerKey") or "") for item in items if str(item.get("providerKey") or "")],
+        "orphanProviders": summary_orphan_providers,
         "orphanProfiles": [str(item.get("orphanProfileId") or "") for item in items if str(item.get("orphanProfileId") or "")],
-        "providersWithSavedProfilesList": [
-            str(item.get("providerKey") or "") for item in items if int(item.get("existingProviderProfileCount") or 0) > 0
-        ],
-        "providersWithoutSavedProfilesList": [
-            str(item.get("providerKey") or "") for item in items if int(item.get("existingProviderProfileCount") or 0) <= 0
-        ],
+        "providersWithSavedProfilesList": summary_saved_profile_providers,
+        "providersWithoutSavedProfilesList": summary_missing_profile_providers,
     }
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(),

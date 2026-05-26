@@ -719,6 +719,15 @@ function setAuthRemediationSummary(bundle, markdown) {
   summaryProfiles.textContent = `readyProfiles=${(summary.readyProfiles || []).join("/") || "(none)"}, needsFixProfiles=${(summary.needsFixProfiles || []).join("/") || "(none)"}, writeReadyProfiles=${(summary.writeReadyProfiles || []).join("/") || "(none)"}, writeNeedsFixProfiles=${(summary.writeNeedsFixProfiles || []).join("/") || "(none)"}, needsSecretRefreshProfiles=${(summary.needsSecretRefreshProfiles || []).join("/") || "(none)"}`;
   box.appendChild(summaryProfiles);
   if (firstNeedsFix) {
+    const firstMissing = (firstNeedsFix.missingFieldHints || []).join(" | ");
+    const firstWriteMissing = (firstNeedsFix.writeMissingFieldHints || []).join(" | ");
+    const firstPlaceholderSecretHints = (firstNeedsFix.placeholderSecretFieldHints || []).join(" | ");
+    const firstFixMeta = document.createElement("div");
+    firstFixMeta.className = "auth-validation-meta";
+    firstFixMeta.textContent = `${firstNeedsFix.displayName || firstNeedsFix.profileId || "(unknown)"} [${firstNeedsFix.providerKey || "(unknown)"}]: profileReady=${Boolean(firstNeedsFix.profileReady)}, writeReady=${Boolean(firstNeedsFix.writeReady)}${firstMissing ? `, missing=${firstMissing}` : ""}${firstWriteMissing ? `, writeMissing=${firstWriteMissing}` : ""}${firstPlaceholderSecretHints ? `, placeholderSecretHints=${firstPlaceholderSecretHints}` : ""}${Boolean(firstNeedsFix.needsSecretRefresh) ? ", needsSecretRefresh=true" : ""}`;
+    box.appendChild(firstFixMeta);
+  }
+  if (firstNeedsFix) {
     const rejectedMeta = document.createElement("div");
     rejectedMeta.className = "auth-validation-meta";
     rejectedMeta.textContent = `liveRejectedStatuses=${(firstNeedsFix.liveRejectedStatuses || []).join("/") || "(none)"}, placeholderLiveRejectedProfiles=${(firstNeedsFix.placeholderLiveRejectedProfiles || []).join("/") || "(none)"}, liveRejectedSummaries=${(firstNeedsFix.liveRejectedSummaries || []).join(" | ") || "(none)"}`;

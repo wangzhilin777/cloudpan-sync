@@ -65,6 +65,9 @@ def main() -> None:
                 and "const firstLiveRejectedStatuses = (firstAuthRemediationGap.liveRejectedStatuses || []).join(\"/\") || \"\";" in app_js
                 and "const firstPlaceholderLiveRejectedProfiles = (firstAuthRemediationGap.placeholderLiveRejectedProfiles || []).join(\"/\") || \"\";" in app_js
                 and "const firstLiveRejectedSummaries = (firstAuthRemediationGap.liveRejectedSummaries || []).join(\" | \") || \"\";" in app_js
+                and "const firstMissing = (firstNeedsFix.missingFieldHints || []).join(\" | \");" in app_js
+                and "const firstWriteMissing = (firstNeedsFix.writeMissingFieldHints || []).join(\" | \");" in app_js
+                and "const firstPlaceholderSecretHints = (firstNeedsFix.placeholderSecretFieldHints || []).join(\" | \");" in app_js
                 and "readyProfiles=" in app_js
                 and "needsFixProfiles=" in app_js
                 and "writeNeedsFixProfiles=" in app_js
@@ -75,6 +78,7 @@ def main() -> None:
                 and "liveRejectedStatuses=" in app_js
                 and "placeholderLiveRejectedProfiles=" in app_js
                 and "liveRejectedSummaries=" in app_js
+                and 'firstFixMeta.textContent = `${firstNeedsFix.displayName || firstNeedsFix.profileId || "(unknown)"} [${firstNeedsFix.providerKey || "(unknown)"}]: profileReady=${Boolean(firstNeedsFix.profileReady)}, writeReady=${Boolean(firstNeedsFix.writeReady)}${firstMissing ? `, missing=${firstMissing}` : ""}${firstWriteMissing ? `, writeMissing=${firstWriteMissing}` : ""}${firstPlaceholderSecretHints ? `, placeholderSecretHints=${firstPlaceholderSecretHints}` : ""}${Boolean(firstNeedsFix.needsSecretRefresh) ? ", needsSecretRefresh=true" : ""}`;' in app_js
                 and "liveRejectedStatuses=${firstLiveRejectedStatuses}" in app_js
                 and "placeholderLiveRejectedProfiles=${firstPlaceholderLiveRejectedProfiles}" in app_js
                 and "liveRejectedSummaries=${firstLiveRejectedSummaries}" in app_js

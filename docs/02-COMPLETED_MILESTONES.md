@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权补救汇总面板的first fix摘要`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `setAuthRemediationSummary` 再补一层：当前在 `Auth Remediation` 汇总面板里，除了计数、按钮和 `liveRejected` 概要，也会直接写出第一条补救项的 `profileReady / writeReady`
+  - 同一条 first-fix 文本现在还会把 `missing / writeMissing / placeholderSecretHints / needsSecretRefresh` 一并展开，不再需要点回设置页列表或补救文档才知道这条补救项的完整缺口
+  - 这样授权补救汇总面板终于和前面已经补齐的设置页摘要、详情面板、导出文档保持同口径了，不再出现“汇总面板只有状态码和按钮，但 first fix 关键缺口信息还得回别处看”的断层
+  - 已同步补强 [verify_auth_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_settings_ui.py)，把 `setAuthRemediationSummary` 里 `firstNeedsFix` 的 first-fix 文案一起锁进 UI 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_settings_ui.py` 已验证授权补救汇总面板、详情面板与设置页摘要链当前都已包含 first-fix 的关键缺口文本
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权证据汇总面板的first gap摘要`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `setAuthEvidenceBundleSummary` 再补一层：当前在 `Auth Evidence Bundle` 汇总面板里，除了计数和操作按钮，也会直接写出第一条 gap 的 `profileReady / writeReady / validationOk / probeOk`

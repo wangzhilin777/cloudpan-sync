@@ -64,11 +64,32 @@ def main() -> None:
             task_runtime_evidence_store.RUNTIME_EVIDENCE_FILE = original_runtime_file
 
     row = latest[0] if latest else {}
+    first_result = (((run_payload.get("item") or {}).get("results") or [None])[0])
+    first_live_attempt = dict(((first_result or {}).get("liveAttempt") or {}))
     print(
         json.dumps(
             {
+                "blockedRuntimeEvidencePersisted": (
+                    (run_payload.get("item") or {}).get("state") == "completed_with_errors"
+                    and str((first_result or {}).get("executionMode") or "") == "blocked"
+                    and str((first_result or {}).get("status") or "") == "failed"
+                    and first_live_attempt.get("mode") == "download_upload_blocked_by_size_limit"
+                    and first_live_attempt.get("riskHint") == "download_upload_size_limit_exceeded"
+                    and first_live_attempt.get("error") == "download_upload_blocked_by_size_limit"
+                    and int((first_live_attempt.get("payload") or {}).get("limitBytes") or 0) == 536870912
+                    and len(latest) == 1
+                    and row.get("mode") == "download_upload_blocked_by_size_limit"
+                    and row.get("executionMode") == "blocked"
+                    and row.get("status") == "failed"
+                    and row.get("riskHint") == "download_upload_size_limit_exceeded"
+                    and row.get("error") == "download_upload_blocked_by_size_limit"
+                    and summary.get("blockedProviderCount") == 1
+                    and summary.get("blockedCount") == 1
+                    and summary.get("failedProviderCount") == 1
+                    and summary.get("failedCount") == 1
+                ),
                 "taskState": (run_payload.get("item") or {}).get("state"),
-                "firstResult": (((run_payload.get("item") or {}).get("results") or [None])[0]),
+                "firstResult": first_result,
                 "runtimeEvidenceCount": len(latest),
                 "firstRuntimeRow": row,
                 "summary": summary,

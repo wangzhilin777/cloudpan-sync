@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐运行阻塞样本回归断言`
+- 完成范围：
+  - 已把 [verify_task_runtime_blocked_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_blocked_evidence.py) 从单纯打印 blocked runtime evidence 现场，补成真正的断言型 verifier
+  - 当前会直接锁住 `download_upload_blocked_by_size_limit` 这条运行阻塞样本：任务结果里的 `executionMode=blocked / status=failed / riskHint / error / limitBytes`
+  - 同一条回归也会继续锁住写盘后的 runtime evidence 行与 summary 汇总里的 `blockedProviderCount / blockedCount / failedProviderCount / failedCount`
+  - 当前效果是：大文件 fallback 因大小阈值被挡住时，任务结果和 runtime evidence 样本两边终于被同一条回归直接接住了，不再只是打印当前快照
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_blocked_evidence.py` 已验证 blocked runtime evidence 当前会稳定写入 `download_upload_blocked_by_size_limit`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐光鸭运行校验字段回归断言`
 - 完成范围：
   - 已把 [verify_task_runtime_guangya_verify_fields.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_guangya_verify_fields.py) 从单纯打印 `verifyMode / verifyNote` 现场，补成真实可运行的断言型 verifier

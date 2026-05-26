@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`真实补救指南也同步第二条光鸭孤儿样本`
+- 完成范围：
+  - 已把 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 重新导出到当前仓库实况：Guangya 分段里的 `runtimeOrphanProfiles` 现已从旧的单条 `gy-live-1` 同步为 `gy-live-1, gy-live-defaults-1`
+  - 当前效果是：`Real Evidence Remediation` 长文档不再只把 Guangya 当成“只有第一条 orphan runtime success”，而是和当前 `real_evidence_remediation` 生成载荷保持一致，明确承认 Guangya 现在有两条 orphan profile 仍待恢复
+  - 已把 [verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py) 一并补强，显式锁定 Guangya 的双 orphan profile 列表，避免后续文档再次悄悄退回旧的单样本口径
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 与 `build_real_evidence_remediation_bundle()` 在 Guangya 双 orphan profile 口径上保持同步
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`提供方状态矩阵也同步四条运行样本口径`
 - 完成范围：
   - 已把 [06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 重新导出到当前仓库实况：顶部 summary 现在会同步反映 `taskRuntimeSampleCount=4`、`taskRuntimeSuccessCount=4`、`taskRuntimeConflictHandledCount=4`、`taskRuntimeOrphanProviderCount=3`、`taskRuntimeOrphanProfileCount=4`

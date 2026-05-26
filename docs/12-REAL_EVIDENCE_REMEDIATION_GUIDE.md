@@ -42,7 +42,7 @@
 - webLoginUrl: https://guangyapan.com/
 - requiredFieldHints: `token or extra.authorization, extra.parentId, optional extra.did, optional extra.dt`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=False` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False` `runtimeOrphanOnly=True`
-- runtimeOrphanProfiles: `gy-live-1`
+- runtimeOrphanProfiles: `gy-live-1, gy-live-defaults-1`
 - conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=downgrade_to_auto_rename` `auto_rename=supported` `supportsOverwrite=False` `supportsAutoRename=True` `overwriteBehavior=downgrade_to_auto_rename`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 已有 runtime 样本，但对应 auth profile 未保存在当前仓库
 - placeholderSecretFieldHints: `token`

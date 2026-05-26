@@ -3013,6 +3013,7 @@ function renderSettingsPanel() {
     const matchedProfile = (state.authProfiles || []).find((profile) => profile.profileId === item.profileId)
       || (state.authProfiles || []).find((profile) => profile.providerKey === item.providerKey)
       || null;
+    const orphanRuntimeProfileId = !matchedProfile ? String(item.profileId || "").trim() : "";
     if (matchedProfile || item.providerKey) {
       const actions = document.createElement("span");
       actions.className = "row-actions";
@@ -3046,6 +3047,13 @@ function renderSettingsPanel() {
       captureBtn.textContent = matchedProfile ? "Open Capture For Existing Profile" : "Open Capture";
       captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey || matchedProfile?.providerKey || ""));
       actions.appendChild(captureBtn);
+      if (orphanRuntimeProfileId) {
+        const recreateBtn = document.createElement("button");
+        recreateBtn.className = "ghost";
+        recreateBtn.textContent = "Recreate Orphan Stub";
+        recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(item.providerKey || "", orphanRuntimeProfileId));
+        actions.appendChild(recreateBtn);
+      }
       li.appendChild(actions);
     }
     taskRuntimeEvidenceList.appendChild(li);
@@ -3065,6 +3073,7 @@ function renderSettingsPanel() {
       (state.authProfiles || []).find((profile) => profile.profileId === firstRuntimeEvidenceGap.profileId)
       || (state.authProfiles || []).find((profile) => profile.providerKey === firstRuntimeEvidenceGap.providerKey)
     );
+    const firstRuntimeOrphanProfileId = !hasExistingProfile ? String(firstRuntimeEvidenceGap.profileId || "").trim() : "";
     const firstRuntimeLabels = {
       focus: hasExistingProfile ? "Focus Existing Profile" : "Focus First Runtime",
       refresh: hasExistingProfile ? "Refresh Existing Profile" : "Refresh First Runtime",
@@ -3112,6 +3121,13 @@ function renderSettingsPanel() {
       createBtn.textContent = "Create Stub First Runtime";
       createBtn.addEventListener("click", () => createRemediationProfile(firstRuntimeEvidenceGap.providerKey || ""));
       actions.appendChild(createBtn);
+    }
+    if (firstRuntimeOrphanProfileId) {
+      const recreateBtn = document.createElement("button");
+      recreateBtn.className = "ghost";
+      recreateBtn.textContent = "Recreate Orphan Stub First Runtime";
+      recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(firstRuntimeEvidenceGap.providerKey || "", firstRuntimeOrphanProfileId));
+      actions.appendChild(recreateBtn);
     }
     li.appendChild(actions);
     taskRuntimeEvidenceList.appendChild(li);

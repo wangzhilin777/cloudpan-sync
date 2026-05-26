@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`运行证据入口也补直达孤儿恢复动作`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Task Runtime Evidence` 的逐条运行样本入口，以及“首个运行缺口”入口继续补强：当样本里已经带有 `profileId`，但当前仓库找不到对应档案时，现在可以直接点 `Recreate Orphan Stub` / `Recreate Orphan Stub First Runtime`
+  - 当前效果是：像 `guangya / uc / pikpak` 这类已有 runtime success 历史、但 auth profile 脱节的运行样本，不再只停留在“看到 riskHint/requiredAuth/error 后自己判断该去哪修”，而是能直接从运行证据面板一键接入 orphan 恢复链
+  - 这次补齐把 `runtime_orphan` 恢复动作进一步下沉到最贴近实际运行样本的位置，也更贴近 `P-REAL` 当前“已有运行记录但不可复验”的真实缺口
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_evidence_settings_ui.py` 已验证 `Task Runtime Evidence` 当前会识别 orphan 型 `profileId`，并绑定 `Recreate Orphan Stub` 与 `Recreate Orphan Stub First Runtime` 动作
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`首个真实缺口入口也补直达孤儿恢复动作`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Real Evidence` 顶部“首个缺口”入口继续补强：当首个缺口本身带有 `runtimeOrphanProfiles` 时，用户现在可以直接点 `Recreate Orphan Stub First Gap`

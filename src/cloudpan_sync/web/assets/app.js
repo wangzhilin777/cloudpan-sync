@@ -2715,7 +2715,8 @@ function renderSettingsPanel() {
   if (firstProviderStatusGap) {
     const li = document.createElement("li");
     const copy = document.createElement("span");
-    copy.textContent = `${firstProviderStatusGap.providerKey || "(unknown)"}: support=${firstProviderStatusGap.supportStatus || "unknown"}, auth=${Boolean(firstProviderStatusGap.auth_ready)}, list=${Boolean(firstProviderStatusGap.list_ready)}, metadata=${Boolean(firstProviderStatusGap.metadata_ready)}, create_dir=${Boolean(firstProviderStatusGap.create_dir_ready)}, fast_check=${Boolean(firstProviderStatusGap.fast_check)}, live_probe_ok=${Boolean(firstProviderStatusGap.live_probe_ok)}, runtime_track=${firstProviderStatusGap.task_runtime_track || "runtime_planned"}, blocked=${firstProviderStatusGap.task_runtime_blocked || 0}`;
+    const firstProviderStatusRealEvidence = realEvidenceByProvider(firstProviderStatusGap.providerKey);
+    copy.textContent = `${firstProviderStatusGap.providerKey || "(unknown)"}: support=${firstProviderStatusGap.supportStatus || "unknown"}, auth=${Boolean(firstProviderStatusGap.auth_ready)}, list=${Boolean(firstProviderStatusGap.list_ready)}, metadata=${Boolean(firstProviderStatusGap.metadata_ready)}, create_dir=${Boolean(firstProviderStatusGap.create_dir_ready)}, fast_check=${Boolean(firstProviderStatusGap.fast_check)}, live_probe_ok=${Boolean(firstProviderStatusGap.live_probe_ok)}, runtime_track=${firstProviderStatusGap.task_runtime_track || "runtime_planned"}, blocked=${firstProviderStatusGap.task_runtime_blocked || 0}, runtime_orphan_profiles=${((firstProviderStatusRealEvidence?.taskRuntimeEvidence || {}).orphanProfileCount || 0)}`;
     li.appendChild(copy);
     const actions = document.createElement("span");
     actions.className = "row-actions";

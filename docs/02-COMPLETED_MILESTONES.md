@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`提供方状态首个缺口也直写孤儿运行数量`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Provider Status` 的“首个状态缺口”摘要继续补强：当前会直接显示 `runtime_orphan_profiles=...`
+  - 当前效果是：用户在状态总览里看到“当前最先要修的 provider”时，不只知道它被卡在 `runtime_track / blocked / auth / list / metadata` 哪一层，也能同步知道这个缺口是否已经包含“历史 runtime 成功已记录，但 auth profile 脱节”的 orphan 风险
+  - 这次补齐把 `runtime_orphan` 的解释继续推到了 `Provider Status` 的优先摘要入口，让状态总览层和前面已经补好的 provider/research/real-evidence 入口更一致
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_status_settings_ui.py` 已验证 `Provider Status` 的“首个状态缺口”摘要当前会显示 `runtime_orphan_profiles=...`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`提供方首个缺口摘要也直写孤儿运行数量`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 provider 面板“首个缺口”摘要，以及 `Provider Research` 的“首个研究缺口”摘要继续补强：两处现在都会直接写出 `runtime_orphan_profiles=...`

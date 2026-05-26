@@ -74,6 +74,15 @@ def main() -> None:
     finally:
         webapp.ADMIN_PASSWORD = original_password
 
+    provider_create_dir_apis_flow_matches_expected_live_modes = (
+        (quark.get("mode") == "live")
+        and ((quark.get("item") or {}).get("fileId") == "quark-dir-1")
+        and (quark.get("parentId") == "0")
+        and (uc.get("mode") == "live")
+        and ((uc.get("item") or {}).get("fileId") == "uc-dir-1")
+        and (uc.get("parentId") == "0")
+    )
+
     print(
         json.dumps(
             {
@@ -87,6 +96,7 @@ def main() -> None:
                     "fileId": ((uc.get("item") or {}).get("fileId")),
                     "parentId": uc.get("parentId"),
                 },
+                "providerCreateDirApisFlowMatchesExpectedLiveModes": provider_create_dir_apis_flow_matches_expected_live_modes,
             },
             ensure_ascii=False,
             indent=2,

@@ -1346,7 +1346,7 @@
 - 提交：`本次提交`
 - 完成范围：
   - [task_runtime_evidence_store.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime_evidence_store.py) 的 Markdown 渲染现已继续补齐 `profileSummary` 聚合明细，不再只靠逐条样本长行去人工辨认当前有哪些 `success / failed / candidate / probe / blocked / conflictHandled` profile
-  - 这次补齐后，[docs/11-TASK_RUNTIME_EVIDENCE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/11-TASK_RUNTIME_EVIDENCE.md) 现在除了继续保留逐条 runtime 样本行，还会在顶部直接汇总 `success / failed / candidate / probe / blocked / conflictHandled` 对应的 profile；当前真实仓库会明确写出 `success=gy-live-1, pikpak-live-1, uc-live-1` 与 `conflictHandled=gy-live-1, pikpak-live-1, uc-live-1`
+  - 这次补齐后，[docs/11-TASK_RUNTIME_EVIDENCE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/11-TASK_RUNTIME_EVIDENCE.md) 现在除了继续保留逐条 runtime 样本行，还会在顶部直接汇总 `success / failed / candidate / probe / blocked / conflictHandled` 对应的 profile；当前真实仓库会明确写出 `success=gy-live-1, gy-live-defaults-1, pikpak-live-1, uc-live-1` 与 `conflictHandled=gy-live-1, gy-live-defaults-1, pikpak-live-1, uc-live-1`
   - 已同步补强 [verify_task_runtime_evidence_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_api.py)、[verify_export_task_runtime_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_runtime_evidence_report.py)、[verify_current_task_runtime_evidence_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_task_runtime_evidence_report_sync.py)，把 API markdown、导出 markdown 和当前仓库文档里的 `profileSummary` 一起锁进回归
 - 当前验证证据：
   - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_evidence_api.py` 已验证 synthetic API/Markdown 当前会输出 `profileSummary`，并区分 `success / failed / candidate / probe / blocked / conflictHandled`

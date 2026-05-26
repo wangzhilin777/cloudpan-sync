@@ -10,6 +10,19 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补上 runtime orphan 批量重建脚本`
+- 完成范围：
+  - 已新增批量 helper [recreate_runtime_orphan_stubs.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/recreate_runtime_orphan_stubs.py)，可直接读取当前 `runtime_orphan_recovery` 结果，按 `providerKey / orphanProfileId` 过滤要处理的 orphan 样本
+  - 默认 dry-run 会直接输出本轮命中的 orphan 列表、当前是否已有同 `profileId`、将要执行的是 `skip_existing / would_write` 哪一种动作，并把 `recommendedCreate / refresh / runtimeProbe / runtimeSuccess / overwriteVariant` 及对应 exact helper 一并透出，减少逐条回查 `docs/13` 或手抄命令
+  - 当前脚本支持 `--write` 真正把缺失的 orphan stub 批量重建回当前仓库，也支持 `--overwrite-existing` 在需要时直接覆盖同 `profileId` 的现有本地档案；默认仍保持保守策略，遇到已存在档案时先 `skip_existing`
+  - 这样当前 `guangya / pikpak / uc` 这批 `runtime_orphan` 样本不再只能一条条手动执行 `create_auth_profile_stub.py --from-runtime-orphan-profile ...`，而是可以先批量筛出“哪些能直接重建、哪些应保留现状、哪些值得继续刷新/重跑 runtime”
+  - 已同步新增 [verify_recreate_runtime_orphan_stubs.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_recreate_runtime_orphan_stubs.py)，把 dry-run 筛选、按 provider 过滤、`--write` 批量创建、默认跳过已存在档案，以及 `--overwrite-existing` 覆盖路径一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_recreate_runtime_orphan_stubs.py` 已验证新脚本当前能正确完成 `selectedAll / skipExisting / providerFilter / writeCreatesMissingProfiles / overwriteExisting`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`运行脚本补救输出也补齐提供方标识字段`
 - 完成范围：
   - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 的 `remediationFollowup` 再补一层：当前会同步返回 `providerKey / displayName / profileIds`

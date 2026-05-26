@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权抓取解析总链回归断言`
+- 完成范围：
+  - 已把 [verify_auth_capture_parse.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_capture_parse.py) 从 Quark、光鸭、天翼云盘三条抓取解析结果的分散字段检查，补成真正会给出整条授权抓取解析链结论的 verifier
+  - 同一条回归现在会用 `authCaptureParseFlowMatchesExpectedProviders` 直接锁住这条链：`/api/auth/capture/parse` 对 `quark / guangya / 189cloud` 必须同时稳定返回 `capture_parsed`，并分别保留 Quark 的 `cookie + pwdId/passcode`、光鸭的 `token + parentId/did/dt`，以及天翼云盘的 `shareCode/accessCode + AccessToken/Signature/Date` 解析结果
+  - 当前效果是：授权抓取解析能力不再只是三家 provider 的局部字段各自为真，而是多了一条覆盖抓取状态、建议鉴权模式和关键凭证提取结果的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_capture_parse.py` 已验证授权抓取解析链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权抓取指引总链回归断言`
 - 完成范围：
   - 已把 [verify_auth_capture_guide.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_capture_guide.py) 从 Quark、光鸭、阿里云开放平台三条抓取指引的分散字段检查，补成真正会给出整条授权抓取指引链结论的 verifier

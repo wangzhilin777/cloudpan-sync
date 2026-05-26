@@ -59,12 +59,12 @@
   - [2] `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 08684618-ea29-48a4-b603-2e40cdc37c3d --set parentId=YOUR_REAL_PARENT_ID --write`
 - exactPatchHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-remediation-profile-id 0318479d-4669-415f-9083-7aecc102bf90`
 - recommendedRecreateProbeCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
+- exactRecreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-orphan-profile gy-live-1`
 - recommendedRecreateProbeCommands: count=`4`
   - [1] `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
   - [2] `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-2 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-2 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
   - [3] `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-defaults-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-defaults-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
   - [4] `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-orphan-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-orphan-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
-- exactRecreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-orphan-profile gy-orphan-live-1`
 
 ### aliyundrive_open - Aliyun Drive Open
 - profileCount: `1`
@@ -177,6 +177,7 @@
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key uc --auth-mode manual_cookie --display-name uc-manual_cookie --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE`
 - recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key uc --auth-mode manual_cookie --display-name uc-manual_cookie --cookie YOUR_COOKIE --set pwdId=YOUR_VALUE --probe`
 - recommendedRecreateProbeCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id uc-live-1 --provider-key uc --auth-mode manual_cookie --display-name uc-restore-uc-live-1 --cookie YOUR_COOKIE --set pwdId=YOUR_SHARE_PWD_ID --probe`
+- exactRecreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-orphan-profile uc-live-1`
 
 ### xunlei - Xunlei Drive
 - profileCount: `0`
@@ -215,6 +216,7 @@
 - recommendedCreateCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_token --display-name pikpak-manual_token --token YOUR_TOKEN --set deviceId=YOUR_VALUE`
 - recommendedBootstrapCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key pikpak --auth-mode manual_token --display-name pikpak-manual_token --token YOUR_TOKEN --set deviceId=YOUR_VALUE --probe`
 - recommendedRecreateProbeCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id pikpak-live-1 --provider-key pikpak --auth-mode manual_token --display-name pikpak-restore-pikpak-live-1 --token YOUR_TOKEN --set deviceId=YOUR_DEVICE_ID --probe`
+- exactRecreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-orphan-profile pikpak-live-1`
 
 ### 123_open - 123Pan Open
 - profileCount: `0`

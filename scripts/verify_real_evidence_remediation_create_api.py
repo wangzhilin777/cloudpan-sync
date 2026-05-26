@@ -68,6 +68,7 @@ def main() -> None:
                         and "token" in (created_item.get("placeholderSecretFieldHints") or [])
                         and "create_auth_profile_stub.py --provider-key aliyundrive_open" in str(created_payload.get("recommendedBootstrapCommand") or "")
                         and "create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id YOUR_PROFILE_ID" in str(created_payload.get("recommendedPostBootstrapRuntimeCommand") or "")
+                        and str(created_payload.get("exactRecreateHelper") or "") == ""
                         and "--conflict-policy overwrite_existing" in str(created_payload.get("recommendedOverwriteVariantCommand") or "")
                         and "patch_and_probe_auth_profile.py --from-remediation-profile-id" in str(created_payload.get("exactRefreshEvidenceHelper") or "")
                         and "create_runtime_probe_task.py --from-remediation-profile-id" in str(created_payload.get("exactRuntimeProbeHelper") or "")
@@ -92,6 +93,7 @@ def main() -> None:
                         and (created_again_item.get("profileId") == profile_id)
                         and str(created_again_payload.get("nextStep") or "").strip() != ""
                         and str(created_again_payload.get("recommendedBootstrapCommand") or "") == ""
+                        and str(created_again_payload.get("exactRecreateHelper") or "") == ""
                         and str(created_again_payload.get("recommendedRefreshEvidenceCommand") or "") == expected_refresh
                         and "patch_and_probe_auth_profile.py --from-remediation-profile-id" in str(created_again_payload.get("exactRefreshEvidenceHelper") or "")
                         and expected_runtime_probe in str(created_again_payload.get("recommendedRuntimeProbeCommand") or "")

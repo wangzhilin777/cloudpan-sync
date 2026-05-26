@@ -200,7 +200,7 @@ def main() -> None:
                     and "create_auth_profile_stub.py --profile-id gy-live-2 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-2 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe" in guangya
                     and "create_auth_profile_stub.py --profile-id gy-live-defaults-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-defaults-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe" in guangya
                     and "create_auth_profile_stub.py --profile-id gy-orphan-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-orphan-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe" in guangya
-                    and "exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-orphan-profile gy-orphan-live-1`" in guangya
+                    and "exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-orphan-profile gy-live-1`" in guangya
                     and "placeholderSecretFieldHints: `token`" in guangya
                     and "recommendedPostRefreshRuntimeCommand" not in guangya
                 ),
@@ -210,6 +210,7 @@ def main() -> None:
                     and "recommendedPrimaryCommand" in uc
                     and "label=recreate_probe" in uc
                     and "create_auth_profile_stub.py --profile-id uc-live-1 --provider-key uc --auth-mode manual_cookie --display-name uc-restore-uc-live-1 --cookie YOUR_COOKIE --set pwdId=YOUR_SHARE_PWD_ID --probe" in uc
+                    and "exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-orphan-profile uc-live-1`" in uc
                     and "recommendedPostBootstrapRuntimeCommand" not in uc
                 ),
                 "pikpakSectionUsesOrphanRecreateProbePath": (
@@ -218,6 +219,7 @@ def main() -> None:
                     and "recommendedPrimaryCommand" in pikpak
                     and "label=recreate_probe" in pikpak
                     and "create_auth_profile_stub.py --profile-id pikpak-live-1 --provider-key pikpak --auth-mode manual_token --display-name pikpak-restore-pikpak-live-1 --token YOUR_TOKEN --set deviceId=YOUR_DEVICE_ID --probe" in pikpak
+                    and "exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-orphan-profile pikpak-live-1`" in pikpak
                     and "recommendedPostBootstrapRuntimeCommand" not in pikpak
                 ),
             },

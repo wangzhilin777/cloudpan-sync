@@ -298,7 +298,8 @@ def main() -> None:
                 "markdownHasRecreateProbeCommand": "recommendedRecreateProbeCommand" in markdown and "placeholderSecretFieldHints: `token`" in markdown,
                 "markdownHasMultipleGuangyaRecreateCommands": "recommendedRecreateProbeCommands: count=`2`" in markdown
                 and "--profile-id gy-orphan " in markdown
-                and "--profile-id gy-orphan-2 " in markdown,
+                and "--profile-id gy-orphan-2 " in markdown
+                and "exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-orphan-profile gy-orphan`" in markdown,
                 "markdownHasExpandedPostBootstrapHelpers": "tmp\\quark-post-bootstrap-runtime-evidence" in markdown and "tmp\\xunlei-post-bootstrap-runtime-evidence" in markdown and "tmp\\123_open-post-bootstrap-runtime-evidence" in markdown and "tmp\\uc-post-bootstrap-runtime-evidence" in markdown,
                 "postBootstrapCommandShowsConflictChoice": "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "markdownHasOverwriteVariantCommand": "recommendedOverwriteVariantCommand" in markdown and "--conflict-policy overwrite_existing" in markdown,
@@ -477,6 +478,7 @@ def main() -> None:
                             and "--profile-id gy-orphan" in str((row or {}).get("recommendedRecreateProbeCommand") or "")
                             and len(((row or {}).get("recommendedRecreateProbeCommands") or [])) == 2
                             and "--profile-id gy-orphan-2" in "\n".join((row or {}).get("recommendedRecreateProbeCommands") or [])
+                            and "create_auth_profile_stub.py --from-remediation-orphan-profile gy-orphan" in str((row or {}).get("exactRecreateHelper") or "")
                             and "guangya-restore-gy-orphan" in str((row or {}).get("recommendedPrimaryCommand") or "")
                         ),
                         None,
@@ -490,6 +492,7 @@ def main() -> None:
                             if str((row or {}).get("providerKey") or "") == "uc"
                             and str((row or {}).get("recommendedPrimaryCommandLabel") or "") == "recreate_probe"
                             and "--profile-id uc-orphan" in str((row or {}).get("recommendedRecreateProbeCommand") or "")
+                            and "create_auth_profile_stub.py --from-remediation-orphan-profile uc-orphan" in str((row or {}).get("exactRecreateHelper") or "")
                             and "uc-restore-uc-orphan" in str((row or {}).get("recommendedPrimaryCommand") or "")
                             and "runtimeOrphanOnly" in str(api_markdown.get("markdown", ""))
                         ),

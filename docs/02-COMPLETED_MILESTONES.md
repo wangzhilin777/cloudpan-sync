@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权实时校验总链回归断言`
+- 完成范围：
+  - 已把 [verify_auth_live_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_live_validation.py) 从单条 live 校验、批量 live 校验、保存即校验，以及授权校验历史/Provider 探测历史接口摘要的分散输出，补成真正会给出整条授权实时校验链结论的 verifier
+  - 同一条回归现在会用 `authLiveValidationFlowMatchesExpectedSummaries` 直接锁住这条链：`run_profile_live_validation()` 必须稳定返回 `123_open` 的两段 checks、`parentId=0` 和 `fileId=file-1`；批量校验必须稳定汇总为 `totalProfiles=1 okProfiles=1 failedProfiles=0`；保存即校验后新增档案必须落成 `status=verified` 且保留校验记录；同时 `/api/auth/live_validations` 与 `/api/providers/live_probe_results` 还必须继续返回预期的去重 latest 列表和 summary 摘要
+  - 当前效果是：授权实时校验能力不再只是单条、批量、保存时校验和列表摘要各自为真，而是多了一条覆盖 live 校验执行、结果落盘、保存回填和历史摘要对齐的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_live_validation.py` 已验证授权实时校验链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权写入就绪阻断总链回归断言`
 - 完成范围：
   - 已把 [verify_auth_profile_write_readiness.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_write_readiness.py) 从本地 profile 视图、授权列表、单档案证据接口和 markdown 导出的分散字段检查，补成真正会给出整条授权写入就绪阻断链结论的 verifier

@@ -201,6 +201,39 @@ def main() -> None:
                     "probeSummaryOkProfiles": (probes_response.get("summary") or {}).get("okProfiles"),
                     "probeSummaryFailedProfiles": (probes_response.get("summary") or {}).get("failedProfiles"),
                 },
+                "authLiveValidationFlowMatchesExpectedSummaries": (
+                    single.get("ok") is True
+                    and single.get("providerKey") == "123_open"
+                    and single.get("mode") == "live"
+                    and single.get("status") == 200
+                    and single.get("error") == ""
+                    and single.get("summary") == "123 list ok | 123 meta ok"
+                    and len(single.get("checks") or []) == 2
+                    and single.get("parentId") == "0"
+                    and single.get("fileId") == "file-1"
+                    and batch.get("totalProfiles") == 1
+                    and batch.get("okProfiles") == 1
+                    and batch.get("failedProfiles") == 0
+                    and len(saved_rows) == 2
+                    and (api_response.get("item") or {}).get("status") == "verified"
+                    and (api_response.get("item") or {}).get("lastError") == ""
+                    and (api_response.get("validation") or {}).get("ok") is True
+                    and len(created_profiles) == 1
+                    and len(api_saved_rows) == 1
+                    and len(validations_response.get("items") or []) == 3
+                    and len(validations_response.get("latestItems") or []) == 2
+                    and ((validations_response.get("summary") or {}).get("profileCount")) == 2
+                    and ((validations_response.get("summary") or {}).get("okProfiles")) == ["guangya-main"]
+                    and ((validations_response.get("summary") or {}).get("failedProfiles")) == ["123-open-main"]
+                    and ((validations_response.get("summary") or {}).get("okProviderKeys")) == ["guangya"]
+                    and ((validations_response.get("summary") or {}).get("failedProviderKeys")) == ["123_open"]
+                    and ((validations_response.get("summary") or {}).get("failedModes")) == ["live_error"]
+                    and len(probes_response.get("items") or []) == 3
+                    and len(probes_response.get("latestItems") or []) == 2
+                    and ((probes_response.get("summary") or {}).get("profileCount")) == 2
+                    and ((probes_response.get("summary") or {}).get("okProfiles")) == []
+                    and ((probes_response.get("summary") or {}).get("failedProfiles")) == ["p1", "p2"]
+                ),
             },
             ensure_ascii=False,
             indent=2,

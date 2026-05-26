@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐Provider研究面板总链回归断言`
+- 完成范围：
+  - 已把 [verify_provider_research_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_research_ui.py) 从研究面板骨架、provider research 渲染、首个 research gap 动作和 orphan recovery 摘要等分散检查，补成真正会给出整条 Provider Research 链结论的 verifier
+  - 同一条回归现在会用 `providerResearchUiFlowIsWired` 直接锁住这条链：`index.html` 里的 `Provider Research` 面板骨架、`app.js` 里的 research 列表渲染、首个 gap 的 `appendProviderRecoveryActions(...)` 绑定，以及顶部 `runtime_orphan_recovery` 摘要和 `Open Runtime Orphan Recovery / Recreate Orphan Stub` 入口都必须一起存在
+  - 当前效果是：Provider Research 能力不再只是几段研究信息和动作片段各自为真，而是多了一条从面板 DOM 到 research/orphan 两层恢复入口 wiring 的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_research_ui.py` 已验证 Provider Research 链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐指纹归一化总链回归断言`
 - 完成范围：
   - 已把 [verify_fingerprint_set_normalization.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_fingerprint_set_normalization.py) 从 `strategy`、`availableFastInputs/missingFastInputs` 和 `normalizedFingerprints` 各字段的分散检查，补成真正会给出整条指纹归一化链结论的 verifier

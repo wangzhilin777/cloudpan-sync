@@ -2159,7 +2159,8 @@ function renderProviderPanel() {
   function appendProviderRecoveryActions(actions, providerKey) {
     const matchedProfile = (state.authProfiles || []).find((profile) => profile.providerKey === providerKey);
     const remediationItem = (state.realEvidenceRemediation?.items || []).find((row) => row.providerKey === providerKey) || null;
-    if (!matchedProfile && !remediationItem?.recommendedCreateCommand && !remediationItem?.needsSecretRefresh) {
+    const orphanProfileId = String((remediationItem?.runtimeOrphanProfiles || [])[0] || "").trim();
+    if (!matchedProfile && !remediationItem?.recommendedCreateCommand && !remediationItem?.needsSecretRefresh && !orphanProfileId) {
       return false;
     }
     if (matchedProfile) {
@@ -2200,6 +2201,13 @@ function renderProviderPanel() {
       createBtn.textContent = "Create Stub";
       createBtn.addEventListener("click", () => createRemediationProfile(providerKey));
       actions.appendChild(createBtn);
+    }
+    if (orphanProfileId) {
+      const recreateBtn = document.createElement("button");
+      recreateBtn.className = "ghost";
+      recreateBtn.textContent = "Recreate Orphan Stub";
+      recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(providerKey, orphanProfileId));
+      actions.appendChild(recreateBtn);
     }
     return actions.childNodes.length > 0;
   }

@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`提供方级入口也补直达孤儿恢复动作`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里的共用 `appendProviderRecoveryActions()` 补强：当 provider 对应的 `realEvidenceRemediation` 行已经带有 `runtimeOrphanProfiles` 时，provider 级入口现在也会直接提供 `Recreate Orphan Stub`
+  - 当前效果是：`Provider Status`、`Provider Research`、provider 面板首个缺口等所有复用这套共用动作的入口，都会一起获得直达 orphan 恢复链的能力，而不再只停留在 `Focus / Refresh / Probe / Capture / Create Stub`
+  - 这次补齐把 `runtime_orphan` 恢复链继续向 provider 级入口扩散，进一步减少围绕同一 provider 在多个面板之间来回切换的成本
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_real_evidence_ui.py` 已验证 `appendProviderRecoveryActions()` 当前会识别 `runtimeOrphanProfiles`，并绑定 `Recreate Orphan Stub -> recreateRuntimeOrphanProfile(providerKey, orphanProfileId)` 动作
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`运行证据入口也补直达孤儿恢复动作`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Task Runtime Evidence` 的逐条运行样本入口，以及“首个运行缺口”入口继续补强：当样本里已经带有 `profileId`，但当前仓库找不到对应档案时，现在可以直接点 `Recreate Orphan Stub` / `Recreate Orphan Stub First Runtime`

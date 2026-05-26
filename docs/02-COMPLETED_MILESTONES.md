@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐运行样本API汇总回归断言`
+- 完成范围：
+  - 已把 [verify_task_runtime_evidence_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_api.py) 再补一层：当前不再只是分散检查若干 markdown/API 片段
+  - 同一条回归现在会直接锁住预置 3 条 runtime evidence 样本后的 summary 汇总：`success / failed / candidate / blocked / conflictHandled / runtimeOrphan` 这些 provider/profile 计数与名单
+  - 当前也会继续锁住 `latestItems[0]` 的 `providerKey=guangya`、`verifyMode=list_by_parent_name`，以及 `/api/task_runtime_evidence` 返回的 `summary` 与本地 payload 完整一致
+  - 当前效果是：任务运行样本 API 与 markdown 汇总链终于又少了一层“只是看几个片段像是对的”的不确定性，变成了更完整的 seeded summary 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_evidence_api.py` 已验证 seeded runtime evidence 的 summary、latest item、markdown 与 API markdown 当前一致
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐运行成功样本汇总回归断言`
 - 完成范围：
   - 已把 [verify_task_runtime_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence.py) 从单纯打印成功 runtime evidence 与 report 现场，补成真正的断言型 verifier

@@ -106,6 +106,26 @@ def main() -> None:
             print(
                 json.dumps(
                     {
+                        "apiTaskRuntimeEvidenceMatchesSeededSummary": (
+                            dict(payload.get("summary") or {}).get("sampleCount") == 3
+                            and dict(payload.get("summary") or {}).get("providerCount") == 3
+                            and dict(payload.get("summary") or {}).get("successProviderCount") == 1
+                            and dict(payload.get("summary") or {}).get("failedProviderCount") == 1
+                            and dict(payload.get("summary") or {}).get("candidateProviderCount") == 1
+                            and dict(payload.get("summary") or {}).get("blockedProviderCount") == 1
+                            and dict(payload.get("summary") or {}).get("conflictHandledProviderCount") == 1
+                            and dict(payload.get("summary") or {}).get("runtimeOrphanProviderCount") == 2
+                            and dict(payload.get("summary") or {}).get("runtimeOrphanProfileCount") == 2
+                            and dict(payload.get("summary") or {}).get("successProfiles") == ["gy-1"]
+                            and dict(payload.get("summary") or {}).get("failedProfiles") == ["189-1"]
+                            and dict(payload.get("summary") or {}).get("candidateProfiles") == ["quark-1"]
+                            and dict(payload.get("summary") or {}).get("blockedProfiles") == ["189-1"]
+                            and dict(payload.get("summary") or {}).get("conflictHandledProfiles") == ["gy-1"]
+                            and ((payload.get("latestItems") or [None])[0] or {}).get("providerKey") == "guangya"
+                            and ((payload.get("latestItems") or [None])[0] or {}).get("verifyMode") == "list_by_parent_name"
+                            and api_payload.get("summary") == payload.get("summary")
+                            and "# CloudPan Sync 任务运行真实样本报告" in str(api_markdown.get("markdown") or "")
+                        ),
                         "summary": payload.get("summary"),
                         "firstLatestItem": ((payload.get("latestItems") or [None])[0]),
                         "markdownHasTitle": "# CloudPan Sync 任务运行真实样本报告" in markdown,

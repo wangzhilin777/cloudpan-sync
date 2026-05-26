@@ -35,11 +35,24 @@ def main() -> None:
         "123_open",
     ]
     rows = {key: _find_row(items, key) for key in keys}
+    providers = {
+        key: {
+            "fast_check": rows[key].get("fast_check"),
+            "metadata_ready": rows[key].get("metadata_ready"),
+        }
+        for key in keys
+    }
+    provider_fast_check_matrix_matches_expected_providers = (
+        ((payload.get("summary") or {}).get("fastCheckCount")) == 10
+        and all(bool((providers.get(key) or {}).get("fast_check")) for key in keys)
+        and all(bool((providers.get(key) or {}).get("metadata_ready")) for key in keys)
+    )
     print(
         json.dumps(
             {
                 "fastCheckCount": ((payload.get("summary") or {}).get("fastCheckCount")),
-                "providers": {key: {"fast_check": rows[key].get("fast_check"), "metadata_ready": rows[key].get("metadata_ready")} for key in keys},
+                "providers": providers,
+                "providerFastCheckMatrixMatchesExpectedProviders": provider_fast_check_matrix_matches_expected_providers,
             },
             ensure_ascii=False,
             indent=2,

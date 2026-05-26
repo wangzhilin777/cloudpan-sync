@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐Provider快速校验矩阵总链回归断言`
+- 完成范围：
+  - 已把 [verify_provider_fast_check_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_fast_check_matrix.py) 从 `fastCheckCount` 与 10 个 provider 的 `fast_check/metadata_ready` 分散检查，补成真正会给出整条 Provider 快速校验矩阵链结论的 verifier
+  - 同一条回归现在会用 `providerFastCheckMatrixMatchesExpectedProviders` 直接锁住这条链：状态矩阵 summary 的 `fastCheckCount=10`，以及 `guangya / aliyundrive_open / 115_open / 189cloud / baidu_netdisk / quark / uc / xunlei / pikpak / 123_open` 这 10 个 provider 的 `fast_check=true` 与 `metadata_ready=true` 都必须一起对齐
+  - 当前效果是：Provider 快速校验矩阵能力不再只是 count 和单行状态各自为真，而是多了一条覆盖首批 10 个 provider 的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_fast_check_matrix.py` 已验证 Provider 快速校验矩阵链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐计划进度总链回归断言`
 - 完成范围：
   - 已把 [verify_plan_audit_progress.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_plan_audit_progress.py) 从 milestone 数量、双口径百分比、milestoneSummary 与公式说明等分散检查，补成真正会给出整条计划进度链结论的 verifier

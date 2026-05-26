@@ -114,6 +114,24 @@ def _runtime_profile_summary_by_provider(profile_map: dict[str, object]) -> dict
     return result
 
 
+def _runtime_orphan_summary(profile_map: dict[str, object]) -> dict[str, object]:
+    providers: set[str] = set()
+    profiles: set[str] = set()
+    for row in latest_task_runtime_evidence():
+        provider_key = str(row.get("providerKey") or "")
+        profile_id = str(row.get("profileId") or "").strip()
+        if not provider_key or not profile_id or profile_id in profile_map:
+            continue
+        providers.add(provider_key)
+        profiles.add(profile_id)
+    return {
+        "taskRuntimeOrphanProviderCount": len(providers),
+        "taskRuntimeOrphanProfileCount": len(profiles),
+        "taskRuntimeOrphanProviders": sorted(providers),
+        "taskRuntimeOrphanProfiles": sorted(profiles),
+    }
+
+
 def _runtime_track_for_provider(provider_key: str) -> tuple[str, str]:
     if provider_key == "guangya":
         return (
@@ -203,6 +221,7 @@ def build_status_matrix() -> dict[str, object]:
     probe_rows = _latest_probe_by_provider()
     runtime_rows = _runtime_summary_by_provider()
     runtime_profile_rows = _runtime_profile_summary_by_provider(profile_map)
+    runtime_orphan_summary = _runtime_orphan_summary(profile_map)
     live_list_ready = {"guangya", "aliyundrive_open", "189cloud", "123_open", "115_open", "xunlei", "quark", "uc", "pikpak", "baidu_netdisk"}
     live_metadata_ready = {"guangya", "aliyundrive_open", "189cloud", "123_open", "115_open", "xunlei", "quark", "uc", "pikpak", "baidu_netdisk"}
     live_create_dir_ready = {"guangya", "aliyundrive_open", "189cloud", "123_open", "115_open", "xunlei", "pikpak", "baidu_netdisk", "quark", "uc"}
@@ -316,6 +335,8 @@ def build_status_matrix() -> dict[str, object]:
                 1 for x in items if int(x["task_runtime_conflict_handled"]) > 0
             ),
             "taskRuntimeConflictHandledCount": sum(int(x["task_runtime_conflict_handled"]) for x in items),
+            "taskRuntimeOrphanProviderCount": int(runtime_orphan_summary.get("taskRuntimeOrphanProviderCount", 0) or 0),
+            "taskRuntimeOrphanProfileCount": int(runtime_orphan_summary.get("taskRuntimeOrphanProfileCount", 0) or 0),
             "taskRuntimeActiveCount": sum(1 for x in items if str(x["task_runtime_track"]) == "runtime_active"),
             "taskRuntimeCandidateCount": sum(1 for x in items if str(x["task_runtime_track"]) == "runtime_candidate"),
             "taskRuntimeBlockedCount": sum(1 for x in items if str(x["task_runtime_track"]) == "runtime_blocked"),
@@ -338,6 +359,8 @@ def build_status_matrix() -> dict[str, object]:
             "taskRuntimeProbeProviders": [str(x.get("providerKey") or "") for x in items if int(x["task_runtime_probe"]) > 0],
             "taskRuntimeBlockedProviders": [str(x.get("providerKey") or "") for x in items if int(x["task_runtime_blocked"]) > 0],
             "taskRuntimeConflictHandledProviders": [str(x.get("providerKey") or "") for x in items if int(x["task_runtime_conflict_handled"]) > 0],
+            "taskRuntimeOrphanProviders": list(runtime_orphan_summary.get("taskRuntimeOrphanProviders", []) or []),
+            "taskRuntimeOrphanProfiles": list(runtime_orphan_summary.get("taskRuntimeOrphanProfiles", []) or []),
         },
         "items": sorted(items, key=lambda x: str(x.get("providerKey") or "")),
     }
@@ -355,7 +378,7 @@ def matrix_to_markdown(payload: dict[str, object]) -> str:
     lines.append("")
     lines.append(f"- GeneratedAt: `{payload.get('generatedAt', '')}`")
     lines.append(
-        f"- Summary: providerCount={summary.get('providerCount', 0)}, authReadyCount={summary.get('authReadyCount', 0)}, createDirReadyCount={summary.get('createDirReadyCount', 0)}, fastCheckCount={summary.get('fastCheckCount', 0)}, liveProbeOkCount={summary.get('liveProbeOkCount', 0)}, conflictAwareProviderCount={summary.get('conflictAwareProviderCount', 0)}, overwriteReadyCount={summary.get('overwriteReadyCount', 0)}, autoRenameReadyCount={summary.get('autoRenameReadyCount', 0)}, overwriteDowngradeCount={summary.get('overwriteDowngradeCount', 0)}, overwriteSupportedCount={summary.get('overwriteSupportedCount', 0)}, autoRenameSupportedCount={summary.get('autoRenameSupportedCount', 0)}, autoRenameProbeOnlyCount={summary.get('autoRenameProbeOnlyCount', 0)}, conflictUnsupportedProviderCount={summary.get('conflictUnsupportedProviderCount', 0)}, taskRuntimeEvidenceProviderCount={summary.get('taskRuntimeEvidenceProviderCount', 0)}, taskRuntimeFailedProviderCount={summary.get('taskRuntimeFailedProviderCount', 0)}, taskRuntimeCandidateEvidenceProviderCount={summary.get('taskRuntimeCandidateEvidenceProviderCount', 0)}, taskRuntimeProbeEvidenceProviderCount={summary.get('taskRuntimeProbeEvidenceProviderCount', 0)}, taskRuntimeSampleCount={summary.get('taskRuntimeSampleCount', 0)}, taskRuntimeSuccessCount={summary.get('taskRuntimeSuccessCount', 0)}, taskRuntimeFailedCount={summary.get('taskRuntimeFailedCount', 0)}, taskRuntimeCandidateEvidenceCount={summary.get('taskRuntimeCandidateEvidenceCount', 0)}, taskRuntimeProbeEvidenceCount={summary.get('taskRuntimeProbeEvidenceCount', 0)}, taskRuntimeBlockedProviderCount={summary.get('taskRuntimeBlockedProviderCount', 0)}, taskRuntimeBlockedEvidenceCount={summary.get('taskRuntimeBlockedEvidenceCount', 0)}, taskRuntimeConflictHandledProviderCount={summary.get('taskRuntimeConflictHandledProviderCount', 0)}, taskRuntimeConflictHandledCount={summary.get('taskRuntimeConflictHandledCount', 0)}, taskRuntimeActiveCount={summary.get('taskRuntimeActiveCount', 0)}, taskRuntimeCandidateCount={summary.get('taskRuntimeCandidateCount', 0)}, taskRuntimeBlockedCount={summary.get('taskRuntimeBlockedCount', 0)}"
+        f"- Summary: providerCount={summary.get('providerCount', 0)}, authReadyCount={summary.get('authReadyCount', 0)}, createDirReadyCount={summary.get('createDirReadyCount', 0)}, fastCheckCount={summary.get('fastCheckCount', 0)}, liveProbeOkCount={summary.get('liveProbeOkCount', 0)}, conflictAwareProviderCount={summary.get('conflictAwareProviderCount', 0)}, overwriteReadyCount={summary.get('overwriteReadyCount', 0)}, autoRenameReadyCount={summary.get('autoRenameReadyCount', 0)}, overwriteDowngradeCount={summary.get('overwriteDowngradeCount', 0)}, overwriteSupportedCount={summary.get('overwriteSupportedCount', 0)}, autoRenameSupportedCount={summary.get('autoRenameSupportedCount', 0)}, autoRenameProbeOnlyCount={summary.get('autoRenameProbeOnlyCount', 0)}, conflictUnsupportedProviderCount={summary.get('conflictUnsupportedProviderCount', 0)}, taskRuntimeEvidenceProviderCount={summary.get('taskRuntimeEvidenceProviderCount', 0)}, taskRuntimeFailedProviderCount={summary.get('taskRuntimeFailedProviderCount', 0)}, taskRuntimeCandidateEvidenceProviderCount={summary.get('taskRuntimeCandidateEvidenceProviderCount', 0)}, taskRuntimeProbeEvidenceProviderCount={summary.get('taskRuntimeProbeEvidenceProviderCount', 0)}, taskRuntimeSampleCount={summary.get('taskRuntimeSampleCount', 0)}, taskRuntimeSuccessCount={summary.get('taskRuntimeSuccessCount', 0)}, taskRuntimeFailedCount={summary.get('taskRuntimeFailedCount', 0)}, taskRuntimeCandidateEvidenceCount={summary.get('taskRuntimeCandidateEvidenceCount', 0)}, taskRuntimeProbeEvidenceCount={summary.get('taskRuntimeProbeEvidenceCount', 0)}, taskRuntimeBlockedProviderCount={summary.get('taskRuntimeBlockedProviderCount', 0)}, taskRuntimeBlockedEvidenceCount={summary.get('taskRuntimeBlockedEvidenceCount', 0)}, taskRuntimeConflictHandledProviderCount={summary.get('taskRuntimeConflictHandledProviderCount', 0)}, taskRuntimeConflictHandledCount={summary.get('taskRuntimeConflictHandledCount', 0)}, taskRuntimeOrphanProviderCount={summary.get('taskRuntimeOrphanProviderCount', 0)}, taskRuntimeOrphanProfileCount={summary.get('taskRuntimeOrphanProfileCount', 0)}, taskRuntimeActiveCount={summary.get('taskRuntimeActiveCount', 0)}, taskRuntimeCandidateCount={summary.get('taskRuntimeCandidateCount', 0)}, taskRuntimeBlockedCount={summary.get('taskRuntimeBlockedCount', 0)}"
     )
     lines.append(
         f"- providerSummary: `auth_ready={', '.join(summary.get('authReadyProviders', [])) or '(none)'}` "
@@ -372,7 +395,9 @@ def matrix_to_markdown(payload: dict[str, object]) -> str:
         f"`runtime_candidate={', '.join(summary.get('taskRuntimeCandidateProviders', [])) or '(none)'}` "
         f"`runtime_probe={', '.join(summary.get('taskRuntimeProbeProviders', [])) or '(none)'}` "
         f"`runtime_blocked={', '.join(summary.get('taskRuntimeBlockedProviders', [])) or '(none)'}` "
-        f"`runtime_conflict_handled={', '.join(summary.get('taskRuntimeConflictHandledProviders', [])) or '(none)'}`"
+        f"`runtime_conflict_handled={', '.join(summary.get('taskRuntimeConflictHandledProviders', [])) or '(none)'}` "
+        f"`runtime_orphan={', '.join(summary.get('taskRuntimeOrphanProviders', [])) or '(none)'}` "
+        f"`runtime_orphan_profiles={', '.join(summary.get('taskRuntimeOrphanProfiles', [])) or '(none)'}`"
     )
     lines.append("")
     lines.append("| providerKey | supportStatus | auth_ready | list_ready | metadata_ready | create_dir_ready | fast_check | live_probe_ok | task_runtime_track | task_runtime_samples | task_runtime_success | task_runtime_failed | task_runtime_candidate | task_runtime_probe | task_runtime_blocked | task_runtime_conflict_handled | supports_overwrite | supports_auto_rename | overwrite_behavior | overwrite_support_status | auto_rename_support_status | conflict_policies | fallback_ready |")

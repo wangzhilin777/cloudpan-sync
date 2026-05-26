@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`提供方状态总览也量化孤儿运行风险`
+- 完成范围：
+  - 已把 [provider_status_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/provider_status_matrix.py) 与 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `Provider Status Matrix` 汇总层继续补强：现在会显式统计 `taskRuntimeOrphanProviderCount / taskRuntimeOrphanProfileCount`，并展示 `taskRuntimeOrphanProviders / taskRuntimeOrphanProfiles`
+  - 当前效果是：`Provider Status` 这类总览入口不再只告诉用户有多少 runtime success/failed/probe/blocked/conflictHandled，还会直接量化“当前有多少 provider/profile 属于 runtime success 已存在、但 auth profile 脱节的 orphan 风险”，更诚实地反映为什么 `P-REAL` 仍未完成
+  - 这次补齐把 `runtime_orphan` 从恢复入口层继续推进到了状态总览层，让 `Provider Status` 也能和 `Real Evidence` / `Runtime Orphan Recovery` 报告保持同一口径
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_status_settings_ui.py` 已验证设置页 `Provider Status` 当前会显示 `runtimeOrphanProviders / runtimeOrphanProfiles` 汇总字段
+  - `.\.venv\Scripts\python.exe scripts\verify_export_provider_status_matrix.py` 已验证导出的 `06-PROVIDER_STATUS_MATRIX.md` 当前会写出 `taskRuntimeOrphanProviderCount / taskRuntimeOrphanProfileCount` 以及 `runtime_orphan / runtime_orphan_profiles` provider summary
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`孤儿恢复面板内部动作命名也收口一致`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里专门的 `Runtime Orphan Recovery` 面板内部按钮名称继续收口：逐行入口从 `Recreate Stub` 改成 `Recreate Orphan Stub`，首个缺口入口从 `Recreate First Stub` 改成 `Recreate Orphan Stub First Gap`

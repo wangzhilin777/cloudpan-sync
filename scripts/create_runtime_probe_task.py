@@ -22,6 +22,7 @@ from cloudpan_sync import task_runtime
 from cloudpan_sync.models import SourceEntry, TaskCreateRequest
 from cloudpan_sync.real_evidence_remediation import build_real_evidence_remediation_bundle, real_evidence_remediation_to_markdown
 from cloudpan_sync.real_evidence_report import build_real_evidence_report, real_evidence_to_markdown
+from cloudpan_sync.runtime_orphan_recovery import build_runtime_orphan_recovery
 from cloudpan_sync.task_runtime_evidence_store import build_task_runtime_evidence_payload, task_runtime_evidence_to_markdown
 
 
@@ -258,6 +259,28 @@ def _defaults_from_remediation_profile_id(profile_id: str) -> dict[str, object]:
     return {}
 
 
+def _defaults_from_runtime_orphan_profile(profile_id: str) -> dict[str, object]:
+    target = str(profile_id or "").strip()
+    if not target:
+        return {}
+    payload = build_runtime_orphan_recovery()
+    for item in payload.get("items", []):
+        row = dict(item or {})
+        if str(row.get("orphanProfileId") or "").strip() != target:
+            continue
+        for candidate_key in (
+            "recommendedRuntimeProbeCommand",
+            "recommendedRuntimeSuccessCommand",
+            "recommendedPrimaryCommand",
+        ):
+            defaults = _extract_runtime_probe_defaults(str(row.get(candidate_key) or ""))
+            if str(defaults.get("targetProfileId") or "").strip() != target:
+                continue
+            defaults["source"] = f"runtime_orphan:{candidate_key}"
+            return defaults
+    return {}
+
+
 def main(argv: list[str] | None = None) -> int:
     custom_data_dir = str(os.environ.get("CLOUDPAN_SYNC_DATA_DIR") or "").strip()
     if custom_data_dir:
@@ -266,6 +289,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Create and run a lightweight runtime probe task.")
     parser.add_argument("--from-remediation-provider", default="", help="Autofill runtime probe defaults from the remediation bundle for this provider.")
     parser.add_argument("--from-remediation-profile-id", default="", help="Autofill exact runtime probe defaults from the remediation bundle for this profileId.")
+    parser.add_argument("--from-runtime-orphan-profile", default="", help="Autofill exact runtime probe defaults from runtime orphan recovery for this orphanProfileId.")
     parser.add_argument("--source-provider", default="", help="Source provider. Defaults to target provider.")
     parser.add_argument("--target-provider", default="", help="Target provider key.")
     parser.add_argument("--target-profile-id", default="", help="Saved target auth profile id.")
@@ -288,7 +312,10 @@ def main(argv: list[str] | None = None) -> int:
 
     defaults: dict[str, object] = {}
     defaults_source = ""
-    if args.from_remediation_profile_id:
+    if args.from_runtime_orphan_profile:
+        defaults = _defaults_from_runtime_orphan_profile(str(args.from_runtime_orphan_profile or "").strip())
+        defaults_source = str(defaults.get("source") or "")
+    elif args.from_remediation_profile_id:
         defaults = _defaults_from_remediation_profile_id(str(args.from_remediation_profile_id or "").strip())
         defaults_source = str(defaults.get("source") or "")
     elif args.from_remediation_provider:

@@ -10,6 +10,22 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`运行孤儿恢复链也支持按档案精确带默认值`
+- 完成范围：
+  - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 三支 runtime helper 继续补齐到 `runtime orphan` 链路：除了 remediation 默认值入口外，现在都新增 `--from-runtime-orphan-profile`
+  - 当前效果是：从 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 看到某条历史 orphan runtime success 样本后，不必再手抄 `targetProvider / targetProfileId / targetParentId / evidenceDir` 去重拼命令；现在可以直接按 `orphanProfileId` 精确带出对应默认值，缩短从 orphan 样本回到真实 helper 重跑的距离
+  - 已同步把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 的 markdown 导出补上 `exactRuntimeProbeHelper / exactRuntimeSuccessHelper`，这样 `docs/13` 会直接给出 `--from-runtime-orphan-profile ...` 的精确 helper，而不是只保留一长串展开后的命令
+  - 已同步补强 [verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py)、[verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py)、[verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py)、[verify_current_runtime_orphan_recovery_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_runtime_orphan_recovery_sync.py)，把 orphan-profile 精确默认值、当前 `docs/13` 汇总计数以及 Guangya 多条 orphan 段落一起锁进回归
+  - 本轮同时把当前仓库里的 orphan recovery 文档重新导出到现状：`docs/13` 现已同步反映 `orphanProfileCount=6 / runtimeSampleCount=6`，并包含 `gy-live-1 / gy-live-2 / gy-live-defaults-1 / gy-orphan-live-1 / pikpak-live-1 / uc-live-1`
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_runtime_probe_task.py` 已验证 `create_runtime_probe_task.py` 现在支持 `--from-runtime-orphan-profile`，并能精确命中对应 `resolvedTargetParentId`
+  - `.\.venv\Scripts\python.exe scripts\verify_create_live_upload_task.py` 已验证 `create_live_upload_task.py` 现在支持 `--from-runtime-orphan-profile`，且 orphan 精确默认值路径与现有 remediation 路径可同时回归
+  - `.\.venv\Scripts\python.exe scripts\verify_create_fast_upload_candidate_task.py` 已验证 `create_fast_upload_candidate_task.py` 现在支持 `--from-runtime-orphan-profile`，并能精确命中 orphan success helper 对应默认值
+  - `.\.venv\Scripts\python.exe scripts\export_runtime_orphan_recovery.py` 与 `.\.venv\Scripts\python.exe scripts\verify_current_runtime_orphan_recovery_sync.py` 已验证当前 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 已同步写出 `exactRuntimeProbeHelper / exactRuntimeSuccessHelper`，且当前现状计数与 Guangya 四条 orphan 段落一致
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`运行辅助脚本也支持按档案精确带默认值`
 - 完成范围：
   - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 三支 runtime helper 的 remediation 默认值入口继续补齐：除了原来的 `--from-remediation-provider` 外，现在都新增 `--from-remediation-profile-id`

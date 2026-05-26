@@ -29,6 +29,7 @@ def main() -> None:
     original_get_profile = runtime_probe_script.get_profile
     original_refresh_auth_evidence = runtime_probe_script.refresh_auth_profile_evidence
     original_remediation_builder = runtime_probe_script.build_real_evidence_remediation_bundle
+    original_runtime_orphan_builder = runtime_probe_script.build_runtime_orphan_recovery
     refresh_calls: list[dict[str, object]] = []
 
     def fake_create_task(payload: object) -> dict[str, object]:
@@ -132,6 +133,16 @@ def main() -> None:
             }
         ],
     }
+    runtime_probe_script.build_runtime_orphan_recovery = lambda: {
+        "summary": {},
+        "items": [
+            {
+                "providerKey": "aliyundrive_open",
+                "orphanProfileId": "ali-orphan-runtime-1",
+                "recommendedRuntimeProbeCommand": r".\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --target-provider aliyundrive_open --target-profile-id ali-orphan-runtime-1 --target-parent-id orphan-folder-demo --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-runtime-orphan-probe-evidence",
+            }
+        ],
+    }
     try:
         evidence_dir = ROOT / "tmp" / "verify-runtime-probe-evidence"
         if evidence_dir.exists():
@@ -181,6 +192,16 @@ def main() -> None:
                     "--auto-temp-file",
                 ]
             )
+
+        orphan_exact_stdout = io.StringIO()
+        with contextlib.redirect_stdout(orphan_exact_stdout):
+            orphan_exact_result = runtime_probe_script.main(
+                [
+                    "--from-runtime-orphan-profile",
+                    "ali-orphan-runtime-1",
+                    "--auto-temp-file",
+                ]
+            )
     finally:
         task_runtime.create_task = original_create_task
         task_runtime.run_task = original_run_task
@@ -189,10 +210,12 @@ def main() -> None:
         runtime_probe_script.get_profile = original_get_profile
         runtime_probe_script.refresh_auth_profile_evidence = original_refresh_auth_evidence
         runtime_probe_script.build_real_evidence_remediation_bundle = original_remediation_builder
+        runtime_probe_script.build_runtime_orphan_recovery = original_runtime_orphan_builder
 
     output = json.loads(stdout_buffer.getvalue())
     second_output = json.loads(second_stdout.getvalue())
     exact_output = json.loads(exact_stdout.getvalue())
+    orphan_exact_output = json.loads(orphan_exact_stdout.getvalue())
     task_json = evidence_dir / "task.json"
     task_markdown = evidence_dir / "task.md"
     auth_evidence = evidence_dir / "auth_evidence.md"
@@ -228,6 +251,7 @@ def main() -> None:
                 "exitCode": result,
                 "secondExitCode": second_result,
                 "exactExitCode": exact_result,
+                "orphanExactExitCode": orphan_exact_result,
                 "scriptEmittedTaskJson": output.get("taskId") == "task-runtime-1",
                 "scriptResolvedTargetParentId": output.get("resolvedTargetParentId") == "folder-demo",
                 "scriptEvidenceDirOutput": output.get("evidenceDir") == str(evidence_dir),
@@ -250,8 +274,11 @@ def main() -> None:
                 "scriptExactProfileDefaultsApplied": exact_output.get("defaultsSource") == "remediation:recommendedRuntimeProbeCommand"
                 and exact_output.get("targetProfileId") == "ali-runtime-1"
                 and exact_output.get("resolvedTargetParentId") == "folder-demo",
+                "scriptRuntimeOrphanDefaultsApplied": orphan_exact_output.get("defaultsSource") == "runtime_orphan:recommendedRuntimeProbeCommand"
+                and orphan_exact_output.get("resolvedTargetParentId") == "orphan-folder-demo",
                 "scriptHasAutoTempFile": "--auto-temp-file" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasExactProfileArg": "--from-remediation-profile-id" in SCRIPT_PATH.read_text(encoding="utf-8"),
+                "scriptHasRuntimeOrphanArg": "--from-runtime-orphan-profile" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasThresholdDefault": "--threshold-mb" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasTargetProfileArg": "--target-profile-id" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasEvidenceDirArg": "--evidence-dir" in SCRIPT_PATH.read_text(encoding="utf-8"),

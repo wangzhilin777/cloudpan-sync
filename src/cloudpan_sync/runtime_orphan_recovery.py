@@ -207,6 +207,20 @@ def _overwrite_variant_command(command: str) -> str:
     return text.replace("--conflict-policy auto_rename_new", "--conflict-policy overwrite_existing", 1)
 
 
+def _exact_runtime_helper(command: str, orphan_profile_id: str) -> str:
+    text = str(command or "").strip()
+    profile_id = str(orphan_profile_id or "").strip()
+    if not text or not profile_id:
+        return ""
+    if "scripts\\create_runtime_probe_task.py" in text:
+        return f".\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py --from-runtime-orphan-profile {profile_id}"
+    if "scripts\\create_live_upload_task.py" in text:
+        return f".\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile {profile_id}"
+    if "scripts\\create_fast_upload_candidate_task.py" in text:
+        return f".\\.venv\\Scripts\\python.exe scripts\\create_fast_upload_candidate_task.py --from-runtime-orphan-profile {profile_id}"
+    return ""
+
+
 def _recommended_primary_command(
     *,
     create_command: str,
@@ -488,8 +502,20 @@ def runtime_orphan_recovery_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedRefreshEvidenceCommand: `{item.get('recommendedRefreshEvidenceCommand', '')}`")
         if item.get("recommendedRuntimeProbeCommand"):
             lines.append(f"- recommendedRuntimeProbeCommand: `{item.get('recommendedRuntimeProbeCommand', '')}`")
+            exact_runtime_probe_helper = _exact_runtime_helper(
+                str(item.get("recommendedRuntimeProbeCommand") or ""),
+                str(item.get("orphanProfileId") or ""),
+            )
+            if exact_runtime_probe_helper:
+                lines.append(f"- exactRuntimeProbeHelper: `{exact_runtime_probe_helper}`")
         if item.get("recommendedRuntimeSuccessCommand"):
             lines.append(f"- recommendedRuntimeSuccessCommand: `{item.get('recommendedRuntimeSuccessCommand', '')}`")
+            exact_runtime_success_helper = _exact_runtime_helper(
+                str(item.get("recommendedRuntimeSuccessCommand") or ""),
+                str(item.get("orphanProfileId") or ""),
+            )
+            if exact_runtime_success_helper:
+                lines.append(f"- exactRuntimeSuccessHelper: `{exact_runtime_success_helper}`")
         if item.get("recommendedOverwriteVariantCommand"):
             lines.append(f"- recommendedOverwriteVariantCommand: `{item.get('recommendedOverwriteVariantCommand', '')}`")
         lines.append("")

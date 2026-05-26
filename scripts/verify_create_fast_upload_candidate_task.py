@@ -29,6 +29,7 @@ def main() -> None:
     original_get_profile = fast_candidate_script.get_profile
     original_refresh_auth_evidence = fast_candidate_script.refresh_auth_profile_evidence
     original_remediation_builder = fast_candidate_script.build_real_evidence_remediation_bundle
+    original_runtime_orphan_builder = fast_candidate_script.build_runtime_orphan_recovery
     refresh_calls: list[dict[str, object]] = []
 
     def fake_create_task(payload: object) -> dict[str, object]:
@@ -132,6 +133,16 @@ def main() -> None:
             }
         ],
     }
+    fast_candidate_script.build_runtime_orphan_recovery = lambda: {
+        "summary": {},
+        "items": [
+            {
+                "providerKey": "115_open",
+                "orphanProfileId": "115-orphan-fast-1",
+                "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-orphan-fast-1 --target-parent-id orphan-fast-root --sha1 auto --auto-temp-file --conflict-policy auto_rename_new --evidence-dir tmp\115_open-runtime-orphan-success-evidence",
+            }
+        ],
+    }
     try:
         evidence_dir = ROOT / "tmp" / "verify-fast-candidate-evidence"
         if evidence_dir.exists():
@@ -187,6 +198,18 @@ def main() -> None:
                     "auto",
                 ]
             )
+
+        orphan_exact_stdout = io.StringIO()
+        with contextlib.redirect_stdout(orphan_exact_stdout):
+            orphan_exact_result = fast_candidate_script.main(
+                [
+                    "--from-runtime-orphan-profile",
+                    "115-orphan-fast-1",
+                    "--auto-temp-file",
+                    "--sha1",
+                    "auto",
+                ]
+            )
     finally:
         task_runtime.create_task = original_create_task
         task_runtime.run_task = original_run_task
@@ -195,10 +218,12 @@ def main() -> None:
         fast_candidate_script.get_profile = original_get_profile
         fast_candidate_script.refresh_auth_profile_evidence = original_refresh_auth_evidence
         fast_candidate_script.build_real_evidence_remediation_bundle = original_remediation_builder
+        fast_candidate_script.build_runtime_orphan_recovery = original_runtime_orphan_builder
 
     output = json.loads(stdout_buffer.getvalue())
     second_output = json.loads(second_stdout.getvalue())
     exact_output = json.loads(exact_stdout.getvalue())
+    orphan_exact_output = json.loads(orphan_exact_stdout.getvalue())
     source_entry = ((output.get("sourceEntries") or [{}])[0]) if output.get("sourceEntries") else {}
     task_json = evidence_dir / "task.json"
     task_markdown = evidence_dir / "task.md"
@@ -235,6 +260,7 @@ def main() -> None:
                 "exitCode": result,
                 "secondExitCode": second_result,
                 "exactExitCode": exact_result,
+                "orphanExactExitCode": orphan_exact_result,
                 "scriptEmittedTaskJson": output.get("taskId") == "task-fast-candidate-1",
                 "scriptResolvedTargetParentId": output.get("resolvedTargetParentId") == "115-root",
                 "scriptEvidenceDirOutput": output.get("evidenceDir") == str(evidence_dir),
@@ -254,10 +280,13 @@ def main() -> None:
                 and second_output.get("authEvidenceOutput") == str(second_auth_evidence),
                 "scriptExactProfileDefaultsApplied": exact_output.get("defaultsSource") == "remediation:recommendedRuntimeSuccessCommand"
                 and exact_output.get("resolvedTargetParentId") == "115-root-2",
+                "scriptRuntimeOrphanDefaultsApplied": orphan_exact_output.get("defaultsSource") == "runtime_orphan:recommendedRuntimeSuccessCommand"
+                and orphan_exact_output.get("resolvedTargetParentId") == "orphan-fast-root",
                 "scriptRequiredFastInputs": output.get("requiredFastInputs") == ["sha1", "size"],
                 "scriptAutoComputedSha1": bool(source_entry.get("sha1")),
                 "scriptHasAutoTempFile": "--auto-temp-file" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasExactProfileArg": "--from-remediation-profile-id" in SCRIPT_PATH.read_text(encoding="utf-8"),
+                "scriptHasRuntimeOrphanArg": "--from-runtime-orphan-profile" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasSha1Arg": "--sha1" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasGcidArg": "--gcid" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasEvidenceDirArg": "--evidence-dir" in SCRIPT_PATH.read_text(encoding="utf-8"),

@@ -28,6 +28,7 @@ def main() -> None:
     original_get_profile = live_upload_script.get_profile
     original_refresh_auth_evidence = live_upload_script.refresh_auth_profile_evidence
     original_remediation_builder = live_upload_script.build_real_evidence_remediation_bundle
+    original_runtime_orphan_builder = live_upload_script.build_runtime_orphan_recovery
     original_fast_check = task_runtime.fetch_guangya_live_fast_check
     original_upload = task_runtime.upload_guangya_local_file
     refresh_calls: list[dict[str, object]] = []
@@ -164,6 +165,16 @@ def main() -> None:
             }
         ],
     }
+    live_upload_script.build_runtime_orphan_recovery = lambda: {
+        "summary": {},
+        "items": [
+            {
+                "providerKey": "guangya",
+                "orphanProfileId": "gy-orphan-live-1",
+                "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-orphan-live-1 --target-parent-id orphan-live-parent --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-runtime-orphan-success-evidence",
+            }
+        ],
+    }
     task_runtime.fetch_guangya_live_fast_check = fake_fast_check
     task_runtime.upload_guangya_local_file = fake_upload
     live_upload_script.task_runtime.fetch_guangya_live_fast_check = fake_fast_check
@@ -211,10 +222,21 @@ def main() -> None:
                     "--auto-temp-file",
                 ]
             )
+
+        orphan_exact_stdout = io.StringIO()
+        with contextlib.redirect_stdout(orphan_exact_stdout):
+            orphan_exact_result = live_upload_script.main(
+                [
+                    "--from-runtime-orphan-profile",
+                    "gy-orphan-live-1",
+                    "--auto-temp-file",
+                ]
+            )
     finally:
         live_upload_script.get_profile = original_get_profile
         live_upload_script.refresh_auth_profile_evidence = original_refresh_auth_evidence
         live_upload_script.build_real_evidence_remediation_bundle = original_remediation_builder
+        live_upload_script.build_runtime_orphan_recovery = original_runtime_orphan_builder
         task_runtime.fetch_guangya_live_fast_check = original_fast_check
         task_runtime.upload_guangya_local_file = original_upload
         live_upload_script.task_runtime.fetch_guangya_live_fast_check = original_fast_check
@@ -223,6 +245,7 @@ def main() -> None:
     output = json.loads(stdout_buffer.getvalue())
     second_output = json.loads(second_stdout.getvalue())
     exact_output = json.loads(exact_stdout.getvalue())
+    orphan_exact_output = json.loads(orphan_exact_stdout.getvalue())
     task_json = evidence_dir / "task.json"
     task_markdown = evidence_dir / "task.md"
     auth_evidence = evidence_dir / "auth_evidence.md"
@@ -255,6 +278,7 @@ def main() -> None:
                 "exitCode": result,
                 "secondExitCode": second_result,
                 "exactExitCode": exact_result,
+                "orphanExactExitCode": orphan_exact_result,
                 "resolvedTargetParentId": output.get("resolvedTargetParentId") == "folder-live-1",
                 "evidenceDirOutput": output.get("evidenceDir") == str(evidence_dir),
                 "stateCompleted": output.get("state") == "completed",
@@ -278,6 +302,9 @@ def main() -> None:
                 "exactProfileDefaultsApplied": exact_output.get("defaultsSource") == "remediation:recommendedRuntimeSuccessCommand"
                 and exact_output.get("targetProfileId") == "gy-live-2"
                 and exact_output.get("resolvedTargetParentId") == "folder-live-2",
+                "runtimeOrphanDefaultsApplied": orphan_exact_output.get("defaultsSource") == "runtime_orphan:recommendedRuntimeSuccessCommand"
+                and orphan_exact_output.get("targetProfileId") == "gy-orphan-live-1"
+                and orphan_exact_output.get("resolvedTargetParentId") == "orphan-live-parent",
                 "noAcknowledgeFlagHonored": second_output.get("acknowledgedDownloadUpload") is False,
                 "jsonSavedState": task_payload.get("state") == "completed",
                 "jsonSavedVerifyMode": (((((task_payload.get("results") or [None])[0]) or {}).get("liveAttempt") or {}).get("verifyMode")) == "list_by_parent_name",
@@ -293,6 +320,7 @@ def main() -> None:
                 ),
                 "scriptHasEvidenceDirArg": "--evidence-dir" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasExactProfileArg": "--from-remediation-profile-id" in SCRIPT_PATH.read_text(encoding="utf-8"),
+                "scriptHasRuntimeOrphanArg": "--from-runtime-orphan-profile" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasMarkdownOutputArg": "--markdown-output" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasTaskJsonOutputArg": "--task-json-output" in SCRIPT_PATH.read_text(encoding="utf-8"),
                 "scriptHasAuthEvidenceOutputArg": "--auth-evidence-output" in SCRIPT_PATH.read_text(encoding="utf-8"),

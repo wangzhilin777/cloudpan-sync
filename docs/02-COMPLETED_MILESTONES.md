@@ -10,6 +10,21 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权证据导出链里的live rejected状态`
+- 完成范围：
+  - 已把 [auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_evidence.py) 的两条 Markdown 输出一起补齐：当前无论是单档案 `Auth Profile Evidence`，还是汇总型 [08-AUTH_EVIDENCE_BUNDLE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/08-AUTH_EVIDENCE_BUNDLE.md)，都会把 `liveRejected / liveRejectedSummaries` 明确写出来，不再只剩 `latestValidation / latestProbe` 这种需要人工再读一遍错误文案的弱提示
+  - 当前 [08-AUTH_EVIDENCE_BUNDLE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/08-AUTH_EVIDENCE_BUNDLE.md) 已同步到新口径：`aliyun-bootstrap`、`guangya-restore-gy-live-1`、`pikpak-restore-pikpak-live-1`、`uc-restore-uc-live-1` 这些已命中过线上拒绝的档案，现在都会直接写出状态码与 `liveRejectedSummaries`
+  - 已把 [verify_current_auth_evidence_bundle_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_auth_evidence_bundle_sync.py) 从旧的 3 档案断言更新到当前 9 档案状态，并把 `guangya/pikpak/uc/aliyun` 这些 `liveRejected*` 段落一起锁进 current-doc 回归
+  - 已把 [verify_export_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_evidence_bundle.py) 与 [verify_export_auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_profile_evidence.py) 同步补强，确保 synthetic export 和单 profile CLI 导出都不会再把 `liveRejected*` 状态漏掉
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\export_auth_evidence_bundle.py` 已重新导出当前 [08-AUTH_EVIDENCE_BUNDLE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/08-AUTH_EVIDENCE_BUNDLE.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_current_auth_evidence_bundle_sync.py` 已验证当前 docs/08 与仓库里的 auth evidence bundle 状态同步一致
+  - `.\.venv\Scripts\python.exe scripts\verify_export_auth_evidence_bundle.py` 已验证 auth evidence bundle 导出链当前包含 `liveRejected` 相关字段
+  - `.\.venv\Scripts\python.exe scripts\verify_export_auth_profile_evidence.py` 已验证单 profile evidence 导出当前也包含 `liveRejected` 相关字段
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权补救文档导出链里的live rejected状态`
 - 完成范围：
   - 已把 [09-AUTH_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/09-AUTH_REMEDIATION_GUIDE.md) 刷新到当前口径：授权补救文档现在不止会写 `needsSecretRefresh / placeholderSecretFieldHints`，也会把已命中过线上拒绝的档案同步写成 `liveRejected / liveRejectedSummaries`

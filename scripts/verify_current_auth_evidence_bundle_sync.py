@@ -18,6 +18,9 @@ def main() -> None:
     bundle = build_auth_evidence_bundle(profiles=list_profiles(), profile_view_builder=_auth_profile_view)
     summary = dict(bundle.get("summary") or {})
     markdown = (ROOT / "docs" / "08-AUTH_EVIDENCE_BUNDLE.md").read_text(encoding="utf-8")
+    guangya_restore_live = "### guangya-restore-gy-live-1 [guangya]" in markdown
+    pikpak_restore_live = "### pikpak-restore-pikpak-live-1 [pikpak]" in markdown
+    uc_restore_live = "### uc-restore-uc-live-1 [uc]" in markdown
 
     print(
         json.dumps(
@@ -28,16 +31,27 @@ def main() -> None:
                     and f"- writeReadyCount: `{summary.get('writeReadyCount', 0)}`" in markdown
                     and f"- validationOkCount: `{summary.get('validationOkCount', 0)}`" in markdown
                     and f"- probeOkCount: `{summary.get('probeOkCount', 0)}`" in markdown
-                    and f"- profileSummary: `profileReady={', '.join(summary.get('profileReadyProfiles', [])) or '(none)'}` `writeReady={', '.join(summary.get('writeReadyProfiles', [])) or '(none)'}` `validationOk={', '.join(summary.get('validationOkProfiles', [])) or '(none)'}` `probeOk={', '.join(summary.get('probeOkProfiles', [])) or '(none)'}`" in markdown
+                        and f"- profileSummary: `profileReady={', '.join(summary.get('profileReadyProfiles', [])) or '(none)'}` `writeReady={', '.join(summary.get('writeReadyProfiles', [])) or '(none)'}` `validationOk={', '.join(summary.get('validationOkProfiles', [])) or '(none)'}` `probeOk={', '.join(summary.get('probeOkProfiles', [])) or '(none)'}`" in markdown
                 ),
                 "summaryShowsExpectedAuthEvidenceCounts": (
-                    summary.get("profileCount") == 3
+                    summary.get("profileCount") == 9
                     and summary.get("profileReadyCount") == 0
-                    and summary.get("writeReadyCount") == 3
+                    and summary.get("writeReadyCount") == 9
                     and summary.get("validationOkCount") == 0
                     and summary.get("probeOkCount") == 0
                     and summary.get("profileReadyProfiles") == []
-                    and summary.get("writeReadyProfiles") == ["aliyun-bootstrap", "risk-smoke-guangya", "smoke-guangya"]
+                    and summary.get("writeReadyProfiles")
+                    == [
+                        "aliyun-bootstrap",
+                        "guangya-restore-gy-live-1",
+                        "guangya-restore-gy-live-2",
+                        "guangya-restore-gy-live-defaults-1",
+                        "guangya-restore-gy-orphan-live-1",
+                        "pikpak-restore-pikpak-live-1",
+                        "risk-smoke-guangya",
+                        "smoke-guangya",
+                        "uc-restore-uc-live-1",
+                    ]
                     and summary.get("validationOkProfiles") == []
                     and summary.get("probeOkProfiles") == []
                 ),
@@ -64,6 +78,23 @@ def main() -> None:
                     and "extra.domainId still uses placeholder data; replace domain-demo with a real domainId" in markdown
                     and "extra.driveId still uses placeholder data; replace drive-demo with a real driveId" in markdown
                     and "- placeholderSecretFieldHints: `token`" in markdown
+                    and "- liveRejected: profiles=`aliyun-bootstrap` placeholderProfiles=`aliyun-bootstrap` statuses=`404`" in markdown
+                    and "- liveRejectedSummaries: `aliyun-bootstrap:404`" in markdown
+                ),
+                "hasGuangyaRestoreLiveRejectedProfile": (
+                    guangya_restore_live
+                    and "- liveRejected: profiles=`guangya-restore-gy-live-1` placeholderProfiles=`guangya-restore-gy-live-1` statuses=`401`" in markdown
+                    and "- liveRejectedSummaries: `guangya-restore-gy-live-1:401`" in markdown
+                ),
+                "hasPikpakRestoreLiveRejectedProfile": (
+                    pikpak_restore_live
+                    and "- liveRejected: profiles=`pikpak-restore-pikpak-live-1` placeholderProfiles=`pikpak-restore-pikpak-live-1` statuses=`401`" in markdown
+                    and "- liveRejectedSummaries: `pikpak-restore-pikpak-live-1:401`" in markdown
+                ),
+                "hasUcRestoreLiveRejectedProfile": (
+                    uc_restore_live
+                    and "- liveRejected: profiles=`uc-restore-uc-live-1` placeholderProfiles=`uc-restore-uc-live-1` statuses=`404`" in markdown
+                    and "- liveRejectedSummaries: `uc-restore-uc-live-1:404`" in markdown
                 ),
             },
             ensure_ascii=False,

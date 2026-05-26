@@ -47,6 +47,11 @@ def main() -> None:
                 "providerKey": profile.providerKey,
                 "displayName": "189 Share Profile",
                 "missingFieldHints": ["accessToken"],
+                "placeholderSecretFieldHints": ["token"],
+                "liveRejectedProfiles": ["189 Share Profile"],
+                "placeholderLiveRejectedProfiles": ["189 Share Profile"],
+                "liveRejectedStatuses": ["403"],
+                "liveRejectedSummaries": ["189 Share Profile:403"],
                 "writeMissingFieldHints": ["signature", "date"],
                 "writeBlockerNote": "当前 189Cloud share 档案仍为只读。",
             },
@@ -117,6 +122,9 @@ def main() -> None:
                 and "- displayName: `189 Share Profile`" in markdown
                 and "- resolvedParentId: `share-parent`" in markdown,
                 "exportedHasReadonlyDetails": "- missingFieldHints: `accessToken`" in markdown
+                and "- placeholderSecretFieldHints: `token`" in markdown
+                and "- liveRejected: profiles=`189 Share Profile` placeholderProfiles=`189 Share Profile` statuses=`403`" in markdown
+                and "- liveRejectedSummaries: `189 Share Profile:403`" in markdown
                 and "- writeMissingFieldHints: `signature, date`" in markdown
                 and "- writeBlockerNote: 当前 189Cloud share 档案仍为只读。" in markdown,
                 "exportedHasValidationAndProbe": "## Latest Validation" in markdown

@@ -94,6 +94,14 @@ def auth_profile_evidence_to_markdown(payload: dict[str, object]) -> str:
         lines.append(f"- placeholderFieldHints: `{', '.join(profile.get('placeholderFieldHints', []))}`")
     if profile.get("placeholderSecretFieldHints"):
         lines.append(f"- placeholderSecretFieldHints: `{', '.join(profile.get('placeholderSecretFieldHints', []))}`")
+    if profile.get("placeholderLiveRejectedProfiles") or profile.get("liveRejectedProfiles"):
+        lines.append(
+            f"- liveRejected: profiles=`{', '.join(profile.get('liveRejectedProfiles', [])) or '(none)'}` "
+            f"placeholderProfiles=`{', '.join(profile.get('placeholderLiveRejectedProfiles', [])) or '(none)'}` "
+            f"statuses=`{', '.join(profile.get('liveRejectedStatuses', [])) or '(none)'}`"
+        )
+    if profile.get("liveRejectedSummaries"):
+        lines.append(f"- liveRejectedSummaries: `{ ' | '.join(profile.get('liveRejectedSummaries', [])) }`")
     if profile.get("writeMissingFieldHints"):
         lines.append(f"- writeMissingFieldHints: `{', '.join(profile.get('writeMissingFieldHints', []))}`")
     if profile.get("writeBlockerNote"):
@@ -254,6 +262,14 @@ def auth_evidence_bundle_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- placeholderFieldHints: `{', '.join(profile.get('placeholderFieldHints', []))}`")
         if profile.get("placeholderSecretFieldHints"):
             lines.append(f"- placeholderSecretFieldHints: `{', '.join(profile.get('placeholderSecretFieldHints', []))}`")
+        if profile.get("placeholderLiveRejectedProfiles") or profile.get("liveRejectedProfiles"):
+            lines.append(
+                f"- liveRejected: profiles=`{', '.join(profile.get('liveRejectedProfiles', [])) or '(none)'}` "
+                f"placeholderProfiles=`{', '.join(profile.get('placeholderLiveRejectedProfiles', [])) or '(none)'}` "
+                f"statuses=`{', '.join(profile.get('liveRejectedStatuses', [])) or '(none)'}`"
+            )
+        if profile.get("liveRejectedSummaries"):
+            lines.append(f"- liveRejectedSummaries: `{ ' | '.join(profile.get('liveRejectedSummaries', [])) }`")
         if profile.get("writeMissingFieldHints"):
             lines.append(f"- writeMissingFieldHints: `{', '.join(profile.get('writeMissingFieldHints', []))}`")
         if profile.get("writeBlockerNote"):

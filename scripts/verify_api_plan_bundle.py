@@ -288,6 +288,37 @@ def main() -> None:
                     and fetched_task_detail.get("summary", {}).get("firstConflictNote") == "The current target provider path does not guarantee true overwrite, so overwrite_existing will downgrade to auto_rename_new."
                 ),
                 "logoutClearsSession": logout_result.status_code == 200 and logged_out_session.get("loggedIn") is False,
+                "apiPlanBundleFlowMatchesExpectedLifecycle": (
+                    "guangya" in registry_by_key
+                    and registry_by_key.get("guangya", {}).get("conflictPolicies") == ["overwrite_existing", "auto_rename_new"]
+                    and anonymous_session.get("loggedIn") is False
+                    and anonymous_profiles.status_code == 401
+                    and anonymous_tasks.status_code == 401
+                    and anonymous_plan.status_code == 401
+                    and bad_login.status_code == 401
+                    and login_result.status_code == 200
+                    and logged_in_session.get("loggedIn") is True
+                    and bool(created_profile_id)
+                    and created_item.get("status") == "verified"
+                    and created_profile.get("validation", {}).get("ok") is True
+                    and len(listed_profile_items) == 1
+                    and validated_profile.get("validation", {}).get("ok") is True
+                    and mock_plan.get("conflictPolicy") == "overwrite_existing"
+                    and len(mock_plan_items) == 1
+                    and mock_plan_items[0].get("conflictSupportStatus") == "downgrade_to_auto_rename"
+                    and bool(task_id)
+                    and created_task_item.get("state") == "awaiting_ack"
+                    and created_task_item.get("conflictPolicy") == "overwrite_existing"
+                    and created_task_list.get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
+                    and len(listed_task_rows) == 1
+                    and listed_task_rows[0].get("state") == "awaiting_ack"
+                    and listed_task_rows[0].get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
+                    and fetched_task_detail.get("state") == "awaiting_ack"
+                    and fetched_task_detail.get("conflictPolicy") == "overwrite_existing"
+                    and fetched_task_detail.get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
+                    and logout_result.status_code == 200
+                    and logged_out_session.get("loggedIn") is False
+                ),
             },
             ensure_ascii=False,
             indent=2,

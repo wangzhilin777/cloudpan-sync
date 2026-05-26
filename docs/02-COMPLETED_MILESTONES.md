@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务API总链路回归断言`
+- 完成范围：
+  - 已把 [verify_api_plan_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_api_plan_bundle.py) 从注册表、登录、鉴权、plan、task create/list/detail/logout 各段分别核对，补成真正会给出整条 API bundle 结论的 verifier
+  - 同一条回归现在会用 `apiPlanBundleFlowMatchesExpectedLifecycle` 直接锁住这条总链：匿名访问必须被拦、登录后鉴权 profile 保存与校验必须成功、mock plan 与 task create/list/detail 必须稳定带回 `overwrite_existing` 和 `downgrade_to_auto_rename`，最后 logout 还要恢复未登录态
+  - 当前效果是：任务 API 总链不再只是很多分散检查都为真，而是多了一条更高层的端到端 lifecycle 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_api_plan_bundle.py` 已验证任务 API 总链当前会稳定贯穿 registry/login/auth/plan/task/logout
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务Markdown导出三态回归断言`
 - 完成范围：
   - 已把 [verify_export_task_markdown.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_markdown.py) 从三种快照形态各自核对若干 Markdown 片段，补成真正会给出整条导出链结论的 verifier

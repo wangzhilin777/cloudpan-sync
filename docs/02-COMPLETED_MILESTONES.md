@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务预览UI整链回归断言`
+- 完成范围：
+  - 已把 [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 从一组分散的表单/预览/守卫 UI 片段检查，补成真正会给出整条任务预览链结论的 verifier
+  - 同一条回归现在会用 `taskPlanPreviewFlowIsWired` 直接锁住任务预览 UI 链：阈值与冲突策略表单、preview fetch/render、summary/risk/actions 面板、软风险确认、硬阻断创建守卫、guard pill 摘要与 lastActionError 展示
+  - 当前效果是：任务预览页不再只是“许多按钮和文案都还在”，而是多了一条从输入到 preview 再到 create guard 的完整 UI wiring 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_queue_plan_preview_ui.py` 已验证任务预览 UI 链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务动作守卫整链回归断言`
 - 完成范围：
   - 已把 [verify_task_action_guards.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_action_guards.py) 从几段动作守卫局部断言，补成真正会给出整条状态迁移结论的 verifier

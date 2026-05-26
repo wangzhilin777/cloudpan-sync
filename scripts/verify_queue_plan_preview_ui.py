@@ -70,6 +70,43 @@ def main() -> None:
         "jsHasAcknowledgeRiskAction": 'task?.summary?.allowedActions' in app_js,
         "jsHasGuardPillSummary": 'guard=hard_blocked' in app_js and 'warnings=' in app_js and 'downloadUpload:' in app_js,
         "jsHasLastActionErrorDisplay": 'lastActionError=' in app_js and 'task-action-error' in app_js and 'lastActionError.reason' in app_js,
+        "taskPlanPreviewFlowIsWired": (
+            'id="taskThresholdMB"' in index_html
+            and 'id="taskConflictPolicy"' in index_html
+            and '<option value="auto_rename_new">auto_rename_new</option>' in index_html
+            and '<option value="overwrite_existing">overwrite_existing</option>' in index_html
+            and 'id="taskPreviewBtn"' in index_html
+            and 'id="taskPlanPreviewPanel"' in index_html
+            and 'id="taskPlanPreviewActions"' in index_html
+            and 'id="taskPlanPreviewSummary"' in index_html
+            and 'id="taskPlanPreviewRisk"' in index_html
+            and 'id="taskCreateGuard"' in index_html
+            and 'id="taskPlanPreviewAck"' in index_html
+            and "async function previewTaskPlan()" in app_js
+            and "function renderTaskPlanPreview()" in app_js
+            and "async function fetchTaskPlanPreview()" in app_js
+            and "function resetTaskPlanAck()" in app_js
+            and 'const thresholdRaw = document.getElementById("taskThresholdMB").value.trim();' in app_js
+            and 'const conflictPolicy = document.getElementById("taskConflictPolicy").value;' in app_js
+            and 'thresholdMB: Number(thresholdRaw || 0) || 0,' in app_js
+            and "conflictPolicy," in app_js
+            and 'thresholdMB=${plan.thresholdMB || 0}, conflictPolicy=${plan.conflictPolicy || "auto_rename_new"}' in app_js
+            and "thresholdMB: body.thresholdMB," in app_js
+            and "conflictPolicy: body.conflictPolicy," in app_js
+            and 'Task creation blocked: target profile' in app_js
+            and 'targetProfile.writeReady === false' in app_js
+            and 'Task creation blocked:' in app_js
+            and 'item.conflictSupportStatus === "unsupported"' in app_js
+            and 'Task creation requires confirmation:' in app_js
+            and 'taskPlanPreviewAck' in app_js
+            and 'counts.pending_manual' in app_js
+            and 'counts.download_upload' in app_js
+            and 'guard=hard_blocked' in app_js
+            and 'warnings=' in app_js
+            and 'downloadUpload:' in app_js
+            and 'lastActionError=' in app_js
+            and 'lastActionError.reason' in app_js
+        ),
     }
     print(json.dumps(result, ensure_ascii=False, indent=2))
 

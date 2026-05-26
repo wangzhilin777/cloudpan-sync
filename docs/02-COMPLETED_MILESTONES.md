@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权证据汇总面板的first gap摘要`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `setAuthEvidenceBundleSummary` 再补一层：当前在 `Auth Evidence Bundle` 汇总面板里，除了计数和操作按钮，也会直接写出第一条 gap 的 `profileReady / writeReady / validationOk / probeOk`
+  - 同一条 first-gap 文本现在还会把 `missing / placeholderSecretHints / liveRejectedStatuses / placeholderLiveRejectedProfiles / liveRejectedSummaries` 一并带出来，不再需要点回单档案 evidence 才知道当前缺口具体卡在哪
+  - 这样授权证据汇总面板终于和前面已经补齐的设置页摘要、详情面板、导出文档保持同口径了，不再出现“汇总面板只有按钮、没有当前 gap 关键信息”的断层
+  - 已同步补强 [verify_auth_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_settings_ui.py)，把 `setAuthEvidenceBundleSummary` 里 `firstNeedsWork` 的 first-gap 文案一起锁进 UI 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_settings_ui.py` 已验证授权证据汇总面板、详情面板与设置页摘要链当前都已包含 first-gap 的 `liveRejected` 相关文本
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权详情面板里的live rejected状态`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `setAuthEvidenceSummary` 补上一层 `rejectedMeta`：当单档案 evidence 已经带有 `liveRejectedStatuses / placeholderLiveRejectedProfiles / liveRejectedSummaries` 时，详情面板会在 `profileReady / writeReady / validationOk / probeOk` 下方直接展开这组状态

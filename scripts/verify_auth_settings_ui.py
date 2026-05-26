@@ -46,6 +46,13 @@ def main() -> None:
                 and "writeReadyProfiles=" in app_js
                 and "validationOkProfiles=" in app_js
                 and "probeOkProfiles=" in app_js
+                and "const firstSummary = firstNeedsWork.summary || {};" in app_js
+                and "const firstMissing = (firstProfile.missingFieldHints || []).join(\" | \");" in app_js
+                and "const firstPlaceholderSecretHints = (firstProfile.placeholderSecretFieldHints || []).join(\" | \");" in app_js
+                and "const firstLiveRejectedStatuses = (firstProfile.liveRejectedStatuses || []).join(\"/\") || \"\";" in app_js
+                and "const firstPlaceholderLiveRejectedProfiles = (firstProfile.placeholderLiveRejectedProfiles || []).join(\"/\") || \"\";" in app_js
+                and "const firstLiveRejectedSummaries = (firstProfile.liveRejectedSummaries || []).join(\" | \") || \"\";" in app_js
+                and 'firstGapMeta.textContent = `${firstProfile.displayName || firstProfile.profileId || "(unknown)"} [${firstProfile.providerKey || "(unknown)"}]: profileReady=${Boolean(firstSummary.profileReady)}, writeReady=${Boolean(firstSummary.writeReady)}, validationOk=${Boolean(firstSummary.validationOk)}, probeOk=${Boolean(firstSummary.probeOk)}${firstMissing ? `, missing=${firstMissing}` : ""}${firstPlaceholderSecretHints ? `, placeholderSecretHints=${firstPlaceholderSecretHints}` : ""}${firstLiveRejectedStatuses ? `, liveRejectedStatuses=${firstLiveRejectedStatuses}` : ""}${firstPlaceholderLiveRejectedProfiles ? `, placeholderLiveRejectedProfiles=${firstPlaceholderLiveRejectedProfiles}` : ""}${firstLiveRejectedSummaries ? `, liveRejectedSummaries=${firstLiveRejectedSummaries}` : ""}`;' in app_js
                 and 'heading.textContent = `Auth Evidence: ${profile.displayName || profile.profileId || "(unknown)"}`;' in app_js
                 and 'rejectedMeta.textContent = `liveRejectedStatuses=${liveRejectedStatuses || "(none)"}, placeholderLiveRejectedProfiles=${placeholderLiveRejectedProfiles || "(none)"}, liveRejectedSummaries=${liveRejectedSummaries || "(none)"}`;' in app_js,
                 "jsRenderSettingsUsesAuthRemediation": "const authRemediationSummary = state.authRemediationBundle?.summary || {};" in app_js

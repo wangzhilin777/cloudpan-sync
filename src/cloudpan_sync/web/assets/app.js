@@ -643,6 +643,16 @@ function setAuthEvidenceBundleSummary(bundle, markdown) {
   }) || null;
   if (firstNeedsWork) {
     const firstProfile = firstNeedsWork.profile || {};
+    const firstSummary = firstNeedsWork.summary || {};
+    const firstMissing = (firstProfile.missingFieldHints || []).join(" | ");
+    const firstPlaceholderSecretHints = (firstProfile.placeholderSecretFieldHints || []).join(" | ");
+    const firstLiveRejectedStatuses = (firstProfile.liveRejectedStatuses || []).join("/") || "";
+    const firstPlaceholderLiveRejectedProfiles = (firstProfile.placeholderLiveRejectedProfiles || []).join("/") || "";
+    const firstLiveRejectedSummaries = (firstProfile.liveRejectedSummaries || []).join(" | ") || "";
+    const firstGapMeta = document.createElement("div");
+    firstGapMeta.className = "auth-validation-meta";
+    firstGapMeta.textContent = `${firstProfile.displayName || firstProfile.profileId || "(unknown)"} [${firstProfile.providerKey || "(unknown)"}]: profileReady=${Boolean(firstSummary.profileReady)}, writeReady=${Boolean(firstSummary.writeReady)}, validationOk=${Boolean(firstSummary.validationOk)}, probeOk=${Boolean(firstSummary.probeOk)}${firstMissing ? `, missing=${firstMissing}` : ""}${firstPlaceholderSecretHints ? `, placeholderSecretHints=${firstPlaceholderSecretHints}` : ""}${firstLiveRejectedStatuses ? `, liveRejectedStatuses=${firstLiveRejectedStatuses}` : ""}${firstPlaceholderLiveRejectedProfiles ? `, placeholderLiveRejectedProfiles=${firstPlaceholderLiveRejectedProfiles}` : ""}${firstLiveRejectedSummaries ? `, liveRejectedSummaries=${firstLiveRejectedSummaries}` : ""}`;
+    box.appendChild(firstGapMeta);
     const actions = document.createElement("div");
     actions.className = "row-actions";
     if (firstProfile.profileId) {

@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`运行脚本补救输出也补齐结构化冲突支持状态`
+- 完成范围：
+  - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 的 `remediationFollowup` 再补一层：当前除了文字版 `conflictPolicyNote / providerConflictNotes`，也会同步返回 `declaredConflictPolicies / supportsOverwrite / supportsAutoRename / overwriteBehavior / overwriteSupportStatus / autoRenameSupportStatus`
+  - 当前效果是：CLI 结果不再只会告诉用户“建议怎么处理同名冲突”，还会直接带结构化的 provider 冲突支持状态，便于终端里直接判断当前 provider 是原生支持覆盖、会降级为自动改名，还是仅保留 probe-only/未实现状态
+  - 这样 probe / live upload / fast candidate 三支 helper 的 follow-up 又往 remediation bundle 靠近一步，尤其更贴近你前面强调的“同路径同名文件要明确给出覆盖还是自动重命名”的任务要求
+  - 已同步补强 [verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py)、[verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py)、[verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py)，把这组 conflict support 字段一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_runtime_probe_task.py` 已验证 runtime probe 脚本输出的 `remediationFollowup` 当前会返回结构化 conflict support 字段
+  - `.\.venv\Scripts\python.exe scripts\verify_create_live_upload_task.py` 已验证 live upload 脚本输出的 `remediationFollowup` 当前会返回结构化 conflict support 字段
+  - `.\.venv\Scripts\python.exe scripts\verify_create_fast_upload_candidate_task.py` 已验证 fast candidate 脚本输出的 `remediationFollowup` 当前会返回结构化 conflict support 字段
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`运行脚本补救输出也补齐建档授权上下文`
 - 完成范围：
   - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 的 `remediationFollowup` 再补一层：当前除了建档命令，还会同步返回 `recommendedAuthModes / requiredFieldHints / webLoginUrl / officialDocsUrl`

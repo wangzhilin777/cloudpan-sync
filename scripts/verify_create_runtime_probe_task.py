@@ -124,6 +124,12 @@ def main() -> None:
                 "requiredFieldHints": ["token or extra.authorization", "extra.domainId", "extra.driveId"],
                 "webLoginUrl": "https://www.alipan.com/",
                 "officialDocsUrl": "https://www.alipan.com/",
+                "declaredConflictPolicies": ["overwrite_existing", "auto_rename_new"],
+                "supportsOverwrite": True,
+                "supportsAutoRename": True,
+                "overwriteBehavior": "provider_managed",
+                "overwriteSupportStatus": "supported",
+                "autoRenameSupportStatus": "supported",
                 "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["token"],
@@ -295,6 +301,12 @@ def main() -> None:
                 and dict(output.get("remediationFollowup") or {}).get("requiredFieldHints") == ["token or extra.authorization", "extra.domainId", "extra.driveId"]
                 and dict(output.get("remediationFollowup") or {}).get("webLoginUrl") == "https://www.alipan.com/"
                 and dict(output.get("remediationFollowup") or {}).get("officialDocsUrl") == "https://www.alipan.com/",
+                "scriptRemediationConflictSupportIncluded": dict(output.get("remediationFollowup") or {}).get("declaredConflictPolicies") == ["overwrite_existing", "auto_rename_new"]
+                and dict(output.get("remediationFollowup") or {}).get("supportsOverwrite") is True
+                and dict(output.get("remediationFollowup") or {}).get("supportsAutoRename") is True
+                and dict(output.get("remediationFollowup") or {}).get("overwriteBehavior") == "provider_managed"
+                and dict(output.get("remediationFollowup") or {}).get("overwriteSupportStatus") == "supported"
+                and dict(output.get("remediationFollowup") or {}).get("autoRenameSupportStatus") == "supported",
                 "scriptRemediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["token"]
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")

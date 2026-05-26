@@ -96,6 +96,20 @@ def main() -> None:
                 and ali_placeholder.get("placeholderLiveRejectedProfiles") == ["ali-placeholder"]
                 and ali_placeholder.get("liveRejectedStatuses") == ["404"]
                 and ali_placeholder.get("liveRejectedSummaries") == ["ali-placeholder:404"],
+                "authProfileReadinessFlowMatchesExpectedStates": gy.get("profileReady") is False
+                and "extra.parentId (aliases: parent_id/parentFileId/dirId/pid)" in (gy.get("missingFieldHints") or [])
+                and "token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token" in (gy.get("placeholderFieldHints") or [])
+                and ali.get("profileReady") is True
+                and not (ali.get("placeholderFieldHints") or [])
+                and ali.get("resolvedParentId") == "root"
+                and ali_placeholder.get("profileReady") is False
+                and "token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token" in (ali_placeholder.get("placeholderFieldHints") or [])
+                and "extra.domainId still uses placeholder data; replace domain-demo with a real domainId" in (ali_placeholder.get("placeholderFieldHints") or [])
+                and "extra.driveId still uses placeholder data; replace drive-demo with a real driveId" in (ali_placeholder.get("placeholderFieldHints") or [])
+                and ali_placeholder.get("liveRejectedProfiles") == ["ali-placeholder"]
+                and ali_placeholder.get("placeholderLiveRejectedProfiles") == ["ali-placeholder"]
+                and ali_placeholder.get("liveRejectedStatuses") == ["404"]
+                and ali_placeholder.get("liveRejectedSummaries") == ["ali-placeholder:404"],
             },
             ensure_ascii=False,
             indent=2,

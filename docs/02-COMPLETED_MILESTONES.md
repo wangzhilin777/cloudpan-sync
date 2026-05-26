@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权就绪判定总链回归断言`
+- 完成范围：
+  - 已把 [verify_auth_profile_readiness.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_readiness.py) 从 Guangya 缺字段阻断、阿里云真实字段保持就绪、阿里云占位字段阻断这三段分散检查，补成真正会给出整条授权就绪判定链结论的 verifier
+  - 同一条回归现在会用 `authProfileReadinessFlowMatchesExpectedStates` 直接锁住这条链：Guangya 占位 token 且缺 `parentId` 时必须稳定返回 `profileReady=false` 和 `missingFieldHints`，阿里云真实 `domainId/driveId` 必须保持 `profileReady=true` 且 `resolvedParentId=root`，阿里云占位 `token/domainId/driveId` 则必须继续返回占位字段提示与 `404` live reject 摘要
+  - 当前效果是：授权就绪判定能力不再只是三种 profile 状态各自为真，而是多了一条覆盖缺字段阻断、真实字段放行和占位字段阻断的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_profile_readiness.py` 已验证授权就绪判定链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权视图脱敏总链回归断言`
 - 完成范围：
   - 已把 [verify_auth_profile_masking.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_masking.py) 从长短 secret 脱敏、授权列表脱敏、别名解析结果保留，以及占位密钥刷新提示的分散检查，补成真正会给出整条授权视图脱敏链结论的 verifier

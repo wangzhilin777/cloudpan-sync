@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐运行孤儿重建刷新视图总链回归断言`
+- 完成范围：
+  - 已把 [verify_runtime_orphan_recreate_refreshes_views.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_refreshes_views.py) 从单条 orphan 重建、批量 orphan 重建、auth 面板刷新、strict 相关视图刷新和状态矩阵刷新等分散检查，补成真正会给出整条运行孤儿重建刷新链结论的 verifier
+  - 同一条回归现在会用 `runtimeOrphanRecreateRefreshesViewsFlowIsWired` 直接锁住这条链：`recreateRuntimeOrphanProfile()` 与 `batchRecreateRuntimeOrphanProfiles()` 必须同时刷新 `loadAuthProfiles / loadRuntimeOrphanRecoverySummary / loadAuthEvidenceBundleSummary / loadAuthRemediationSummary / loadLiveValidations`，以及 `loadRealEvidenceSummary / loadRealEvidenceRemediationSummary / loadTaskRuntimeEvidence / loadStatusMatrix / loadAuditSummary`
+  - 当前效果是：运行孤儿重建后的视图刷新能力不再只是单条/批量重建各自散落的刷新调用为真，而是多了一条覆盖 auth、runtime orphan、strict evidence 和状态矩阵四组面板的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_refreshes_views.py` 已验证运行孤儿重建刷新链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐补救建档后续动作总链回归断言`
 - 完成范围：
   - 已把 [verify_real_evidence_remediation_create_followup_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_followup_ui.py) 从结果摘要、`latestRemediationAction`、建档后自动跳转、follow-up 文案与 bootstrap 检测等分散检查，补成真正会给出整条补救建档后续动作链结论的 verifier

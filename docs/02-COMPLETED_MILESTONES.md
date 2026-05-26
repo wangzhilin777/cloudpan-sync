@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务运行样本导出回归断言`
+- 完成范围：
+  - 已把 [verify_export_task_runtime_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_runtime_evidence_report.py) 从导出文件存在、标题、summary、profileSummary、blocked/candidate/probe/conflictHandled 行等分散检查，补成真正会给出整条任务运行样本导出链结论的 verifier
+  - 同一条回归现在会用 `exportTaskRuntimeEvidenceReportFlowMatchesExpectedMarkdown` 直接锁住这条导出链：synthetic runtime evidence payload 经 `export_task_runtime_evidence_report.py` 生成的 `docs/11-TASK_RUNTIME_EVIDENCE.md` 必须稳定带出 provider/profile 汇总，以及 blocked/candidate/probe/conflictHandled 等关键运行样本行
+  - 当前效果是：任务运行样本导出能力不再只是很多 Markdown 片段各自为真，而是多了一条从 payload 到导出文件内容的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_task_runtime_evidence_report.py` 已验证任务运行样本导出链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐计划审计导出回归断言`
 - 完成范围：
   - 已把 [verify_export_plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_plan_audit.py) 从导出文件存在、标题、summary、进度百分比、公式说明、provider 覆盖、里程碑汇总、M5/P-REAL 条目与 runtime_orphan 说明等分散检查，补成真正会给出整条计划审计导出链结论的 verifier

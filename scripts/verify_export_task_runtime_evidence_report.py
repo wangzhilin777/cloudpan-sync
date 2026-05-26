@@ -139,39 +139,70 @@ def main() -> None:
 
         output_path = tmp_root / "docs" / "11-TASK_RUNTIME_EVIDENCE.md"
         markdown = output_path.read_text(encoding="utf-8")
+    exported_file_exists = True
+    exported_has_title = "# CloudPan Sync 任务运行真实样本报告" in markdown
+    exported_has_summary_counts = (
+        "successProviderCount=1" in markdown
+        and "failedProviderCount=1" in markdown
+        and "candidateProviderCount=1" in markdown
+        and "blockedProviderCount=1" in markdown
+        and "conflictHandledProviderCount=1" in markdown
+        and "runtimeOrphanProviderCount=2" in markdown
+        and "runtimeOrphanProfileCount=2" in markdown
+    )
+    exported_has_profile_summary = (
+        "profileSummary:" in markdown
+        and "`success=gy-1`" in markdown
+        and "`failed=189-1`" in markdown
+        and "`candidate=quark-1`" in markdown
+        and "`probe=(none)`" in markdown
+        and "`blocked=189-1`" in markdown
+        and "`conflictHandled=gy-1`" in markdown
+        and "`runtimeOrphan=189-1, quark-1`" in markdown
+    )
+    exported_has_blocked_row = (
+        "executionMode=blocked" in markdown
+        and "riskHint=download_upload_size_limit_exceeded" in markdown
+        and "requiredAuth=AccessToken" in markdown
+        and "orphanProfileId=189-1" in markdown
+    )
+    exported_has_candidate_row = (
+        "candidateOnly=True" in markdown
+        and "verifyMode=fingerprint_candidate" in markdown
+        and "orphanProfileId=quark-1" in markdown
+    )
+    exported_has_probe_row = (
+        "probeOnly=True" in markdown
+        and "path=/folder-probe" in markdown
+        and markdown.count("orphanProfileId=189-1") == 2
+    )
+    exported_has_conflict_handled_row = (
+        "conflictAction=overwrite_downgraded_to_auto_rename" in markdown
+        and "orphanProfileId=(none)" in markdown
+    )
+    export_task_runtime_evidence_report_flow_matches_expected_markdown = (
+        exported_file_exists
+        and exported_has_title
+        and exported_has_summary_counts
+        and exported_has_profile_summary
+        and exported_has_blocked_row
+        and exported_has_candidate_row
+        and exported_has_probe_row
+        and exported_has_conflict_handled_row
+    )
 
     print(
         json.dumps(
             {
-                "exportedFileExists": True,
-                "exportedHasTitle": "# CloudPan Sync 任务运行真实样本报告" in markdown,
-                "exportedHasSummaryCounts": "successProviderCount=1" in markdown
-                and "failedProviderCount=1" in markdown
-                and "candidateProviderCount=1" in markdown
-                and "blockedProviderCount=1" in markdown
-                and "conflictHandledProviderCount=1" in markdown
-                and "runtimeOrphanProviderCount=2" in markdown
-                and "runtimeOrphanProfileCount=2" in markdown,
-                "exportedHasProfileSummary": "profileSummary:" in markdown
-                and "`success=gy-1`" in markdown
-                and "`failed=189-1`" in markdown
-                and "`candidate=quark-1`" in markdown
-                and "`probe=(none)`" in markdown
-                and "`blocked=189-1`" in markdown
-                and "`conflictHandled=gy-1`" in markdown
-                and "`runtimeOrphan=189-1, quark-1`" in markdown,
-                "exportedHasBlockedRow": "executionMode=blocked" in markdown
-                and "riskHint=download_upload_size_limit_exceeded" in markdown
-                and "requiredAuth=AccessToken" in markdown
-                and "orphanProfileId=189-1" in markdown,
-                "exportedHasCandidateRow": "candidateOnly=True" in markdown
-                and "verifyMode=fingerprint_candidate" in markdown
-                and "orphanProfileId=quark-1" in markdown,
-                "exportedHasProbeRow": "probeOnly=True" in markdown
-                and "path=/folder-probe" in markdown
-                and markdown.count("orphanProfileId=189-1") == 2,
-                "exportedHasConflictHandledRow": "conflictAction=overwrite_downgraded_to_auto_rename" in markdown
-                and "orphanProfileId=(none)" in markdown,
+                "exportedFileExists": exported_file_exists,
+                "exportedHasTitle": exported_has_title,
+                "exportedHasSummaryCounts": exported_has_summary_counts,
+                "exportedHasProfileSummary": exported_has_profile_summary,
+                "exportedHasBlockedRow": exported_has_blocked_row,
+                "exportedHasCandidateRow": exported_has_candidate_row,
+                "exportedHasProbeRow": exported_has_probe_row,
+                "exportedHasConflictHandledRow": exported_has_conflict_handled_row,
+                "exportTaskRuntimeEvidenceReportFlowMatchesExpectedMarkdown": export_task_runtime_evidence_report_flow_matches_expected_markdown,
             },
             ensure_ascii=False,
             indent=2,

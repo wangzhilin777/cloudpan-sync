@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐纯详情快照导出链里的冲突摘要`
+- 完成范围：
+  - 已把 [export_task_markdown.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_task_markdown.py) 的快照解析再补一层：当前除了支持 `item` 快照、包着 `detailView` 的 JSON，也能直接识别“纯 `detailView` 本体 JSON”并自动重建最小 `plan`
+  - 当前效果是：不管外部保存下来的任务快照是 `{\"detailView\": ...}` 这种包装结构，还是直接把 `detailView` 本身单独写成 JSON 文件，导出链都能稳定保住 `supportSummary / firstPlannedConflict`
+  - 这样任务 Markdown 的离线导出链又少了一种隐性断层，不会再出现“detailView 包装文件能导出完整冲突摘要，但纯 detailView 文件反而丢字段”的情况
+  - 已同步补强 [verify_export_task_markdown.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_markdown.py)，当前会分别验证 `item` 快照、包着 `detailView` 的快照，以及纯 `detailView` JSON 三种输入场景
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_task_markdown.py` 已验证三种快照形态下导出的任务 Markdown 都会保留 `supportSummary / firstPlannedConflict`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐API总回归里的任务冲突摘要断言`
 - 完成范围：
   - 已把 [verify_api_plan_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_api_plan_bundle.py) 再补一层：当前这条高层 API 总回归不再只检查 `conflictPolicy` 和基础队列状态

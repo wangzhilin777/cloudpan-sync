@@ -19,14 +19,23 @@ def main() -> None:
     task_runtime._TASKS.clear()
 
     output = ROOT / "tmp" / "verify-task-markdown.md"
+    detail_output = ROOT / "tmp" / "verify-task-markdown-detail.md"
+    flat_detail_output = ROOT / "tmp" / "verify-task-markdown-flat-detail.md"
     snapshot = ROOT / "tmp" / "verify-task-markdown.json"
     detail_snapshot = ROOT / "tmp" / "verify-task-markdown-detail.json"
+    flat_detail_snapshot = ROOT / "tmp" / "verify-task-markdown-flat-detail.json"
     if output.exists():
         output.unlink()
+    if detail_output.exists():
+        detail_output.unlink()
+    if flat_detail_output.exists():
+        flat_detail_output.unlink()
     if snapshot.exists():
         snapshot.unlink()
     if detail_snapshot.exists():
         detail_snapshot.unlink()
+    if flat_detail_snapshot.exists():
+        flat_detail_snapshot.unlink()
 
     try:
         task = task_runtime.create_task(
@@ -65,6 +74,10 @@ def main() -> None:
             json.dumps({"detailView": task_runtime.build_task_detail_view(task)}, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
+        flat_detail_snapshot.write_text(
+            json.dumps(task_runtime.build_task_detail_view(task), ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
 
         result = subprocess.run(
             [
@@ -87,13 +100,27 @@ def main() -> None:
                 "--task-json",
                 str(detail_snapshot),
                 "--output",
-                str(output),
+                str(detail_output),
             ],
             capture_output=True,
             text=True,
             check=True,
         )
-        detail_markdown = output.read_text(encoding="utf-8")
+        detail_markdown = detail_output.read_text(encoding="utf-8")
+        flat_detail_result = subprocess.run(
+            [
+                str(ROOT / ".venv" / "Scripts" / "python.exe"),
+                str(ROOT / "scripts" / "export_task_markdown.py"),
+                "--task-json",
+                str(flat_detail_snapshot),
+                "--output",
+                str(flat_detail_output),
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        flat_detail_markdown = flat_detail_output.read_text(encoding="utf-8")
         print(
             json.dumps(
                 {
@@ -111,13 +138,21 @@ def main() -> None:
                     "markdownHasConflictAction": "conflictAction=`overwrite_downgraded_to_auto_rename`" in markdown,
                     "markdownHasResolvedTargetName": "resolvedTargetName=`demo (1).bin`" in markdown,
                     "markdownHasPlanConflictSupport": "conflictSupportStatus=`downgrade_to_auto_rename`" in markdown,
-                    "detailStdoutHasOutputPath": str(output) in detail_result.stdout,
+                    "detailStdoutHasOutputPath": str(detail_output) in detail_result.stdout,
                     "detailMarkdownHasSupportSummary": f"supportSummary: `statuses={first_item.get('conflictSupportStatus', '') or '(none)'}`" in detail_markdown,
                     "detailMarkdownHasFirstPlannedConflict": (
                         f"firstPlannedConflict: path=`{first_item.get('path', '') or '(none)'}`" in detail_markdown
                         and f"strategy=`{first_item.get('strategy', '') or '(none)'}`" in detail_markdown
                         and f"conflictSupportStatus=`{first_item.get('conflictSupportStatus', '') or '(none)'}`" in detail_markdown
                         and f"conflictNote=`{first_item.get('conflictNote', '') or '(none)'}`" in detail_markdown
+                    ),
+                    "flatDetailStdoutHasOutputPath": str(flat_detail_output) in flat_detail_result.stdout,
+                    "flatDetailMarkdownHasSupportSummary": f"supportSummary: `statuses={first_item.get('conflictSupportStatus', '') or '(none)'}`" in flat_detail_markdown,
+                    "flatDetailMarkdownHasFirstPlannedConflict": (
+                        f"firstPlannedConflict: path=`{first_item.get('path', '') or '(none)'}`" in flat_detail_markdown
+                        and f"strategy=`{first_item.get('strategy', '') or '(none)'}`" in flat_detail_markdown
+                        and f"conflictSupportStatus=`{first_item.get('conflictSupportStatus', '') or '(none)'}`" in flat_detail_markdown
+                        and f"conflictNote=`{first_item.get('conflictNote', '') or '(none)'}`" in flat_detail_markdown
                     ),
                 },
                 ensure_ascii=False,
@@ -127,10 +162,16 @@ def main() -> None:
     finally:
         if output.exists():
             output.unlink()
+        if detail_output.exists():
+            detail_output.unlink()
+        if flat_detail_output.exists():
+            flat_detail_output.unlink()
         if snapshot.exists():
             snapshot.unlink()
         if detail_snapshot.exists():
             detail_snapshot.unlink()
+        if flat_detail_snapshot.exists():
+            flat_detail_snapshot.unlink()
         task_runtime._TASKS.clear()
         task_runtime._TASKS.update(original_tasks)
 

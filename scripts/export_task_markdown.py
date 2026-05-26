@@ -13,20 +13,27 @@ if str(SRC) not in sys.path:
 from cloudpan_sync.task_runtime import get_task, task_to_markdown
 
 
+def _normalize_detail_snapshot(detail: dict[str, object]) -> dict[str, object]:
+    normalized = dict(detail or {})
+    if "plan" not in normalized:
+        normalized["plan"] = {
+            "summary": dict(normalized.get("planSummary") or {}),
+            "items": list(normalized.get("planItems") or []),
+            "pendingItems": list(normalized.get("pendingItems") or []),
+            "executionGroups": list(normalized.get("executionGroups") or []),
+        }
+    return normalized
+
+
 def _load_task_snapshot(path_text: str) -> dict[str, object]:
     payload = json.loads(Path(path_text).read_text(encoding="utf-8"))
     if isinstance(payload, dict):
         if isinstance(payload.get("item"), dict):
             return dict(payload.get("item") or {})
         if isinstance(payload.get("detailView"), dict):
-            detail = dict(payload.get("detailView") or {})
-            detail["plan"] = {
-                "summary": dict(detail.get("planSummary") or {}),
-                "items": list(detail.get("planItems") or []),
-                "pendingItems": list(detail.get("pendingItems") or []),
-                "executionGroups": list(detail.get("executionGroups") or []),
-            }
-            return detail
+            return _normalize_detail_snapshot(dict(payload.get("detailView") or {}))
+        if "plan" not in payload and any(key in payload for key in ("planSummary", "planItems", "pendingItems", "executionGroups")):
+            return _normalize_detail_snapshot(payload)
         return payload
     raise SystemExit(f"invalid_task_json: {path_text}")
 

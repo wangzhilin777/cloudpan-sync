@@ -250,14 +250,24 @@ def main() -> None:
                     and listed_task_rows[0].get("taskId") == task_id
                     and listed_task_rows[0].get("state") == "awaiting_ack"
                     and listed_task_rows[0].get("conflictPolicy") == "overwrite_existing"
+                    and listed_task_rows[0].get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
+                    and listed_task_rows[0].get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
                     and listed_task_rows[0].get("summary", {}).get("awaitingAcknowledgement") is True
+                    and listed_task_rows[0].get("summary", {}).get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
+                    and listed_task_rows[0].get("summary", {}).get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
                 ),
                 "taskDetailReturnsConflictPolicyAndPendingItems": (
                     fetched_task_detail.get("taskId") == task_id
                     and fetched_task_detail.get("state") == "awaiting_ack"
                     and fetched_task_detail.get("conflictPolicy") == "overwrite_existing"
+                    and fetched_task_detail.get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
+                    and fetched_task_detail.get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
+                    and len(fetched_task_detail.get("planItems") or []) == 1
+                    and ((fetched_task_detail.get("planItems") or [{}])[0]).get("conflictSupportStatus") == "downgrade_to_auto_rename"
                     and len(fetched_task_detail.get("pendingItems") or []) == 0
                     and fetched_task_detail.get("summary", {}).get("awaitingAcknowledgement") is True
+                    and fetched_task_detail.get("summary", {}).get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
+                    and fetched_task_detail.get("summary", {}).get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
                 ),
                 "logoutClearsSession": logout_result.status_code == 200 and logged_out_session.get("loggedIn") is False,
             },

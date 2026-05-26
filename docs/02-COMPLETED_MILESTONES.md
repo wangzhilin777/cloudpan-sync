@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐API总回归里的任务冲突摘要断言`
+- 完成范围：
+  - 已把 [verify_api_plan_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_api_plan_bundle.py) 再补一层：当前这条高层 API 总回归不再只检查 `conflictPolicy` 和基础队列状态
+  - 同一条回归现在还会继续锁住 `/api/tasks` 列表行、`/api/tasks/{id}` 详情与它们各自 `summary` 里的 `conflictSupportSummaryStatuses / firstConflictSupportStatus`，并确认 `detailView.planItems` 里仍保留 `conflictSupportStatus`
+  - 当前效果是：计划文档里 API 测试要求的“任务 plan 创建、队列状态查询、同路径同名文件冲突策略保存与返回”这条总证据，又把我们最近补上的冲突摘要与 `planItems` 透传一起接住了，不再只靠分散的小 verifier 间接证明
+  - 这样后续如果有人把任务视图或队列摘要里的冲突状态字段改丢了，`verify_api_plan_bundle.py` 会第一时间报出来
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_api_plan_bundle.py` 已验证任务列表行、任务详情与其 `summary` 当前都保留 `conflictSupportSummaryStatuses / firstConflictSupportStatus`，且 `detailView.planItems` 仍会返回 `conflictSupportStatus`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务详情快照导出链里的plan items透传`
 - 完成范围：
   - 已把 [task_runtime.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime.py) 的 `build_task_detail_view` 再补一层：当前 `detailView` 会显式返回 `planItems`，不再只带 `planSummary / pendingItems / executionGroups`

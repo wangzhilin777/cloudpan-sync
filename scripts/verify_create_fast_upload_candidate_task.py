@@ -127,9 +127,13 @@ def main() -> None:
                 "recommendedPrimaryCommandLabel": "recreate_probe",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode manual_cookie --display-name 115-fast --cookie YOUR_COOKIE --set parentId=YOUR_PARENT_ID --probe",
                 "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode manual_cookie --display-name 115-fast --cookie YOUR_COOKIE --set parentId=YOUR_PARENT_ID --probe",
+                "exactCreateHelper": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-provider 115_open",
+                "exactRecreateHelper": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-orphan-profile 115-orphan-fast-1",
                 "recommendedFastCandidateCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-fast-1 --target-parent-id 115-root --sha1 auto --auto-temp-file --conflict-policy auto_rename_new --evidence-dir tmp\115_open-fast-candidate-evidence",
                 "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-fast-2 --target-parent-id 115-root-2 --sha1 auto --auto-temp-file --conflict-policy auto_rename_new --evidence-dir tmp\115_open-fast-candidate-evidence-2",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-fast-1 --target-parent-id 115-root --sha1 auto --auto-temp-file --conflict-policy overwrite_existing --evidence-dir tmp\115_open-fast-candidate-evidence",
+                "exactRuntimeSuccessHelper": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --from-remediation-profile-id 115-fast-2",
+                "exactOverwriteVariantHelper": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --from-remediation-profile-id 115-fast-1",
             }
         ],
     }
@@ -270,9 +274,13 @@ def main() -> None:
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommand", ""),
                 "scriptRemediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["cookie"]
-                and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", ""),
+                and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")
+                and "create_auth_profile_stub.py --from-remediation-provider 115_open" in dict(output.get("remediationFollowup") or {}).get("exactCreateHelper", "")
+                and "create_auth_profile_stub.py --from-remediation-orphan-profile 115-orphan-fast-1" in dict(output.get("remediationFollowup") or {}).get("exactRecreateHelper", ""),
                 "scriptRemediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedRuntimeSuccessCommand", "").endswith("tmp\\115_open-fast-candidate-evidence-2")
-                and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\115_open-fast-candidate-evidence"),
+                and "create_fast_upload_candidate_task.py --from-remediation-profile-id 115-fast-2" in dict(output.get("remediationFollowup") or {}).get("exactRuntimeSuccessHelper", "")
+                and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\115_open-fast-candidate-evidence")
+                and "create_fast_upload_candidate_task.py --from-remediation-profile-id 115-fast-1" in dict(output.get("remediationFollowup") or {}).get("exactOverwriteVariantHelper", ""),
                 "scriptExplicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-fast-parent",
                 "scriptNoRefreshSkipsAuthRefresh": len(refresh_calls) == 1 and second_output.get("refreshedAuthEvidence") is False,
                 "scriptExplicitOutputsCreated": second_outputs_ok

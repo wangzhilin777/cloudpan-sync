@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`运行脚本补救输出也补齐精确 helper`
+- 完成范围：
+  - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 三个 CLI helper 的 `remediationFollowup` 输出补齐到和当前 remediation bundle 同口径
+  - 当前效果是：这些脚本在输出 follow-up 时不再只给 `recommended*Command` 长命令，现在也会直接带出 `exactCreateHelper / exactRecreateHelper / exactRefreshEvidenceHelper / exactPostRefreshRuntimeHelper / exactRuntimeProbeHelper / exactRuntimeSuccessHelper / exactPostBootstrapRuntimeHelper / exactOverwriteVariantHelper`
+  - 这样从 CLI 路径跑完一次 probe / live upload / fast candidate 之后，可以直接继续复制最短下一步 helper，而不必再回设置页或文档里找同一条 remediation 命令，更贴近把当前补救链真正串成连续闭环
+  - 已同步补强 [verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py)、[verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py)、[verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py)，把三条 CLI 路径的 follow-up exact helper 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_runtime_probe_task.py` 已验证 runtime probe 脚本输出的 `remediationFollowup` 当前会返回 `exactCreate / exactRecreate / exactRefresh / exactPostRefreshRuntime / exactRuntimeProbe / exactRuntimeSuccess / exactOverwriteVariant`
+  - `.\.venv\Scripts\python.exe scripts\verify_create_live_upload_task.py` 已验证 live upload 脚本输出的 `remediationFollowup` 当前会返回 `exactCreate / exactRecreate / exactRuntimeSuccess / exactOverwriteVariant`
+  - `.\.venv\Scripts\python.exe scripts\verify_create_fast_upload_candidate_task.py` 已验证 fast candidate 脚本输出的 `remediationFollowup` 当前会返回 `exactCreate / exactRecreate / exactRuntimeSuccess / exactOverwriteVariant`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`真实补救刷新后运行也补齐精确 helper`
 - 完成范围：
   - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的 runtime follow-up 再补齐两条显式精确 helper：当前 remediation item payload、`create_remediation_profile()` 返回值、以及 markdown 导出都会直接带 `exactPostRefreshRuntimeHelper` 与 `exactPostBootstrapRuntimeHelper`

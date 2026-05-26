@@ -126,10 +126,17 @@ def main() -> None:
                 "recommendedPrimaryCommandLabel": "recreate_probe",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name ali-runtime --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe",
                 "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name ali-runtime --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe",
+                "exactCreateHelper": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-provider aliyundrive_open",
+                "exactRecreateHelper": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-orphan-profile ali-orphan-runtime-1",
                 "recommendedRuntimeProbeCommand": r".\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-1 --target-parent-id folder-demo --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-runtime-probe-evidence",
+                "exactRuntimeProbeHelper": r".\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --from-remediation-profile-id ali-runtime-1",
                 "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-2 --target-parent-id folder-demo-2 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-live-evidence-2",
                 "recommendedPostRefreshRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-1 --target-parent-id folder-demo --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\aliyundrive_open-live-evidence",
+                "exactPostRefreshRuntimeHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-profile-id ali-runtime-1",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id ali-runtime-1 --target-parent-id folder-demo --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\aliyundrive_open-live-evidence",
+                "exactRefreshEvidenceHelper": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-remediation-profile-id ali-runtime-1",
+                "exactRuntimeSuccessHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-profile-id ali-runtime-2",
+                "exactOverwriteVariantHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-profile-id ali-runtime-1",
             }
         ],
     }
@@ -263,9 +270,16 @@ def main() -> None:
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommand", ""),
                 "scriptRemediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["token"]
-                and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", ""),
+                and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")
+                and "create_auth_profile_stub.py --from-remediation-provider aliyundrive_open" in dict(output.get("remediationFollowup") or {}).get("exactCreateHelper", "")
+                and "create_auth_profile_stub.py --from-remediation-orphan-profile ali-orphan-runtime-1" in dict(output.get("remediationFollowup") or {}).get("exactRecreateHelper", ""),
                 "scriptRemediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedPostRefreshRuntimeCommand", "").endswith("tmp\\aliyundrive_open-live-evidence")
-                and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\aliyundrive_open-live-evidence"),
+                and "patch_and_probe_auth_profile.py --from-remediation-profile-id ali-runtime-1" in dict(output.get("remediationFollowup") or {}).get("exactRefreshEvidenceHelper", "")
+                and "create_live_upload_task.py --from-remediation-profile-id ali-runtime-1" in dict(output.get("remediationFollowup") or {}).get("exactPostRefreshRuntimeHelper", "")
+                and "create_runtime_probe_task.py --from-remediation-profile-id ali-runtime-1" in dict(output.get("remediationFollowup") or {}).get("exactRuntimeProbeHelper", "")
+                and "create_live_upload_task.py --from-remediation-profile-id ali-runtime-2" in dict(output.get("remediationFollowup") or {}).get("exactRuntimeSuccessHelper", "")
+                and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\aliyundrive_open-live-evidence")
+                and "create_live_upload_task.py --from-remediation-profile-id ali-runtime-1" in dict(output.get("remediationFollowup") or {}).get("exactOverwriteVariantHelper", ""),
                 "scriptExplicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-parent",
                 "scriptNoRefreshSkipsAuthRefresh": second_output.get("refreshedAuthEvidence") is False,
                 "scriptExplicitOutputsCreated": second_outputs_ok

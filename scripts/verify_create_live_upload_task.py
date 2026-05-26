@@ -159,9 +159,13 @@ def main() -> None:
                 "recommendedPrimaryCommandLabel": "recreate_probe",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name gy-live --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                 "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name gy-live --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
+                "exactCreateHelper": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-provider guangya",
+                "exactRecreateHelper": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-orphan-profile gy-orphan-live-1",
                 "recommendedLiveUploadCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --target-parent-id folder-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
                 "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-2 --target-parent-id folder-live-2 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence-2",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --target-parent-id folder-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-live-evidence",
+                "exactRuntimeSuccessHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-profile-id gy-live-2",
+                "exactOverwriteVariantHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-profile-id gy-live-1",
             }
         ],
     }
@@ -291,9 +295,13 @@ def main() -> None:
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedPrimaryCommand", ""),
                 "remediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["token"]
-                and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", ""),
+                and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")
+                and "create_auth_profile_stub.py --from-remediation-provider guangya" in dict(output.get("remediationFollowup") or {}).get("exactCreateHelper", "")
+                and "create_auth_profile_stub.py --from-remediation-orphan-profile gy-orphan-live-1" in dict(output.get("remediationFollowup") or {}).get("exactRecreateHelper", ""),
                 "remediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedRuntimeSuccessCommand", "").endswith("tmp\\guangya-live-evidence-2")
-                and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\guangya-live-evidence"),
+                and "create_live_upload_task.py --from-remediation-profile-id gy-live-2" in dict(output.get("remediationFollowup") or {}).get("exactRuntimeSuccessHelper", "")
+                and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\guangya-live-evidence")
+                and "create_live_upload_task.py --from-remediation-profile-id gy-live-1" in dict(output.get("remediationFollowup") or {}).get("exactOverwriteVariantHelper", ""),
                 "explicitTargetParentWins": second_output.get("resolvedTargetParentId") == "manual-live-parent",
                 "noRefreshSkipsAuthRefresh": len(refresh_calls) == 1 and second_output.get("refreshedAuthEvidence") is False,
                 "explicitOutputsCreated": second_outputs_ok

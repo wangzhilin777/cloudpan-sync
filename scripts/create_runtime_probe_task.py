@@ -124,13 +124,22 @@ def _remediation_followup(profile_id: str) -> dict[str, object]:
             "recommendedPrimaryCommandLabel": str(row.get("recommendedPrimaryCommandLabel") or ""),
             "recommendedPrimaryCommand": str(row.get("recommendedPrimaryCommand") or ""),
             "recommendedRecreateProbeCommand": str(row.get("recommendedRecreateProbeCommand") or ""),
+            "exactCreateHelper": str(row.get("exactCreateHelper") or ""),
+            "exactRecreateHelper": str(row.get("exactRecreateHelper") or ""),
             "recommendedRefreshEvidenceCommand": str(row.get("recommendedRefreshEvidenceCommand") or ""),
+            "exactRefreshEvidenceHelper": str(row.get("exactRefreshEvidenceHelper") or ""),
             "recommendedPostRefreshRuntimeCommand": str(row.get("recommendedPostRefreshRuntimeCommand") or ""),
+            "exactPostRefreshRuntimeHelper": str(row.get("exactPostRefreshRuntimeHelper") or ""),
             "recommendedRuntimeProbeCommand": str(row.get("recommendedRuntimeProbeCommand") or ""),
+            "exactRuntimeProbeHelper": str(row.get("exactRuntimeProbeHelper") or ""),
             "recommendedLiveUploadCommand": str(row.get("recommendedLiveUploadCommand") or ""),
             "recommendedFastCandidateCommand": str(row.get("recommendedFastCandidateCommand") or ""),
             "recommendedRuntimeSuccessCommand": str(row.get("recommendedRuntimeSuccessCommand") or ""),
+            "exactRuntimeSuccessHelper": str(row.get("exactRuntimeSuccessHelper") or ""),
+            "recommendedPostBootstrapRuntimeCommand": str(row.get("recommendedPostBootstrapRuntimeCommand") or ""),
+            "exactPostBootstrapRuntimeHelper": str(row.get("exactPostBootstrapRuntimeHelper") or ""),
             "recommendedOverwriteVariantCommand": str(row.get("recommendedOverwriteVariantCommand") or ""),
+            "exactOverwriteVariantHelper": str(row.get("exactOverwriteVariantHelper") or ""),
         }
     return {}
 

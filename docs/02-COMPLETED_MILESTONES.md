@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务导出Markdown里的summary冲突摘要断言`
+- 完成范围：
+  - 已把 [verify_export_task_markdown.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_markdown.py) 再补一层：当前不仅检查导出结果里的 `supportSummary / firstPlannedConflict`，也会继续锁住 `summaryConflict`
+  - 同一条 verifier 现在会同时覆盖 `item` 快照、包着 `detailView` 的快照，以及纯 `detailView` JSON 三种导出输入
+  - 当前效果是：任务 Markdown 离线导出链终于把 summary 级冲突摘要也纳入了三种快照形态的一致性回归，不再只验证计划项级别的冲突摘要
+  - 这样后续如果导出脚本或详情快照重建链把 `summaryConflict` 弄丢，三种快照场景都会第一时间报出来
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_task_markdown.py` 已验证三种快照形态导出的任务 Markdown 当前都会保留 `summaryConflict: statuses=... firstStatus=... firstNote=...`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务Markdown里的summary冲突摘要`
 - 完成范围：
   - 已把 [task_runtime.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime.py) 的 `task_to_markdown` 再补一层：当前冲突小节除了已有的 `supportSummary / firstPlannedConflict`，也会继续输出 `summaryConflict`

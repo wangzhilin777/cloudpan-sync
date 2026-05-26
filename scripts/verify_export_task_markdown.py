@@ -51,6 +51,7 @@ def main() -> None:
             )
         )
         first_item = dict((((task.get("plan") or {}).get("items") or [{}])[0]) or {})
+        summary_before_results = dict(task.get("summary") or {})
         task["results"] = [
             {
                 "path": "/demo.bin",
@@ -129,6 +130,11 @@ def main() -> None:
                     "markdownHasTitle": "# CloudPan Sync 任务详情" in markdown,
                     "markdownHasSelectedPolicy": "selectedPolicy: `overwrite_existing`" in markdown,
                     "markdownHasSupportSummary": f"supportSummary: `statuses={first_item.get('conflictSupportStatus', '') or '(none)'}`" in markdown,
+                    "markdownHasSummaryConflict": (
+                        f"summaryConflict: `statuses={','.join(summary_before_results.get('conflictSupportSummaryStatuses') or []) or '(none)'}`" in markdown
+                        and f"`firstStatus={summary_before_results.get('firstConflictSupportStatus', '') or '(none)'}`" in markdown
+                        and f"`firstNote={summary_before_results.get('firstConflictNote', '') or '(none)'}`" in markdown
+                    ),
                     "markdownHasFirstPlannedConflict": (
                         f"firstPlannedConflict: path=`{first_item.get('path', '') or '(none)'}`" in markdown
                         and f"strategy=`{first_item.get('strategy', '') or '(none)'}`" in markdown
@@ -140,6 +146,11 @@ def main() -> None:
                     "markdownHasPlanConflictSupport": "conflictSupportStatus=`downgrade_to_auto_rename`" in markdown,
                     "detailStdoutHasOutputPath": str(detail_output) in detail_result.stdout,
                     "detailMarkdownHasSupportSummary": f"supportSummary: `statuses={first_item.get('conflictSupportStatus', '') or '(none)'}`" in detail_markdown,
+                    "detailMarkdownHasSummaryConflict": (
+                        f"summaryConflict: `statuses={','.join(summary_before_results.get('conflictSupportSummaryStatuses') or []) or '(none)'}`" in detail_markdown
+                        and f"`firstStatus={summary_before_results.get('firstConflictSupportStatus', '') or '(none)'}`" in detail_markdown
+                        and f"`firstNote={summary_before_results.get('firstConflictNote', '') or '(none)'}`" in detail_markdown
+                    ),
                     "detailMarkdownHasFirstPlannedConflict": (
                         f"firstPlannedConflict: path=`{first_item.get('path', '') or '(none)'}`" in detail_markdown
                         and f"strategy=`{first_item.get('strategy', '') or '(none)'}`" in detail_markdown
@@ -148,6 +159,11 @@ def main() -> None:
                     ),
                     "flatDetailStdoutHasOutputPath": str(flat_detail_output) in flat_detail_result.stdout,
                     "flatDetailMarkdownHasSupportSummary": f"supportSummary: `statuses={first_item.get('conflictSupportStatus', '') or '(none)'}`" in flat_detail_markdown,
+                    "flatDetailMarkdownHasSummaryConflict": (
+                        f"summaryConflict: `statuses={','.join(summary_before_results.get('conflictSupportSummaryStatuses') or []) or '(none)'}`" in flat_detail_markdown
+                        and f"`firstStatus={summary_before_results.get('firstConflictSupportStatus', '') or '(none)'}`" in flat_detail_markdown
+                        and f"`firstNote={summary_before_results.get('firstConflictNote', '') or '(none)'}`" in flat_detail_markdown
+                    ),
                     "flatDetailMarkdownHasFirstPlannedConflict": (
                         f"firstPlannedConflict: path=`{first_item.get('path', '') or '(none)'}`" in flat_detail_markdown
                         and f"strategy=`{first_item.get('strategy', '') or '(none)'}`" in flat_detail_markdown

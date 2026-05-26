@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权视图脱敏总链回归断言`
+- 完成范围：
+  - 已把 [verify_auth_profile_masking.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_masking.py) 从长短 secret 脱敏、授权列表脱敏、别名解析结果保留，以及占位密钥刷新提示的分散检查，补成真正会给出整条授权视图脱敏链结论的 verifier
+  - 同一条回归现在会用 `authProfileMaskingFlowMatchesExpectedViews` 直接锁住这条链：长 token/cookie 必须稳定脱敏为前后缀形式，短 secret 必须折叠成 `***`，`/api/auth/profiles` 既要返回脱敏后的 Guangya 密钥和解析后的 `resolvedParentId/resolvedFileId`，也要继续为阿里云开放平台占位档案返回 `needsSecretRefresh` 与占位字段提示
+  - 当前效果是：授权视图脱敏能力不再只是本地脱敏函数、API 返回字段和占位密钥提示各自为真，而是多了一条覆盖 secret 脱敏、解析默认值保留和占位刷新提示的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_profile_masking.py` 已验证授权视图脱敏链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权抓取解析总链回归断言`
 - 完成范围：
   - 已把 [verify_auth_capture_parse.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_capture_parse.py) 从 Quark、光鸭、天翼云盘三条抓取解析结果的分散字段检查，补成真正会给出整条授权抓取解析链结论的 verifier

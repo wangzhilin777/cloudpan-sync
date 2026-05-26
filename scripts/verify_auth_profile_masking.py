@@ -113,6 +113,26 @@ def main() -> None:
                     and "token" in list(placeholder_item.get("placeholderSecretFieldHints") or [])
                     and bool(placeholder_item.get("placeholderFieldHints"))
                 ),
+                "authProfileMaskingFlowMatchesExpectedViews": (
+                    masked_long.get("token") == "abcd***ef"
+                    and masked_long.get("cookie") == "cookie***"
+                    and masked_short.get("token") == "***"
+                    and masked_short.get("cookie") == "***"
+                    and guangya_item.get("token") == "abcd***ef"
+                    and guangya_item.get("cookie") == "cookie***"
+                    and guangya_item.get("token") != guangya_profile.token
+                    and guangya_item.get("cookie") != guangya_profile.cookie
+                    and guangya_item.get("resolvedParentId") == "dir-alias"
+                    and guangya_item.get("resolvedFileId") == "file-alias"
+                    and guangya_item.get("profileReady") is True
+                    and placeholder_view.get("profileReady") is False
+                    and placeholder_view.get("needsSecretRefresh") is True
+                    and "token" in list(placeholder_view.get("placeholderSecretFieldHints") or [])
+                    and bool(placeholder_view.get("placeholderFieldHints"))
+                    and placeholder_item.get("needsSecretRefresh") is True
+                    and "token" in list(placeholder_item.get("placeholderSecretFieldHints") or [])
+                    and bool(placeholder_item.get("placeholderFieldHints"))
+                ),
             },
             ensure_ascii=False,
             indent=2,

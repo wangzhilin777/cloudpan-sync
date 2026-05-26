@@ -23,6 +23,7 @@ def main() -> None:
                 "jsProviderResearchHasFirstGapActions": 'const firstProviderResearchGap =' in app_js
                 and 'status=${firstProviderResearchGap.status || "unknown"}' in app_js
                 and 'fully_verified=${Boolean(realEvidence?.fullyVerified)}' in app_js
+                and 'runtime_orphan_profiles=${((realEvidence?.taskRuntimeEvidence || {}).orphanProfileCount || 0)}' in app_js
                 and 'appendProviderRecoveryActions(actions, firstProviderResearchGap.providerKey)' in app_js,
             },
             ensure_ascii=False,

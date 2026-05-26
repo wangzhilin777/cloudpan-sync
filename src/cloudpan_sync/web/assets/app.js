@@ -2280,7 +2280,7 @@ function renderProviderPanel() {
     node.className = "auth-item";
     const copy = document.createElement("div");
     const realEvidence = realEvidenceByProvider(firstProviderPanelGap.providerKey);
-    copy.textContent = `${firstProviderPanelGap.displayName || firstProviderPanelGap.providerKey || "(unknown)"} [${firstProviderPanelGap.providerKey || "(unknown)"}]: support=${firstProviderPanelGap.supportStatus || "unknown"}, auth=${Boolean(firstProviderPanelGap.auth_ready)}, list=${Boolean(firstProviderPanelGap.list_ready)}, metadata=${Boolean(firstProviderPanelGap.metadata_ready)}, create_dir=${Boolean(firstProviderPanelGap.create_dir_ready)}, fast_check=${Boolean(firstProviderPanelGap.fast_check)}, live_probe_ok=${Boolean(firstProviderPanelGap.live_probe_ok)}, fully_verified=${Boolean(realEvidence?.fullyVerified)}, gaps=${(realEvidence?.gaps || []).join(" | ") || "(none)"}`;
+    copy.textContent = `${firstProviderPanelGap.displayName || firstProviderPanelGap.providerKey || "(unknown)"} [${firstProviderPanelGap.providerKey || "(unknown)"}]: support=${firstProviderPanelGap.supportStatus || "unknown"}, auth=${Boolean(firstProviderPanelGap.auth_ready)}, list=${Boolean(firstProviderPanelGap.list_ready)}, metadata=${Boolean(firstProviderPanelGap.metadata_ready)}, create_dir=${Boolean(firstProviderPanelGap.create_dir_ready)}, fast_check=${Boolean(firstProviderPanelGap.fast_check)}, live_probe_ok=${Boolean(firstProviderPanelGap.live_probe_ok)}, fully_verified=${Boolean(realEvidence?.fullyVerified)}, runtime_orphan_profiles=${((realEvidence?.taskRuntimeEvidence || {}).orphanProfileCount || 0)}, gaps=${(realEvidence?.gaps || []).join(" | ") || "(none)"}`;
     node.appendChild(copy);
     const actions = document.createElement("div");
     actions.className = "row-actions";
@@ -2374,7 +2374,7 @@ function renderProviderPanel() {
     const copy = document.createElement("div");
     const realEvidence = realEvidenceByProvider(firstProviderResearchGap.providerKey);
     const gaps = (realEvidence?.gaps || []).join(" | ") || "(none)";
-    copy.textContent = `${firstProviderResearchGap.displayName || firstProviderResearchGap.providerKey || "(unknown)"} [${firstProviderResearchGap.providerKey || "(unknown)"}]: status=${firstProviderResearchGap.status || "unknown"}, fully_verified=${Boolean(realEvidence?.fullyVerified)}, gaps=${gaps}`;
+    copy.textContent = `${firstProviderResearchGap.displayName || firstProviderResearchGap.providerKey || "(unknown)"} [${firstProviderResearchGap.providerKey || "(unknown)"}]: status=${firstProviderResearchGap.status || "unknown"}, fully_verified=${Boolean(realEvidence?.fullyVerified)}, runtime_orphan_profiles=${((realEvidence?.taskRuntimeEvidence || {}).orphanProfileCount || 0)}, gaps=${gaps}`;
     node.appendChild(copy);
     const actions = document.createElement("div");
     actions.className = "row-actions";

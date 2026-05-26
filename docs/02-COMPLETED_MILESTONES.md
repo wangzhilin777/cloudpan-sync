@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`提供方首个缺口摘要也直写孤儿运行数量`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 provider 面板“首个缺口”摘要，以及 `Provider Research` 的“首个研究缺口”摘要继续补强：两处现在都会直接写出 `runtime_orphan_profiles=...`
+  - 当前效果是：用户在最上层看到“当前先修哪个 provider”时，不只会看到 `gaps=...`，还会直接知道这个缺口里是否已经包含“历史 runtime 成功已记录，但 auth profile 已脱节”的 orphan 风险，不必再点进更深层列表才明白问题性质
+  - 这次补齐把 `runtime_orphan` 的风险解释继续前移到了 provider 级首个缺口摘要层，进一步让总览入口和恢复入口保持同一口径
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_real_evidence_ui.py` 已验证 provider 面板“首个缺口”摘要当前会显示 `runtime_orphan_profiles=...`
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_research_ui.py` 已验证 `Provider Research` 的“首个研究缺口”摘要当前会显示 `runtime_orphan_profiles=...`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`提供方面板摘要也显式提示孤儿运行风险`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 provider 面板的顶部 summary cards 和每行 `real_evidence` 摘要继续补强：summary cards 现会新增 `runtimeOrphan` 指标，行内 `task_runtime(...)` 摘要现也会显式写出 `orphan=...`

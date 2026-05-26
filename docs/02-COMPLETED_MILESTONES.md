@@ -10,6 +10,15 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`已完成记录也回填当前四样本实况`
+- 完成范围：
+  - 已把 [02-COMPLETED_MILESTONES.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/02-COMPLETED_MILESTONES.md) 里两条仍会误导当前仓库状态的历史描述回填到现口径：不再保留旧的三条 orphan 汇总口径，也不再把 Guangya 继续描述成单条 runtime success
+  - 当前效果是：已完成记录里的旧条目在回顾 `10-REAL_EVIDENCE_STATUS.md` 与 `06-PROVIDER_STATUS_MATRIX.md` 时，也会同步反映当前 `gy-live-1 / gy-live-defaults-1 / pikpak-live-1 / uc-live-1` 四条 orphan/runtime 样本，而不是停留在早期的三样本快照
+- 当前验证证据：
+  - `rg` 检索已确认上述旧 orphan / 单 Guangya 样本表述已从当前已完成记录中清理
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`真实补救指南也同步第二条光鸭孤儿样本`
 - 完成范围：
   - 已把 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 重新导出到当前仓库实况：Guangya 分段里的 `runtimeOrphanProfiles` 现已从旧的单条 `gy-live-1` 同步为 `gy-live-1, gy-live-defaults-1`
@@ -1126,7 +1135,7 @@
 - 提交：`补充真实证据运行样本脱节诊断`
 - 完成范围：
   - [real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_report.py) 现已补齐 `taskRuntimeOrphanProviderCount / taskRuntimeOrphanProfileCount / taskRuntimeOrphanProviders / taskRuntimeOrphanProfiles` 聚合明细，并在逐 provider 的 `taskRuntimeEvidence` 里继续写出 `orphanProfiles / orphanProfileCount`，不再把“已有 runtime 成功样本但当前仓库里没有对应 auth profile”混成普通成功
-  - 这次补齐后，[10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 现在会明确写出 `runtime_orphan_providers=3`、`runtime_orphan_profiles=3` 和 `runtime_orphan=guangya, uc, pikpak`，并在 `guangya / uc / pikpak` 三个 provider 下直接标出 `orphan=gy-live-1 / uc-live-1 / pikpak-live-1`，同时把“已有 runtime 样本，但对应 auth profile 未保存在当前仓库”列为真实 gap
+  - 这次补齐后，[10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 当前会明确写出 `runtime_orphan_providers=3`、`runtime_orphan_profiles=4` 和 `runtime_orphan=guangya, uc, pikpak`，并在 `guangya / uc / pikpak` 三个 provider 下直接标出 `orphan=gy-live-1, gy-live-defaults-1 / uc-live-1 / pikpak-live-1`，同时把“已有 runtime 样本，但对应 auth profile 未保存在当前仓库”列为真实 gap
   - [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 现已继续区分 `runtimeOrphanOnly / runtimeOrphanProfiles` 与 `providersRuntimeOrphanOnly / providersRuntimeOrphanOnlyList`，让补救逻辑不再误导成“直接补 runtime”即可，而是先明确提示“重建或导入对应 auth profile，再重跑 validation / live probe”
   - 这次补齐后，[12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 现在会明确写出 `providersRuntimeOrphanOnly=3` 与 `runtimeOrphanOnly=guangya, pikpak, uc`，逐 provider 也会继续显示 `runtimeOrphanProfiles`
   - 设置页聚合现已同步吸收上述脱节诊断字段；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在 `Real Evidence` 面板显示 `runtime_orphan_providers / runtime_orphan_profiles / runtimeOrphanProvidersList / runtimeOrphanProfilesList`，在 `Real Evidence Remediation` 面板显示 `runtimeOrphanOnlyProviders`，并在逐行补救摘要里带出 `runtimeOrphanOnly / runtimeOrphanProfiles`
@@ -1404,7 +1413,7 @@
 - 提交：`本次提交`
 - 完成范围：
   - [provider_status_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/provider_status_matrix.py) 的导出矩阵现已继续补齐 `runtime_profiles` 明细，不再只展示 `task_runtime_samples / success / failed / candidate / probe / blocked / conflict_handled` 这些数字；当前会把每个 provider 的 runtime 成功/失败/candidate/probe 样本对应到具体 profile 名
-  - 这次补齐后，[docs/06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 现在除了继续量化 `guangya / uc / pikpak` 当前各有 `1` 条 runtime success 外，还能直接看出这些样本当前对应 `gy-live-1 / uc-live-1 / pikpak-live-1`；对 `115_open / 189cloud / aliyundrive_open / quark / baidu_netdisk / 123_open / xunlei` 这些仍无真实 runtime success 的 provider，也会明确保持 `success=(none) failed=(none) candidate=(none) probe=(none)`，避免矩阵只剩计数口径
+  - 这次补齐后，[docs/06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 当前会明确反映 Guangya 已有 `2` 条 runtime success、UC 与 PikPak 各有 `1` 条 runtime success，并直接写出 `gy-live-1 / gy-live-defaults-1 / uc-live-1 / pikpak-live-1`；对 `115_open / 189cloud / aliyundrive_open / quark / baidu_netdisk / 123_open / xunlei` 这些仍无真实 runtime success 的 provider，也会明确保持 `success=(none) failed=(none) candidate=(none) probe=(none)`，避免矩阵只剩计数口径
   - 已同步补强 [verify_export_provider_status_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_provider_status_matrix.py) 与 [verify_current_provider_status_matrix_runtime_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_provider_status_matrix_runtime_sync.py)，把 synthetic export 与当前仓库导出的 `runtime_profiles` 明细一起锁进回归
 - 当前验证证据：
   - `.\.venv\Scripts\python.exe scripts\verify_export_provider_status_matrix.py` 已验证导出的矩阵 Markdown 当前会包含 `runtime_profiles` 行，并区分 `success / failed / candidate / probe` 对应的 profile

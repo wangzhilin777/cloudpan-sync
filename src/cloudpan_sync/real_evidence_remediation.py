@@ -374,6 +374,27 @@ def _overwrite_variant_command(command: str) -> str:
     return text.replace("--conflict-policy auto_rename_new", "--conflict-policy overwrite_existing", 1)
 
 
+def _exact_patch_probe_helper(profile_id: str) -> str:
+    target = str(profile_id or "").strip()
+    if not target:
+        return ""
+    return f".\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id {target}"
+
+
+def _exact_runtime_helper(command: str, profile_id: str) -> str:
+    text = str(command or "").strip()
+    target = str(profile_id or "").strip()
+    if not text or not target:
+        return ""
+    if "scripts\\create_runtime_probe_task.py" in text:
+        return f".\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py --from-remediation-profile-id {target}"
+    if "scripts\\create_live_upload_task.py" in text:
+        return f".\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-profile-id {target}"
+    if "scripts\\create_fast_upload_candidate_task.py" in text:
+        return f".\\.venv\\Scripts\\python.exe scripts\\create_fast_upload_candidate_task.py --from-remediation-profile-id {target}"
+    return ""
+
+
 def _provider_conflict_snapshot(provider_key: str) -> dict[str, object]:
     profile = get_provider_profile(provider_key)
     overwrite_status, _ = _resolve_conflict_support(
@@ -652,6 +673,21 @@ def build_real_evidence_remediation_bundle(
                 or ""
             )
         )
+        exact_profile_id = str((item_payload.get("profileIds") or [""])[0] or "")
+        item_payload["exactPatchHelper"] = _exact_patch_probe_helper(exact_profile_id) if len(patch_probe_commands) > 1 else ""
+        item_payload["exactRefreshEvidenceHelper"] = _exact_patch_probe_helper(exact_profile_id) if str(item_payload.get("recommendedRefreshEvidenceCommand") or "") else ""
+        item_payload["exactRuntimeProbeHelper"] = _exact_runtime_helper(
+            str(item_payload.get("recommendedRuntimeProbeCommand") or ""),
+            exact_profile_id,
+        )
+        item_payload["exactRuntimeSuccessHelper"] = _exact_runtime_helper(
+            str(item_payload.get("recommendedRuntimeSuccessCommand") or ""),
+            exact_profile_id,
+        )
+        item_payload["exactOverwriteVariantHelper"] = _exact_runtime_helper(
+            str(item_payload.get("recommendedOverwriteVariantCommand") or ""),
+            exact_profile_id,
+        )
         item_payload["conflictPolicyNote"] = _conflict_policy_note(
             str(item_payload.get("recommendedPostRefreshRuntimeCommand") or ""),
             str(item_payload.get("recommendedRuntimeProbeCommand") or ""),
@@ -810,6 +846,7 @@ def create_remediation_profile(provider_key: str) -> dict[str, object]:
         refresh_command = _refresh_evidence_command_for_profile(existing_view or {})
         runtime_probe_command = _runtime_probe_command_for_profile(existing_view or {})
         runtime_success_command = _runtime_success_command_for_profile(existing_view or {})
+        overwrite_variant_command = _overwrite_variant_command(runtime_success_command or runtime_probe_command) or str(target_item.get("recommendedOverwriteVariantCommand") or "")
         return {
             "ok": True,
             "created": False,
@@ -822,8 +859,11 @@ def create_remediation_profile(provider_key: str) -> dict[str, object]:
             "recommendedRuntimeProbeCommand": runtime_probe_command or str(target_item.get("recommendedRuntimeProbeCommand") or ""),
             "recommendedRuntimeSuccessCommand": runtime_success_command or str(target_item.get("recommendedRuntimeSuccessCommand") or ""),
             "recommendedPostBootstrapRuntimeCommand": str(target_item.get("recommendedPostBootstrapRuntimeCommand") or ""),
-            "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command)
-            or str(target_item.get("recommendedOverwriteVariantCommand") or ""),
+            "recommendedOverwriteVariantCommand": overwrite_variant_command,
+            "exactRefreshEvidenceHelper": _exact_patch_probe_helper(existing_id),
+            "exactRuntimeProbeHelper": _exact_runtime_helper(runtime_probe_command, existing_id),
+            "exactRuntimeSuccessHelper": _exact_runtime_helper(runtime_success_command, existing_id),
+            "exactOverwriteVariantHelper": _exact_runtime_helper(overwrite_variant_command, existing_id),
         }
 
     auth_modes = list(target_item.get("recommendedAuthModes") or [])
@@ -842,9 +882,11 @@ def create_remediation_profile(provider_key: str) -> dict[str, object]:
         )
     )
     profile_view = auth_profile_view(profile)
+    profile_id = str(profile_view.get("profileId") or "")
     refresh_command = _refresh_evidence_command_for_profile(profile_view)
     runtime_probe_command = _runtime_probe_command_for_profile(profile_view)
     runtime_success_command = _runtime_success_command_for_profile(profile_view)
+    overwrite_variant_command = _overwrite_variant_command(runtime_success_command or runtime_probe_command) or str(target_item.get("recommendedOverwriteVariantCommand") or "")
     return {
         "ok": True,
         "created": True,
@@ -858,8 +900,11 @@ def create_remediation_profile(provider_key: str) -> dict[str, object]:
         "recommendedRuntimeProbeCommand": runtime_probe_command or str(target_item.get("recommendedRuntimeProbeCommand") or ""),
         "recommendedRuntimeSuccessCommand": runtime_success_command or str(target_item.get("recommendedRuntimeSuccessCommand") or ""),
         "recommendedPostBootstrapRuntimeCommand": str(target_item.get("recommendedPostBootstrapRuntimeCommand") or ""),
-        "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command)
-        or str(target_item.get("recommendedOverwriteVariantCommand") or ""),
+        "recommendedOverwriteVariantCommand": overwrite_variant_command,
+        "exactRefreshEvidenceHelper": _exact_patch_probe_helper(profile_id),
+        "exactRuntimeProbeHelper": _exact_runtime_helper(runtime_probe_command, profile_id),
+        "exactRuntimeSuccessHelper": _exact_runtime_helper(runtime_success_command, profile_id),
+        "exactOverwriteVariantHelper": _exact_runtime_helper(overwrite_variant_command, profile_id),
         "nextStep": str(target_item.get("nextStep") or ""),
     }
 
@@ -978,12 +1023,9 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedPatchProbeCommands: count=`{len(patch_probe_commands)}`")
             for index, command in enumerate(patch_probe_commands, start=1):
                 lines.append(f"  - [{index}] `{command}`")
-            profile_ids = [str(value or "") for value in (row.get("profileIds") or []) if str(value or "")]
-            exact_patch_profile = profile_ids[-1] if profile_ids else ""
-            if exact_patch_profile:
-                lines.append(
-                    f"- exactPatchHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id {exact_patch_profile}`"
-                )
+            exact_patch_helper = str(row.get("exactPatchHelper") or "")
+            if exact_patch_helper:
+                lines.append(f"- exactPatchHelper: `{exact_patch_helper}`")
         if row.get("recommendedRecreateProbeCommand"):
             lines.append(f"- recommendedRecreateProbeCommand: `{row.get('recommendedRecreateProbeCommand', '')}`")
         recreate_commands = [str(value or "") for value in (row.get("recommendedRecreateProbeCommands") or []) if str(value or "")]
@@ -999,20 +1041,32 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
                 )
         if row.get("recommendedRefreshEvidenceCommand"):
             lines.append(f"- recommendedRefreshEvidenceCommand: `{row.get('recommendedRefreshEvidenceCommand', '')}`")
+            exact_refresh_helper = str(row.get("exactRefreshEvidenceHelper") or "")
+            if exact_refresh_helper:
+                lines.append(f"- exactRefreshEvidenceHelper: `{exact_refresh_helper}`")
         if row.get("recommendedPostRefreshRuntimeCommand"):
             lines.append(f"- recommendedPostRefreshRuntimeCommand: `{row.get('recommendedPostRefreshRuntimeCommand', '')}`")
         if row.get("recommendedRuntimeProbeCommand"):
             lines.append(f"- recommendedRuntimeProbeCommand: `{row.get('recommendedRuntimeProbeCommand', '')}`")
+            exact_runtime_probe_helper = str(row.get("exactRuntimeProbeHelper") or "")
+            if exact_runtime_probe_helper:
+                lines.append(f"- exactRuntimeProbeHelper: `{exact_runtime_probe_helper}`")
         if row.get("recommendedLiveUploadCommand"):
             lines.append(f"- recommendedLiveUploadCommand: `{row.get('recommendedLiveUploadCommand', '')}`")
         if row.get("recommendedFastCandidateCommand"):
             lines.append(f"- recommendedFastCandidateCommand: `{row.get('recommendedFastCandidateCommand', '')}`")
         if row.get("recommendedRuntimeSuccessCommand"):
             lines.append(f"- recommendedRuntimeSuccessCommand: `{row.get('recommendedRuntimeSuccessCommand', '')}`")
+            exact_runtime_success_helper = str(row.get("exactRuntimeSuccessHelper") or "")
+            if exact_runtime_success_helper:
+                lines.append(f"- exactRuntimeSuccessHelper: `{exact_runtime_success_helper}`")
         if row.get("recommendedPostBootstrapRuntimeCommand"):
             lines.append(f"- recommendedPostBootstrapRuntimeCommand: `{row.get('recommendedPostBootstrapRuntimeCommand', '')}`")
         if row.get("recommendedOverwriteVariantCommand"):
             lines.append(f"- recommendedOverwriteVariantCommand: `{row.get('recommendedOverwriteVariantCommand', '')}`")
+            exact_overwrite_variant_helper = str(row.get("exactOverwriteVariantHelper") or "")
+            if exact_overwrite_variant_helper:
+                lines.append(f"- exactOverwriteVariantHelper: `{exact_overwrite_variant_helper}`")
         if row.get("conflictPolicyNote"):
             lines.append(f"- conflictPolicyNote: {row.get('conflictPolicyNote', '')}")
         lines.append("")

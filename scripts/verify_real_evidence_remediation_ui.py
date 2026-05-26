@@ -42,6 +42,11 @@ def main() -> None:
                 "jsRemediationRowsShowPostBootstrapCommand": "postBootstrapRuntime=${item.recommendedPostBootstrapRuntimeCommand}" in app_js,
                 "jsRemediationRowsShowPrimaryCommand": "primary=${item.recommendedPrimaryCommand}" in app_js and "primaryLabel=${item.recommendedPrimaryCommandLabel}" in app_js,
                 "jsRemediationRowsShowRecreateProbeCommand": "recreateProbe=${item.recommendedRecreateProbeCommand}" in app_js,
+                "jsRemediationRowsShowExactHelpers": "exactPatch=${item.exactPatchHelper}" in app_js
+                and "exactRefresh=${item.exactRefreshEvidenceHelper}" in app_js
+                and "exactRuntime=${item.exactRuntimeProbeHelper}" in app_js
+                and "exactRuntimeSuccess=${item.exactRuntimeSuccessHelper}" in app_js
+                and "exactOverwriteVariant=${item.exactOverwriteVariantHelper}" in app_js,
                 "jsRemediationRowsBindRecreateOrphanStub": 'const orphanProfileId = (item.runtimeOrphanProfiles || [])[0] || "";' in app_js
                 and 'if (profileId || item.recommendedCreateCommand || item.needsSecretRefresh || orphanProfileId) {' in app_js
                 and 'const orphanItems = (item.runtimeOrphanProfiles || []).map((runtimeOrphanProfileId) => ({' in app_js
@@ -51,6 +56,11 @@ def main() -> None:
                 and "postRefreshRuntime=${item.recommendedPostRefreshRuntimeCommand}" in app_js
                 and "postBootstrapRuntime=${item.recommendedPostBootstrapRuntimeCommand}" in app_js,
                 "jsRemediationRowsShowOverwriteVariant": "overwriteVariant=${item.recommendedOverwriteVariantCommand}" in app_js,
+                "jsRemediationLatestActionShowsExactHelpers": "latestRemediationAction=" in app_js
+                and "exactRefresh=" in app_js
+                and "exactRuntimeProbe=" in app_js
+                and "exactRuntimeSuccess=" in app_js
+                and "exactOverwriteVariant=" in app_js,
                 "jsRemediationRowsShowConflictPolicyNote": "conflictPolicyNote=${item.conflictPolicyNote}" in app_js,
                 "jsRemediationRowsShowConflictSupportStatus": "overwriteSupport=${item.overwriteSupportStatus || \"unknown\"}" in app_js and "autoRenameSupport=${item.autoRenameSupportStatus || \"unknown\"}" in app_js and "overwriteBehavior=${item.overwriteBehavior || \"unknown\"}" in app_js and "conflictDeclared=${(item.declaredConflictPolicies || []).join(\"/\") || \"(none)\"}" in app_js,
                 "jsRemediationRowsShowProviderConflictNotes": "providerConflictNotes=${item.providerConflictNotes}" in app_js,

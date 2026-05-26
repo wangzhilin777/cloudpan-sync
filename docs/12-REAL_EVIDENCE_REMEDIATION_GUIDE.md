@@ -42,7 +42,7 @@
 - webLoginUrl: https://guangyapan.com/
 - requiredFieldHints: `token or extra.authorization, extra.parentId, optional extra.did, optional extra.dt`
 - needs: `auth=True` `list=True` `metadata=True` `create_dir=True` `runtime=False` `runtimeBlockedOnly=False` `runtimeCandidateOnly=False` `runtimeProbeOnly=False` `runtimeOrphanOnly=True`
-- runtimeOrphanProfiles: `gy-live-1, gy-live-defaults-1`
+- runtimeOrphanProfiles: `gy-live-1, gy-live-2, gy-live-defaults-1, gy-orphan-live-1`
 - conflictSupport: `declared=overwrite_existing, auto_rename_new` `overwrite=downgrade_to_auto_rename` `auto_rename=supported` `supportsOverwrite=False` `supportsAutoRename=True` `overwriteBehavior=downgrade_to_auto_rename`
 - gaps: 缺少通过的 auth validation 证据, 缺少通过的 live list 证据, 缺少通过的 live metadata 证据, 缺少通过的 live create_dir 证据, 已有 runtime 样本，但对应 auth profile 未保存在当前仓库
 - placeholderSecretFieldHints: `token`
@@ -57,12 +57,14 @@
 - recommendedPatchProbeCommands: count=`2`
   - [1] `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 0318479d-4669-415f-9083-7aecc102bf90 --set parentId=YOUR_REAL_PARENT_ID --write`
   - [2] `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 08684618-ea29-48a4-b603-2e40cdc37c3d --set parentId=YOUR_REAL_PARENT_ID --write`
-- exactPatchHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-remediation-profile-id 08684618-ea29-48a4-b603-2e40cdc37c3d`
+- exactPatchHelper: `.\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-remediation-profile-id 0318479d-4669-415f-9083-7aecc102bf90`
 - recommendedRecreateProbeCommand: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
-- recommendedRecreateProbeCommands: count=`2`
+- recommendedRecreateProbeCommands: count=`4`
   - [1] `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
-  - [2] `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-defaults-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-defaults-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
-- exactRecreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-orphan-profile gy-live-defaults-1`
+  - [2] `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-2 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-2 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
+  - [3] `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-defaults-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-defaults-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
+  - [4] `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-orphan-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-orphan-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe`
+- exactRecreateHelper: `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-orphan-profile gy-orphan-live-1`
 
 ### aliyundrive_open - Aliyun Drive Open
 - profileCount: `1`

@@ -69,6 +69,10 @@ def main() -> None:
                         and "create_auth_profile_stub.py --provider-key aliyundrive_open" in str(created_payload.get("recommendedBootstrapCommand") or "")
                         and "create_live_upload_task.py --target-provider aliyundrive_open --target-profile-id YOUR_PROFILE_ID" in str(created_payload.get("recommendedPostBootstrapRuntimeCommand") or "")
                         and "--conflict-policy overwrite_existing" in str(created_payload.get("recommendedOverwriteVariantCommand") or "")
+                        and "patch_and_probe_auth_profile.py --from-remediation-profile-id" in str(created_payload.get("exactRefreshEvidenceHelper") or "")
+                        and "create_runtime_probe_task.py --from-remediation-profile-id" in str(created_payload.get("exactRuntimeProbeHelper") or "")
+                        and "create_live_upload_task.py --from-remediation-profile-id" in str(created_payload.get("exactRuntimeSuccessHelper") or "")
+                        and "create_live_upload_task.py --from-remediation-profile-id" in str(created_payload.get("exactOverwriteVariantHelper") or "")
                     ),
                     "storedProfileHasPlaceholders": (
                         stored is not None
@@ -89,10 +93,14 @@ def main() -> None:
                         and str(created_again_payload.get("nextStep") or "").strip() != ""
                         and str(created_again_payload.get("recommendedBootstrapCommand") or "") == ""
                         and str(created_again_payload.get("recommendedRefreshEvidenceCommand") or "") == expected_refresh
+                        and "patch_and_probe_auth_profile.py --from-remediation-profile-id" in str(created_again_payload.get("exactRefreshEvidenceHelper") or "")
                         and expected_runtime_probe in str(created_again_payload.get("recommendedRuntimeProbeCommand") or "")
+                        and "create_runtime_probe_task.py --from-remediation-profile-id" in str(created_again_payload.get("exactRuntimeProbeHelper") or "")
                         and expected_runtime in str(created_again_payload.get("recommendedRuntimeSuccessCommand") or "")
+                        and "create_live_upload_task.py --from-remediation-profile-id" in str(created_again_payload.get("exactRuntimeSuccessHelper") or "")
                         and "--conflict-policy overwrite_existing"
                         in str(created_again_payload.get("recommendedOverwriteVariantCommand") or "")
+                        and "create_live_upload_task.py --from-remediation-profile-id" in str(created_again_payload.get("exactOverwriteVariantHelper") or "")
                     ),
                     "singleProfileWritten": len(list_profiles()) == 1,
                 },

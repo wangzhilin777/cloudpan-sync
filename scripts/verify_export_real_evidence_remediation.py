@@ -103,17 +103,24 @@ def main() -> None:
                 ],
                 "recommendedPatchCommand": r".\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id gy-1 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate",
                 "recommendedPatchProbeCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-1 --set parentId=YOUR_REAL_PARENT_ID --write",
+                "exactPatchHelper": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-remediation-profile-id gy-2",
                 "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name Guangya --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                 "recommendedRecreateProbeCommands": [
                     r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-orphan-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-orphan-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                     r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-orphan-2 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-orphan-2 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                 ],
                 "recommendedLiveUploadCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
+                "recommendedRefreshEvidenceCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-1 --write",
+                "recommendedRuntimeProbeCommand": r".\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-runtime-probe-evidence",
                 "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
+                "exactRefreshEvidenceHelper": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-remediation-profile-id gy-1",
+                "exactRuntimeProbeHelper": r".\.venv\Scripts\python.exe scripts\create_runtime_probe_task.py --from-remediation-profile-id gy-1",
+                "exactRuntimeSuccessHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-profile-id gy-1",
                 "recommendedPostRefreshRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
                 "recommendedPrimaryCommandLabel": "recreate_probe",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name Guangya --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                 "recommendedOverwriteVariantCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-live-evidence",
+                "exactOverwriteVariantHelper": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-remediation-profile-id gy-1",
                 "conflictPolicyNote": "当前 helper 默认使用 --conflict-policy auto_rename_new；如需尝试直接覆盖同名文件，可改成 overwrite_existing；若 provider 不支持覆盖，运行结果会诚实降级或直接提示原因。",
                 "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
             },
@@ -371,10 +378,14 @@ def main() -> None:
                 and "--profile-id gy-1 " in markdown
                 and "--profile-id gy-2 " in markdown,
                 "exportedHasExactPatchHelper": "exactPatchHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id gy-2`" in markdown,
+                "exportedHasExactRefreshHelper": "exactRefreshEvidenceHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id gy-1`" in markdown,
+                "exportedHasExactRuntimeProbeHelper": "exactRuntimeProbeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py --from-remediation-profile-id gy-1`" in markdown,
+                "exportedHasExactRuntimeSuccessHelper": "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-profile-id gy-1`" in markdown,
                 "exportedHasRecreateProbeCommand": "recommendedRecreateProbeCommand" in markdown
                 and "placeholderSecretFieldHints: `token`" in markdown
                 and "create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token" in markdown,
                 "exportedHasExactRecreateHelper": "exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-orphan-profile" in markdown,
+                "exportedHasExactOverwriteVariantHelper": "exactOverwriteVariantHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-profile-id gy-1`" in markdown,
                 "exportedHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown
                 and r"tmp\189cloud-post-bootstrap-runtime-evidence" in markdown,
                 "exportedHasLivePostBootstrapHelpers": r"tmp\quark-post-bootstrap-runtime-evidence" in markdown

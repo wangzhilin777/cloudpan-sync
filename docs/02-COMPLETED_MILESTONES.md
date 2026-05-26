@@ -10,6 +10,23 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`真实补救接口与界面也显示精确辅助命令`
+- 完成范围：
+  - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的 remediation item / create API 再补齐一层 exact helper 口径：当前除了已有 markdown 里的 `exactPatchHelper / exactRecreateHelper`，API 载荷和当前文档也会直接带 `exactRefreshEvidenceHelper`、`exactRuntimeProbeHelper`、`exactRuntimeSuccessHelper`、`exactOverwriteVariantHelper`
+  - 当前效果是：对“当前仓库已有 profile、但还差真实联调证据”的 remediation 链路，不必再手抄 `patch_and_probe_auth_profile.py --profile-id ...` 或 `create_live_upload_task.py --target-profile-id ...` 这类长命令；现在可以直接按 `profileId` 复用 `--from-remediation-profile-id ...` 的精确 helper，更接近把现有补救档案真正推进到 `P-REAL`
+  - 已把 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 重新导出到当前口径：在保留 `recommendedPatchProbeCommands / recommendedRecreateProbeCommands` 的同时，会继续写出对应 exact helper，避免 current-doc 仍停留在纯长命令口径
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `latestRemediationAction` 摘要和 remediation 设置行一起补上 `exactPatch / exactRefresh / exactRuntime / exactRuntimeSuccess / exactOverwriteVariant` 展示；这样从设置页就能直接拿到最短 helper，而不必回头翻文档或自己改长命令
+  - 已同步补强 [verify_real_evidence_remediation_create_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_api.py)、[verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)、[verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)、[verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)，把 create API、设置页、当前文档和 synthetic export 四层一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\export_real_evidence_remediation.py` 已重导出当前 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_api.py` 已验证 remediation create API 在 `created=true/false` 两条路径下都会返回 exact remediation helpers
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证 remediation 设置页摘要当前会展示上述 exact helper 字段
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前 `docs/12` 与当前 remediation bundle 口径一致
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证 synthetic export markdown 当前也会写出 exact remediation helpers
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`孤儿恢复覆盖变体也支持精确辅助命令`
 - 完成范围：
   - 已把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 的 orphan follow-up 再补最后一截：当前 `recommendedOverwriteVariantCommand` 旁边也会同步产出 `exactOverwriteVariantHelper`

@@ -56,6 +56,14 @@ def main() -> None:
 
     guangya_row = _first(guangya_plan.get("items") or [])
     tianyi_row = _first(tianyi_plan.get("items") or [])
+    plan_conflict_support_flow_matches_expected_providers = (
+        guangya_plan.get("conflictPolicy") == "overwrite_existing"
+        and guangya_row.get("conflictSupportStatus") == "downgrade_to_auto_rename"
+        and "downgrade to auto_rename_new" in str(guangya_row.get("conflictNote") or "")
+        and tianyi_plan.get("conflictPolicy") == "auto_rename_new"
+        and tianyi_row.get("conflictSupportStatus") == "unsupported"
+        and "shareCode/accessCode-only" in str(tianyi_row.get("conflictNote") or "")
+    )
     print(
         json.dumps(
             {
@@ -69,6 +77,7 @@ def main() -> None:
                     "itemConflictSupportStatus": tianyi_row.get("conflictSupportStatus"),
                     "itemConflictNote": tianyi_row.get("conflictNote"),
                 },
+                "planConflictSupportFlowMatchesExpectedProviders": plan_conflict_support_flow_matches_expected_providers,
             },
             ensure_ascii=False,
             indent=2,

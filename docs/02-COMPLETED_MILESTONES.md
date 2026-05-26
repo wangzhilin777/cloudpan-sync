@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐计划冲突支持总链回归断言`
+- 完成范围：
+  - 已把 [verify_plan_conflict_support.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_plan_conflict_support.py) 从 Guangya/189Cloud 两条 plan 结果的分散字段输出，补成真正会给出整条计划冲突支持链结论的 verifier
+  - 同一条回归现在会用 `planConflictSupportFlowMatchesExpectedProviders` 直接锁住这条链：`POST /api/plan/mock` 在 `guangya + overwrite_existing` 时必须稳定返回 `conflictSupportStatus=downgrade_to_auto_rename` 与对应降级说明；在 `189cloud + auto_rename_new` 时必须稳定返回 `conflictSupportStatus=unsupported` 与 share-only 只读说明
+  - 当前效果是：计划冲突支持能力不再只是两条 provider 结果各自打印出来，而是多了一条同时覆盖“诚实降级”和“当前不支持”两种语义的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_plan_conflict_support.py` 已验证计划冲突支持链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐Provider研究面板总链回归断言`
 - 完成范围：
   - 已把 [verify_provider_research_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_research_ui.py) 从研究面板骨架、provider research 渲染、首个 research gap 动作和 orphan recovery 摘要等分散检查，补成真正会给出整条 Provider Research 链结论的 verifier

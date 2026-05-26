@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`真实证据首缺口也支持多孤儿入口`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Real Evidence` 顶部“首个缺口”动作继续补齐：当 `firstRealEvidenceGap.runtimeOrphanProfiles` 下存在多条 orphan profile 时，不再只取第一条 `firstGapOrphanProfileId`
+  - 当前效果是：`Real Evidence` 的首个缺口动作现在会先把 `runtimeOrphanProfiles` 转成 `firstGapOrphanItems`，再统一复用 `appendRuntimeOrphanRecreateButtons(...)` 生成逐条 `Recreate Orphan Stub First Gap (...)` 按钮；像 Guangya 这种一行上挂两条 orphan profile 的场景，不再只给第一条恢复入口
+  - 已同步补强 [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py)，把 `firstGapOrphanItems` 与新的多 orphan 重建按钮绑定一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_settings_ui.py` 已验证 `Real Evidence` 顶部首缺口当前会生成 `firstGapOrphanItems`，并复用 `appendRuntimeOrphanRecreateButtons(...)`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `POST_RUN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`研究状态审计摘要也支持多孤儿入口`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里剩余三块还停留在“第一条 orphan”口径的摘要动作继续收齐：`Provider Research`、`Provider Status Matrix`、`Audit` 这三块现在也都复用 `appendRuntimeOrphanRecreateButtons(...)`

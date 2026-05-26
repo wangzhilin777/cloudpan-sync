@@ -2934,6 +2934,10 @@ function renderSettingsPanel() {
   if (firstRealEvidenceGap) {
     const firstGapHasProfile = Boolean((firstRealEvidenceGap.profileIds || [])[0] || "");
     const firstGapOrphanProfileId = (firstRealEvidenceGap.runtimeOrphanProfiles || [])[0] || "";
+    const firstGapOrphanItems = (firstRealEvidenceGap.runtimeOrphanProfiles || []).map((runtimeOrphanProfileId) => ({
+      providerKey: firstRealEvidenceGap.providerKey || "",
+      orphanProfileId: runtimeOrphanProfileId,
+    }));
     const firstGapLabels = {
       focus: firstGapHasProfile ? "Focus Existing Profile" : "Focus First Gap",
       refresh: firstGapHasProfile ? "Refresh Existing Profile" : "Refresh First Gap",
@@ -2978,13 +2982,7 @@ function renderSettingsPanel() {
       createBtn.addEventListener("click", () => createRemediationProfile(firstRealEvidenceGap.providerKey || ""));
       actions.appendChild(createBtn);
     }
-    if (firstGapOrphanProfileId) {
-      const recreateBtn = document.createElement("button");
-      recreateBtn.className = "ghost";
-      recreateBtn.textContent = "Recreate Orphan Stub First Gap";
-      recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(firstRealEvidenceGap.providerKey || "", firstGapOrphanProfileId));
-      actions.appendChild(recreateBtn);
-    }
+    appendRuntimeOrphanRecreateButtons(actions, firstGapOrphanItems, "Recreate Orphan Stub First Gap");
     li.appendChild(actions);
     realEvidenceList.appendChild(li);
   }

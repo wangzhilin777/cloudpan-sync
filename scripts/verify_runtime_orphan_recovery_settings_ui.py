@@ -15,7 +15,7 @@ def main() -> None:
                 "htmlHasRuntimeOrphanRecoveryPanel": "settingsRuntimeOrphanRecoveryList" in html and "Runtime Orphan Recovery" in html,
                 "jsHasRuntimeOrphanRecoveryState": "runtimeOrphanRecovery: null" in app_js and "lastRuntimeOrphanAction: null" in app_js,
                 "jsHasRuntimeOrphanRecoveryLoader": 'async function loadRuntimeOrphanRecoverySummary()' in app_js and 'fetchJson("/api/runtime_orphan_recovery")' in app_js,
-                "jsHasRuntimeOrphanRecoveryRecreateAction": 'async function recreateRuntimeOrphanProfile(providerKey, orphanProfileId)' in app_js and 'fetchJson("/api/runtime_orphan_recovery/recreate_profile"' in app_js and 'recreateBtn.textContent = "Recreate Stub"' in app_js,
+                "jsHasRuntimeOrphanRecoveryRecreateAction": 'async function recreateRuntimeOrphanProfile(providerKey, orphanProfileId)' in app_js and 'fetchJson("/api/runtime_orphan_recovery/recreate_profile"' in app_js and 'recreateBtn.textContent = "Recreate Orphan Stub"' in app_js,
                 "jsHasRuntimeOrphanRecoveryCaptureAction": 'captureBtn.textContent = existingProfileId ? orphanRowLabels.capture : "Open Capture";' in app_js and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));' in app_js,
                 "jsHasRuntimeOrphanRecoveryExistingProfileRowActions": 'const existingProfileId = (item.existingProviderProfileIds || [])[0] || "";' in app_js
                 and 'focus: "Focus Existing Orphan Profile"' in app_js
@@ -34,7 +34,7 @@ def main() -> None:
                 and 'focus: hasExistingProfile ? "Focus Existing Orphan Profile" : "Focus First Match"' in app_js
                 and 'refresh: hasExistingProfile ? "Refresh Existing Orphan Profile" : "Refresh First Match"' in app_js
                 and 'probe: hasExistingProfile ? "Probe Existing Orphan Profile" : "Probe First Match"' in app_js
-                and 'recreateBtn.textContent = "Recreate First Stub"' in app_js
+                and 'recreateBtn.textContent = "Recreate Orphan Stub First Gap"' in app_js
                 and 'capture: hasExistingProfile ? "Open Capture For Existing Orphan Profile" : "Open Capture First Gap"' in app_js
                 and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(existingProfileId));' in app_js
                 and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(existingProfileId));' in app_js

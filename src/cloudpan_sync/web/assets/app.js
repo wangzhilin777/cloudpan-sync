@@ -3236,7 +3236,7 @@ function renderSettingsPanel() {
     }
     const recreateBtn = document.createElement("button");
     recreateBtn.className = "ghost";
-    recreateBtn.textContent = "Recreate Stub";
+    recreateBtn.textContent = "Recreate Orphan Stub";
     recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(item.providerKey, item.orphanProfileId));
     actions.appendChild(recreateBtn);
     const captureBtn = document.createElement("button");
@@ -3285,7 +3285,7 @@ function renderSettingsPanel() {
     }
     const recreateBtn = document.createElement("button");
     recreateBtn.className = "ghost";
-    recreateBtn.textContent = "Recreate First Stub";
+    recreateBtn.textContent = "Recreate Orphan Stub First Gap";
     recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(firstRuntimeOrphanGap.providerKey, firstRuntimeOrphanGap.orphanProfileId));
     actions.appendChild(recreateBtn);
     const captureBtn = document.createElement("button");

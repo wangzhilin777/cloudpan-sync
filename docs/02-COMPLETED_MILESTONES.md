@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`孤儿恢复面板内部动作命名也收口一致`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里专门的 `Runtime Orphan Recovery` 面板内部按钮名称继续收口：逐行入口从 `Recreate Stub` 改成 `Recreate Orphan Stub`，首个缺口入口从 `Recreate First Stub` 改成 `Recreate Orphan Stub First Gap`
+  - 当前效果是：`runtime_orphan` 恢复链从最外层 provider/real-evidence/task-runtime 入口，到专门的 orphan 恢复面板内部，已经全部统一使用同一套 `Recreate Orphan Stub` 语义，不再出现进入专门面板后文案又退回泛化 `Stub` 的断层
+  - 这次补齐虽然是命名层面的，但它把当前最核心的一条恢复链从外到内彻底收齐，减少了用户在不同面板之间切换时对动作语义的重新判断
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证专门的 orphan 恢复面板当前会使用 `Recreate Orphan Stub` 与 `Recreate Orphan Stub First Gap` 文案，并保留原有 `recreateRuntimeOrphanProfile(...)` 绑定
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`提供方级入口也补直达孤儿恢复动作`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里的共用 `appendProviderRecoveryActions()` 补强：当 provider 对应的 `realEvidenceRemediation` 行已经带有 `runtimeOrphanProfiles` 时，provider 级入口现在也会直接提供 `Recreate Orphan Stub`

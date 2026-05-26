@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐当前实时探测报告同步总链回归断言`
+- 完成范围：
+  - 已把 [verify_current_live_probe_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_live_probe_report_sync.py) 从 summary 计数、profileProbeProfiles、provider summary 和局部 provider 段落等分散检查，补成真正会给出整条当前实时探测报告同步链结论的 verifier
+  - 同一条回归现在会用 `currentLiveProbeReportSyncMatchesRuntimeSummary` 直接锁住这条链：当前 [05-PROVIDER_LIVE_PROBE_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/05-PROVIDER_LIVE_PROBE_REPORT.md) 必须和 `run_live_probe()` 的 summary、`profileProbeProfiles/profileProbeProviderSummary`，以及 `guangya / aliyundrive_open / pikpak / uc` 四个当前带 `profile_probe` 的 provider 段落一起对齐
+  - 当前效果是：当前实时探测报告同步能力不再只是若干汇总行和局部 provider 片段各自为真，而是多了一条从 runtime summary 到当前仓库文档 provider 分段的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\export_live_probe_report.py` 已按当前 `run_live_probe()` 结果重导出 [05-PROVIDER_LIVE_PROBE_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/05-PROVIDER_LIVE_PROBE_REPORT.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_current_live_probe_report_sync.py` 已验证当前实时探测报告同步链完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐189Cloud写鉴权回填总链回归断言`
 - 完成范围：
   - 已把 [verify_patch_189cloud_account_auth.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_189cloud_account_auth.py) 从提取值、matched/written 计数和保存后 extra 字段的分散输出，补成真正会给出整条 189Cloud 写鉴权回填链结论的 verifier

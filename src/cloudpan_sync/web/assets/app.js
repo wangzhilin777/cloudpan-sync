@@ -1679,7 +1679,11 @@ function renderTaskList() {
     const writeReadyText = Object.prototype.hasOwnProperty.call(targetProfile, "writeReady")
       ? String(targetProfile.writeReady !== false)
       : "(unknown)";
-    detail.textContent = `targetProfile=${targetProfileText}, targetProfileId=${task.targetProfileId || "(none)"}, targetParentId=${task.targetParentId || "(none)"}, conflictPolicy=${task.conflictPolicy || "auto_rename_new"}, profileReady=${profileReadyText}, writeReady=${writeReadyText}`;
+    const taskConflictRows = [...(task.plan?.pendingItems || []), ...(task.plan?.items || [])];
+    const firstTaskConflictRow = taskConflictRows.find((row) => row?.conflictSupportStatus || row?.conflictNote) || null;
+    const firstTaskConflictSupportText = firstTaskConflictRow?.conflictSupportStatus || "(none)";
+    const firstTaskConflictNoteText = firstTaskConflictRow?.conflictNote || "(none)";
+    detail.textContent = `targetProfile=${targetProfileText}, targetProfileId=${task.targetProfileId || "(none)"}, targetParentId=${task.targetParentId || "(none)"}, conflictPolicy=${task.conflictPolicy || "auto_rename_new"}, profileReady=${profileReadyText}, writeReady=${writeReadyText}, firstConflictSupport=${firstTaskConflictSupportText}, firstConflictNote=${firstTaskConflictNoteText}`;
     left.appendChild(title);
     left.appendChild(meta);
     left.appendChild(detail);

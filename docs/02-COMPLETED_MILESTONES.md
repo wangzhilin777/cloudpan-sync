@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务列表里的首条冲突支持摘要`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `renderTaskList` 再补一层：当前任务列表主摘要除了 `targetProfile / conflictPolicy / profileReady / writeReady`，也会直接带出首条计划项的 `firstConflictSupport / firstConflictNote`
+  - 当前效果是：创建完任务后，不需要立刻再点进 `task.md` 或回预览面板，也能在列表首屏直接看见这条任务的同名冲突支持口径，知道当前 provider 是真支持、会降级，还是有额外说明
+  - 这样任务列表终于和刚补齐的任务 Markdown 口径对齐了，不再出现“task.md 已经说明首条冲突状态，但列表页主摘要还只停留在 selected policy” 的断层
+  - 已同步补强 [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py)，把 `firstConflictSupport / firstConflictNote` 一起锁进任务列表 UI 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_list_runtime_ui.py` 已验证任务列表主摘要当前会输出 `firstConflictSupport / firstConflictNote`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务Markdown里的冲突支持摘要`
 - 完成范围：
   - 已把 [task_runtime.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime.py) 的 `task_to_markdown` 再补一层：当前任务导出的 `task.md` 在 `selectedPolicy` 下面，不止会写任务结果和逐项 plan，还会先汇总当前计划里的 `conflictSupportStatus`

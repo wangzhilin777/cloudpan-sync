@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务视图状态链路回归断言`
+- 完成范围：
+  - 已把 [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 从多段视图字段分别核对，补成真正会给出整条任务视图状态链结论的 verifier
+  - 同一条回归现在会用 `taskViewsFlowMatchesExpectedStages` 直接锁住任务视图在创建、列表、详情、动作执行四段里的状态与冲突摘要口径，并继续确认执行后会落到 `completed_probe_only`
+  - 当前效果是：`listView/detailView` 这条链不再只是很多点状字段都没丢，而是多了一条从 create 到 run 的完整任务视图回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_views_api.py` 已验证任务视图当前会稳定贯穿 create/list/get/action 四段状态链
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务Markdown冲突链路回归断言`
 - 完成范围：
   - 已把 [verify_task_markdown_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_markdown_api.py) 从一组分散的 Markdown 字段存在性检查，补成真正会给出整条导出链结论的 verifier

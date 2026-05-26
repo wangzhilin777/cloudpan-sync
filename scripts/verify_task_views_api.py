@@ -176,6 +176,33 @@ def main() -> None:
                         and len(action_detail.get("results") or []) == 1
                         and first_action_result.get("executionMode") == "mock"
                     ),
+                    "taskViewsFlowMatchesExpectedStages": (
+                        bool(created_list and created_detail)
+                        and created_list.get("taskId") == task_id
+                        and created_list.get("state") == "ready"
+                        and created_detail.get("taskId") == task_id
+                        and created_detail.get("state") == "ready"
+                        and created_detail.get("state") == ((created_detail.get("summary") or {}).get("state"))
+                        and pending_list_view.get("state") == "ready"
+                        and len(pending_list_view.get("pendingItems") or []) == 1
+                        and len(listed.get("items") or []) == 2
+                        and len(list_items) == 2
+                        and first_list.get("conflictSupportSummaryStatuses") == expected_conflict_statuses
+                        and first_list.get("firstConflictSupportStatus") == expected_conflict_status
+                        and bool(fetched_list)
+                        and bool(fetched_detail)
+                        and fetched_detail.get("state") == "ready"
+                        and fetched_detail.get("conflictSupportSummaryStatuses") == expected_conflict_statuses
+                        and action.get("action") == "run"
+                        and action.get("actionApplied") is True
+                        and action.get("allowedActions") == ["retry"]
+                        and action_list.get("conflictSupportSummaryStatuses") == expected_conflict_statuses
+                        and action_detail.get("conflictSupportSummaryStatuses") == expected_conflict_statuses
+                        and action_detail.get("state") == "completed_probe_only"
+                        and action_detail.get("state") == ((action_detail.get("summary") or {}).get("state"))
+                        and len(action_detail.get("results") or []) == 1
+                        and first_action_result.get("executionMode") == "mock"
+                    ),
                     "createListView": {
                         "taskId": created_list.get("taskId"),
                         "state": created_list.get("state"),

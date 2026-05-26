@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`首个真实缺口入口也补直达孤儿恢复动作`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Real Evidence` 顶部“首个缺口”入口继续补强：当首个缺口本身带有 `runtimeOrphanProfiles` 时，用户现在可以直接点 `Recreate Orphan Stub First Gap`
+  - 当前效果是：如果当前最优先要补的 provider 恰好就是 `runtime_orphan` 场景，用户从 `Real Evidence` 最顶部的优先入口就能直接进入 orphan 恢复链，而不必先跳进下方 `Real Evidence Remediation` 或单独的 `Runtime Orphan Recovery` 面板再找同一条记录
+  - 这次补齐把 `runtime_orphan` 直达动作继续前移到最高优先级入口，进一步贴近 `P-REAL` 当前最明确的缺口处理路径
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_settings_ui.py` 已验证 `firstRealEvidenceGap` 当前会识别 `runtimeOrphanProfiles`，并绑定 `Recreate Orphan Stub First Gap -> recreateRuntimeOrphanProfile(...)` 动作
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补救列表也补直达孤儿恢复动作`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Real Evidence Remediation` 的逐行恢复动作继续往前推：当某条 provider 已被判定为 `runtimeOrphanOnly`，并且当前行已经带有 `runtimeOrphanProfiles` 时，用户现在可以直接点 `Recreate Orphan Stub`

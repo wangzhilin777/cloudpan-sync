@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐运行孤儿恢复整链回归断言`
+- 完成范围：
+  - 已把 [verify_runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery.py) 从 orphan summary、批量重建命令、单 provider 恢复命令、Markdown 导出、`/api/runtime_orphan_recovery`、`/api/runtime_orphan_recovery_markdown` 等分散检查，补成真正会给出整条运行孤儿恢复链结论的 verifier
+  - 同一条回归现在会用 `runtimeOrphanRecoveryFlowMatchesExpectedGuidance` 直接锁住这条恢复链：payload summary 计数与列表、batch recreate 命令、逐 provider create/refresh/probe/live success/overwrite 变体命令、Markdown 指南、API summary 与 API markdown 指南都必须一起对齐
+  - 当前效果是：运行孤儿恢复能力不再只是很多命令片段和摘要各自为真，而是多了一条从 payload 构建、Markdown 输出到 API 暴露的端到端恢复指引回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery.py` 已验证运行孤儿恢复链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐实时结果列表API回归断言`
 - 完成范围：
   - 已把 [verify_live_result_list_apis.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_live_result_list_apis.py) 从 auth live validations API、provider live probe results API 各自的 shape/count/summary 局部断言，补成真正会给出两条列表 API 总链结论的 verifier

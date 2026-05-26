@@ -73,74 +73,126 @@ def main() -> None:
         client.cookies.set("cloudpan_sync_session", webapp.build_session_token("admin"))
         api_payload = client.get("/api/runtime_orphan_recovery").json()
         api_markdown = client.get("/api/runtime_orphan_recovery_markdown").json()
+        payload_summary = payload.get("summary") or {}
+        api_summary = api_payload.get("summary") or {}
+        api_markdown_text = str(api_markdown.get("markdown") or "")
+        summary_has_expected_counts = (
+            payload_summary.get("providerCount") == 2
+            and payload_summary.get("orphanProfileCount") == 2
+            and payload_summary.get("runtimeSampleCount") == 2
+            and payload_summary.get("providersWithSavedProfiles") == 1
+            and payload_summary.get("providersWithoutSavedProfiles") == 1
+        )
+        summary_has_expected_lists = (
+            payload_summary.get("orphanProviders") == ["guangya", "uc"]
+            and payload_summary.get("orphanProfiles") == ["gy-orphan", "uc-orphan"]
+            and payload_summary.get("providersWithSavedProfilesList") == ["guangya"]
+            and payload_summary.get("providersWithoutSavedProfilesList") == ["uc"]
+        )
+        summary_has_batch_commands = (
+            "scripts\\recreate_runtime_orphan_stubs.py" in str(payload_summary.get("recommendedBatchDryRunCommand") or "")
+            and "--write" in str(payload_summary.get("recommendedBatchWriteMissingCommand") or "")
+            and "--overwrite-existing" in str(payload_summary.get("recommendedBatchOverwriteExistingCommand") or "")
+            and any(
+                row.get("providerKey") == "guangya"
+                and "--provider-key guangya" in str(row.get("dryRunCommand") or "")
+                and "--write" in str(row.get("writeMissingCommand") or "")
+                and "--overwrite-existing" in str(row.get("overwriteExistingCommand") or "")
+                for row in (payload_summary.get("providerBatchCommands") or [])
+            )
+        )
+        guangya_item_has_profile_id_command = any(
+            row.get("providerKey") == "guangya"
+            and "--profile-id gy-orphan" in str(row.get("recommendedCreateCommand") or "")
+            and "--provider-key guangya" in str(row.get("recommendedCreateCommand") or "")
+            and "create_auth_profile_stub.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactCreateHelper") or "")
+            for row in (payload.get("items") or [])
+        )
+        uc_item_has_cookie_recovery_command = any(
+            row.get("providerKey") == "uc"
+            and "--profile-id uc-orphan" in str(row.get("recommendedCreateCommand") or "")
+            and "--cookie YOUR_COOKIE" in str(row.get("recommendedCreateCommand") or "")
+            and "create_auth_profile_stub.py --from-runtime-orphan-profile uc-orphan" in str(row.get("exactCreateHelper") or "")
+            for row in (payload.get("items") or [])
+        )
+        items_have_followup_commands = any(
+            row.get("providerKey") == "guangya"
+            and str(row.get("recommendedPrimaryCommandLabel") or "") == "Refresh Existing Orphan Profile"
+            and "patch_and_probe_auth_profile.py --profile-id gy-orphan --write" in str(row.get("recommendedPrimaryCommand") or "")
+            and "patch_and_probe_auth_profile.py --profile-id gy-orphan --write" in str(row.get("recommendedRefreshEvidenceCommand") or "")
+            and "patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactRefreshEvidenceHelper") or "")
+            and "create_runtime_probe_task.py --target-provider guangya --target-profile-id gy-orphan" in str(row.get("recommendedRuntimeProbeCommand") or "")
+            and "create_runtime_probe_task.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactRuntimeProbeHelper") or "")
+            and "create_live_upload_task.py --target-provider guangya --target-profile-id gy-orphan" in str(row.get("recommendedRuntimeSuccessCommand") or "")
+            and "create_live_upload_task.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactRuntimeSuccessHelper") or "")
+            and "--conflict-policy overwrite_existing" in str(row.get("recommendedOverwriteVariantCommand") or "")
+            and "create_live_upload_task.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactOverwriteVariantHelper") or "")
+            for row in (payload.get("items") or [])
+        )
+        markdown_has_title = "# CloudPan Sync Runtime Orphan Recovery Guide" in markdown
+        markdown_has_summary = "orphanProfileCount=2" in markdown and "providersWithSavedProfiles=1" in markdown
+        markdown_has_orphan_summary = "orphanSummary:" in markdown and "profiles=gy-orphan, uc-orphan" in markdown
+        markdown_has_batch_commands = (
+            "batchCommands:" in markdown
+            and "recreate_runtime_orphan_stubs.py" in markdown
+            and "## Batch Recreate Commands" in markdown
+            and "dryRun=`.\\.venv\\Scripts\\python.exe scripts\\recreate_runtime_orphan_stubs.py --provider-key guangya`" in markdown
+        )
+        markdown_has_create_commands = "--profile-id gy-orphan" in markdown and "--profile-id uc-orphan" in markdown
+        markdown_has_followup_commands = (
+            "recommendedPrimaryCommand" in markdown
+            and "exactCreateHelper" in markdown
+            and "recommendedRefreshEvidenceCommand" in markdown
+            and "exactRefreshEvidenceHelper" in markdown
+            and "recommendedRuntimeProbeCommand" in markdown
+            and "recommendedRuntimeSuccessCommand" in markdown
+            and "recommendedOverwriteVariantCommand" in markdown
+            and "exactOverwriteVariantHelper" in markdown
+        )
+        api_has_summary = api_summary.get("orphanProfiles") == ["gy-orphan", "uc-orphan"]
+        api_markdown_has_guide = (
+            "--profile-id gy-orphan" in api_markdown_text
+            and "exactCreateHelper" in api_markdown_text
+            and "exactRefreshEvidenceHelper" in api_markdown_text
+            and "recommendedRuntimeSuccessCommand" in api_markdown_text
+            and "recreate_runtime_orphan_stubs.py" in api_markdown_text
+        )
+        runtime_orphan_recovery_flow_matches_expected_guidance = (
+            summary_has_expected_counts
+            and summary_has_expected_lists
+            and summary_has_batch_commands
+            and guangya_item_has_profile_id_command
+            and uc_item_has_cookie_recovery_command
+            and items_have_followup_commands
+            and markdown_has_title
+            and markdown_has_summary
+            and markdown_has_orphan_summary
+            and markdown_has_batch_commands
+            and markdown_has_create_commands
+            and markdown_has_followup_commands
+            and api_has_summary
+            and api_markdown_has_guide
+            and api_summary == payload_summary
+        )
 
         print(
             json.dumps(
                 {
-                    "summaryHasExpectedCounts": (
-                        (payload.get("summary") or {}).get("providerCount") == 2
-                        and (payload.get("summary") or {}).get("orphanProfileCount") == 2
-                        and (payload.get("summary") or {}).get("runtimeSampleCount") == 2
-                        and (payload.get("summary") or {}).get("providersWithSavedProfiles") == 1
-                        and (payload.get("summary") or {}).get("providersWithoutSavedProfiles") == 1
-                    ),
-                    "summaryHasExpectedLists": (
-                        (payload.get("summary") or {}).get("orphanProviders") == ["guangya", "uc"]
-                        and (payload.get("summary") or {}).get("orphanProfiles") == ["gy-orphan", "uc-orphan"]
-                        and (payload.get("summary") or {}).get("providersWithSavedProfilesList") == ["guangya"]
-                        and (payload.get("summary") or {}).get("providersWithoutSavedProfilesList") == ["uc"]
-                    ),
-                    "summaryHasBatchCommands": (
-                        "scripts\\recreate_runtime_orphan_stubs.py" in str((payload.get("summary") or {}).get("recommendedBatchDryRunCommand") or "")
-                        and "--write" in str((payload.get("summary") or {}).get("recommendedBatchWriteMissingCommand") or "")
-                        and "--overwrite-existing" in str((payload.get("summary") or {}).get("recommendedBatchOverwriteExistingCommand") or "")
-                        and any(
-                            row.get("providerKey") == "guangya"
-                            and "--provider-key guangya" in str(row.get("dryRunCommand") or "")
-                            and "--write" in str(row.get("writeMissingCommand") or "")
-                            and "--overwrite-existing" in str(row.get("overwriteExistingCommand") or "")
-                            for row in ((payload.get("summary") or {}).get("providerBatchCommands") or [])
-                        )
-                    ),
-                    "guangyaItemHasProfileIdCommand": any(
-                        row.get("providerKey") == "guangya"
-                        and "--profile-id gy-orphan" in str(row.get("recommendedCreateCommand") or "")
-                        and "--provider-key guangya" in str(row.get("recommendedCreateCommand") or "")
-                        and "create_auth_profile_stub.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactCreateHelper") or "")
-                        for row in (payload.get("items") or [])
-                    ),
-                    "ucItemHasCookieRecoveryCommand": any(
-                        row.get("providerKey") == "uc"
-                        and "--profile-id uc-orphan" in str(row.get("recommendedCreateCommand") or "")
-                        and "--cookie YOUR_COOKIE" in str(row.get("recommendedCreateCommand") or "")
-                        and "create_auth_profile_stub.py --from-runtime-orphan-profile uc-orphan" in str(row.get("exactCreateHelper") or "")
-                        for row in (payload.get("items") or [])
-                    ),
-                    "itemsHaveFollowupCommands": any(
-                        row.get("providerKey") == "guangya"
-                        and str(row.get("recommendedPrimaryCommandLabel") or "") == "Refresh Existing Orphan Profile"
-                        and "patch_and_probe_auth_profile.py --profile-id gy-orphan --write" in str(row.get("recommendedPrimaryCommand") or "")
-                        and "patch_and_probe_auth_profile.py --profile-id gy-orphan --write" in str(row.get("recommendedRefreshEvidenceCommand") or "")
-                        and "patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactRefreshEvidenceHelper") or "")
-                        and "create_runtime_probe_task.py --target-provider guangya --target-profile-id gy-orphan" in str(row.get("recommendedRuntimeProbeCommand") or "")
-                        and "create_runtime_probe_task.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactRuntimeProbeHelper") or "")
-                        and "create_live_upload_task.py --target-provider guangya --target-profile-id gy-orphan" in str(row.get("recommendedRuntimeSuccessCommand") or "")
-                        and "create_live_upload_task.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactRuntimeSuccessHelper") or "")
-                        and "--conflict-policy overwrite_existing" in str(row.get("recommendedOverwriteVariantCommand") or "")
-                        and "create_live_upload_task.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactOverwriteVariantHelper") or "")
-                        for row in (payload.get("items") or [])
-                    ),
-                    "markdownHasTitle": "# CloudPan Sync Runtime Orphan Recovery Guide" in markdown,
-                    "markdownHasSummary": "orphanProfileCount=2" in markdown and "providersWithSavedProfiles=1" in markdown,
-                    "markdownHasOrphanSummary": "orphanSummary:" in markdown and "profiles=gy-orphan, uc-orphan" in markdown,
-                    "markdownHasBatchCommands": "batchCommands:" in markdown
-                    and "recreate_runtime_orphan_stubs.py" in markdown
-                    and "## Batch Recreate Commands" in markdown
-                    and "dryRun=`.\\.venv\\Scripts\\python.exe scripts\\recreate_runtime_orphan_stubs.py --provider-key guangya`" in markdown,
-                    "markdownHasCreateCommands": "--profile-id gy-orphan" in markdown and "--profile-id uc-orphan" in markdown,
-                    "markdownHasFollowupCommands": "recommendedPrimaryCommand" in markdown and "exactCreateHelper" in markdown and "recommendedRefreshEvidenceCommand" in markdown and "exactRefreshEvidenceHelper" in markdown and "recommendedRuntimeProbeCommand" in markdown and "recommendedRuntimeSuccessCommand" in markdown and "recommendedOverwriteVariantCommand" in markdown and "exactOverwriteVariantHelper" in markdown,
-                    "apiHasSummary": (api_payload.get("summary") or {}).get("orphanProfiles") == ["gy-orphan", "uc-orphan"],
-                    "apiMarkdownHasGuide": "--profile-id gy-orphan" in str(api_markdown.get("markdown") or "") and "exactCreateHelper" in str(api_markdown.get("markdown") or "") and "exactRefreshEvidenceHelper" in str(api_markdown.get("markdown") or "") and "recommendedRuntimeSuccessCommand" in str(api_markdown.get("markdown") or "") and "recreate_runtime_orphan_stubs.py" in str(api_markdown.get("markdown") or ""),
+                    "summaryHasExpectedCounts": summary_has_expected_counts,
+                    "summaryHasExpectedLists": summary_has_expected_lists,
+                    "summaryHasBatchCommands": summary_has_batch_commands,
+                    "guangyaItemHasProfileIdCommand": guangya_item_has_profile_id_command,
+                    "ucItemHasCookieRecoveryCommand": uc_item_has_cookie_recovery_command,
+                    "itemsHaveFollowupCommands": items_have_followup_commands,
+                    "markdownHasTitle": markdown_has_title,
+                    "markdownHasSummary": markdown_has_summary,
+                    "markdownHasOrphanSummary": markdown_has_orphan_summary,
+                    "markdownHasBatchCommands": markdown_has_batch_commands,
+                    "markdownHasCreateCommands": markdown_has_create_commands,
+                    "markdownHasFollowupCommands": markdown_has_followup_commands,
+                    "apiHasSummary": api_has_summary,
+                    "apiMarkdownHasGuide": api_markdown_has_guide,
+                    "runtimeOrphanRecoveryFlowMatchesExpectedGuidance": runtime_orphan_recovery_flow_matches_expected_guidance,
                 },
                 ensure_ascii=False,
                 indent=2,

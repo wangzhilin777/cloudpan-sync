@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐API总回归里的首条冲突备注断言`
+- 完成范围：
+  - 已把 [verify_api_plan_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_api_plan_bundle.py) 再补一层：当前这条高层 API 总回归除了继续锁 `conflictSupportSummaryStatuses / firstConflictSupportStatus`，也会把对应的 `firstConflictNote` 一起锁住
+  - 覆盖范围包括 `POST /api/tasks` 当次返回的 `listView / detailView`、后续 `GET /api/tasks` 列表行，以及 `GET /api/tasks/{id}` 详情与它们各自 `summary`
+  - 当前效果是：总回归终于把“首条冲突支持状态”和“首条冲突备注”作为一组一起校验，不再只证明状态值还在、却放过备注文案被清空或断层的情况
+  - 这样后续如果任务视图仍保留 `firstConflictSupportStatus`，但 `firstConflictNote` 在创建返回、列表或详情任一链路里丢失，这条总回归会第一时间报出来
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_api_plan_bundle.py` 已验证任务创建返回、任务列表与任务详情当前都会返回 `firstConflictNote=The current target provider path does not guarantee true overwrite, so overwrite_existing will downgrade to auto_rename_new.`，且各自 `summary.firstConflictNote` 也一致
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务导出Markdown里的summary冲突摘要断言`
 - 完成范围：
   - 已把 [verify_export_task_markdown.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_markdown.py) 再补一层：当前不仅检查导出结果里的 `supportSummary / firstPlannedConflict`，也会继续锁住 `summaryConflict`

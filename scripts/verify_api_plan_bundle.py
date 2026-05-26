@@ -245,14 +245,18 @@ def main() -> None:
                     and created_plan_items[0].get("conflictPolicy") == "overwrite_existing"
                     and created_task_list.get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
                     and created_task_list.get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
+                    and created_task_list.get("firstConflictNote") == "The current target provider path does not guarantee true overwrite, so overwrite_existing will downgrade to auto_rename_new."
                     and created_task_list.get("summary", {}).get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
                     and created_task_list.get("summary", {}).get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
+                    and created_task_list.get("summary", {}).get("firstConflictNote") == "The current target provider path does not guarantee true overwrite, so overwrite_existing will downgrade to auto_rename_new."
                     and created_task.get("detailView", {}).get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
                     and created_task.get("detailView", {}).get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
+                    and created_task.get("detailView", {}).get("firstConflictNote") == "The current target provider path does not guarantee true overwrite, so overwrite_existing will downgrade to auto_rename_new."
                     and len(created_task.get("detailView", {}).get("planItems") or []) == 1
                     and ((created_task.get("detailView", {}).get("planItems") or [{}])[0]).get("conflictSupportStatus") == "downgrade_to_auto_rename"
                     and created_task.get("detailView", {}).get("summary", {}).get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
                     and created_task.get("detailView", {}).get("summary", {}).get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
+                    and created_task.get("detailView", {}).get("summary", {}).get("firstConflictNote") == "The current target provider path does not guarantee true overwrite, so overwrite_existing will downgrade to auto_rename_new."
                 ),
                 "taskListReturnsQueueState": (
                     len(listed_task_items) == 1
@@ -262,9 +266,11 @@ def main() -> None:
                     and listed_task_rows[0].get("conflictPolicy") == "overwrite_existing"
                     and listed_task_rows[0].get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
                     and listed_task_rows[0].get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
+                    and listed_task_rows[0].get("firstConflictNote") == "The current target provider path does not guarantee true overwrite, so overwrite_existing will downgrade to auto_rename_new."
                     and listed_task_rows[0].get("summary", {}).get("awaitingAcknowledgement") is True
                     and listed_task_rows[0].get("summary", {}).get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
                     and listed_task_rows[0].get("summary", {}).get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
+                    and listed_task_rows[0].get("summary", {}).get("firstConflictNote") == "The current target provider path does not guarantee true overwrite, so overwrite_existing will downgrade to auto_rename_new."
                 ),
                 "taskDetailReturnsConflictPolicyAndPendingItems": (
                     fetched_task_detail.get("taskId") == task_id
@@ -272,12 +278,14 @@ def main() -> None:
                     and fetched_task_detail.get("conflictPolicy") == "overwrite_existing"
                     and fetched_task_detail.get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
                     and fetched_task_detail.get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
+                    and fetched_task_detail.get("firstConflictNote") == "The current target provider path does not guarantee true overwrite, so overwrite_existing will downgrade to auto_rename_new."
                     and len(fetched_task_detail.get("planItems") or []) == 1
                     and ((fetched_task_detail.get("planItems") or [{}])[0]).get("conflictSupportStatus") == "downgrade_to_auto_rename"
                     and len(fetched_task_detail.get("pendingItems") or []) == 0
                     and fetched_task_detail.get("summary", {}).get("awaitingAcknowledgement") is True
                     and fetched_task_detail.get("summary", {}).get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
                     and fetched_task_detail.get("summary", {}).get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
+                    and fetched_task_detail.get("summary", {}).get("firstConflictNote") == "The current target provider path does not guarantee true overwrite, so overwrite_existing will downgrade to auto_rename_new."
                 ),
                 "logoutClearsSession": logout_result.status_code == 200 and logged_out_session.get("loggedIn") is False,
             },

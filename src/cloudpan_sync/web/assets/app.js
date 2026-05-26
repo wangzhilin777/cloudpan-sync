@@ -3314,6 +3314,7 @@ function renderSettingsPanel() {
     `strictCompletionPercent=${audit.strictCompletionPercent || 0}`,
     `providerCount=${audit.providerCount || 0}`,
     `researchCount=${audit.researchCount || 0}`,
+    `runtime_samples=${state.realEvidenceSummary?.taskRuntimeSampleCount || 0}, runtime_success=${state.realEvidenceSummary?.taskRuntimeSuccessCount || 0}, runtime_orphan_providers=${state.realEvidenceSummary?.taskRuntimeOrphanProviderCount || 0}, runtime_orphan_profiles=${state.realEvidenceSummary?.taskRuntimeOrphanProfileCount || 0}`,
   ];
   for (const row of auditRows) {
     const li = document.createElement("li");

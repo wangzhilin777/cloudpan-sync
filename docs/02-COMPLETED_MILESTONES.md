@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`审计总览也量化运行孤儿规模`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Plan Audit` 的 summary rows 继续补强：现在除了 `done / partial / todo / percent / providerCount / researchCount`，还会直接显示 `runtime_samples / runtime_success / runtime_orphan_providers / runtime_orphan_profiles`
+  - 当前效果是：用户一打开 `Plan Audit`，还没看到“首个缺口”那一行之前，就能先知道当前严格完成度被多少条 runtime success、多少个 orphan provider/profile 拖住，不必继续往下读才能掌握规模
+  - 这次补齐把审计总览本身也拉齐到了当前 `P-REAL` 关注点，让审计页顶部和下方首个缺口、真实证据报告保持同一套量化口径
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_audit_settings_ui.py` 已验证 `Plan Audit` 当前 summary rows 会显示 `runtime_samples / runtime_success / runtime_orphan_providers / runtime_orphan_profiles`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`审计首个缺口入口也补直达孤儿恢复动作`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Plan Audit` 的首个缺口动作继续往前推：当当前缺口落在 `M4 / M5 / P-REAL` 且当前仓库已识别到 orphan 运行样本时，审计入口现在也能直接点 `Recreate Guangya Orphan Stub` 或 `Recreate First Orphan Stub`

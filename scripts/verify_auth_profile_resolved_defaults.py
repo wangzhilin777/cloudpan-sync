@@ -12,6 +12,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from cloudpan_sync import webapp
+from cloudpan_sync import auth_profile_view as auth_profile_view_module
 from fastapi.testclient import TestClient
 
 
@@ -60,13 +61,22 @@ def main() -> None:
 
     with patched_attr(webapp, "ADMIN_PASSWORD", "admin123"):
         with patched_attr(webapp, "list_profiles", lambda: profiles):
-            with patched_attr(webapp, "masked_profile", fake_masked_profile):
+            with patched_attr(auth_profile_view_module, "masked_profile", fake_masked_profile):
                 app = webapp.create_app()
                 client = TestClient(app)
                 client.post("/api/login", json={"password": "admin123"})
                 payload = client.get("/api/auth/profiles").json()
 
     item = (payload.get("items") or [])[0]
+    auth_profile_resolved_defaults_flow_matches_expected_aliases = (
+        item.get("profileId") == "gy-alias-1"
+        and item.get("resolvedParentId") == "parent-alias"
+        and item.get("resolvedFileId") == "file-alias"
+        and item.get("profileReady") is False
+        and item.get("missingFieldHints") == [
+            "token looks like placeholder data; replace tok-demo/tok_smoke with a real Guangya token"
+        ]
+    )
     print(
         json.dumps(
             {
@@ -75,6 +85,7 @@ def main() -> None:
                 "resolvedFileId": item.get("resolvedFileId"),
                 "profileReady": item.get("profileReady"),
                 "missingFieldHints": item.get("missingFieldHints"),
+                "authProfileResolvedDefaultsFlowMatchesExpectedAliases": auth_profile_resolved_defaults_flow_matches_expected_aliases,
             },
             ensure_ascii=False,
             indent=2,

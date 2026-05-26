@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权解析默认值总链回归断言`
+- 完成范围：
+  - 已把 [verify_auth_profile_resolved_defaults.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_resolved_defaults.py) 从 `resolvedParentId/resolvedFileId` 的分散输出，补成真正会给出整条授权解析默认值链结论的 verifier
+  - 同一条回归现在会用 `authProfileResolvedDefaultsFlowMatchesExpectedAliases` 直接锁住这条链：当 Guangya 档案只填 `parentFileId/file_id` 这类别名字段时，`/api/auth/profiles` 必须稳定返回 `profileId=gy-alias-1`、`resolvedParentId=parent-alias`、`resolvedFileId=file-alias`，并继续保留占位 token 对应的 `profileReady=false` 与 `missingFieldHints`
+  - 当前效果是：授权解析默认值能力不再只是两个 resolved 字段各自为真，而是多了一条从别名字段输入到授权列表返回完整解析结果的回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_profile_resolved_defaults.py` 已验证授权解析默认值链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐运行孤儿重建刷新视图总链回归断言`
 - 完成范围：
   - 已把 [verify_runtime_orphan_recreate_refreshes_views.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_refreshes_views.py) 从单条 orphan 重建、批量 orphan 重建、auth 面板刷新、strict 相关视图刷新和状态矩阵刷新等分散检查，补成真正会给出整条运行孤儿重建刷新链结论的 verifier

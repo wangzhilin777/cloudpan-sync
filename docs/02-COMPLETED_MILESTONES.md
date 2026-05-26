@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务Markdown冲突链路回归断言`
+- 完成范围：
+  - 已把 [verify_task_markdown_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_markdown_api.py) 从一组分散的 Markdown 字段存在性检查，补成真正会给出整条导出链结论的 verifier
+  - 同一条回归现在会用 `markdownConflictFlowIsExported` 直接锁住任务 Markdown 里的冲突链路：`selectedPolicy`、`supportSummary`、`summaryConflict`、`firstPlannedConflict`、运行态 `conflictPolicy/conflictAction/resolvedTargetName`，以及风险与守卫小节
+  - 当前效果是：任务 Markdown 导出不再只是“若干行文本都还在”，而是多了一条更高层的冲突摘要到运行态证据的完整导出回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_markdown_api.py` 已验证任务 Markdown 当前会稳定导出完整冲突链路
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务摘要冲突状态流回归断言`
 - 完成范围：
   - 已把 [verify_task_summary_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_summary_api.py) 从三段各自独立的 summary 字段核对，补成真正会给出整体状态流结论的 verifier

@@ -95,6 +95,29 @@ def main() -> None:
                     "hasResolvedTargetName": "resolvedTargetName=`demo (1).bin`" in markdown,
                     "hasPendingConflictStatus": "conflictSupportStatus=" in markdown,
                     "hasGuardSummary": "## 风险与守卫" in markdown and "riskReason=" in markdown,
+                    "markdownConflictFlowIsExported": (
+                        "# CloudPan Sync 任务详情" in markdown
+                        and "## 同名文件冲突策略" in markdown
+                        and "selectedPolicy: `overwrite_existing`" in markdown
+                        and f"supportSummary: `statuses={first_item.get('conflictSupportStatus', '') or '(none)'}`" in markdown
+                        and (
+                            f"summaryConflict: `statuses={','.join(summary_before_results.get('conflictSupportSummaryStatuses') or []) or '(none)'}`" in markdown
+                            and f"`firstStatus={summary_before_results.get('firstConflictSupportStatus', '') or '(none)'}`" in markdown
+                            and f"`firstNote={summary_before_results.get('firstConflictNote', '') or '(none)'}`" in markdown
+                        )
+                        and (
+                            f"firstPlannedConflict: path=`{first_item.get('path', '') or '(none)'}`" in markdown
+                            and f"strategy=`{first_item.get('strategy', '') or '(none)'}`" in markdown
+                            and f"conflictSupportStatus=`{first_item.get('conflictSupportStatus', '') or '(none)'}`" in markdown
+                            and f"conflictNote=`{first_item.get('conflictNote', '') or '(none)'}`" in markdown
+                        )
+                        and "conflictPolicy=`overwrite_existing`" in markdown
+                        and "conflictAction=`overwrite_downgraded_to_auto_rename`" in markdown
+                        and "resolvedTargetName=`demo (1).bin`" in markdown
+                        and "conflictSupportStatus=" in markdown
+                        and "## 风险与守卫" in markdown
+                        and "riskReason=" in markdown
+                    ),
                 },
                 ensure_ascii=False,
                 indent=2,

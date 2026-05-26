@@ -3321,6 +3321,32 @@ function renderSettingsPanel() {
     li.textContent = row;
     auditList.appendChild(li);
   }
+  const auditRuntimeOrphanItem = (state.runtimeOrphanRecovery?.items || [])[0] || null;
+  if ((state.realEvidenceSummary?.taskRuntimeOrphanProfileCount || 0) > 0) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    copy.textContent = `runtime_orphan_recovery: providers=${state.realEvidenceSummary?.taskRuntimeOrphanProviderCount || 0}, profiles=${state.realEvidenceSummary?.taskRuntimeOrphanProfileCount || 0}, firstProvider=${auditRuntimeOrphanItem?.providerKey || "(none)"}, firstProfile=${auditRuntimeOrphanItem?.orphanProfileId || "(none)"}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    const openOrphanBtn = document.createElement("button");
+    openOrphanBtn.className = "ghost";
+    openOrphanBtn.textContent = "Open Runtime Orphan Recovery";
+    openOrphanBtn.addEventListener("click", () => {
+      state.activeTab = "nav.settings";
+      render();
+    });
+    actions.appendChild(openOrphanBtn);
+    if (auditRuntimeOrphanItem?.providerKey && auditRuntimeOrphanItem?.orphanProfileId) {
+      const recreateBtn = document.createElement("button");
+      recreateBtn.className = "ghost";
+      recreateBtn.textContent = "Recreate First Orphan Stub";
+      recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(auditRuntimeOrphanItem.providerKey, auditRuntimeOrphanItem.orphanProfileId));
+      actions.appendChild(recreateBtn);
+    }
+    li.appendChild(actions);
+    auditList.appendChild(li);
+  }
   const firstAuditGap = auditItems.find((item) => item.status !== "done") || null;
   if (firstAuditGap) {
     const li = document.createElement("li");

@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`审计总览也补直达孤儿恢复入口`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里 `Plan Audit` 顶部总览层继续补强：当当前仓库存在 orphan 运行样本时，会额外出现一条 `runtime_orphan_recovery` 摘要，直接写出 orphan provider/profile 数以及当前第一条 orphan 记录
+  - 这条总览摘要现在也会直接提供 `Open Runtime Orphan Recovery` 和 `Recreate First Orphan Stub` 动作，不必先滚到审计首个缺口或再切到更深层面板才能接入 orphan 恢复链
+  - 当前效果是：`Plan Audit` 已经从“展示进度”进一步推进到“在最顶层就能直接恢复当前最关键的 orphan 缺口”，把总览层和恢复层正式接通
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_audit_settings_ui.py` 已验证 `Plan Audit` 顶部总览当前会识别 orphan 汇总，并绑定 `Open Runtime Orphan Recovery / Recreate First Orphan Stub -> recreateRuntimeOrphanProfile(...)`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`审计总览也量化运行孤儿规模`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Plan Audit` 的 summary rows 继续补强：现在除了 `done / partial / todo / percent / providerCount / researchCount`，还会直接显示 `runtime_samples / runtime_success / runtime_orphan_providers / runtime_orphan_profiles`

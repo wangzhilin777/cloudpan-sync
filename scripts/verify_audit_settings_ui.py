@@ -21,6 +21,12 @@ def main() -> None:
                 "jsHasAuditLoader": 'async function loadAuditSummary()' in app_js and 'fetchJson("/api/plan/audit")' in app_js,
                 "jsRefreshProtectedDataLoadsAudit": 'loadAuditSummary(),' in app_js,
                 "jsAuditHasFirstGapActions": 'state.auditItems = data.items || [];' in app_js
+                and 'const auditRuntimeOrphanItem = (state.runtimeOrphanRecovery?.items || [])[0] || null;' in app_js
+                and 'runtime_orphan_recovery: providers=${state.realEvidenceSummary?.taskRuntimeOrphanProviderCount || 0}' in app_js
+                and 'profiles=${state.realEvidenceSummary?.taskRuntimeOrphanProfileCount || 0}' in app_js
+                and 'openOrphanBtn.textContent = "Open Runtime Orphan Recovery";' in app_js
+                and 'recreateBtn.textContent = "Recreate First Orphan Stub";' in app_js
+                and 'recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(auditRuntimeOrphanItem.providerKey, auditRuntimeOrphanItem.orphanProfileId));' in app_js
                 and 'const firstAuditGap = auditItems.find((item) => item.status !== "done") || null;' in app_js
                 and 'const firstAuditGapRuntimeDetails = [];' in app_js
                 and 'runtime_samples=${auditRuntime.taskRuntimeSampleCount || 0}' in app_js

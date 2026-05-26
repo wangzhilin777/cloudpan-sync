@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务动作守卫整链回归断言`
+- 完成范围：
+  - 已把 [verify_task_action_guards.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_action_guards.py) 从几段动作守卫局部断言，补成真正会给出整条状态迁移结论的 verifier
+  - 同一条回归现在会用 `taskActionGuardFlowMatchesExpectedTransitions` 直接锁住 `blocked -> awaiting_ack -> ready` 这条动作守卫链：`resume` 必须被硬拦、`run` 必须在确认风险前被 runtime 和 HTTP 一起拦住、确认后又必须恢复到可运行
+  - 当前效果是：任务动作守卫不再只是多个局部判断都为真，而是多了一条完整的状态迁移回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_action_guards.py` 已验证任务动作守卫当前会稳定按预期迁移
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐冲突降级整链回归断言`
 - 完成范围：
   - 已把 [verify_task_conflict_support.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_support.py) 从 plan/detail/list 三段各自核对，补成真正会给出冲突降级整条链结论的 verifier

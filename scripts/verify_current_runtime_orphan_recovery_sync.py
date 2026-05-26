@@ -42,16 +42,19 @@ def main() -> None:
                 ),
                 "summaryShowsExpectedCurrentValues": (
                     summary.get("providerCount") == 3
-                    and summary.get("orphanProfileCount") == 3
-                    and summary.get("runtimeSampleCount") == 3
+                    and summary.get("orphanProfileCount") == 4
+                    and summary.get("runtimeSampleCount") == 4
                     and summary.get("providersWithSavedProfiles") == 1
                     and summary.get("providersWithoutSavedProfiles") == 2
-                    and summary.get("orphanProviders") == ["guangya", "pikpak", "uc"]
-                    and summary.get("orphanProfiles") == ["gy-live-1", "pikpak-live-1", "uc-live-1"]
+                    and summary.get("orphanProviders") == ["guangya", "guangya", "pikpak", "uc"]
+                    and summary.get("orphanProfiles") == ["gy-live-1", "gy-live-defaults-1", "pikpak-live-1", "uc-live-1"]
                 ),
                 "guangyaSectionHasRecoveryCommand": "--profile-id gy-live-1" in guangya and "existingProviderProfiles: count=`2`" in guangya,
+                "guangyaSectionHasPrimaryCommand": "recommendedPrimaryCommand:" in guangya and "label=Refresh Existing Orphan Profile" in guangya,
                 "pikpakSectionHasRecoveryCommand": "--profile-id pikpak-live-1" in pikpak and "preferred=`manual_token`" in pikpak,
+                "pikpakSectionHasPrimaryCommand": "recommendedPrimaryCommand:" in pikpak and "label=Recreate Orphan Stub" in pikpak,
                 "ucSectionHasRecoveryCommand": "--profile-id uc-live-1" in uc and "preferred=`manual_cookie`" in uc,
+                "ucSectionHasPrimaryCommand": "recommendedPrimaryCommand:" in uc and "label=Recreate Orphan Stub" in uc,
             },
             ensure_ascii=False,
             indent=2,

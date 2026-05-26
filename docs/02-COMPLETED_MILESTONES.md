@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`运行孤儿恢复文档也同步主推荐命令`
+- 完成范围：
+  - 已把 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 重导出到当前口径：每条 orphan provider 现在除了 `recommendedCreateCommand` 之外，也会同步写出 `recommendedPrimaryCommand` 与 `label=...`
+  - 当前文档效果是：`guangya` 会明确显示主推荐命令已前移成 `Refresh Existing Orphan Profile`，而 `pikpak / uc` 这类当前仍缺同 profileId 档案的 provider，会明确显示主推荐命令是 `Recreate Orphan Stub`
+  - 已把 current-sync verifier 一并补强，避免后续再出现“后端和 UI 已支持 primary command，但长期文档还停留在旧口径”的断层
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\export_runtime_orphan_recovery.py` 已重导出当前 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_current_runtime_orphan_recovery_sync.py` 已验证当前文档中的 `guangya / pikpak / uc` 分段都已同步 `recommendedPrimaryCommand / label=...`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`运行孤儿恢复链也补主推荐命令`
 - 完成范围：
   - 已把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 的 orphan 恢复载荷继续补强：现在除了 `recommendedCreateCommand / recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand / recommendedRuntimeSuccessCommand`，还会额外统一产出 `recommendedPrimaryCommand / recommendedPrimaryCommandLabel`

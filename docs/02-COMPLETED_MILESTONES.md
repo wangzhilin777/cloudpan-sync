@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐运行样本设置页回归断言`
+- 完成范围：
+  - 已把 [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py) 再补一层：当前不再只看若干零散源码片段是否存在
+  - 同一条回归现在会用 `settingsTaskRuntimeEvidenceFlowIsWired` 直接锁住设置页 runtime evidence 这一整条 wiring：面板、state、loader、refresh、summary 渲染、orphan recovery 入口、登出清理
+  - 当前效果是：设置页上的任务运行样本视图不再只是“各个零件分别在”，而是有了一条更高层的整体连线回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_evidence_settings_ui.py` 已验证 settings task runtime evidence flow 当前完整连通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐运行样本API汇总回归断言`
 - 完成范围：
   - 已把 [verify_task_runtime_evidence_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_api.py) 再补一层：当前不再只是分散检查若干 markdown/API 片段

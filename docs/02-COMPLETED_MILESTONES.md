@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务摘要冲突状态流回归断言`
+- 完成范围：
+  - 已把 [verify_task_summary_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_summary_api.py) 从三段各自独立的 summary 字段核对，补成真正会给出整体状态流结论的 verifier
+  - 同一条回归现在会用 `summaryConflictFieldsFlowMatchesStates` 直接锁住任务摘要在 `blocked -> awaiting_ack -> ready` 三段状态里的冲突摘要口径与风险口径，不再只是分别看几个点状字段
+  - 当前效果是：任务摘要层的 `conflictSupportSummaryStatuses / firstConflictSupportStatus / riskReason / awaitingAcknowledgement / riskPaused` 已经被一条更高层的状态流回归接住了
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_summary_api.py` 已验证任务摘要冲突字段当前会稳定随状态流一起变化
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐冲突策略运行态直跑回归断言`
 - 完成范围：
   - 已把 [verify_task_conflict_policy.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_policy.py) 从“plan 层有值、runtime 层只打印空值”的现场脚本，补成真正会跑到执行态并给出聚合结论的 verifier

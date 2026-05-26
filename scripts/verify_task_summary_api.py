@@ -99,6 +99,24 @@ def main() -> None:
                     and acknowledged_summary.get("firstConflictSupportStatus") == "supported"
                     and acknowledged_summary.get("firstConflictNote") == ""
                 ),
+                "summaryConflictFieldsFlowMatchesStates": (
+                    blocked_summary.get("state") == "blocked"
+                    and blocked_summary.get("riskReason") == "guard_blocked"
+                    and blocked_summary.get("hardBlocked") is True
+                    and blocked_summary.get("conflictSupportSummaryStatuses") == ["unsupported"]
+                    and blocked_summary.get("firstConflictSupportStatus") == "unsupported"
+                    and awaiting_ack_summary.get("state") == "awaiting_ack"
+                    and awaiting_ack_summary.get("riskReason") == "awaiting_acknowledgement"
+                    and awaiting_ack_summary.get("awaitingAcknowledgement") is True
+                    and awaiting_ack_summary.get("conflictSupportSummaryStatuses") == ["supported"]
+                    and awaiting_ack_summary.get("firstConflictSupportStatus") == "supported"
+                    and acknowledged_summary.get("state") == "ready"
+                    and acknowledged_summary.get("riskReason") == ""
+                    and acknowledged_summary.get("awaitingAcknowledgement") is False
+                    and acknowledged_summary.get("riskPaused") is False
+                    and acknowledged_summary.get("conflictSupportSummaryStatuses") == ["supported"]
+                    and acknowledged_summary.get("firstConflictSupportStatus") == "supported"
+                ),
                 "blockedSummary": blocked_summary,
                 "awaitingAckSummary": awaiting_ack_summary,
                 "acknowledgedSummary": acknowledged_summary,

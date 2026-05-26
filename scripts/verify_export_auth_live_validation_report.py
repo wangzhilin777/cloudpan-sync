@@ -85,30 +85,49 @@ def main() -> None:
 
         output_path = tmp_root / "docs" / "03-AUTH_LIVE_VALIDATION_REPORT.md"
         markdown = output_path.read_text(encoding="utf-8")
+    exported_file_exists = True
+    exported_has_title = "# CloudPan Sync Auth Live Validation Report" in markdown
+    exported_has_summary = (
+        "- totalRecords: `2`" in markdown
+        and "- latestProfileCount: `2`" in markdown
+        and "- latestOkCount: `1`" in markdown
+        and "- latestFailedCount: `1`" in markdown
+        and "- latestProviders: `guangya, 189cloud`" in markdown
+        and "- latestProfiles: `ok=Guangya` `failed=Tianyi 189Cloud`" in markdown
+        and "- profileSummary: `ok_providers=guangya` `failed_providers=189cloud` `failed_modes=share_probe`" in markdown
+    )
+    exported_has_latest_rows = (
+        "## Latest By Profile" in markdown
+        and "### guangya - Guangya" in markdown
+        and "- mode: `cookie_refresh`" in markdown
+        and "- summary: `cookie refresh succeeded`" in markdown
+        and "### 189cloud - Tianyi 189Cloud" in markdown
+        and "- error: `share_auth_readonly`" in markdown
+    )
+    exported_has_recent_history_rows = (
+        "## Recent History" in markdown
+        and "- probeArgs: `parentId=share-parent` `fileId=share-file`" in markdown
+        and "- endpoint: `https://open.189.example/share`" in markdown
+        and "- finalUrl: `https://open.189.example/share`" in markdown
+        and "- checkCount: `2`" in markdown
+    )
+    export_auth_live_validation_report_flow_matches_expected_markdown = (
+        exported_file_exists
+        and exported_has_title
+        and exported_has_summary
+        and exported_has_latest_rows
+        and exported_has_recent_history_rows
+    )
 
     print(
         json.dumps(
             {
-                "exportedFileExists": True,
-                "exportedHasTitle": "# CloudPan Sync Auth Live Validation Report" in markdown,
-                "exportedHasSummary": "- totalRecords: `2`" in markdown
-                and "- latestProfileCount: `2`" in markdown
-                and "- latestOkCount: `1`" in markdown
-                and "- latestFailedCount: `1`" in markdown
-                and "- latestProviders: `guangya, 189cloud`" in markdown
-                and "- latestProfiles: `ok=Guangya` `failed=Tianyi 189Cloud`" in markdown
-                and "- profileSummary: `ok_providers=guangya` `failed_providers=189cloud` `failed_modes=share_probe`" in markdown,
-                "exportedHasLatestRows": "## Latest By Profile" in markdown
-                and "### guangya - Guangya" in markdown
-                and "- mode: `cookie_refresh`" in markdown
-                and "- summary: `cookie refresh succeeded`" in markdown
-                and "### 189cloud - Tianyi 189Cloud" in markdown
-                and "- error: `share_auth_readonly`" in markdown,
-                "exportedHasRecentHistoryRows": "## Recent History" in markdown
-                and "- probeArgs: `parentId=share-parent` `fileId=share-file`" in markdown
-                and "- endpoint: `https://open.189.example/share`" in markdown
-                and "- finalUrl: `https://open.189.example/share`" in markdown
-                and "- checkCount: `2`" in markdown,
+                "exportedFileExists": exported_file_exists,
+                "exportedHasTitle": exported_has_title,
+                "exportedHasSummary": exported_has_summary,
+                "exportedHasLatestRows": exported_has_latest_rows,
+                "exportedHasRecentHistoryRows": exported_has_recent_history_rows,
+                "exportAuthLiveValidationReportFlowMatchesExpectedMarkdown": export_auth_live_validation_report_flow_matches_expected_markdown,
             },
             ensure_ascii=False,
             indent=2,

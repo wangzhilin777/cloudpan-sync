@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权更新保存总链回归断言`
+- 完成范围：
+  - 已把 [verify_auth_profile_update.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_update.py) 从更新后保存对象和响应视图的分散输出，补成真正会给出整条授权更新保存链结论的 verifier
+  - 同一条回归现在会用 `authProfileUpdateFlowMatchesExpectedPersistence` 直接锁住这条链：Guangya 档案更新 `displayName` 与 `extra.parentId` 时必须保留原 token，不丢失更新后的 `dir-100`，并在 live 校验后稳定落成 `status=verified`；同时 `PUT /api/auth/profiles/{id}` 返回的视图也必须继续给出 `profileReady=true`、`resolvedParentId=dir-100` 和 `validation.ok=true`
+  - 当前效果是：授权更新保存能力不再只是保存对象字段和接口响应字段各自为真，而是多了一条覆盖 token 保留、字段写回、live 校验通过和返回视图对齐的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_profile_update.py` 已验证授权更新保存链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权就绪判定总链回归断言`
 - 完成范围：
   - 已把 [verify_auth_profile_readiness.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_readiness.py) 从 Guangya 缺字段阻断、阿里云真实字段保持就绪、阿里云占位字段阻断这三段分散检查，补成真正会给出整条授权就绪判定链结论的 verifier

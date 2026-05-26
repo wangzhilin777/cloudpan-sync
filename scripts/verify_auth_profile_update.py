@@ -120,6 +120,15 @@ def main() -> None:
                     "resolvedParentId": (response.get("item") or {}).get("resolvedParentId"),
                     "validationOk": (response.get("validation") or {}).get("ok"),
                 },
+                "authProfileUpdateFlowMatchesExpectedPersistence": (
+                    getattr(updated, "displayName", "") == "gy-updated"
+                    and getattr(updated, "token", "") == "tok-original"
+                    and (getattr(updated, "extra", {}) or {}).get("parentId", "") == "dir-100"
+                    and getattr(updated, "status", "") == "verified"
+                    and (response.get("item") or {}).get("profileReady") is True
+                    and (response.get("item") or {}).get("resolvedParentId") == "dir-100"
+                    and (response.get("validation") or {}).get("ok") is True
+                ),
             },
             ensure_ascii=False,
             indent=2,

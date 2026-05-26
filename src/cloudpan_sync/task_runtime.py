@@ -224,12 +224,29 @@ def allowed_task_actions(task: dict[str, object]) -> list[str]:
 
 def build_task_summary(task: dict[str, object]) -> dict[str, object]:
     guard = dict(task.get("guard") or {})
+    plan = dict(task.get("plan") or {})
     blocking_reasons = list(guard.get("blockingReasons") or [])
     warning_reasons = list(guard.get("warningReasons") or [])
     requires_ack = dict(guard.get("requiresAcknowledgement") or {})
     acknowledged = dict(guard.get("acknowledged") or {})
     last_action_error = dict(task.get("lastActionError") or {})
     runtime_summary = _result_runtime_summary(list(task.get("results") or []))
+    conflict_rows = [dict(item or {}) for item in list(plan.get("pendingItems") or []) + list(plan.get("items") or [])]
+    conflict_statuses = sorted(
+        {
+            str(row.get("conflictSupportStatus") or "").strip()
+            for row in conflict_rows
+            if str(row.get("conflictSupportStatus") or "").strip()
+        }
+    )
+    first_conflict_row = next(
+        (
+            row
+            for row in conflict_rows
+            if str(row.get("conflictSupportStatus") or "").strip() or str(row.get("conflictNote") or "").strip()
+        ),
+        {},
+    )
     return {
         "state": str(task.get("state") or ""),
         "allowedActions": allowed_task_actions(task),
@@ -250,6 +267,9 @@ def build_task_summary(task: dict[str, object]) -> dict[str, object]:
         "liveFailedCount": int(runtime_summary.get("liveFailedCount", 0) or 0),
         "completionKind": str(runtime_summary.get("completionKind") or ""),
         "hasRealTransferSuccess": bool(runtime_summary.get("hasRealTransferSuccess")),
+        "conflictSupportSummaryStatuses": conflict_statuses,
+        "firstConflictSupportStatus": str(first_conflict_row.get("conflictSupportStatus") or ""),
+        "firstConflictNote": str(first_conflict_row.get("conflictNote") or ""),
     }
 
 

@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务摘要里的冲突支持摘要`
+- 完成范围：
+  - 已把 [task_runtime.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime.py) 的 `build_task_summary` 再补一层：当前任务 `summary` 本身不再只管 `state / risk / live/probe/candidate` 计数，也会直接返回 `conflictSupportSummaryStatuses / firstConflictSupportStatus / firstConflictNote`
+  - 当前效果是：只读取 summary 的调用方也能直接知道这条任务当前同名冲突策略的整体状态与首条说明，不必再额外依赖 `listView/detailView` 顶层字段或自己回扫 `plan.items/pendingItems`
+  - 这样任务摘要终于和前面已经补齐的任务视图 API、任务列表主摘要、任务 Markdown 导出链保持同口径了，不再出现“页面和视图有冲突摘要，但 summary 还是旧口径”的断层
+  - 已同步补强 [verify_task_summary_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_summary_api.py)，把 `blocked / awaiting_ack / ready` 三种摘要状态下的 `conflictSupportSummaryStatuses / firstConflictSupportStatus / firstConflictNote` 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_summary_api.py` 已验证任务 summary 当前会输出 `conflictSupportSummaryStatuses / firstConflictSupportStatus / firstConflictNote`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务Markdown导出链里的冲突摘要断言`
 - 完成范围：
   - 已把 [verify_export_task_markdown.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_markdown.py) 再补一层：当前导出脚本回归不再只检查 `selectedPolicy / conflictAction / resolvedTargetName / conflictSupportStatus`

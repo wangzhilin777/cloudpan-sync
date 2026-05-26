@@ -127,6 +127,26 @@ def main() -> None:
     print(
         json.dumps(
             {
+                "liveFailureEvidencePersisted": (
+                    len(latest) == 1
+                    and row.get("providerKey") == "guangya"
+                    and row.get("profileId") == "gy-1"
+                    and row.get("mode") == "binary_upload_multipart"
+                    and row.get("executionMode") == "live"
+                    and row.get("success") is False
+                    and row.get("status") == "failed"
+                    and row.get("verifyOk") is False
+                    and row.get("error") == "upload_failed"
+                    and row.get("riskHint") == "provider rejected upload"
+                    and row.get("note") == "upload failed"
+                    and summary.get("failedProviderCount") == 1
+                    and summary.get("failedCount") == 1
+                    and summary.get("profileCount") == 1
+                    and summary.get("runtimeOrphanProviderCount") == 1
+                    and summary.get("runtimeOrphanProfileCount") == 1
+                    and summary.get("failedProfiles") == ["gy-1"]
+                    and summary.get("runtimeOrphanProfiles") == ["gy-1"]
+                ),
                 "runtimeEvidenceCount": len(latest),
                 "firstRuntimeRow": row,
                 "summary": summary,

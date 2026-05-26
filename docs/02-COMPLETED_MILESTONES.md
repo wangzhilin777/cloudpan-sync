@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐运行失败样本回归断言`
+- 完成范围：
+  - 已把 [verify_task_runtime_failure_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_failure_evidence.py) 从单纯打印 live failure runtime evidence，补成真正的断言型 verifier
+  - 当前会直接锁住光鸭运行失败样本里的 `mode=binary_upload_multipart`、`executionMode=live`、`status=failed`、`error=upload_failed`、`riskHint=provider rejected upload`
+  - 同一条回归也会继续锁住 summary 汇总里的 `failedProviderCount / failedCount / profileCount`，以及当前这条失败样本仍被记为 runtime orphan 的计数与 `failedProfiles / runtimeOrphanProfiles`
+  - 当前效果是：真实运行失败样本终于不再只是打印一眼 evidence 文件内容，而是把失败轨道和汇总口径一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_failure_evidence.py` 已验证 live failure evidence 当前会稳定写入 `upload_failed`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐运行阻塞样本回归断言`
 - 完成范围：
   - 已把 [verify_task_runtime_blocked_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_blocked_evidence.py) 从单纯打印 blocked runtime evidence 现场，补成真正的断言型 verifier

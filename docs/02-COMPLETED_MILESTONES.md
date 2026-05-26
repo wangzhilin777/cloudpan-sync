@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐真实证据报告整链回归断言`
+- 完成范围：
+  - 已把 [verify_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_report.py) 从 report payload、Markdown 导出、`/api/real_evidence`、`/api/real_evidence_markdown` 四段分散检查，补成真正会给出整条真实证据报告链结论的 verifier
+  - 同一条回归现在会用 `realEvidenceReportFlowMatchesRuntimeEvidence` 直接锁住真实证据报告链：构建出的 summary 与 API summary 必须一致，`taskRuntime*` 计数、孤儿 profile 摘要、providerSummary、runtime profiles 以及 Markdown/API Markdown 里的关键证据都必须一起对齐
+  - 当前效果是：真实证据报告不再只是很多局部字段各自为真，而是多了一条从 report 构建、Markdown 输出到 API 暴露的端到端回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_report.py` 已验证真实证据报告链当前会稳定贯穿 report/markdown/API/api_markdown 四段
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务API总链路回归断言`
 - 完成范围：
   - 已把 [verify_api_plan_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_api_plan_bundle.py) 从注册表、登录、鉴权、plan、task create/list/detail/logout 各段分别核对，补成真正会给出整条 API bundle 结论的 verifier

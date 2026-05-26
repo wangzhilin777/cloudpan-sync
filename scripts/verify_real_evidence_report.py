@@ -78,11 +78,40 @@ def main() -> None:
         assert login.status_code == 200, login.text
         api_payload = client.get("/api/real_evidence").json()
         api_markdown = client.get("/api/real_evidence_markdown").json()
+        payload_summary = payload.get("summary") or {}
+        api_summary = api_payload.get("summary") or {}
+        api_markdown_text = str(api_markdown.get("markdown") or "")
+        runtime_orphan_matches = (
+            payload_summary.get("taskRuntimeOrphanProviders") == ["guangya"]
+            and payload_summary.get("taskRuntimeOrphanProfiles") == ["gy-orphan"]
+            and api_summary.get("taskRuntimeOrphanProviders") == ["guangya"]
+            and api_summary.get("taskRuntimeOrphanProfiles") == ["gy-orphan"]
+        )
+        real_evidence_report_flow_matches_runtime_evidence = (
+            payload_summary.get("taskRuntimeSampleCount") == 4
+            and payload_summary.get("taskRuntimeSuccessCount") == 1
+            and payload_summary.get("taskRuntimeFailedCount") == 1
+            and payload_summary.get("taskRuntimeCandidateCount") == 1
+            and payload_summary.get("taskRuntimeProbeCount") == 1
+            and payload_summary.get("taskRuntimeBlockedCount") == 1
+            and payload_summary.get("taskRuntimeConflictHandledCount") == 1
+            and runtime_orphan_matches
+            and api_summary == payload_summary
+            and "# CloudPan Sync 真实证据状态报告" in markdown
+            and "# CloudPan Sync 真实证据状态报告" in api_markdown_text
+            and "task_runtime_failed=1" in markdown
+            and "task_runtime_candidate=1" in markdown
+            and "task_runtime_probe=1" in markdown
+            and "taskRuntimeProfiles: success=(none) failed=189 Share candidate=189 Share probe=189 Share" in markdown
+            and "taskRuntimeProfiles: success=(none) failed=189 Share candidate=189 Share probe=189 Share" in api_markdown_text
+            and "providerSummary: `auth=guangya` `list=guangya, 189cloud` `metadata=guangya, 189cloud` `create_dir=guangya` `fully_verified=guangya` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=189cloud` `runtime_probe=189cloud` `runtime_blocked=189cloud` `runtime_orphan=guangya` `needs_secret_refresh=(none)` `live_rejected=(none)` `placeholder_live_rejected=(none)`" in markdown
+            and "providerSummary: `auth=guangya` `list=guangya, 189cloud` `metadata=guangya, 189cloud` `create_dir=guangya` `fully_verified=guangya` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=189cloud` `runtime_probe=189cloud` `runtime_blocked=189cloud` `runtime_orphan=guangya` `needs_secret_refresh=(none)` `live_rejected=(none)` `placeholder_live_rejected=(none)`" in api_markdown_text
+        )
 
         print(
             json.dumps(
                 {
-                "summary": payload.get("summary"),
+                "summary": payload_summary,
                 "guangya": next((item for item in payload.get("items", []) if item.get("providerKey") == "guangya"), {}),
                 "tianyi": next((item for item in payload.get("items", []) if item.get("providerKey") == "189cloud"), {}),
                 "markdownHasTitle": "# CloudPan Sync 真实证据状态报告" in markdown,
@@ -97,11 +126,12 @@ def main() -> None:
                 "markdownHasTianyiRuntimeProfiles": "taskRuntimeProfiles: success=(none) failed=189 Share candidate=189 Share probe=189 Share" in markdown,
                 "markdownHasSavedProfileState": "savedProfiles: count=1 all=189 Share needsSecretRefresh=(none) liveRejected=(none) placeholderLiveRejected=(none)" in markdown and "liveRejectedStatuses" not in markdown,
                 "markdownHasGuangya": "## guangya - 光鸭网盘" in markdown,
-                "apiSummary": api_payload.get("summary"),
-                "apiMarkdownHasTitle": "# CloudPan Sync 真实证据状态报告" in str(api_markdown.get("markdown") or ""),
-                "apiSummaryHasRuntimeOrphan": (api_payload.get("summary") or {}).get("taskRuntimeOrphanProviders") == ["guangya"] and (api_payload.get("summary") or {}).get("taskRuntimeOrphanProfiles") == ["gy-orphan"],
-                "apiMarkdownHasProviderSummary": "providerSummary: `auth=guangya` `list=guangya, 189cloud` `metadata=guangya, 189cloud` `create_dir=guangya` `fully_verified=guangya` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=189cloud` `runtime_probe=189cloud` `runtime_blocked=189cloud` `runtime_orphan=guangya` `needs_secret_refresh=(none)` `live_rejected=(none)` `placeholder_live_rejected=(none)`" in str(api_markdown.get("markdown") or ""),
-                "apiMarkdownHasRuntimeProfiles": "taskRuntimeProfiles: success=(none) failed=189 Share candidate=189 Share probe=189 Share" in str(api_markdown.get("markdown") or ""),
+                "apiSummary": api_summary,
+                "apiMarkdownHasTitle": "# CloudPan Sync 真实证据状态报告" in api_markdown_text,
+                "apiSummaryHasRuntimeOrphan": api_summary.get("taskRuntimeOrphanProviders") == ["guangya"] and api_summary.get("taskRuntimeOrphanProfiles") == ["gy-orphan"],
+                "apiMarkdownHasProviderSummary": "providerSummary: `auth=guangya` `list=guangya, 189cloud` `metadata=guangya, 189cloud` `create_dir=guangya` `fully_verified=guangya` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=189cloud` `runtime_probe=189cloud` `runtime_blocked=189cloud` `runtime_orphan=guangya` `needs_secret_refresh=(none)` `live_rejected=(none)` `placeholder_live_rejected=(none)`" in api_markdown_text,
+                "apiMarkdownHasRuntimeProfiles": "taskRuntimeProfiles: success=(none) failed=189 Share candidate=189 Share probe=189 Share" in api_markdown_text,
+                "realEvidenceReportFlowMatchesRuntimeEvidence": real_evidence_report_flow_matches_runtime_evidence,
             },
                 ensure_ascii=False,
                 indent=2,

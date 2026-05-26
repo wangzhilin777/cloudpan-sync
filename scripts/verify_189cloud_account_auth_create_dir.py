@@ -52,21 +52,36 @@ def main() -> None:
         with patched_attr(tianyi_live, "_request_json", fake_request_json):
             result = tianyi_live.fetch_tianyi_create_folder("189-write-test", parent_id="root-file", dir_name="demo-dir")
 
+    request = {
+        "url": captured.get("url"),
+        "method": captured.get("method"),
+        "hasAccessToken": bool((captured.get("headers") or {}).get("AccessToken")),
+        "hasAccesstoken": bool((captured.get("headers") or {}).get("Accesstoken")),
+        "hasSignature": bool((captured.get("headers") or {}).get("Signature")),
+        "hasDate": bool((captured.get("headers") or {}).get("Date")),
+        "body": captured.get("body"),
+    }
+    tianyi_account_auth_create_dir_flow_matches_expected_request = (
+        result.ok is True
+        and result.mode == "live_account_auth"
+        and ((result.payload or {}).get("item") or {}).get("fileId", "") == "189-dir-1"
+        and request.get("url") == "https://cloud.189.cn/api/open/file/createFolder.action"
+        and request.get("method") == "POST"
+        and request.get("hasAccessToken") is True
+        and request.get("hasAccesstoken") is True
+        and request.get("hasSignature") is True
+        and request.get("hasDate") is True
+        and request.get("body") == "parentFolderId=root-file&folderName=demo-dir"
+    )
+
     print(
         json.dumps(
             {
                 "ok": result.ok,
                 "mode": result.mode,
                 "fileId": ((result.payload or {}).get("item") or {}).get("fileId", ""),
-                "request": {
-                    "url": captured.get("url"),
-                    "method": captured.get("method"),
-                    "hasAccessToken": bool((captured.get("headers") or {}).get("AccessToken")),
-                    "hasAccesstoken": bool((captured.get("headers") or {}).get("Accesstoken")),
-                    "hasSignature": bool((captured.get("headers") or {}).get("Signature")),
-                    "hasDate": bool((captured.get("headers") or {}).get("Date")),
-                    "body": captured.get("body"),
-                },
+                "request": request,
+                "tianyiAccountAuthCreateDirFlowMatchesExpectedRequest": tianyi_account_auth_create_dir_flow_matches_expected_request,
             },
             ensure_ascii=False,
             indent=2,

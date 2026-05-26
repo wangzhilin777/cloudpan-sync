@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐189Cloud账号鉴权建目录总链回归断言`
+- 完成范围：
+  - 已把 [verify_189cloud_account_auth_create_dir.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_account_auth_create_dir.py) 从 `ok/mode/fileId` 和请求头/请求体字段的分散输出，补成真正会给出整条 189Cloud 账号鉴权建目录链结论的 verifier
+  - 同一条回归现在会用 `tianyiAccountAuthCreateDirFlowMatchesExpectedRequest` 直接锁住这条链：`tianyi_live.fetch_tianyi_create_folder()` 必须稳定走 `POST https://cloud.189.cn/api/open/file/createFolder.action`，带齐 `AccessToken/Accesstoken/Signature/Date` 头和 `parentFolderId/folderName` 表单体，并返回 `mode=live_account_auth` 与新目录 `fileId`
+  - 当前效果是：189Cloud 账号鉴权建目录能力不再只是请求细节各自为真，而是多了一条从 live account auth 调用到请求构造与返回结果都一致的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_189cloud_account_auth_create_dir.py` 已验证 189Cloud 账号鉴权建目录链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐计划冲突支持总链回归断言`
 - 完成范围：
   - 已把 [verify_plan_conflict_support.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_plan_conflict_support.py) 从 Guangya/189Cloud 两条 plan 结果的分散字段输出，补成真正会给出整条计划冲突支持链结论的 verifier

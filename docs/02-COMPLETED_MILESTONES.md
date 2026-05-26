@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐补救建档刷新视图总链回归断言`
+- 完成范围：
+  - 已把 [verify_real_evidence_remediation_create_refreshes_views.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_refreshes_views.py) 从 `createRemediationProfile()` 存在、auth 面板刷新、strict 相关视图刷新和状态矩阵刷新等分散检查，补成真正会给出整条补救建档刷新链结论的 verifier
+  - 同一条回归现在会用 `realEvidenceRemediationCreateRefreshesViewsFlowIsWired` 直接锁住这条链：`createRemediationProfile()` 里必须同时刷新 `loadAuthProfiles / loadRealEvidenceRemediationSummary / loadAuthEvidenceBundleSummary / loadAuthRemediationSummary / loadLiveValidations`，以及 `loadRealEvidenceSummary / loadTaskRuntimeEvidence / loadAuditSummary / loadStatusMatrix`
+  - 当前效果是：补救建档后的视图刷新能力不再只是几段刷新调用各自为真，而是多了一条覆盖 auth、strict evidence 和状态矩阵三组面板的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_refreshes_views.py` 已验证补救建档刷新链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐当前实时探测报告同步总链回归断言`
 - 完成范围：
   - 已把 [verify_current_live_probe_report_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_live_probe_report_sync.py) 从 summary 计数、profileProbeProfiles、provider summary 和局部 provider 段落等分散检查，补成真正会给出整条当前实时探测报告同步链结论的 verifier

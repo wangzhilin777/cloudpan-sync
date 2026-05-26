@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`提供方状态矩阵也同步四条运行样本口径`
+- 完成范围：
+  - 已把 [06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 重新导出到当前仓库实况：顶部 summary 现在会同步反映 `taskRuntimeSampleCount=4`、`taskRuntimeSuccessCount=4`、`taskRuntimeConflictHandledCount=4`、`taskRuntimeOrphanProviderCount=3`、`taskRuntimeOrphanProfileCount=4`
+  - Guangya 的 provider 行与 `runtime_profiles` 行现已跟上当前双样本口径，不再停留在旧的单条 `gy-live-1`；当前矩阵会明确写出 `task_runtime_samples=2`、`task_runtime_success=2`、`task_runtime_conflict_handled=2`，以及 `success=gy-live-1, gy-live-defaults-1`
+  - 已把 [verify_current_provider_status_matrix_runtime_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_provider_status_matrix_runtime_sync.py) 一并补强到当前口径，连同 providerSummary 里的 `runtime_orphan / runtime_orphan_profiles` 一起锁进回归，避免后续矩阵再次回退到旧的 3 条样本快照
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_current_provider_status_matrix_runtime_sync.py` 已验证当前 [06-PROVIDER_STATUS_MATRIX.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/06-PROVIDER_STATUS_MATRIX.md) 与 `build_status_matrix()` 在 `4` 条 runtime success / `4` 条 conflictHandled / Guangya 双样本 / orphan 汇总口径上保持同步
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`运行孤儿恢复同步校验也补第二条光鸭样本`
 - 完成范围：
   - 已把 [verify_current_runtime_orphan_recovery_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_runtime_orphan_recovery_sync.py) 的 current-sync 校验继续补强：不再只验证第一条 Guangya orphan 分段，现在也会显式校验 `gy-live-defaults-1` 这条第二个 Guangya orphan section

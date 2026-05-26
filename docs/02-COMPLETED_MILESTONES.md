@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐真实联调补救导出回归断言`
+- 完成范围：
+  - 已把 [verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py) 从 summary 统计、providerSummary、runtime/live/fast-candidate 命令、patch/recreate/exact helper、post-bootstrap runtime helper、overwrite 变体与 conflict support 文案等分散检查，补成真正会给出整条真实联调补救导出链结论的 verifier
+  - 同一条回归现在会用 `exportRealEvidenceRemediationFlowMatchesExpectedMarkdown` 直接锁住这条导出链：synthetic remediation payload 经 `export_real_evidence_remediation.py` 生成的 `docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md` 必须稳定带出各类 helper 命令、exact helper、post-bootstrap/post-refresh runtime 指引、conflict policy 说明与 provider summary
+  - 当前效果是：真实联调补救导出能力不再只是很多 Markdown 片段各自为真，而是多了一条从 remediation payload 到导出文件内容的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证真实联调补救导出链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐实时探测报告导出回归断言`
 - 完成范围：
   - 已把 [verify_export_live_probe_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_live_probe_report.py) 从导出文件存在、标题、summary、Guangya rows、profile probe rows 与“无空 profile probe 行”检查等分散断言，补成真正会给出整条实时探测报告导出链结论的 verifier

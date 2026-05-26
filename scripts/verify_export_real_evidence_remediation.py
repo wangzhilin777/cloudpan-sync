@@ -349,66 +349,130 @@ def main() -> None:
 
         output_path = tmp_root / "docs" / "12-REAL_EVIDENCE_REMEDIATION_GUIDE.md"
         markdown = output_path.read_text(encoding="utf-8")
+    exported_file_exists = True
+    exported_has_title = "# CloudPan Sync 真实联调补救指南" in markdown
+    exported_has_live_upload_summary = "providersWithLiveUploadCommand: `4`" in markdown
+    exported_has_fast_candidate_summary = "providersWithFastCandidateCommand: `1`" in markdown
+    exported_has_runtime_success_summary = "providersWithRuntimeSuccessCommand: `2`" in markdown
+    exported_has_post_bootstrap_runtime_summary = "providersWithPostBootstrapRuntimeCommand: `6`" in markdown
+    exported_has_primary_command_summary = "providersWithPrimaryCommand: `6`" in markdown
+    exported_has_recreate_probe_summary = "providersWithRecreateProbeCommand: `1`" in markdown
+    exported_has_overwrite_variant_summary = "providersWithOverwriteVariantCommand: `6`" in markdown
+    exported_has_conflict_policy_note_summary = "providersWithConflictPolicyNote: `6`" in markdown
+    exported_has_post_refresh_runtime_summary = "providersWithPostRefreshRuntimeCommand: `1`" in markdown
+    exported_has_declared_conflict_policy_summary = "providersWithDeclaredConflictPolicies: `5`" in markdown
+    exported_has_overwrite_downgrade_summary = "providersWithOverwriteDowngrade: `5`" in markdown
+    exported_has_conflict_unsupported_summary = "providersWithConflictUnsupported: `2`" in markdown
+    exported_has_provider_summary = "- providerSummary: `noProfiles=(none)` `needAuth=(none)` `needRuntime=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `needSecretRefresh=(none)` `placeholderLiveRejected=(none)` `recreateProbe=guangya` `primaryCommand=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `overwriteVariant=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `blockedOnly=(none)` `candidateOnly=115_open` `probeOnly=(none)` `runtimeOrphanOnly=(none)`" in markdown
+    exported_has_live_runtime_success_command = "recommendedRuntimeSuccessCommand" in markdown and r"tmp\guangya-live-evidence" in markdown
+    exported_has_fast_runtime_success_command = "recommendedRuntimeSuccessCommand" in markdown and r"tmp\115_open-fast-candidate-evidence" in markdown
+    exported_has_post_refresh_runtime_command = "recommendedPostRefreshRuntimeCommand" in markdown and r"tmp\guangya-live-evidence" in markdown
+    exported_has_exact_post_refresh_runtime_helper = "exactPostRefreshRuntimeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-profile-id gy-1`" in markdown
+    exported_has_primary_command = "recommendedPrimaryCommand" in markdown and "label=recreate_probe" in markdown and "label=bootstrap" in markdown
+    exported_has_exact_create_helper = "exactCreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-provider 189cloud`" in markdown
+    exported_has_multi_patch_command_list = "recommendedPatchCommands: count=`2`" in markdown and "--profile-id gy-1 " in markdown and "--profile-id gy-2 " in markdown
+    exported_has_multi_patch_probe_command_list = "recommendedPatchProbeCommands: count=`2`" in markdown and "--profile-id gy-1 " in markdown and "--profile-id gy-2 " in markdown
+    exported_has_exact_patch_helper = "exactPatchHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id gy-2`" in markdown
+    exported_has_exact_refresh_helper = "exactRefreshEvidenceHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id gy-1`" in markdown
+    exported_has_exact_runtime_probe_helper = "exactRuntimeProbeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py --from-remediation-profile-id gy-1`" in markdown
+    exported_has_exact_runtime_success_helper = "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-profile-id gy-1`" in markdown
+    exported_has_recreate_probe_command = "recommendedRecreateProbeCommand" in markdown and "placeholderSecretFieldHints: `token`" in markdown and "create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token" in markdown
+    exported_has_exact_recreate_helper = "exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-orphan-profile" in markdown
+    exported_has_exact_overwrite_variant_helper = "exactOverwriteVariantHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-profile-id gy-1`" in markdown
+    exported_has_post_bootstrap_runtime_command = "recommendedPostBootstrapRuntimeCommand" in markdown and r"tmp\189cloud-post-bootstrap-runtime-evidence" in markdown
+    exported_has_exact_post_bootstrap_runtime_helper = "exactPostBootstrapRuntimeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_fast_upload_candidate_task.py --from-remediation-provider 189cloud`" in markdown and "exactPostBootstrapRuntimeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-provider quark`" in markdown
+    exported_has_live_post_bootstrap_helpers = r"tmp\quark-post-bootstrap-runtime-evidence" in markdown and r"tmp\baidu_netdisk-post-bootstrap-runtime-evidence" in markdown and r"tmp\xunlei-post-bootstrap-runtime-evidence" in markdown and r"tmp\123_open-post-bootstrap-runtime-evidence" in markdown
+    exported_post_bootstrap_next_step_mentions_runtime_followup = "post-bootstrap runtime helper" in markdown and "runtime success" in markdown
+    exported_has_candidate_only_flag = "runtimeCandidateOnly=True" in markdown
+    exported_shows_conflict_policy_choice = "--conflict-policy auto_rename_new" in markdown
+    exported_has_overwrite_variant_command = "recommendedOverwriteVariantCommand" in markdown and "--conflict-policy overwrite_existing" in markdown
+    exported_has_conflict_policy_note = "conflictPolicyNote:" in markdown and "overwrite_existing" in markdown
+    exported_has_conflict_support_rows = "conflictSupport:" in markdown and "providerConflictNotes:" in markdown and "overwrite=downgrade_to_auto_rename" in markdown and "overwrite=unsupported" in markdown
+    export_real_evidence_remediation_flow_matches_expected_markdown = (
+        exported_file_exists
+        and exported_has_title
+        and exported_has_live_upload_summary
+        and exported_has_fast_candidate_summary
+        and exported_has_runtime_success_summary
+        and exported_has_post_bootstrap_runtime_summary
+        and exported_has_primary_command_summary
+        and exported_has_recreate_probe_summary
+        and exported_has_overwrite_variant_summary
+        and exported_has_conflict_policy_note_summary
+        and exported_has_post_refresh_runtime_summary
+        and exported_has_declared_conflict_policy_summary
+        and exported_has_overwrite_downgrade_summary
+        and exported_has_conflict_unsupported_summary
+        and exported_has_provider_summary
+        and exported_has_live_runtime_success_command
+        and exported_has_fast_runtime_success_command
+        and exported_has_post_refresh_runtime_command
+        and exported_has_exact_post_refresh_runtime_helper
+        and exported_has_primary_command
+        and exported_has_exact_create_helper
+        and exported_has_multi_patch_command_list
+        and exported_has_multi_patch_probe_command_list
+        and exported_has_exact_patch_helper
+        and exported_has_exact_refresh_helper
+        and exported_has_exact_runtime_probe_helper
+        and exported_has_exact_runtime_success_helper
+        and exported_has_recreate_probe_command
+        and exported_has_exact_recreate_helper
+        and exported_has_exact_overwrite_variant_helper
+        and exported_has_post_bootstrap_runtime_command
+        and exported_has_exact_post_bootstrap_runtime_helper
+        and exported_has_live_post_bootstrap_helpers
+        and exported_post_bootstrap_next_step_mentions_runtime_followup
+        and exported_has_candidate_only_flag
+        and exported_shows_conflict_policy_choice
+        and exported_has_overwrite_variant_command
+        and exported_has_conflict_policy_note
+        and exported_has_conflict_support_rows
+    )
 
     print(
         json.dumps(
             {
-                "exportedFileExists": True,
-                "exportedHasTitle": "# CloudPan Sync 真实联调补救指南" in markdown,
-                "exportedHasLiveUploadSummary": "providersWithLiveUploadCommand: `4`" in markdown,
-                "exportedHasFastCandidateSummary": "providersWithFastCandidateCommand: `1`" in markdown,
-                "exportedHasRuntimeSuccessSummary": "providersWithRuntimeSuccessCommand: `2`" in markdown,
-                "exportedHasPostBootstrapRuntimeSummary": "providersWithPostBootstrapRuntimeCommand: `6`" in markdown,
-                "exportedHasPrimaryCommandSummary": "providersWithPrimaryCommand: `6`" in markdown,
-                "exportedHasRecreateProbeSummary": "providersWithRecreateProbeCommand: `1`" in markdown,
-                "exportedHasOverwriteVariantSummary": "providersWithOverwriteVariantCommand: `6`" in markdown,
-                "exportedHasConflictPolicyNoteSummary": "providersWithConflictPolicyNote: `6`" in markdown,
-                "exportedHasPostRefreshRuntimeSummary": "providersWithPostRefreshRuntimeCommand: `1`" in markdown,
-                "exportedHasDeclaredConflictPolicySummary": "providersWithDeclaredConflictPolicies: `5`" in markdown,
-                "exportedHasOverwriteDowngradeSummary": "providersWithOverwriteDowngrade: `5`" in markdown,
-                "exportedHasConflictUnsupportedSummary": "providersWithConflictUnsupported: `2`" in markdown,
-                "exportedHasProviderSummary": "- providerSummary: `noProfiles=(none)` `needAuth=(none)` `needRuntime=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `needSecretRefresh=(none)` `placeholderLiveRejected=(none)` `recreateProbe=guangya` `primaryCommand=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `overwriteVariant=115_open, 123_open, 189cloud, baidu_netdisk, guangya, quark` `blockedOnly=(none)` `candidateOnly=115_open` `probeOnly=(none)` `runtimeOrphanOnly=(none)`" in markdown,
-                "exportedHasLiveRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown
-                and r"tmp\guangya-live-evidence" in markdown,
-                "exportedHasFastRuntimeSuccessCommand": "recommendedRuntimeSuccessCommand" in markdown
-                and r"tmp\115_open-fast-candidate-evidence" in markdown,
-                "exportedHasPostRefreshRuntimeCommand": "recommendedPostRefreshRuntimeCommand" in markdown
-                and r"tmp\guangya-live-evidence" in markdown,
-                "exportedHasExactPostRefreshRuntimeHelper": "exactPostRefreshRuntimeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-profile-id gy-1`" in markdown,
-                "exportedHasPrimaryCommand": "recommendedPrimaryCommand" in markdown
-                and "label=recreate_probe" in markdown
-                and "label=bootstrap" in markdown,
-                "exportedHasExactCreateHelper": "exactCreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-provider 189cloud`" in markdown,
-                "exportedHasMultiPatchCommandList": "recommendedPatchCommands: count=`2`" in markdown
-                and "--profile-id gy-1 " in markdown
-                and "--profile-id gy-2 " in markdown,
-                "exportedHasMultiPatchProbeCommandList": "recommendedPatchProbeCommands: count=`2`" in markdown
-                and "--profile-id gy-1 " in markdown
-                and "--profile-id gy-2 " in markdown,
-                "exportedHasExactPatchHelper": "exactPatchHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id gy-2`" in markdown,
-                "exportedHasExactRefreshHelper": "exactRefreshEvidenceHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id gy-1`" in markdown,
-                "exportedHasExactRuntimeProbeHelper": "exactRuntimeProbeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py --from-remediation-profile-id gy-1`" in markdown,
-                "exportedHasExactRuntimeSuccessHelper": "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-profile-id gy-1`" in markdown,
-                "exportedHasRecreateProbeCommand": "recommendedRecreateProbeCommand" in markdown
-                and "placeholderSecretFieldHints: `token`" in markdown
-                and "create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token" in markdown,
-                "exportedHasExactRecreateHelper": "exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-orphan-profile" in markdown,
-                "exportedHasExactOverwriteVariantHelper": "exactOverwriteVariantHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-profile-id gy-1`" in markdown,
-                "exportedHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown
-                and r"tmp\189cloud-post-bootstrap-runtime-evidence" in markdown,
-                "exportedHasExactPostBootstrapRuntimeHelper": "exactPostBootstrapRuntimeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_fast_upload_candidate_task.py --from-remediation-provider 189cloud`" in markdown
-                and "exactPostBootstrapRuntimeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-remediation-provider quark`" in markdown,
-                "exportedHasLivePostBootstrapHelpers": r"tmp\quark-post-bootstrap-runtime-evidence" in markdown
-                and r"tmp\baidu_netdisk-post-bootstrap-runtime-evidence" in markdown
-                and r"tmp\xunlei-post-bootstrap-runtime-evidence" in markdown
-                and r"tmp\123_open-post-bootstrap-runtime-evidence" in markdown,
-                "exportedPostBootstrapNextStepMentionsRuntimeFollowup": "post-bootstrap runtime helper" in markdown
-                and "runtime success" in markdown,
-                "exportedHasCandidateOnlyFlag": "runtimeCandidateOnly=True" in markdown,
-                "exportedShowsConflictPolicyChoice": "--conflict-policy auto_rename_new" in markdown,
-                "exportedHasOverwriteVariantCommand": "recommendedOverwriteVariantCommand" in markdown and "--conflict-policy overwrite_existing" in markdown,
-                "exportedHasConflictPolicyNote": "conflictPolicyNote:" in markdown and "overwrite_existing" in markdown,
-                "exportedHasConflictSupportRows": "conflictSupport:" in markdown and "providerConflictNotes:" in markdown and "overwrite=downgrade_to_auto_rename" in markdown and "overwrite=unsupported" in markdown,
+                "exportedFileExists": exported_file_exists,
+                "exportedHasTitle": exported_has_title,
+                "exportedHasLiveUploadSummary": exported_has_live_upload_summary,
+                "exportedHasFastCandidateSummary": exported_has_fast_candidate_summary,
+                "exportedHasRuntimeSuccessSummary": exported_has_runtime_success_summary,
+                "exportedHasPostBootstrapRuntimeSummary": exported_has_post_bootstrap_runtime_summary,
+                "exportedHasPrimaryCommandSummary": exported_has_primary_command_summary,
+                "exportedHasRecreateProbeSummary": exported_has_recreate_probe_summary,
+                "exportedHasOverwriteVariantSummary": exported_has_overwrite_variant_summary,
+                "exportedHasConflictPolicyNoteSummary": exported_has_conflict_policy_note_summary,
+                "exportedHasPostRefreshRuntimeSummary": exported_has_post_refresh_runtime_summary,
+                "exportedHasDeclaredConflictPolicySummary": exported_has_declared_conflict_policy_summary,
+                "exportedHasOverwriteDowngradeSummary": exported_has_overwrite_downgrade_summary,
+                "exportedHasConflictUnsupportedSummary": exported_has_conflict_unsupported_summary,
+                "exportedHasProviderSummary": exported_has_provider_summary,
+                "exportedHasLiveRuntimeSuccessCommand": exported_has_live_runtime_success_command,
+                "exportedHasFastRuntimeSuccessCommand": exported_has_fast_runtime_success_command,
+                "exportedHasPostRefreshRuntimeCommand": exported_has_post_refresh_runtime_command,
+                "exportedHasExactPostRefreshRuntimeHelper": exported_has_exact_post_refresh_runtime_helper,
+                "exportedHasPrimaryCommand": exported_has_primary_command,
+                "exportedHasExactCreateHelper": exported_has_exact_create_helper,
+                "exportedHasMultiPatchCommandList": exported_has_multi_patch_command_list,
+                "exportedHasMultiPatchProbeCommandList": exported_has_multi_patch_probe_command_list,
+                "exportedHasExactPatchHelper": exported_has_exact_patch_helper,
+                "exportedHasExactRefreshHelper": exported_has_exact_refresh_helper,
+                "exportedHasExactRuntimeProbeHelper": exported_has_exact_runtime_probe_helper,
+                "exportedHasExactRuntimeSuccessHelper": exported_has_exact_runtime_success_helper,
+                "exportedHasRecreateProbeCommand": exported_has_recreate_probe_command,
+                "exportedHasExactRecreateHelper": exported_has_exact_recreate_helper,
+                "exportedHasExactOverwriteVariantHelper": exported_has_exact_overwrite_variant_helper,
+                "exportedHasPostBootstrapRuntimeCommand": exported_has_post_bootstrap_runtime_command,
+                "exportedHasExactPostBootstrapRuntimeHelper": exported_has_exact_post_bootstrap_runtime_helper,
+                "exportedHasLivePostBootstrapHelpers": exported_has_live_post_bootstrap_helpers,
+                "exportedPostBootstrapNextStepMentionsRuntimeFollowup": exported_post_bootstrap_next_step_mentions_runtime_followup,
+                "exportedHasCandidateOnlyFlag": exported_has_candidate_only_flag,
+                "exportedShowsConflictPolicyChoice": exported_shows_conflict_policy_choice,
+                "exportedHasOverwriteVariantCommand": exported_has_overwrite_variant_command,
+                "exportedHasConflictPolicyNote": exported_has_conflict_policy_note,
+                "exportedHasConflictSupportRows": exported_has_conflict_support_rows,
+                "exportRealEvidenceRemediationFlowMatchesExpectedMarkdown": export_real_evidence_remediation_flow_matches_expected_markdown,
             },
             ensure_ascii=False,
             indent=2,

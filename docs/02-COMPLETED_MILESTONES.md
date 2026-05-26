@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐运行孤儿恢复设置页回归断言`
+- 完成范围：
+  - 已把 [verify_runtime_orphan_recovery_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery_settings_ui.py) 从 runtime orphan recovery 面板、summary loader、单条 orphan recreate/capture 动作、批量 recreate/overwrite 动作、existing profile 行动作、first gap 动作、settings 汇总渲染与 logout 清理等分散片段检查，补成真正会给出整条设置页 wiring 结论的 verifier
+  - 同一条回归现在会用 `runtimeOrphanRecoverySettingsUiFlowIsWired` 直接锁住这条设置页运行孤儿恢复链：面板 DOM、`/api/runtime_orphan_recovery` 加载、单条与批量恢复动作、existing profile 的 focus/refresh/probe/capture 动作、first gap 的 recreate/capture 动作，以及 settings 里的命令摘要与 logout 清理都必须一起存在
+  - 当前效果是：运行孤儿恢复设置页不再只是许多按钮和命令片段还在，而是多了一条从数据加载到恢复动作入口的完整 UI 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证运行孤儿恢复设置页链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐运行孤儿恢复整链回归断言`
 - 完成范围：
   - 已把 [verify_runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery.py) 从 orphan summary、批量重建命令、单 provider 恢复命令、Markdown 导出、`/api/runtime_orphan_recovery`、`/api/runtime_orphan_recovery_markdown` 等分散检查，补成真正会给出整条运行孤儿恢复链结论的 verifier

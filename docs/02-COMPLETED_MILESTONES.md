@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐补救建档后续动作总链回归断言`
+- 完成范围：
+  - 已把 [verify_real_evidence_remediation_create_followup_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_followup_ui.py) 从结果摘要、`latestRemediationAction`、建档后自动跳转、follow-up 文案与 bootstrap 检测等分散检查，补成真正会给出整条补救建档后续动作链结论的 verifier
+  - 同一条回归现在会用 `realEvidenceRemediationCreateFollowupUiFlowIsWired` 直接锁住这条链：`createRemediationProfile()` 必须继续写入 `state.lastRemediationAction`、只在 `data.created === true` 时自动跳转、结果摘要要能识别 bootstrap/post-bootstrap follow-up，并且 `Created Stub / Existing Profile / Latest Created Stub` 三组动作文案都必须一起对齐
+  - 当前效果是：补救建档后的 follow-up 能力不再只是几组摘要与按钮文案各自为真，而是多了一条从结果摘要、最近动作到后续直接操作按钮的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_create_followup_ui.py` 已验证补救建档后续动作链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐补救建档刷新视图总链回归断言`
 - 完成范围：
   - 已把 [verify_real_evidence_remediation_create_refreshes_views.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_create_refreshes_views.py) 从 `createRemediationProfile()` 存在、auth 面板刷新、strict 相关视图刷新和状态矩阵刷新等分散检查，补成真正会给出整条补救建档刷新链结论的 verifier

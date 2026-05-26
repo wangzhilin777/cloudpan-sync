@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐冲突策略非法值校验回归断言`
+- 完成范围：
+  - 已把 [verify_task_conflict_policy_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_policy_validation.py) 从单纯打印两个 `422` 现场，补成真正会汇总判定的断言型 verifier
+  - 同一条回归现在会用 `invalidConflictPolicyRejectedEverywhere` 直接锁住 `/api/plan/mock` 与 `/api/tasks` 两条入口：只要传入非法 `conflictPolicy`，两边都必须拒绝，而且返回体里都还要带回 `conflictPolicy` 校验信息
+  - 当前效果是：同路径同名文件冲突策略这条输入校验不再只是“看一眼现在像是报错了”，而是有了一条更完整的接口级回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_conflict_policy_validation.py` 已验证非法 `conflictPolicy` 当前会在 plan/task 两条入口同时返回 `422`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐服务端任务守卫回归断言`
 - 完成范围：
   - 已把 [verify_task_server_guard.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_server_guard.py) 从单纯打印 `blocked / awaiting_ack / acknowledged` 三段现场，补成真正会给出整体结论的断言型 verifier

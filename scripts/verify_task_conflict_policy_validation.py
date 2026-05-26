@@ -50,13 +50,24 @@ def main() -> None:
     finally:
         webapp.ADMIN_PASSWORD = original_password
 
+    bad_plan_status = bad_plan.status_code
+    bad_plan_has_conflict_policy = "conflictPolicy" in bad_plan.text
+    bad_task_status = bad_task.status_code
+    bad_task_has_conflict_policy = "conflictPolicy" in bad_task.text
+
     print(
         json.dumps(
             {
-                "badPlanStatus": bad_plan.status_code,
-                "badPlanDetailHasConflictPolicy": "conflictPolicy" in bad_plan.text,
-                "badTaskStatus": bad_task.status_code,
-                "badTaskDetailHasConflictPolicy": "conflictPolicy" in bad_task.text,
+                "badPlanStatus": bad_plan_status,
+                "badPlanDetailHasConflictPolicy": bad_plan_has_conflict_policy,
+                "badTaskStatus": bad_task_status,
+                "badTaskDetailHasConflictPolicy": bad_task_has_conflict_policy,
+                "invalidConflictPolicyRejectedEverywhere": (
+                    bad_plan_status == 422
+                    and bad_plan_has_conflict_policy is True
+                    and bad_task_status == 422
+                    and bad_task_has_conflict_policy is True
+                ),
             },
             ensure_ascii=False,
             indent=2,

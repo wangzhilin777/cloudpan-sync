@@ -99,13 +99,41 @@ def main() -> None:
             webapp.refresh_auth_evidence_bundle = original_refresh_bundle
             webapp.ADMIN_PASSWORD = original_password
 
+        bundle = payload.get("bundle") or {}
+        summary = bundle.get("summary") or {}
+        items = bundle.get("items") or []
+        first_item_summary = ((items[0] if len(items) > 0 else {}).get("summary") or {})
+        second_item_summary = ((items[1] if len(items) > 1 else {}).get("summary") or {})
+        markdown = str(payload.get("markdown", ""))
+        auth_evidence_bundle_refresh_flow_matches_expected_profiles = (
+            summary.get("profileCount") == 2
+            and summary.get("profileReadyCount") == 0
+            and summary.get("validationOkCount") == 1
+            and summary.get("probeOkCount") == 1
+            and first_item_summary.get("profileReady") is False
+            and first_item_summary.get("validationOk") is True
+            and first_item_summary.get("probeOk") is True
+            and first_item_summary.get("resolvedParentId") == "dir-100"
+            and first_item_summary.get("resolvedFileId") == "file-9"
+            and second_item_summary.get("profileReady") is False
+            and second_item_summary.get("validationOk") is False
+            and second_item_summary.get("probeOk") is False
+            and second_item_summary.get("resolvedParentId") == ""
+            and second_item_summary.get("resolvedFileId") == ""
+            and "# Auth Evidence Bundle" in markdown
+        )
+
         print(
             json.dumps(
                 {
-                    "profileCount": ((payload.get("bundle") or {}).get("summary") or {}).get("profileCount"),
-                    "validationOkCount": ((payload.get("bundle") or {}).get("summary") or {}).get("validationOkCount"),
-                    "probeOkCount": ((payload.get("bundle") or {}).get("summary") or {}).get("probeOkCount"),
-                    "markdownHasTitle": "# Auth Evidence Bundle" in str(payload.get("markdown", "")),
+                    "profileCount": summary.get("profileCount"),
+                    "profileReadyCount": summary.get("profileReadyCount"),
+                    "validationOkCount": summary.get("validationOkCount"),
+                    "probeOkCount": summary.get("probeOkCount"),
+                    "firstProfileReady": first_item_summary.get("profileReady"),
+                    "secondProfileReady": second_item_summary.get("profileReady"),
+                    "markdownHasTitle": "# Auth Evidence Bundle" in markdown,
+                    "authEvidenceBundleRefreshFlowMatchesExpectedProfiles": auth_evidence_bundle_refresh_flow_matches_expected_profiles,
                 },
                 ensure_ascii=False,
                 indent=2,

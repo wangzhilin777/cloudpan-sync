@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐认证证据包刷新回归断言`
+- 完成范围：
+  - 已把 [verify_refresh_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_refresh_auth_evidence_bundle.py) 从 profileCount、validation/probe 计数和 Markdown 标题等分散检查，补成真正会给出整条认证证据包刷新链结论的 verifier
+  - 同一条回归现在会用 `authEvidenceBundleRefreshFlowMatchesExpectedProfiles` 直接锁住这条刷新链：`POST /api/auth/refresh_evidence_bundle` 返回的 bundle summary、两条 profile 的 readiness/validation/probe 状态，以及 Markdown 标题都必须一起对齐
+  - 当前效果是：认证证据包刷新能力不再只是几个 summary 字段各自为真，而是多了一条从刷新接口返回的 bundle item summary 到 Markdown 暴露都一致的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_refresh_auth_evidence_bundle.py` 已验证认证证据包刷新链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐认证证据包总链回归断言`
 - 完成范围：
   - 已把 [verify_auth_evidence_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_evidence_bundle.py) 从 bundle summary、API summary、API markdown 与本地 markdown 里的缺失 profile 片段等分散检查，补成真正会给出整条认证证据包链结论的 verifier

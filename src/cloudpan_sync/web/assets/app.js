@@ -2821,6 +2821,32 @@ function renderSettingsPanel() {
     li.textContent = row;
     realEvidenceList.appendChild(li);
   }
+  const firstRealEvidenceOrphanItem = (state.runtimeOrphanRecovery?.items || [])[0] || null;
+  if ((realEvidence.taskRuntimeOrphanProfileCount || 0) > 0) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    copy.textContent = `runtime_orphan_recovery: providers=${realEvidence.taskRuntimeOrphanProviderCount || 0}, profiles=${realEvidence.taskRuntimeOrphanProfileCount || 0}, firstProvider=${firstRealEvidenceOrphanItem?.providerKey || "(none)"}, firstProfile=${firstRealEvidenceOrphanItem?.orphanProfileId || "(none)"}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    const openOrphanBtn = document.createElement("button");
+    openOrphanBtn.className = "ghost";
+    openOrphanBtn.textContent = "Open Runtime Orphan Recovery";
+    openOrphanBtn.addEventListener("click", () => {
+      state.activeTab = "nav.settings";
+      render();
+    });
+    actions.appendChild(openOrphanBtn);
+    if (firstRealEvidenceOrphanItem?.providerKey && firstRealEvidenceOrphanItem?.orphanProfileId) {
+      const recreateBtn = document.createElement("button");
+      recreateBtn.className = "ghost";
+      recreateBtn.textContent = "Recreate First Orphan Stub";
+      recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(firstRealEvidenceOrphanItem.providerKey, firstRealEvidenceOrphanItem.orphanProfileId));
+      actions.appendChild(recreateBtn);
+    }
+    li.appendChild(actions);
+    realEvidenceList.appendChild(li);
+  }
   const firstRealEvidenceGap = (state.realEvidenceRemediation?.items || []).find((item) => item?.nextStep) || null;
   if (firstRealEvidenceGap) {
     const firstGapHasProfile = Boolean((firstRealEvidenceGap.profileIds || [])[0] || "");

@@ -10,6 +10,19 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`任务运行报告也显式同步孤儿档案现状`
+- 完成范围：
+  - 已把 [task_runtime_evidence_store.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime_evidence_store.py) 的任务运行真实样本汇总补到当前仓库 auth profile 口径：现在会额外产出 `runtimeOrphanProviderCount / runtimeOrphanProfileCount / runtimeOrphanProviders / runtimeOrphanProfiles`
+  - 已把 [11-TASK_RUNTIME_EVIDENCE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/11-TASK_RUNTIME_EVIDENCE.md) 的导出内容同步补强：汇总区会直接写出 orphan 数量，`profileSummary` 会直接列出 `runtimeOrphan=...`，逐条运行样本也会显式写出 `orphanProfileId`
+  - 当前效果是：`Task Runtime Evidence` 不再只在设置页 UI 上能看见 orphan 风险，导出的长期文档也会诚实反映“哪些 runtime success 其实仍是当前仓库里不可复验的孤儿档案”，让 `P-REAL` 的现状在报告层与 UI 层保持同一口径
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_task_runtime_evidence_report.py` 已验证导出报告会写出 orphan 汇总和逐条 `orphanProfileId`
+  - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_evidence_api.py` 已验证 `/api/task_runtime_evidence` 与 `/api/task_runtime_evidence_markdown` 当前会返回 orphan 汇总和对应 markdown 表达
+  - `.\.venv\Scripts\python.exe scripts\verify_current_task_runtime_evidence_report_sync.py` 已验证当前仓库的 [11-TASK_RUNTIME_EVIDENCE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/11-TASK_RUNTIME_EVIDENCE.md) 已同步到现有 `4` 条 runtime success 实况，并带有 orphan 字段
+  - 顺序复查已确认上述 verifier 每轮退出后项目 `.venv` `python` 进程均为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`任务运行证据摘要也直接写出孤儿档案`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Task Runtime Evidence` 的摘要层与两处关键文案继续补强：顶部汇总现在会直接显示 `runtimeOrphanProviders / runtimeOrphanProfiles / runtimeOrphanProviderList / runtimeOrphanProfileList`

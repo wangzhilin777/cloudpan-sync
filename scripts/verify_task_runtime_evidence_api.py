@@ -12,15 +12,27 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from cloudpan_sync import task_runtime_evidence_store, webapp
+from cloudpan_sync import auth_store, task_runtime_evidence_store, webapp
+from cloudpan_sync.models import AuthProfileInput
 
 
 def main() -> None:
     original_password = webapp.ADMIN_PASSWORD
     original_runtime_file = task_runtime_evidence_store.RUNTIME_EVIDENCE_FILE
+    original_auth_file = auth_store.AUTH_FILE
     try:
         with TemporaryDirectory() as tmp_dir:
             task_runtime_evidence_store.RUNTIME_EVIDENCE_FILE = Path(tmp_dir) / "task_runtime_evidence.json"
+            auth_store.AUTH_FILE = Path(tmp_dir) / "auth_profiles.json"
+            auth_store.save_profile(
+                AuthProfileInput(
+                    providerKey="guangya",
+                    authMode="manual_token",
+                    displayName="Guangya Existing Profile",
+                    token="demo-token",
+                ),
+                profile_id_override="gy-1",
+            )
             task_runtime_evidence_store.save_task_runtime_evidence(
                 {
                     "taskId": "task-1",
@@ -98,6 +110,7 @@ def main() -> None:
                         "firstLatestItem": ((payload.get("latestItems") or [None])[0]),
                         "markdownHasTitle": "# CloudPan Sync 任务运行真实样本报告" in markdown,
                         "markdownHasConflictHandledProviderCount": "conflictHandledProviderCount=1" in markdown,
+                        "markdownHasRuntimeOrphanCounts": "runtimeOrphanProviderCount=2" in markdown and "runtimeOrphanProfileCount=2" in markdown,
                         "markdownHasSuccessFailedProviderCount": "successProviderCount=1" in markdown and "failedProviderCount=1" in markdown and "candidateProviderCount=1" in markdown,
                         "markdownHasBlockedCounts": "blockedProviderCount=1" in markdown and "blockedCount=1" in markdown,
                         "markdownHasProfileSummary": "profileSummary:" in markdown
@@ -106,14 +119,16 @@ def main() -> None:
                         and "`candidate=quark-1`" in markdown
                         and "`probe=(none)`" in markdown
                         and "`blocked=189-1`" in markdown
-                        and "`conflictHandled=gy-1`" in markdown,
+                        and "`conflictHandled=gy-1`" in markdown
+                        and "`runtimeOrphan=189-1, quark-1`" in markdown,
                         "markdownHasExecutionMode": "executionMode=blocked" in markdown and "executionMode=live" in markdown,
                         "markdownHasCandidateOnly": "candidateOnly=True" in markdown and "candidateCount=1" in markdown,
+                        "markdownHasOrphanProfileIds": "orphanProfileId=(none)" in markdown and "orphanProfileId=189-1" in markdown and "orphanProfileId=quark-1" in markdown,
                         "markdownHasRiskHint": "riskHint=fallback upload required" in markdown and "riskHint=download_upload_size_limit_exceeded" in markdown,
                         "markdownHasVerifyNote": "verifyNote=verified by list" in markdown and "verifyNote=blocked before verification" in markdown,
                         "apiSummary": api_payload.get("summary"),
                         "apiMarkdownHasTitle": "# CloudPan Sync 任务运行真实样本报告" in str(api_markdown.get("markdown") or ""),
-                        "apiMarkdownHasProfileSummary": "profileSummary:" in str(api_markdown.get("markdown") or "") and "`failed=189-1`" in str(api_markdown.get("markdown") or ""),
+                        "apiMarkdownHasProfileSummary": "profileSummary:" in str(api_markdown.get("markdown") or "") and "`failed=189-1`" in str(api_markdown.get("markdown") or "") and "`runtimeOrphan=189-1, quark-1`" in str(api_markdown.get("markdown") or ""),
                     },
                     ensure_ascii=False,
                     indent=2,
@@ -122,6 +137,7 @@ def main() -> None:
     finally:
         webapp.ADMIN_PASSWORD = original_password
         task_runtime_evidence_store.RUNTIME_EVIDENCE_FILE = original_runtime_file
+        auth_store.AUTH_FILE = original_auth_file
 
 
 if __name__ == "__main__":

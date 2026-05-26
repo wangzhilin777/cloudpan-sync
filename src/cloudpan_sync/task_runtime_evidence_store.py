@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 
-from .auth_store import DATA_DIR
+from .auth_store import DATA_DIR, list_profiles
 
 
 RUNTIME_EVIDENCE_FILE = DATA_DIR / "task_runtime_evidence.json"
@@ -47,10 +47,24 @@ def latest_task_runtime_evidence() -> list[dict[str, object]]:
 
 def task_runtime_evidence_summary() -> dict[str, object]:
     latest = latest_task_runtime_evidence()
+    profile_map = {profile.profileId: profile for profile in list_profiles()}
     blocked_rows = [row for row in latest if str(row.get("executionMode") or "") == "blocked"]
     candidate_rows = [row for row in latest if bool(row.get("candidateOnly"))]
     probe_rows = [row for row in latest if bool(row.get("probeOnly")) and not bool(row.get("candidateOnly"))]
     effective_rows = [row for row in latest if not bool(row.get("candidateOnly")) and not bool(row.get("probeOnly"))]
+    runtime_orphan_rows = [
+        row
+        for row in latest
+        if str(row.get("providerKey") or "").strip()
+        and str(row.get("profileId") or "").strip()
+        and str(row.get("profileId") or "").strip() not in profile_map
+    ]
+    runtime_orphan_providers = sorted(
+        {str(row.get("providerKey") or "").strip() for row in runtime_orphan_rows if str(row.get("providerKey") or "").strip()}
+    )
+    runtime_orphan_profiles = sorted(
+        {str(row.get("profileId") or "").strip() for row in runtime_orphan_rows if str(row.get("profileId") or "").strip()}
+    )
     success_profiles = sorted(
         {
             str(row.get("profileId") or "")
@@ -134,6 +148,10 @@ def task_runtime_evidence_summary() -> dict[str, object]:
             }
         ),
         "conflictHandledCount": sum(1 for row in latest if str(row.get("conflictAction") or "")),
+        "runtimeOrphanProviderCount": len(runtime_orphan_providers),
+        "runtimeOrphanProfileCount": len(runtime_orphan_profiles),
+        "runtimeOrphanProviders": runtime_orphan_providers,
+        "runtimeOrphanProfiles": runtime_orphan_profiles,
         "successProfiles": success_profiles,
         "failedProfiles": failed_profiles,
         "candidateProfiles": candidate_profiles,
@@ -181,6 +199,8 @@ def task_runtime_evidence_to_markdown(payload: dict[str, object]) -> str:
         f" `verifyOkCount={summary.get('verifyOkCount', 0)}`"
         f" `conflictHandledProviderCount={summary.get('conflictHandledProviderCount', 0)}`"
         f" `conflictHandledCount={summary.get('conflictHandledCount', 0)}`"
+        f" `runtimeOrphanProviderCount={summary.get('runtimeOrphanProviderCount', 0)}`"
+        f" `runtimeOrphanProfileCount={summary.get('runtimeOrphanProfileCount', 0)}`"
     )
     lines.append(
         "- profileSummary:"
@@ -190,15 +210,19 @@ def task_runtime_evidence_to_markdown(payload: dict[str, object]) -> str:
         f" `probe={_profiles_text(summary.get('probeProfiles', []))}`"
         f" `blocked={_profiles_text(summary.get('blockedProfiles', []))}`"
         f" `conflictHandled={_profiles_text(summary.get('conflictHandledProfiles', []))}`"
+        f" `runtimeOrphan={_profiles_text(summary.get('runtimeOrphanProfiles', []))}`"
     )
     lines.append("")
     for row in payload.get("latestItems", []):
         item = dict(row or {})
+        profile_id = str(item.get("profileId") or "")
+        orphan_profile_id = profile_id if profile_id and profile_id in set(summary.get("runtimeOrphanProfiles", []) or []) else ""
         lines.append(
             f"- {item.get('providerKey', '')} profile={item.get('profileId', '')} path={item.get('path', '')} "
             f"mode={item.get('mode', '')} executionMode={item.get('executionMode', '')} "
             f"success={item.get('success', False)} candidateOnly={item.get('candidateOnly', False)} probeOnly={item.get('probeOnly', False)} verifyOk={item.get('verifyOk', False)} "
             f"verifyMode={item.get('verifyMode', '')} conflictAction={item.get('conflictAction', '')} "
+            f"orphanProfileId={orphan_profile_id or '(none)'} "
             f"resolvedTargetName={item.get('resolvedTargetName', '')} riskHint={item.get('riskHint', '')} "
             f"verifyNote={item.get('verifyNote', '')} requiredAuth={','.join(item.get('requiredAuth', []) or [])} "
             f"error={item.get('error', '')}"

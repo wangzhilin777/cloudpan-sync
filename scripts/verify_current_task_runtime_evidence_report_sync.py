@@ -28,16 +28,20 @@ def main() -> None:
                     and f"`successCount={summary.get('successCount', 0)}`" in markdown
                     and f"`verifyOkCount={summary.get('verifyOkCount', 0)}`" in markdown
                     and f"`conflictHandledCount={summary.get('conflictHandledCount', 0)}`" in markdown
+                    and f"`runtimeOrphanProviderCount={summary.get('runtimeOrphanProviderCount', 0)}`" in markdown
+                    and f"`runtimeOrphanProfileCount={summary.get('runtimeOrphanProfileCount', 0)}`" in markdown
                 ),
                 "summaryShowsExpectedRuntimeCounts": (
-                    summary.get("sampleCount") == 3
+                    summary.get("sampleCount") == 4
                     and summary.get("providerCount") == 3
-                    and summary.get("profileCount") == 3
+                    and summary.get("profileCount") == 4
                     and summary.get("successProviderCount") == 3
-                    and summary.get("successCount") == 3
+                    and summary.get("successCount") == 4
                     and summary.get("failedCount") == 0
-                    and summary.get("verifyOkCount") == 3
-                    and summary.get("conflictHandledCount") == 3
+                    and summary.get("verifyOkCount") == 4
+                    and summary.get("conflictHandledCount") == 4
+                    and summary.get("runtimeOrphanProviderCount") == 3
+                    and summary.get("runtimeOrphanProfileCount") == 4
                 ),
                 "profileSummaryShowsCurrentProfiles": (
                     "profileSummary:" in markdown
@@ -47,20 +51,29 @@ def main() -> None:
                     and f"`probe={', '.join(summary.get('probeProfiles', []) or []) or '(none)'}`" in markdown
                     and f"`blocked={', '.join(summary.get('blockedProfiles', []) or []) or '(none)'}`" in markdown
                     and f"`conflictHandled={', '.join(summary.get('conflictHandledProfiles', []) or []) or '(none)'}`" in markdown
+                    and f"`runtimeOrphan={', '.join(summary.get('runtimeOrphanProfiles', []) or []) or '(none)'}`" in markdown
                 ),
                 "hasPikpakSuccessRow": (
                     "- pikpak profile=pikpak-live-1" in markdown
                     and "mode=binary_upload_after_hash_miss" in markdown
                     and "verifyMode=metadata_by_file_id" in markdown
+                    and "orphanProfileId=pikpak-live-1" in markdown
                 ),
                 "hasUcSuccessRow": (
                     "- uc profile=uc-live-1" in markdown
                     and "verifyMode=finish_response" in markdown
+                    and "orphanProfileId=uc-live-1" in markdown
                 ),
                 "hasGuangyaSuccessRow": (
                     "- guangya profile=gy-live-1" in markdown
                     and "mode=binary_upload_multipart" in markdown
                     and "verifyMode=list_by_parent_name" in markdown
+                    and "orphanProfileId=gy-live-1" in markdown
+                ),
+                "hasGuangyaDefaultsSuccessRow": (
+                    "- guangya profile=gy-live-defaults-1" in markdown
+                    and "conflictAction=auto_rename_new" in markdown
+                    and "orphanProfileId=gy-live-defaults-1" in markdown
                 ),
                 "allRowsKeepConflictDowngrade": markdown.count("conflictAction=overwrite_downgraded_to_auto_rename") == 3,
             },

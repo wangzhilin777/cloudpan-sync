@@ -27,15 +27,19 @@ def main() -> None:
                 and 'runtime_success=${auditRuntime.taskRuntimeSuccessCount || 0}' in app_js
                 and 'runtime_orphan_providers=${auditRuntime.taskRuntimeOrphanProviderCount || 0}' in app_js
                 and 'runtime_orphan_profiles=${auditRuntime.taskRuntimeOrphanProfileCount || 0}' in app_js
+                and 'const runtimeOrphanItems = state.runtimeOrphanRecovery?.items || [];' in app_js
+                and 'firstAuditGapOrphanItem = firstAuditGap.key === "M4"' in app_js
                 and 'guangya_runtime_success=${guangyaRuntime.successCount || 0}' in app_js
                 and 'guangya_runtime_orphan_profiles=${guangyaRuntime.orphanProfileCount || 0}' in app_js
                 and 'openSettingsBtn.textContent = "Open First Gap Settings"' in app_js
                 and 'openProvidersBtn.textContent = "Open Provider Matrix"' in app_js
                 and 'openAuthBtn.textContent = "Open Auth Profiles"' in app_js
+                and 'recreateBtn.textContent = firstAuditGap.key === "M4" ? "Recreate Guangya Orphan Stub" : "Recreate First Orphan Stub";' in app_js
+                and 'recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(firstAuditGapOrphanItem.providerKey, firstAuditGapOrphanItem.orphanProfileId));' in app_js
                 and 'state.activeTab = "nav.settings";' in app_js
                 and 'state.activeTab = "nav.providers";' in app_js
                 and 'state.activeTab = "nav.auth";' in app_js,
-                "jsRenderSettingsUsesAuditSummary": 'const audit = state.auditSummary || {};' in app_js and 'done=' in app_js and 'partial=' in app_js and 'todo=' in app_js and 'featureCompletionPercent=' in app_js and 'strictCompletionPercent=' in app_js and 'providerCount=' in app_js and 'researchCount=' in app_js and 'gaps=${firstAuditGap.gaps || "(none)"}' in app_js and 'firstAuditGapRuntimeDetails.length' in app_js and 'firstAuditGap.key === "M4"' in app_js,
+                "jsRenderSettingsUsesAuditSummary": 'const audit = state.auditSummary || {};' in app_js and 'done=' in app_js and 'partial=' in app_js and 'todo=' in app_js and 'featureCompletionPercent=' in app_js and 'strictCompletionPercent=' in app_js and 'providerCount=' in app_js and 'researchCount=' in app_js and 'gaps=${firstAuditGap.gaps || "(none)"}' in app_js and 'firstAuditGapRuntimeDetails.length' in app_js and 'firstAuditGap.key === "M4"' in app_js and 'firstAuditGapOrphanItem?.providerKey' in app_js,
                 "jsLogoutClearsAuditSummary": 'state.auditSummary = null;' in app_js and 'state.auditItems = [];' in app_js,
             },
             ensure_ascii=False,

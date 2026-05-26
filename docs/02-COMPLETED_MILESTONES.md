@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`审计首个缺口入口也补直达孤儿恢复动作`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Plan Audit` 的首个缺口动作继续往前推：当当前缺口落在 `M4 / M5 / P-REAL` 且当前仓库已识别到 orphan 运行样本时，审计入口现在也能直接点 `Recreate Guangya Orphan Stub` 或 `Recreate First Orphan Stub`
+  - 当前逻辑会优先在 `M4` 场景直连 Guangya 的 orphan 恢复项；`M5 / P-REAL` 则会直连当前第一条 orphan 恢复项，减少用户从审计页再跳去 `Runtime Orphan Recovery` 面板手动找同一条记录的来回切换
+  - 当前效果是：`Plan Audit` 这一层不再只有“看到缺口”和“跳去别的页”两种能力，而是正式接入了 orphan 恢复链，进一步把 `P-REAL` 当前最核心的一类补救动作前移到总审计入口
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_audit_settings_ui.py` 已验证审计首个缺口入口当前会识别 `runtimeOrphanRecovery` 项，并绑定 `Recreate Guangya Orphan Stub / Recreate First Orphan Stub -> recreateRuntimeOrphanProfile(...)`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`审计首个缺口入口也直写运行孤儿现状`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Plan Audit` 的“首个缺口”摘要补强：当当前缺口落在 `M4 / M5 / P-REAL` 时，现在会直接带出 `runtime_samples / runtime_success / runtime_orphan_providers / runtime_orphan_profiles`

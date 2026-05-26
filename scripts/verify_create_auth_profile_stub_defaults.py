@@ -104,7 +104,16 @@ def main() -> None:
                 {
                     "providerKey": "aliyundrive_open",
                     "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name aliyun-bootstrap --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe",
-                }
+                },
+                {
+                    "providerKey": "guangya",
+                    "runtimeOrphanProfiles": ["gy-live-1", "gy-live-defaults-1"],
+                    "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
+                    "recommendedRecreateProbeCommands": [
+                        r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
+                        r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-defaults-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-defaults-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
+                    ],
+                },
             ],
         }
         create_auth_profile_stub.build_runtime_orphan_recovery = lambda: {
@@ -112,7 +121,13 @@ def main() -> None:
             "items": [
                 {
                     "providerKey": "guangya",
+                    "orphanProfileId": "gy-live-1",
                     "recommendedCreateCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
+                },
+                {
+                    "providerKey": "guangya",
+                    "orphanProfileId": "gy-live-defaults-1",
+                    "recommendedCreateCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-live-defaults-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-defaults-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                 }
             ],
         }
@@ -131,6 +146,22 @@ def main() -> None:
                     str(SCRIPT_PATH),
                     "--from-runtime-orphan-provider",
                     "guangya",
+                ],
+                save_calls,
+            )
+            runtime_exact_payload = _run_with(
+                [
+                    str(SCRIPT_PATH),
+                    "--from-runtime-orphan-profile",
+                    "gy-live-defaults-1",
+                ],
+                save_calls,
+            )
+            remediation_exact_payload = _run_with(
+                [
+                    str(SCRIPT_PATH),
+                    "--from-remediation-orphan-profile",
+                    "gy-live-defaults-1",
                 ],
                 save_calls,
             )
@@ -163,6 +194,18 @@ def main() -> None:
                 and orphan_payload.get("displayName") == "guangya-restore-gy-live-1"
                 and dict(orphan_payload.get("extra") or {}).get("parentId") == "YOUR_REAL_PARENT_ID"
                 and orphan_payload.get("defaultsSource") == "runtime_orphan:recommendedCreateCommand",
+                "runtimeOrphanProfileDefaultsResolved": runtime_exact_payload.get("profileId") == "gy-live-defaults-1"
+                and runtime_exact_payload.get("providerKey") == "guangya"
+                and runtime_exact_payload.get("authMode") == "manual_token"
+                and runtime_exact_payload.get("displayName") == "guangya-restore-gy-live-defaults-1"
+                and dict(runtime_exact_payload.get("extra") or {}).get("parentId") == "YOUR_REAL_PARENT_ID"
+                and runtime_exact_payload.get("defaultsSource") == "runtime_orphan_profile:recommendedCreateCommand",
+                "remediationOrphanProfileDefaultsResolved": remediation_exact_payload.get("profileId") == "gy-live-defaults-1"
+                and remediation_exact_payload.get("providerKey") == "guangya"
+                and remediation_exact_payload.get("authMode") == "manual_token"
+                and remediation_exact_payload.get("displayName") == "guangya-restore-gy-live-defaults-1"
+                and dict(remediation_exact_payload.get("extra") or {}).get("parentId") == "YOUR_REAL_PARENT_ID"
+                and remediation_exact_payload.get("defaultsSource") == "remediation_orphan:recommendedRecreateProbeCommands",
                 "saveCallsKeepResolvedDefaults": save_calls == [
                     {
                         "providerKey": "aliyundrive_open",
@@ -181,6 +224,24 @@ def main() -> None:
                         "cookie": "",
                         "extra": {"parentId": "YOUR_REAL_PARENT_ID"},
                         "profileIdOverride": "gy-live-1",
+                    },
+                    {
+                        "providerKey": "guangya",
+                        "authMode": "manual_token",
+                        "displayName": "guangya-restore-gy-live-defaults-1",
+                        "token": "YOUR_TOKEN",
+                        "cookie": "",
+                        "extra": {"parentId": "YOUR_REAL_PARENT_ID"},
+                        "profileIdOverride": "gy-live-defaults-1",
+                    },
+                    {
+                        "providerKey": "guangya",
+                        "authMode": "manual_token",
+                        "displayName": "guangya-restore-gy-live-defaults-1",
+                        "token": "YOUR_TOKEN",
+                        "cookie": "",
+                        "extra": {"parentId": "YOUR_REAL_PARENT_ID"},
+                        "profileIdOverride": "gy-live-defaults-1",
                     },
                 ],
             },

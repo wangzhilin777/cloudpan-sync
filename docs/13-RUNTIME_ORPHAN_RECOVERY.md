@@ -5,6 +5,9 @@
 - orphanSummary: `providers=guangya, pikpak, uc` `profiles=gy-live-1, gy-live-defaults-1, pikpak-live-1, uc-live-1` `savedProfileProviders=guangya` `missingProfileProviders=pikpak, uc`
 
 > 说明：这里的 recovery command 只是帮助你把历史 runtime success 对应的 `profileId` 重建回当前仓库，便于后续重新验证；它不会自动把旧样本算成新的真实完成证据。
+>
+> 如果同一 provider 下已经有多条 orphan profile，不想再默认吃第一条，可直接用精确 helper：
+> `.\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-runtime-orphan-profile <orphanProfileId>`
 
 ## guangya - Guangya - gy-live-1
 - orphanProfileId: `gy-live-1`

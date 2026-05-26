@@ -106,6 +106,36 @@ def _extract_stub_defaults(command: str) -> dict[str, object]:
     return defaults
 
 
+def _command_profile_id(command: str) -> str:
+    defaults = _extract_stub_defaults(command)
+    return str(defaults.get("profileId") or "").strip()
+
+
+def _defaults_from_commands(
+    commands: list[str],
+    *,
+    source_prefix: str,
+    source_key: str,
+    profile_id: str = "",
+) -> dict[str, object]:
+    target_profile_id = str(profile_id or "").strip()
+    fallback: dict[str, object] = {}
+    for command in commands:
+        defaults = _extract_stub_defaults(str(command or ""))
+        if not defaults:
+            continue
+        if not fallback:
+            fallback = dict(defaults)
+        if target_profile_id and _command_profile_id(str(command or "")) != target_profile_id:
+            continue
+        defaults["source"] = f"{source_prefix}:{source_key}"
+        return defaults
+    if fallback and not target_profile_id:
+        fallback["source"] = f"{source_prefix}:{source_key}"
+        return fallback
+    return {}
+
+
 def _defaults_from_remediation_provider(provider_key: str) -> dict[str, object]:
     target = str(provider_key or "").strip()
     if not target:
@@ -121,9 +151,42 @@ def _defaults_from_remediation_provider(provider_key: str) -> dict[str, object]:
             "recommendedCreateCommand",
             "recommendedRecreateProbeCommand",
         ):
-            defaults = _extract_stub_defaults(str(row.get(candidate_key) or ""))
+            defaults = _defaults_from_commands(
+                [str(row.get(candidate_key) or "")],
+                source_prefix="remediation",
+                source_key=candidate_key,
+            )
             if defaults:
-                defaults["source"] = f"remediation:{candidate_key}"
+                return defaults
+    return {}
+
+
+def _defaults_from_remediation_orphan_profile(profile_id: str) -> dict[str, object]:
+    target = str(profile_id or "").strip()
+    if not target:
+        return {}
+    payload = build_real_evidence_remediation_bundle()
+    for item in payload.get("items", []):
+        row = dict(item or {})
+        orphan_profiles = [str(value or "").strip() for value in (row.get("runtimeOrphanProfiles") or []) if str(value or "").strip()]
+        if target not in orphan_profiles:
+            continue
+        recreate_defaults = _defaults_from_commands(
+            [str(value or "") for value in (row.get("recommendedRecreateProbeCommands") or [])],
+            source_prefix="remediation_orphan",
+            source_key="recommendedRecreateProbeCommands",
+            profile_id=target,
+        )
+        if recreate_defaults:
+            return recreate_defaults
+        for candidate_key in ("recommendedRecreateProbeCommand", "recommendedPrimaryCommand"):
+            defaults = _defaults_from_commands(
+                [str(row.get(candidate_key) or "")],
+                source_prefix="remediation_orphan",
+                source_key=candidate_key,
+                profile_id=target,
+            )
+            if defaults:
                 return defaults
     return {}
 
@@ -137,9 +200,32 @@ def _defaults_from_runtime_orphan_provider(provider_key: str) -> dict[str, objec
         row = dict(item or {})
         if str(row.get("providerKey") or "").strip() != target:
             continue
-        defaults = _extract_stub_defaults(str(row.get("recommendedCreateCommand") or ""))
+        defaults = _defaults_from_commands(
+            [str(row.get("recommendedCreateCommand") or "")],
+            source_prefix="runtime_orphan",
+            source_key="recommendedCreateCommand",
+        )
         if defaults:
-            defaults["source"] = "runtime_orphan:recommendedCreateCommand"
+            return defaults
+    return {}
+
+
+def _defaults_from_runtime_orphan_profile(profile_id: str) -> dict[str, object]:
+    target = str(profile_id or "").strip()
+    if not target:
+        return {}
+    payload = build_runtime_orphan_recovery()
+    for item in payload.get("items", []):
+        row = dict(item or {})
+        if str(row.get("orphanProfileId") or "").strip() != target:
+            continue
+        defaults = _defaults_from_commands(
+            [str(row.get("recommendedCreateCommand") or "")],
+            source_prefix="runtime_orphan_profile",
+            source_key="recommendedCreateCommand",
+            profile_id=target,
+        )
+        if defaults:
             return defaults
     return {}
 
@@ -157,7 +243,9 @@ def main() -> None:
     parser.add_argument("--cookie", default="", help="Optional cookie value.")
     parser.add_argument("--set", dest="extra", action="append", default=[], help="Extra field in key=value form.")
     parser.add_argument("--from-remediation-provider", default="", help="Autofill defaults from the remediation bundle for this provider.")
+    parser.add_argument("--from-remediation-orphan-profile", default="", help="Autofill exact orphan-profile defaults from the remediation bundle.")
     parser.add_argument("--from-runtime-orphan-provider", default="", help="Autofill defaults from runtime orphan recovery for this provider.")
+    parser.add_argument("--from-runtime-orphan-profile", default="", help="Autofill exact orphan-profile defaults from runtime orphan recovery.")
     parser.add_argument("--validate", action="store_true", help="Run provider-aware live validation after saving.")
     parser.add_argument("--probe", action="store_true", help="Run validation + live probe evidence refresh after saving.")
     parser.add_argument("--page-size", type=int, default=100, help="Optional live probe page size.")
@@ -167,7 +255,13 @@ def main() -> None:
 
     defaults: dict[str, object] = {}
     defaults_source = ""
-    if args.from_runtime_orphan_provider:
+    if args.from_runtime_orphan_profile:
+        defaults = _defaults_from_runtime_orphan_profile(str(args.from_runtime_orphan_profile or "").strip())
+        defaults_source = str(defaults.get("source") or "")
+    elif args.from_remediation_orphan_profile:
+        defaults = _defaults_from_remediation_orphan_profile(str(args.from_remediation_orphan_profile or "").strip())
+        defaults_source = str(defaults.get("source") or "")
+    elif args.from_runtime_orphan_provider:
         defaults = _defaults_from_runtime_orphan_provider(str(args.from_runtime_orphan_provider or "").strip())
         defaults_source = str(defaults.get("source") or "")
     elif args.from_remediation_provider:

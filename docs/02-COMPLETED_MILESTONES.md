@@ -10,6 +10,19 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`恢复脚本也支持按孤儿档案精确带默认值`
+- 完成范围：
+  - 已把 [create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 的默认值带出能力继续补齐：除了原来的 `--from-remediation-provider` 与 `--from-runtime-orphan-provider` 外，现在新增 `--from-remediation-orphan-profile` 与 `--from-runtime-orphan-profile`
+  - 当前效果是：当同一 provider 下同时存在多条 orphan profile 时，不再只能默认吃第一条；像 Guangya 现在既可继续用 provider 级入口拿首条默认值，也可直接指定 `gy-live-defaults-1` 这类第二条 orphan profile，精确带出对应 `profileId / displayName / token|cookie placeholder / extra placeholder`
+  - 已同步把 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 与 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 补上 exact helper 用法说明，并扩展 [verify_create_auth_profile_stub_defaults.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_auth_profile_stub_defaults.py) 锁住“provider 级默认值 + orphan-profile 级精确默认值”两条路径
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_auth_profile_stub_defaults.py` 已验证 `--from-remediation-provider`、`--from-runtime-orphan-provider`、`--from-remediation-orphan-profile`、`--from-runtime-orphan-profile` 四条默认值入口都能解析到预期 profile
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 仍与当前 remediation bundle 同步，且 Guangya 双 orphan 恢复命令未回退
+  - `.\.venv\Scripts\python.exe scripts\verify_current_runtime_orphan_recovery_sync.py` 已验证当前 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 仍与当前 runtime orphan recovery 载荷同步
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `POST_RUN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补救指南也补全部孤儿恢复命令`
 - 完成范围：
   - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的 orphan 补救载荷继续补强：当同一 provider 下存在多条 `runtimeOrphanProfiles` 时，现在除了保留第一条 `recommendedRecreateProbeCommand` 作为主入口，还会额外输出完整的 `recommendedRecreateProbeCommands`

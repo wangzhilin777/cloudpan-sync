@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`任务运行证据摘要也直接写出孤儿档案`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Task Runtime Evidence` 的摘要层与两处关键文案继续补强：顶部汇总现在会直接显示 `runtimeOrphanProviders / runtimeOrphanProfiles / runtimeOrphanProviderList / runtimeOrphanProfileList`
+  - 逐条运行样本和“首个运行缺口”摘要现在都会直接写出 `profileId` 与 `orphanProfileId`，不再只有按钮区能点 `Recreate Orphan Stub`，而是用户一看到运行记录就能立刻判断这条样本是否属于“历史 runtime success 已存在、但当前仓库档案已脱节”的 orphan 场景
+  - 这次补齐把 `runtime_orphan` 的解释继续前移到 `Task Runtime Evidence` 自身的摘要与首个缺口层，让运行证据面板不只负责补救动作，也能直接诚实暴露 `P-REAL` 当前为什么还不能按可复验证据算完成
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_evidence_settings_ui.py` 已验证 `Task Runtime Evidence` 当前会显示 `runtimeOrphanProviders / runtimeOrphanProfiles / runtimeOrphanProviderList / runtimeOrphanProfileList`，并在逐条样本与“首个运行缺口”摘要里写出 `profileId / orphanProfileId`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`提供方状态首个缺口也直写孤儿运行数量`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Provider Status` 的“首个状态缺口”摘要继续补强：当前会直接显示 `runtime_orphan_profiles=...`

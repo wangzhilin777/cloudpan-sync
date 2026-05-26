@@ -3004,10 +3004,21 @@ function renderSettingsPanel() {
   }
 
   const runtimeEvidenceSummary = state.taskRuntimeEvidenceMeta?.summary || {};
+  const findRuntimeEvidenceProfile = (item) =>
+    (state.authProfiles || []).find((profile) => profile.profileId === item.profileId)
+    || (state.authProfiles || []).find((profile) => profile.providerKey === item.providerKey)
+    || null;
+  const runtimeOrphanRows = (state.taskRuntimeEvidence || []).filter((item) => {
+    const profileId = String(item.profileId || "").trim();
+    return profileId && !findRuntimeEvidenceProfile(item);
+  });
+  const runtimeOrphanProviders = [...new Set(runtimeOrphanRows.map((item) => String(item.providerKey || "").trim()).filter(Boolean))];
+  const runtimeOrphanProfiles = [...new Set(runtimeOrphanRows.map((item) => String(item.profileId || "").trim()).filter(Boolean))];
   const runtimeEvidenceRows = [
     `history=${state.taskRuntimeEvidenceMeta?.historyCount || 0}, latestSamples=${runtimeEvidenceSummary.sampleCount || 0}`,
     `providers=${runtimeEvidenceSummary.providerCount || 0}, profiles=${runtimeEvidenceSummary.profileCount || 0}, successProviders=${runtimeEvidenceSummary.successProviderCount || 0}, failedProviders=${runtimeEvidenceSummary.failedProviderCount || 0}, candidateProviders=${runtimeEvidenceSummary.candidateProviderCount || 0}, probeProviders=${runtimeEvidenceSummary.probeProviderCount || 0}, blockedProviders=${runtimeEvidenceSummary.blockedProviderCount || 0}, success=${runtimeEvidenceSummary.successCount || 0}, failed=${runtimeEvidenceSummary.failedCount || 0}, candidate=${runtimeEvidenceSummary.candidateCount || 0}, probe=${runtimeEvidenceSummary.probeCount || 0}, blocked=${runtimeEvidenceSummary.blockedCount || 0}, verifyOk=${runtimeEvidenceSummary.verifyOkCount || 0}`,
     `conflictHandledProviders=${runtimeEvidenceSummary.conflictHandledProviderCount || 0}, conflictHandled=${runtimeEvidenceSummary.conflictHandledCount || 0}`,
+    `runtimeOrphanProviders=${runtimeOrphanProviders.length || 0}, runtimeOrphanProfiles=${runtimeOrphanProfiles.length || 0}, runtimeOrphanProviderList=${runtimeOrphanProviders.join("/") || "(none)"}, runtimeOrphanProfileList=${runtimeOrphanProfiles.join("/") || "(none)"}`,
     `successProfiles=${(runtimeEvidenceSummary.successProfiles || []).join("/") || "(none)"}, failedProfiles=${(runtimeEvidenceSummary.failedProfiles || []).join("/") || "(none)"}, candidateProfiles=${(runtimeEvidenceSummary.candidateProfiles || []).join("/") || "(none)"}, probeProfiles=${(runtimeEvidenceSummary.probeProfiles || []).join("/") || "(none)"}, blockedProfiles=${(runtimeEvidenceSummary.blockedProfiles || []).join("/") || "(none)"}, conflictHandledProfiles=${(runtimeEvidenceSummary.conflictHandledProfiles || []).join("/") || "(none)"}`,
   ];
   for (const row of runtimeEvidenceRows) {
@@ -3018,12 +3029,10 @@ function renderSettingsPanel() {
   for (const item of (state.taskRuntimeEvidence || []).slice(0, 3)) {
     const li = document.createElement("li");
     const copy = document.createElement("span");
-    copy.textContent = `${item.providerKey || "(unknown)"}: path=${item.path || "(unknown)"}, mode=${item.mode || ""}, executionMode=${item.executionMode || ""}, success=${Boolean(item.success)}, candidateOnly=${Boolean(item.candidateOnly)}, probeOnly=${Boolean(item.probeOnly)}, verifyOk=${Boolean(item.verifyOk)}, verifyMode=${item.verifyMode || "(none)"}, conflict=${item.conflictAction || "(none)"}, resolvedTargetName=${item.resolvedTargetName || "(none)"}, riskHint=${item.riskHint || "(none)"}, requiredAuth=${(item.requiredAuth || []).join("/") || "(none)"}, error=${item.error || "(none)"}`;
-    li.appendChild(copy);
-    const matchedProfile = (state.authProfiles || []).find((profile) => profile.profileId === item.profileId)
-      || (state.authProfiles || []).find((profile) => profile.providerKey === item.providerKey)
-      || null;
+    const matchedProfile = findRuntimeEvidenceProfile(item);
     const orphanRuntimeProfileId = !matchedProfile ? String(item.profileId || "").trim() : "";
+    copy.textContent = `${item.providerKey || "(unknown)"}: path=${item.path || "(unknown)"}, profileId=${item.profileId || "(none)"}, orphanProfileId=${orphanRuntimeProfileId || "(none)"}, mode=${item.mode || ""}, executionMode=${item.executionMode || ""}, success=${Boolean(item.success)}, candidateOnly=${Boolean(item.candidateOnly)}, probeOnly=${Boolean(item.probeOnly)}, verifyOk=${Boolean(item.verifyOk)}, verifyMode=${item.verifyMode || "(none)"}, conflict=${item.conflictAction || "(none)"}, resolvedTargetName=${item.resolvedTargetName || "(none)"}, riskHint=${item.riskHint || "(none)"}, requiredAuth=${(item.requiredAuth || []).join("/") || "(none)"}, error=${item.error || "(none)"}`;
+    li.appendChild(copy);
     if (matchedProfile || item.providerKey) {
       const actions = document.createElement("span");
       actions.className = "row-actions";
@@ -3079,10 +3088,8 @@ function renderSettingsPanel() {
         Boolean((item.requiredAuth || []).length)
     ) || null;
   if (firstRuntimeEvidenceGap) {
-    const hasExistingProfile = Boolean(
-      (state.authProfiles || []).find((profile) => profile.profileId === firstRuntimeEvidenceGap.profileId)
-      || (state.authProfiles || []).find((profile) => profile.providerKey === firstRuntimeEvidenceGap.providerKey)
-    );
+    const matchedFirstRuntimeProfile = findRuntimeEvidenceProfile(firstRuntimeEvidenceGap);
+    const hasExistingProfile = Boolean(matchedFirstRuntimeProfile);
     const firstRuntimeOrphanProfileId = !hasExistingProfile ? String(firstRuntimeEvidenceGap.profileId || "").trim() : "";
     const firstRuntimeLabels = {
       focus: hasExistingProfile ? "Focus Existing Profile" : "Focus First Runtime",
@@ -3092,13 +3099,11 @@ function renderSettingsPanel() {
     };
     const li = document.createElement("li");
     const copy = document.createElement("span");
-    copy.textContent = `${firstRuntimeEvidenceGap.providerKey || "(unknown)"}: path=${firstRuntimeEvidenceGap.path || "(unknown)"}, mode=${firstRuntimeEvidenceGap.mode || ""}, success=${Boolean(firstRuntimeEvidenceGap.success)}, candidateOnly=${Boolean(firstRuntimeEvidenceGap.candidateOnly)}, probeOnly=${Boolean(firstRuntimeEvidenceGap.probeOnly)}, verifyOk=${Boolean(firstRuntimeEvidenceGap.verifyOk)}, verifyMode=${firstRuntimeEvidenceGap.verifyMode || "(none)"}, riskHint=${firstRuntimeEvidenceGap.riskHint || "(none)"}, requiredAuth=${(firstRuntimeEvidenceGap.requiredAuth || []).join("/") || "(none)"}, error=${firstRuntimeEvidenceGap.error || "(none)"}`;
+    copy.textContent = `${firstRuntimeEvidenceGap.providerKey || "(unknown)"}: path=${firstRuntimeEvidenceGap.path || "(unknown)"}, profileId=${firstRuntimeEvidenceGap.profileId || "(none)"}, orphanProfileId=${firstRuntimeOrphanProfileId || "(none)"}, mode=${firstRuntimeEvidenceGap.mode || ""}, success=${Boolean(firstRuntimeEvidenceGap.success)}, candidateOnly=${Boolean(firstRuntimeEvidenceGap.candidateOnly)}, probeOnly=${Boolean(firstRuntimeEvidenceGap.probeOnly)}, verifyOk=${Boolean(firstRuntimeEvidenceGap.verifyOk)}, verifyMode=${firstRuntimeEvidenceGap.verifyMode || "(none)"}, riskHint=${firstRuntimeEvidenceGap.riskHint || "(none)"}, requiredAuth=${(firstRuntimeEvidenceGap.requiredAuth || []).join("/") || "(none)"}, error=${firstRuntimeEvidenceGap.error || "(none)"}`;
     li.appendChild(copy);
     const actions = document.createElement("span");
     actions.className = "row-actions";
-    const matchedProfile = (state.authProfiles || []).find((profile) => profile.profileId === firstRuntimeEvidenceGap.profileId)
-      || (state.authProfiles || []).find((profile) => profile.providerKey === firstRuntimeEvidenceGap.providerKey)
-      || null;
+    const matchedProfile = matchedFirstRuntimeProfile;
     const remediationItem =
       (state.realEvidenceRemediation?.items || []).find((item) => item.providerKey === firstRuntimeEvidenceGap.providerKey) || null;
     if (matchedProfile) {

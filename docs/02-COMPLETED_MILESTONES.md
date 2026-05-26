@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐Provider状态矩阵导出回归断言`
+- 完成范围：
+  - 已把 [verify_export_provider_status_matrix.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_provider_status_matrix.py) 从导出文件存在、标题、summary 计数、providerSummary、provider 行、runtime note/runtime profiles 与 conflict note 行等分散检查，补成真正会给出整条 Provider Status Matrix 导出链结论的 verifier
+  - 同一条回归现在会用 `exportProviderStatusMatrixFlowMatchesExpectedMarkdown` 直接锁住这条导出链：synthetic payload 经 `export_provider_status_matrix.py` 生成的 `docs/06-PROVIDER_STATUS_MATRIX.md` 必须稳定带出 runtime 计数、providerSummary、各 provider 行、runtime profiles 行与 conflict note 行
+  - 当前效果是：Provider 状态矩阵导出能力不再只是很多 Markdown 片段各自为真，而是多了一条从 payload 到导出文件内容的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_provider_status_matrix.py` 已验证 Provider 状态矩阵导出链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐运行孤儿恢复导出回归断言`
 - 完成范围：
   - 已把 [verify_export_runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_runtime_orphan_recovery.py) 从导出文件存在、标题、orphan summary、batch commands、provider section 与 create command 等分散检查，补成真正会给出整条运行孤儿恢复导出链结论的 verifier

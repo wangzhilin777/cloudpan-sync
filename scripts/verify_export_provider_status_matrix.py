@@ -163,28 +163,57 @@ def main() -> None:
 
         output_path = tmp_root / "docs" / "06-PROVIDER_STATUS_MATRIX.md"
         markdown = output_path.read_text(encoding="utf-8")
+    exported_file_exists = True
+    exported_has_title = "# CloudPan Sync Provider Status Matrix" in markdown
+    exported_has_summary_counts = (
+        "providerCount=2" in markdown
+        and "taskRuntimeSampleCount=3" in markdown
+        and "taskRuntimeSuccessCount=1" in markdown
+        and "taskRuntimeFailedCount=1" in markdown
+        and "taskRuntimeProbeEvidenceCount=1" in markdown
+        and "taskRuntimeBlockedEvidenceCount=1" in markdown
+        and "taskRuntimeOrphanProviderCount=1" in markdown
+        and "taskRuntimeOrphanProfileCount=1" in markdown
+    )
+    exported_has_provider_summary = "- providerSummary: `auth_ready=guangya` `create_dir_ready=guangya, 189cloud` `fast_check=guangya, 189cloud` `live_probe_ok=guangya` `overwrite_downgrade=guangya` `overwrite_supported=(none)` `auto_rename_supported=guangya` `auto_rename_probe_only=(none)` `conflict_unsupported=189cloud` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=(none)` `runtime_probe=189cloud` `runtime_blocked=189cloud` `runtime_conflict_handled=guangya` `runtime_orphan=guangya` `runtime_orphan_profiles=gy-live-1`" in markdown
+    exported_has_guangya_row = "| guangya | metadata_ready | True | True | True | True | True | True | runtime_active | 1 | 1 | 0 | 0 | 0 | 0 | 1 | False | True | downgrade_to_auto_rename | downgrade_to_auto_rename | supported | overwrite_existing, auto_rename_new | True |" in markdown
+    exported_has_189_row = "| 189cloud | list_ready | False | True | True | True | True | False | runtime_active | 2 | 0 | 1 | 0 | 1 | 1 | 0 | False | False | readonly_auth_blocked | unsupported | unsupported | (none) | True |" in markdown
+    exported_has_runtime_note_row = "|  | runtime_note |" in markdown
+    exported_has_runtime_profiles_row = (
+        "|  | runtime_profiles |" in markdown
+        and "success=Guangya Smoke; failed=(none); candidate=(none); probe=(none)" in markdown
+        and "success=(none); failed=189 Writer; candidate=(none); probe=189 Probe" in markdown
+    )
+    exported_has_conflict_note_rows = (
+        "|  | overwrite_note |" in markdown
+        and "|  | auto_rename_note |" in markdown
+        and "|  | note |" in markdown
+    )
+    export_provider_status_matrix_flow_matches_expected_markdown = (
+        exported_file_exists
+        and exported_has_title
+        and exported_has_summary_counts
+        and exported_has_provider_summary
+        and exported_has_guangya_row
+        and exported_has_189_row
+        and exported_has_runtime_note_row
+        and exported_has_runtime_profiles_row
+        and exported_has_conflict_note_rows
+    )
 
     print(
         json.dumps(
             {
-                "exportedFileExists": True,
-                "exportedHasTitle": "# CloudPan Sync Provider Status Matrix" in markdown,
-                "exportedHasSummaryCounts": "providerCount=2" in markdown
-                and "taskRuntimeSampleCount=3" in markdown
-                and "taskRuntimeSuccessCount=1" in markdown
-                and "taskRuntimeFailedCount=1" in markdown
-                and "taskRuntimeProbeEvidenceCount=1" in markdown
-                and "taskRuntimeBlockedEvidenceCount=1" in markdown
-                and "taskRuntimeOrphanProviderCount=1" in markdown
-                and "taskRuntimeOrphanProfileCount=1" in markdown,
-                "exportedHasProviderSummary": "- providerSummary: `auth_ready=guangya` `create_dir_ready=guangya, 189cloud` `fast_check=guangya, 189cloud` `live_probe_ok=guangya` `overwrite_downgrade=guangya` `overwrite_supported=(none)` `auto_rename_supported=guangya` `auto_rename_probe_only=(none)` `conflict_unsupported=189cloud` `runtime_success=guangya` `runtime_failed=189cloud` `runtime_candidate=(none)` `runtime_probe=189cloud` `runtime_blocked=189cloud` `runtime_conflict_handled=guangya` `runtime_orphan=guangya` `runtime_orphan_profiles=gy-live-1`" in markdown,
-                "exportedHasGuangyaRow": "| guangya | metadata_ready | True | True | True | True | True | True | runtime_active | 1 | 1 | 0 | 0 | 0 | 0 | 1 | False | True | downgrade_to_auto_rename | downgrade_to_auto_rename | supported | overwrite_existing, auto_rename_new | True |" in markdown,
-                "exportedHas189Row": "| 189cloud | list_ready | False | True | True | True | True | False | runtime_active | 2 | 0 | 1 | 0 | 1 | 1 | 0 | False | False | readonly_auth_blocked | unsupported | unsupported | (none) | True |" in markdown,
-                "exportedHasRuntimeNoteRow": "|  | runtime_note |" in markdown,
-                "exportedHasRuntimeProfilesRow": "|  | runtime_profiles |" in markdown
-                and "success=Guangya Smoke; failed=(none); candidate=(none); probe=(none)" in markdown
-                and "success=(none); failed=189 Writer; candidate=(none); probe=189 Probe" in markdown,
-                "exportedHasConflictNoteRows": "|  | overwrite_note |" in markdown and "|  | auto_rename_note |" in markdown and "|  | note |" in markdown,
+                "exportedFileExists": exported_file_exists,
+                "exportedHasTitle": exported_has_title,
+                "exportedHasSummaryCounts": exported_has_summary_counts,
+                "exportedHasProviderSummary": exported_has_provider_summary,
+                "exportedHasGuangyaRow": exported_has_guangya_row,
+                "exportedHas189Row": exported_has_189_row,
+                "exportedHasRuntimeNoteRow": exported_has_runtime_note_row,
+                "exportedHasRuntimeProfilesRow": exported_has_runtime_profiles_row,
+                "exportedHasConflictNoteRows": exported_has_conflict_note_rows,
+                "exportProviderStatusMatrixFlowMatchesExpectedMarkdown": export_provider_status_matrix_flow_matches_expected_markdown,
             },
             ensure_ascii=False,
             indent=2,

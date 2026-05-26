@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权补救包总链回归断言`
+- 完成范围：
+  - 已把 [verify_auth_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_remediation_bundle.py) 从补救包 summary、各 provider 分段 markdown、API summary 和 markdown 导出的分散检查，补成真正会给出整条授权补救包链结论的 verifier
+  - 同一条回归现在会用 `authRemediationBundleFlowMatchesExpectedGuidance` 直接锁住这条链：补救包必须稳定汇总出 `profileCount=3 / needsFixCount=2 / writeNeedsFixCount=1 / needsSecretRefreshCount=2`，同时给 Guangya 提供 `create_auth_profile_stub.py ... --set parentId=... --probe` 的重建探测指引，给阿里云开放平台提供 `domainId/driveId` 的重建探测指引，给 189Cloud 只读分享档案提供 `patch_189cloud_account_auth.py` 的补丁指引，并让 `/api/auth/remediation_bundle` 与 `/api/auth/remediation_bundle_markdown` 继续返回一致的 summary 和 markdown
+  - 当前效果是：授权补救包能力不再只是本地 bundle、markdown 和 API 导出各自为真，而是多了一条覆盖汇总统计、provider 定向修复建议和导出一致性的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_remediation_bundle.py` 已验证授权补救包链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权实时校验总链回归断言`
 - 完成范围：
   - 已把 [verify_auth_live_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_live_validation.py) 从单条 live 校验、批量 live 校验、保存即校验，以及授权校验历史/Provider 探测历史接口摘要的分散输出，补成真正会给出整条授权实时校验链结论的 verifier

@@ -182,6 +182,37 @@ def main() -> None:
                     and "liveRejected: profiles=`aliyun-bootstrap` placeholderProfiles=`aliyun-bootstrap` statuses=`404`" in str(api_markdown.get("markdown", ""))
                     and "profileSummary: `ready=189-readonly-share` `needsFix=aliyun-bootstrap, smoke-guangya` `writeReady=aliyun-bootstrap, smoke-guangya` `writeNeedsFix=189-readonly-share` `needsSecretRefresh=aliyun-bootstrap, smoke-guangya`" in str(api_markdown.get("markdown", "")),
                     "apiMarkdownHas189ReadonlyPatchCommand": "patch_189cloud_account_auth.py" in str(api_markdown.get("markdown", "")),
+                    "authRemediationBundleFlowMatchesExpectedGuidance": (
+                        summary.get("profileCount") == 3
+                        and summary.get("needsFixCount") == 2
+                        and summary.get("writeNeedsFixCount") == 1
+                        and summary.get("needsSecretRefreshCount") == 2
+                        and summary.get("readyProfiles") == ["189-readonly-share"]
+                        and summary.get("needsFixProfiles") == ["aliyun-bootstrap", "smoke-guangya"]
+                        and summary.get("writeReadyProfiles") == ["aliyun-bootstrap", "smoke-guangya"]
+                        and summary.get("writeNeedsFixProfiles") == ["189-readonly-share"]
+                        and summary.get("needsSecretRefreshProfiles") == ["aliyun-bootstrap", "smoke-guangya"]
+                        and "- profileCount: `3`" in markdown
+                        and "- needsFixCount: `2`" in markdown
+                        and "- writeNeedsFixCount: `1`" in markdown
+                        and "create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name smoke-guangya --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe" in smoke_guangya
+                        and "create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name aliyun-bootstrap --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe" in aliyun_bootstrap
+                        and "patch_189cloud_account_auth.py" in share_189
+                        and ((api_bundle.get("summary") or {}).get("profileCount")) == 3
+                        and ((api_bundle.get("summary") or {}).get("readyCount")) == 1
+                        and ((api_bundle.get("summary") or {}).get("needsFixCount")) == 2
+                        and ((api_bundle.get("summary") or {}).get("writeReadyCount")) == 2
+                        and ((api_bundle.get("summary") or {}).get("writeNeedsFixCount")) == 1
+                        and ((api_bundle.get("summary") or {}).get("needsSecretRefreshCount")) == 2
+                        and ((api_bundle.get("summary") or {}).get("readyProfiles")) == ["189-readonly-share"]
+                        and ((api_bundle.get("summary") or {}).get("needsFixProfiles")) == ["aliyun-bootstrap", "smoke-guangya"]
+                        and ((api_bundle.get("summary") or {}).get("writeReadyProfiles")) == ["aliyun-bootstrap", "smoke-guangya"]
+                        and ((api_bundle.get("summary") or {}).get("writeNeedsFixProfiles")) == ["189-readonly-share"]
+                        and ((api_bundle.get("summary") or {}).get("needsSecretRefreshProfiles")) == ["aliyun-bootstrap", "smoke-guangya"]
+                        and "# 授权补救指南 / Auth Remediation Guide" in str(api_markdown.get("markdown", ""))
+                        and "recommendedRecreateProbeCommand" in str(api_markdown.get("markdown", ""))
+                        and "patch_189cloud_account_auth.py" in str(api_markdown.get("markdown", ""))
+                    ),
                 },
                 ensure_ascii=False,
                 indent=2,

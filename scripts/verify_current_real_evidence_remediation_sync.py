@@ -187,10 +187,17 @@ def main() -> None:
                     "runtimeOrphanProfiles: `gy-live-1, gy-live-defaults-1`" in guangya
                     and "recommendedRecreateProbeCommand" in guangya
                     and "recommendedRecreateProbeCommands: count=`2`" in guangya
+                    and "recommendedPatchCommands: count=`2`" in guangya
+                    and "recommendedPatchProbeCommands: count=`2`" in guangya
                     and "recommendedPrimaryCommand" in guangya
                     and "label=recreate_probe" in guangya
+                    and "patch_auth_profile_extra.py --profile-id 0318479d-4669-415f-9083-7aecc102bf90 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate" in guangya
+                    and "patch_auth_profile_extra.py --profile-id 08684618-ea29-48a4-b603-2e40cdc37c3d --set parentId=YOUR_REAL_PARENT_ID --write --revalidate" in guangya
+                    and "patch_and_probe_auth_profile.py --profile-id 0318479d-4669-415f-9083-7aecc102bf90 --set parentId=YOUR_REAL_PARENT_ID --write" in guangya
+                    and "patch_and_probe_auth_profile.py --profile-id 08684618-ea29-48a4-b603-2e40cdc37c3d --set parentId=YOUR_REAL_PARENT_ID --write" in guangya
                     and "create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe" in guangya
                     and "create_auth_profile_stub.py --profile-id gy-live-defaults-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-defaults-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe" in guangya
+                    and "exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-orphan-profile gy-live-defaults-1`" in guangya
                     and "placeholderSecretFieldHints: `token`" in guangya
                     and "recommendedPostRefreshRuntimeCommand" not in guangya
                 ),

@@ -138,6 +138,16 @@ def main() -> None:
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["token"],
             },
+            {
+                "profileId": "gy-rem-2",
+                "providerKey": "guangya",
+                "displayName": "smoke-guangya-defaults",
+                "profileReady": False,
+                "writeReady": True,
+                "resolvedParentId": "gy-parent-2",
+                "needsSecretRefresh": True,
+                "placeholderSecretFieldHints": ["token"],
+            },
         {
             "profileId": "115-rem-1",
             "providerKey": "115_open",
@@ -265,6 +275,12 @@ def main() -> None:
                 "markdownHasBootstrapCommand": "recommendedBootstrapCommand" in markdown and "--probe" in markdown,
                 "guangyaHasPatchCommand": "patch_auth_profile_extra.py" in markdown,
                 "guangyaHasPatchProbeCommand": "patch_and_probe_auth_profile.py" in markdown,
+                "markdownHasMultipleGuangyaPatchCommands": "recommendedPatchCommands: count=`2`" in markdown
+                and "--profile-id gy-rem-1 " in markdown
+                and "--profile-id gy-rem-2 " in markdown,
+                "markdownHasMultipleGuangyaPatchProbeCommands": "recommendedPatchProbeCommands: count=`2`" in markdown
+                and "--profile-id gy-rem-1 " in markdown
+                and "--profile-id gy-rem-2 " in markdown,
                 "markdownHasRefreshEvidenceCommand": "recommendedRefreshEvidenceCommand" not in markdown,
                 "markdownHasPostRefreshRuntimeCommand": "recommendedPostRefreshRuntimeCommand" not in markdown,
                 "markdownHasRuntimeProbeCommand": "recommendedRuntimeProbeCommand" in markdown and "create_runtime_probe_task.py" in markdown,
@@ -405,6 +421,34 @@ def main() -> None:
                             and "create_auth_profile_stub.py" in str((row or {}).get("recommendedPrimaryCommand") or "")
                             and bool((row or {}).get("needsSecretRefresh"))
                             and "token" in ",".join((row or {}).get("placeholderSecretFieldHints") or [])
+                        ),
+                        None,
+                    )
+                ),
+                "apiHasGuangyaPatchCommandList": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "guangya"
+                            and len(((row or {}).get("recommendedPatchCommands") or [])) == 2
+                            and "--profile-id gy-rem-1 " in "\n".join((row or {}).get("recommendedPatchCommands") or [])
+                            and "--profile-id gy-rem-2 " in "\n".join((row or {}).get("recommendedPatchCommands") or [])
+                            and str((row or {}).get("recommendedPatchCommand") or "").find("--profile-id gy-rem-1 ") >= 0
+                        ),
+                        None,
+                    )
+                ),
+                "apiHasGuangyaPatchProbeCommandList": bool(
+                    next(
+                        (
+                            row
+                            for row in (api_bundle.get("items") or [])
+                            if str((row or {}).get("providerKey") or "") == "guangya"
+                            and len(((row or {}).get("recommendedPatchProbeCommands") or [])) == 2
+                            and "--profile-id gy-rem-1 " in "\n".join((row or {}).get("recommendedPatchProbeCommands") or [])
+                            and "--profile-id gy-rem-2 " in "\n".join((row or {}).get("recommendedPatchProbeCommands") or [])
+                            and str((row or {}).get("recommendedPatchProbeCommand") or "").find("--profile-id gy-rem-1 ") >= 0
                         ),
                         None,
                     )

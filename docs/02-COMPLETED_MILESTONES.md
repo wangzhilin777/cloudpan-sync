@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补救指南也支持多档案 patch probe 列表`
+- 完成范围：
+  - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 里 provider 级 patch 补救继续补齐：当同一 provider 下存在多条待修 auth profile 时，现在除了保留第一条 `recommendedPatchCommand / recommendedPatchProbeCommand` 兼容旧入口，还会额外输出完整的 `recommendedPatchCommands / recommendedPatchProbeCommands`
+  - 当前效果是：像当前 Guangya 这种同时挂着两条待修档案的 provider，不再只能看到第一条 patch 命令；[12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 现在会明确列出两条 `patch_auth_profile_extra.py` 与两条 `patch_and_probe_auth_profile.py`，减少“只修了一半档案”的遗漏
+  - 已顺手把 `recommendedRecreateProbeCommands` 的 exact helper 固化进 markdown 生成逻辑：当同一 provider 下存在多条 orphan profile 时，导出文档会继续保留 `exactRecreateHelper`，避免重导出后把之前已经补好的 `--from-remediation-orphan-profile` 精确入口冲掉
+  - 已同步补强 [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py)、[verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)、[verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)，把 synthetic bundle、临时导出 markdown 与当前仓库文档里的多 patch/probe 列表一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 synthetic remediation bundle/API/Markdown 当前会为 Guangya 输出 `recommendedPatchCommands: count=2` 与 `recommendedPatchProbeCommands: count=2`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证临时导出的 remediation markdown 当前同时保留多 patch/probe 列表与 `exactRecreateHelper`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 中已同步写出 Guangya 两条 patch、两条 patch-probe 与 `exactRecreateHelper`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`真实证据首缺口也支持多孤儿入口`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Real Evidence` 顶部“首个缺口”动作继续补齐：当 `firstRealEvidenceGap.runtimeOrphanProfiles` 下存在多条 orphan profile 时，不再只取第一条 `firstGapOrphanProfileId`

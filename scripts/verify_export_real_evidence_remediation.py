@@ -81,6 +81,7 @@ def main() -> None:
                 "runtimeBlockedOnly": False,
                 "runtimeCandidateOnly": False,
                 "runtimeProbeOnly": False,
+                "runtimeOrphanProfiles": ["gy-orphan-1", "gy-orphan-2"],
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["token"],
                 "declaredConflictPolicies": ["overwrite_existing", "auto_rename_new"],
@@ -91,7 +92,21 @@ def main() -> None:
                 "autoRenameSupportStatus": "supported",
                 "providerConflictNotes": "当前 Guangya fallback 上传链路已接受 overwrite_existing / auto_rename_new，但 overwrite_existing 仍会诚实降级为 auto_rename_new。",
                 "gaps": ["基础证据已齐，但尚未记录到真实 runtime 成功样本"],
+                "recommendedPatchCommands": [
+                    r".\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id gy-1 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate",
+                    r".\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id gy-2 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate",
+                ],
+                "recommendedPatchProbeCommands": [
+                    r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-1 --set parentId=YOUR_REAL_PARENT_ID --write",
+                    r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-2 --set parentId=YOUR_REAL_PARENT_ID --write",
+                ],
+                "recommendedPatchCommand": r".\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id gy-1 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate",
+                "recommendedPatchProbeCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-1 --set parentId=YOUR_REAL_PARENT_ID --write",
                 "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name Guangya --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
+                "recommendedRecreateProbeCommands": [
+                    r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-orphan-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-orphan-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
+                    r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-orphan-2 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-orphan-2 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
+                ],
                 "recommendedLiveUploadCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
                 "recommendedRuntimeSuccessCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
                 "recommendedPostRefreshRuntimeCommand": r".\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-live-evidence",
@@ -348,9 +363,16 @@ def main() -> None:
                 "exportedHasPrimaryCommand": "recommendedPrimaryCommand" in markdown
                 and "label=recreate_probe" in markdown
                 and "label=bootstrap" in markdown,
+                "exportedHasMultiPatchCommandList": "recommendedPatchCommands: count=`2`" in markdown
+                and "--profile-id gy-1 " in markdown
+                and "--profile-id gy-2 " in markdown,
+                "exportedHasMultiPatchProbeCommandList": "recommendedPatchProbeCommands: count=`2`" in markdown
+                and "--profile-id gy-1 " in markdown
+                and "--profile-id gy-2 " in markdown,
                 "exportedHasRecreateProbeCommand": "recommendedRecreateProbeCommand" in markdown
                 and "placeholderSecretFieldHints: `token`" in markdown
                 and "create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token" in markdown,
+                "exportedHasExactRecreateHelper": "exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-orphan-profile" in markdown,
                 "exportedHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown
                 and r"tmp\189cloud-post-bootstrap-runtime-evidence" in markdown,
                 "exportedHasLivePostBootstrapHelpers": r"tmp\quark-post-bootstrap-runtime-evidence" in markdown

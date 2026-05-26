@@ -341,6 +341,22 @@ def _orphan_recreate_probe_commands_for_provider(
     return commands
 
 
+def _profile_commands(
+    profiles: list[dict[str, object]],
+    command_builder,
+) -> list[str]:
+    commands: list[str] = []
+    seen: set[str] = set()
+    for profile in profiles:
+        command = command_builder(profile)
+        text = str(command or "").strip()
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        commands.append(text)
+    return commands
+
+
 def _profile_views() -> list[dict[str, object]]:
     return [auth_profile_view(profile) for profile in list_profiles()]
 
@@ -494,6 +510,11 @@ def build_real_evidence_remediation_bundle(
             ),
             None,
         )
+        profiles_needing_patch = [
+            profile
+            for profile in provider_profiles
+            if (not bool(profile.get("profileReady"))) or (not bool(profile.get("writeReady", True)))
+        ]
         runtime_blocked_only = bool(runtime_evidence.get("blockedCount")) and not bool(runtime_evidence.get("ok"))
         runtime_candidate_only = bool(runtime_evidence.get("candidateCount")) and not bool(runtime_evidence.get("ok"))
         runtime_probe_only = bool(runtime_evidence.get("probeCount")) and not bool(runtime_evidence.get("ok"))
@@ -506,6 +527,8 @@ def build_real_evidence_remediation_bundle(
             field_hints=capture_field_hints(provider_key),
         )
         runtime_orphan_recreate_probe_command = runtime_orphan_recreate_probe_commands[0] if runtime_orphan_recreate_probe_commands else ""
+        patch_commands = _profile_commands(profiles_needing_patch, _patch_command_for_profile)
+        patch_probe_commands = _profile_commands(profiles_needing_patch, _patch_probe_command_for_profile)
         runtime_live_upload_command = _live_upload_command_for_profile(provider_profiles[0] if provider_profiles else {})
         runtime_success_command = _runtime_success_command_for_profile(provider_profiles[0] if provider_profiles else {})
         post_bootstrap_runtime_command = _post_bootstrap_runtime_command_for_provider(provider_key)
@@ -556,8 +579,10 @@ def build_real_evidence_remediation_bundle(
                 if profile_needing_patch and bool(profile_needing_patch.get("needsSecretRefresh"))
                 else ""
             ),
-            "recommendedPatchCommand": _patch_command_for_profile(profile_needing_patch or {}),
-            "recommendedPatchProbeCommand": _patch_probe_command_for_profile(profile_needing_patch or {}),
+            "recommendedPatchCommands": patch_commands,
+            "recommendedPatchProbeCommands": patch_probe_commands,
+            "recommendedPatchCommand": patch_commands[0] if patch_commands else "",
+            "recommendedPatchProbeCommand": patch_probe_commands[0] if patch_probe_commands else "",
             "recommendedRefreshEvidenceCommand": _refresh_evidence_command_for_profile(provider_profiles[0] if provider_profiles else {})
             if provider_profiles and profile_ready and write_ready and (not bool(auth_evidence.get("ok")) or not bool(list_evidence.get("ok")) or not bool(metadata_evidence.get("ok")) or not bool(create_dir_evidence.get("ok")))
             else "",
@@ -943,6 +968,16 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedPatchCommand: `{row.get('recommendedPatchCommand', '')}`")
         if row.get("recommendedPatchProbeCommand"):
             lines.append(f"- recommendedPatchProbeCommand: `{row.get('recommendedPatchProbeCommand', '')}`")
+        patch_commands = [str(value or "") for value in (row.get("recommendedPatchCommands") or []) if str(value or "")]
+        if len(patch_commands) > 1:
+            lines.append(f"- recommendedPatchCommands: count=`{len(patch_commands)}`")
+            for index, command in enumerate(patch_commands, start=1):
+                lines.append(f"  - [{index}] `{command}`")
+        patch_probe_commands = [str(value or "") for value in (row.get("recommendedPatchProbeCommands") or []) if str(value or "")]
+        if len(patch_probe_commands) > 1:
+            lines.append(f"- recommendedPatchProbeCommands: count=`{len(patch_probe_commands)}`")
+            for index, command in enumerate(patch_probe_commands, start=1):
+                lines.append(f"  - [{index}] `{command}`")
         if row.get("recommendedRecreateProbeCommand"):
             lines.append(f"- recommendedRecreateProbeCommand: `{row.get('recommendedRecreateProbeCommand', '')}`")
         recreate_commands = [str(value or "") for value in (row.get("recommendedRecreateProbeCommands") or []) if str(value or "")]
@@ -950,6 +985,12 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedRecreateProbeCommands: count=`{len(recreate_commands)}`")
             for index, command in enumerate(recreate_commands, start=1):
                 lines.append(f"  - [{index}] `{command}`")
+            orphan_profiles = [str(value or "") for value in (row.get("runtimeOrphanProfiles") or []) if str(value or "")]
+            exact_orphan_profile = orphan_profiles[-1] if orphan_profiles else ""
+            if exact_orphan_profile:
+                lines.append(
+                    f"- exactRecreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-remediation-orphan-profile {exact_orphan_profile}`"
+                )
         if row.get("recommendedRefreshEvidenceCommand"):
             lines.append(f"- recommendedRefreshEvidenceCommand: `{row.get('recommendedRefreshEvidenceCommand', '')}`")
         if row.get("recommendedPostRefreshRuntimeCommand"):

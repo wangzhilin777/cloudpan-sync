@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务列表运行态UI链路回归断言`
+- 完成范围：
+  - 已把 [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 从很多分散的队列页/待处理页 UI 片段检查，补成真正会给出整条渲染链结论的 verifier
+  - 同一条回归现在会用 `taskListRuntimeUiFlowIsWired` 直接锁住任务列表运行态 UI 链：`latestResults` 优先消费、状态 pills、风险守卫行、目标档案 readiness、运行态 verify/conflict/error/note 简讯，以及待处理页的 `taskState/taskRiskReason/conflictPolicy/conflictSupport/availableFastInputs` 与恢复动作
+  - 当前效果是：队列页和待处理页不再只是“许多零件都还在”，而是多了一条更高层的 runtime UI wiring 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_list_runtime_ui.py` 已验证任务列表运行态 UI 链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务视图状态链路回归断言`
 - 完成范围：
   - 已把 [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 从多段视图字段分别核对，补成真正会给出整条任务视图状态链结论的 verifier

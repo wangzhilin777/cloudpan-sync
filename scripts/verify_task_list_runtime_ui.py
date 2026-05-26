@@ -66,6 +66,42 @@ def main() -> None:
                 and 'refreshBtn.addEventListener("click", () => refreshRealEvidenceRemediationProfile(matchedProfile.profileId));' in app_js
                 and 'probeBtn.addEventListener("click", () => probeRealEvidenceRemediationProfile(matchedProfile.profileId));' in app_js
                 and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(row.targetProvider || matchedProfile?.providerKey || ""));' in app_js,
+                "taskListRuntimeUiFlowIsWired": (
+                    "function renderTaskList()" in app_js
+                    and ".slice(0, 3)" in app_js
+                    and "const resultRows = task.latestResults || task.results || [];" in app_js
+                    and 'const targetProfileText = targetProfile.displayName || task.targetProfileId || "(none)";' in app_js
+                    and 'const conflictSupportSummaryText = (summary.conflictSupportSummaryStatuses || []).join("/") || "(none)";' in app_js
+                    and 'appendTaskStatusPill(meta, `live=${summary.liveSuccessCount || task.progress.liveSuccess || 0}`);' in app_js
+                    and 'appendTaskStatusPill(meta, `liveFailed=${summary.liveFailedCount || task.progress.liveFailed || 0}`);' in app_js
+                    and 'appendTaskStatusPill(meta, `probe=${summary.probeOnlyCount || task.progress.probeOnly || 0}`);' in app_js
+                    and 'appendTaskStatusPill(meta, `candidate=${summary.candidateOnlyCount || task.progress.candidateOnly || 0}`);' in app_js
+                    and 'appendTaskStatusPill(meta, `completion=${summary.completionKind}`);' in app_js
+                    and 'appendTaskGuardPill(guardRow, `risk=${summary.riskReason}`, "warning");' in app_js
+                    and 'appendTaskGuardPill(guardRow, "awaitingAcknowledgement=true", "ack");' in app_js
+                    and 'appendTaskGuardPill(guardRow, "riskPaused=true", "warning");' in app_js
+                    and 'appendTaskGuardPill(guardRow, "targetProfileReady=false", "warning");' in app_js
+                    and 'appendTaskGuardPill(guardRow, "targetWriteReady=false", "blocking");' in app_js
+                    and 'verify=${row.liveAttempt.verifyOk ? "ok" : "pending"}:${row.liveAttempt.verifyMode}' in app_js
+                    and 'verifyNote=${row.liveAttempt.verifyNote}' in app_js
+                    and 'conflict=${row.liveAttempt.conflictAction}:${row.liveAttempt.resolvedTargetName || "(same)"}' in app_js
+                    and 'requiredAuth=${row.liveAttempt.requiredAuth.join("/")}' in app_js
+                    and 'error=${row.liveAttempt.error}' in app_js
+                    and 'note=${row.note}' in app_js
+                    and 'state.tasks = data.listItems || data.items || [];' in app_js
+                    and 'const taskSummary = task?.summary || {};' in app_js
+                    and 'taskState: taskSummary.state || task.state || ""' in app_js
+                    and 'taskRiskReason: taskSummary.riskReason || ""' in app_js
+                    and 'conflictPolicy: item.conflictPolicy || "auto_rename_new"' in app_js
+                    and 'conflictSupportStatus: item.conflictSupportStatus || ""' in app_js
+                    and 'conflictNote: item.conflictNote || ""' in app_js
+                    and 'availableFastInputs: item.availableFastInputs || []' in app_js
+                    and 'available=${row.availableFastInputs.join(",") || "(none)"}' in app_js
+                    and 'focusBtn.textContent = taskRecoveryLabels.focus;' in app_js
+                    and 'captureBtn.textContent = matchedTargetProfile ? taskRecoveryLabels.capture : "Open Capture";' in app_js
+                    and 'focusBtn.textContent = pendingRecoveryLabels.focus;' in app_js
+                    and 'captureBtn.textContent = matchedProfile ? pendingRecoveryLabels.capture : "Open Capture";' in app_js
+                ),
             },
             ensure_ascii=False,
             indent=2,

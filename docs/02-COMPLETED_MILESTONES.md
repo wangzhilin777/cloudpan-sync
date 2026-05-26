@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐计划审计导出回归断言`
+- 完成范围：
+  - 已把 [verify_export_plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_plan_audit.py) 从导出文件存在、标题、summary、进度百分比、公式说明、provider 覆盖、里程碑汇总、M5/P-REAL 条目与 runtime_orphan 说明等分散检查，补成真正会给出整条计划审计导出链结论的 verifier
+  - 同一条回归现在会用 `exportPlanAuditFlowMatchesExpectedMarkdown` 直接锁住这条导出链：synthetic audit payload 经 `export_plan_audit.py` 生成的 `docs/04-PLAN_AUDIT_REPORT.md` 必须稳定带出整体完成度、进度百分比、里程碑状态汇总，以及关键 partial/todo 条目的证据与缺口说明
+  - 当前效果是：计划审计导出能力不再只是很多 Markdown 片段各自为真，而是多了一条从 audit payload 到导出文件内容的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_plan_audit.py` 已验证计划审计导出链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐单档案证据导出回归断言`
 - 完成范围：
   - 已把 [verify_export_auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_auth_profile_evidence.py) 从 main 返回值、data dir 配置、标题、profile summary、readonly 细节、validation/probe 段落与缺失 profile 错误等分散检查，补成真正会给出整条单档案证据导出链结论的 verifier

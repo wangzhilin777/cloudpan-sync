@@ -75,20 +75,43 @@ def main() -> None:
 
         output_path = tmp_root / "docs" / "04-PLAN_AUDIT_REPORT.md"
         markdown = output_path.read_text(encoding="utf-8")
+    exported_file_exists = True
+    exported_has_title = "# CloudPan Sync 计划完成度审计报告" in markdown
+    exported_has_summary = "done=5" in markdown and "partial=2" in markdown and "todo=1" in markdown
+    exported_has_progress_percents = "featureCompletionPercent=85.7" in markdown and "strictCompletionPercent=75.0" in markdown
+    exported_has_formula_notes = "M1-M7" in markdown and "P-REAL" in markdown
+    exported_has_provider_coverage = "providerCount=10" in markdown and "researchCount=10" in markdown
+    exported_has_milestone_summary = "milestoneSummary: `done=M1, M2, M3, M6, M7` `partial=M4, M5` `todo=P-REAL`" in markdown
+    exported_has_m5_row = "### M5 - 首批常用网盘接入" in markdown and "状态：`partial`" in markdown
+    exported_has_preal_row = "### P-REAL - 真实联调验证" in markdown and "状态：`todo`" in markdown
+    exported_has_runtime_orphan_explanation = "runtime_orphan" in markdown and "auth profile 脱节" in markdown
+    export_plan_audit_flow_matches_expected_markdown = (
+        exported_file_exists
+        and exported_has_title
+        and exported_has_summary
+        and exported_has_progress_percents
+        and exported_has_formula_notes
+        and exported_has_provider_coverage
+        and exported_has_milestone_summary
+        and exported_has_m5_row
+        and exported_has_preal_row
+        and exported_has_runtime_orphan_explanation
+    )
 
     print(
         json.dumps(
             {
-                "exportedFileExists": True,
-                "exportedHasTitle": "# CloudPan Sync 计划完成度审计报告" in markdown,
-                "exportedHasSummary": "done=5" in markdown and "partial=2" in markdown and "todo=1" in markdown,
-                "exportedHasProgressPercents": "featureCompletionPercent=85.7" in markdown and "strictCompletionPercent=75.0" in markdown,
-                "exportedHasFormulaNotes": "M1-M7" in markdown and "P-REAL" in markdown,
-                "exportedHasProviderCoverage": "providerCount=10" in markdown and "researchCount=10" in markdown,
-                "exportedHasMilestoneSummary": "milestoneSummary: `done=M1, M2, M3, M6, M7` `partial=M4, M5` `todo=P-REAL`" in markdown,
-                "exportedHasM5Row": "### M5 - 首批常用网盘接入" in markdown and "状态：`partial`" in markdown,
-                "exportedHasPRealRow": "### P-REAL - 真实联调验证" in markdown and "状态：`todo`" in markdown,
-                "exportedHasRuntimeOrphanExplanation": "runtime_orphan" in markdown and "auth profile 脱节" in markdown,
+                "exportedFileExists": exported_file_exists,
+                "exportedHasTitle": exported_has_title,
+                "exportedHasSummary": exported_has_summary,
+                "exportedHasProgressPercents": exported_has_progress_percents,
+                "exportedHasFormulaNotes": exported_has_formula_notes,
+                "exportedHasProviderCoverage": exported_has_provider_coverage,
+                "exportedHasMilestoneSummary": exported_has_milestone_summary,
+                "exportedHasM5Row": exported_has_m5_row,
+                "exportedHasPRealRow": exported_has_preal_row,
+                "exportedHasRuntimeOrphanExplanation": exported_has_runtime_orphan_explanation,
+                "exportPlanAuditFlowMatchesExpectedMarkdown": export_plan_audit_flow_matches_expected_markdown,
             },
             ensure_ascii=False,
             indent=2,

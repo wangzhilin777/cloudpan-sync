@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`运行脚本补救输出也补齐 patch helper`
+- 完成范围：
+  - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 的 `remediationFollowup` 再补一层：除了上一轮已经接住的 runtime / create / overwrite exact helper，现在也会同步返回 `recommendedPatchCommand / recommendedPatchProbeCommand / exactPatchHelper`
+  - 当前效果是：当 CLI 路径命中的是“当前仓库已有 remediation profile，但还要先 patch/patch-probe 才能继续往下跑”的场景，不必再回设置页或文档里找多 profile 修补命令；脚本输出本身就会直接把 patch 路径接住
+  - 这样 probe / live upload / fast candidate 三支 helper 的 follow-up 口径已经更接近当前 remediation bundle 全量字段，能把“create/recreate -> patch -> refresh -> runtime” 这条补救链直接串在同一次 CLI 结果里
+  - 已同步补强 [verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py)、[verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py)、[verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py)，把 `patch/exactPatch` follow-up 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_runtime_probe_task.py` 已验证 runtime probe 脚本输出的 `remediationFollowup` 当前会返回 `recommendedPatchCommand / recommendedPatchProbeCommand / exactPatchHelper`
+  - `.\.venv\Scripts\python.exe scripts\verify_create_live_upload_task.py` 已验证 live upload 脚本输出的 `remediationFollowup` 当前会返回 `recommendedPatchCommand / recommendedPatchProbeCommand / exactPatchHelper`
+  - `.\.venv\Scripts\python.exe scripts\verify_create_fast_upload_candidate_task.py` 已验证 fast candidate 脚本输出的 `remediationFollowup` 当前会返回 `recommendedPatchCommand / recommendedPatchProbeCommand / exactPatchHelper`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`运行脚本补救输出也补齐精确 helper`
 - 完成范围：
   - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 三个 CLI helper 的 `remediationFollowup` 输出补齐到和当前 remediation bundle 同口径

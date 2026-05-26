@@ -126,7 +126,10 @@ def main() -> None:
                 "placeholderSecretFieldHints": ["cookie"],
                 "recommendedPrimaryCommandLabel": "recreate_probe",
                 "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode manual_cookie --display-name 115-fast --cookie YOUR_COOKIE --set parentId=YOUR_PARENT_ID --probe",
+                "recommendedPatchCommand": r".\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id 115-fast-1 --set cid=115-root --write --revalidate",
+                "recommendedPatchProbeCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id 115-fast-1 --set cid=115-root --write",
                 "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key 115_open --auth-mode manual_cookie --display-name 115-fast --cookie YOUR_COOKIE --set parentId=YOUR_PARENT_ID --probe",
+                "exactPatchHelper": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --from-remediation-profile-id 115-fast-1",
                 "exactCreateHelper": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-provider 115_open",
                 "exactRecreateHelper": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --from-remediation-orphan-profile 115-orphan-fast-1",
                 "recommendedFastCandidateCommand": r".\.venv\Scripts\python.exe scripts\create_fast_upload_candidate_task.py --target-provider 115_open --target-profile-id 115-fast-1 --target-parent-id 115-root --sha1 auto --auto-temp-file --conflict-policy auto_rename_new --evidence-dir tmp\115_open-fast-candidate-evidence",
@@ -277,6 +280,9 @@ def main() -> None:
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")
                 and "create_auth_profile_stub.py --from-remediation-provider 115_open" in dict(output.get("remediationFollowup") or {}).get("exactCreateHelper", "")
                 and "create_auth_profile_stub.py --from-remediation-orphan-profile 115-orphan-fast-1" in dict(output.get("remediationFollowup") or {}).get("exactRecreateHelper", ""),
+                "scriptRemediationPatchIncluded": "patch_auth_profile_extra.py --profile-id 115-fast-1" in dict(output.get("remediationFollowup") or {}).get("recommendedPatchCommand", "")
+                and "patch_and_probe_auth_profile.py --profile-id 115-fast-1" in dict(output.get("remediationFollowup") or {}).get("recommendedPatchProbeCommand", "")
+                and "patch_and_probe_auth_profile.py --from-remediation-profile-id 115-fast-1" in dict(output.get("remediationFollowup") or {}).get("exactPatchHelper", ""),
                 "scriptRemediationFollowupIncluded": dict(output.get("remediationFollowup") or {}).get("recommendedRuntimeSuccessCommand", "").endswith("tmp\\115_open-fast-candidate-evidence-2")
                 and "create_fast_upload_candidate_task.py --from-remediation-profile-id 115-fast-2" in dict(output.get("remediationFollowup") or {}).get("exactRuntimeSuccessHelper", "")
                 and dict(output.get("remediationFollowup") or {}).get("recommendedOverwriteVariantCommand", "").endswith("tmp\\115_open-fast-candidate-evidence")

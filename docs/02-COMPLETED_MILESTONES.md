@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐光鸭运行校验字段回归断言`
+- 完成范围：
+  - 已把 [verify_task_runtime_guangya_verify_fields.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_guangya_verify_fields.py) 从单纯打印 `verifyMode / verifyNote` 现场，补成真实可运行的断言型 verifier
+  - 当前脚本会自带 `gy-1` mock profile，并显式确认 `download_upload` 风险，避免再停在 `awaiting_ack` 阶段拿不到运行结果
+  - 同一条回归现在会直接锁住光鸭运行结果里的 `executionMode=live`、`liveAttempt.mode=binary_upload_multipart`、`verifyOk=true`、`verifyMode=list_by_parent_name` 与 `verifyNote=verified by list`
+  - 当前效果是：光鸭运行态“上传完成后确实带回校验字段”这条证据终于被真正卡进回归，不再只是打印一眼当前值
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_guangya_verify_fields.py` 已验证光鸭运行结果当前会稳定保留 `verifyOk / verifyMode / verifyNote`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务运行冲突降级回归断言`
 - 完成范围：
   - 已把 [verify_task_conflict_support.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_support.py) 从只打印冲突字段现场，补成真正锁住运行态冲突降级链的 verifier

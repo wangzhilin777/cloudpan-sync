@@ -10,14 +10,16 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from cloudpan_sync import task_runtime
+from cloudpan_sync import task_guard, task_runtime
 from cloudpan_sync.guangya_upload_live import GuangyaUploadResult
-from cloudpan_sync.models import SourceEntry, TaskCreateRequest
+from cloudpan_sync.models import AuthProfile, SourceEntry, TaskCreateRequest
 
 
 def main() -> None:
     original_fast_check = task_runtime.fetch_guangya_live_fast_check
     original_upload = task_runtime.upload_guangya_local_file
+    original_task_guard_get_profile = task_guard.get_profile
+    original_task_runtime_get_profile = task_runtime.get_profile
     original_tasks = dict(task_runtime._TASKS)
     task_runtime._TASKS.clear()
 
@@ -66,6 +68,27 @@ def main() -> None:
 
         task_runtime.fetch_guangya_live_fast_check = fake_fast_check
         task_runtime.upload_guangya_local_file = fake_upload
+        mock_profile = AuthProfile(
+            profileId="gy-1",
+            providerKey="guangya",
+            authMode="manual_token",
+            displayName="mock-guangya",
+            token="tok",
+            cookie="",
+            extra={"parentId": "dir-100"},
+            status="verified",
+            lastError="",
+            createdAt="2026-05-27T00:00:00+00:00",
+            updatedAt="2026-05-27T00:00:00+00:00",
+        )
+
+        def fake_get_profile(profile_id: str):
+            if profile_id == "gy-1":
+                return mock_profile
+            return None
+
+        task_guard.get_profile = fake_get_profile
+        task_runtime.get_profile = fake_get_profile
         try:
             task = task_runtime.create_task(
                 TaskCreateRequest(
@@ -74,6 +97,8 @@ def main() -> None:
                     targetProfileId="gy-1",
                     targetParentId="dir-100",
                     thresholdMB=200,
+                    acknowledgePendingManual=True,
+                    acknowledgeDownloadUpload=True,
                     selectedRoots=["/demo.bin"],
                     entries=[
                         SourceEntry(
@@ -89,6 +114,8 @@ def main() -> None:
         finally:
             task_runtime.fetch_guangya_live_fast_check = original_fast_check
             task_runtime.upload_guangya_local_file = original_upload
+            task_guard.get_profile = original_task_guard_get_profile
+            task_runtime.get_profile = original_task_runtime_get_profile
             task_runtime._TASKS.clear()
             task_runtime._TASKS.update(original_tasks)
 
@@ -97,8 +124,18 @@ def main() -> None:
     print(
         json.dumps(
             {
+                "runtimeGuangyaVerifyFieldsPersisted": (
+                    result.get("state") == "completed"
+                    and row.get("status") == "done"
+                    and row.get("executionMode") == "live"
+                    and live_attempt.get("mode") == "binary_upload_multipart"
+                    and live_attempt.get("verifyOk") is True
+                    and live_attempt.get("verifyMode") == "list_by_parent_name"
+                    and live_attempt.get("verifyNote") == "verified by list"
+                ),
                 "taskState": result.get("state"),
                 "rowStatus": row.get("status"),
+                "rowExecutionMode": row.get("executionMode"),
                 "liveMode": live_attempt.get("mode"),
                 "verifyOk": live_attempt.get("verifyOk"),
                 "verifyMode": live_attempt.get("verifyMode"),

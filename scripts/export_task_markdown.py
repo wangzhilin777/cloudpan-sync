@@ -19,7 +19,14 @@ def _load_task_snapshot(path_text: str) -> dict[str, object]:
         if isinstance(payload.get("item"), dict):
             return dict(payload.get("item") or {})
         if isinstance(payload.get("detailView"), dict):
-            return dict(payload.get("detailView") or {})
+            detail = dict(payload.get("detailView") or {})
+            detail["plan"] = {
+                "summary": dict(detail.get("planSummary") or {}),
+                "items": list(detail.get("planItems") or []),
+                "pendingItems": list(detail.get("pendingItems") or []),
+                "executionGroups": list(detail.get("executionGroups") or []),
+            }
+            return detail
         return payload
     raise SystemExit(f"invalid_task_json: {path_text}")
 

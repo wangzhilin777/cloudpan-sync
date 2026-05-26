@@ -10,6 +10,19 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务详情快照导出链里的plan items透传`
+- 完成范围：
+  - 已把 [task_runtime.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime.py) 的 `build_task_detail_view` 再补一层：当前 `detailView` 会显式返回 `planItems`，不再只带 `planSummary / pendingItems / executionGroups`
+  - 已把 [export_task_markdown.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_task_markdown.py) 的 `detailView` 读取链补齐：当前如果导出脚本收到的是 `detailView` 快照，也会先重建最小 `plan`，把 `planSummary / planItems / pendingItems / executionGroups` 重新组回去再生成 Markdown
+  - 当前效果是：任务 Markdown 的离线导出终于不再只在 `item` 快照场景下完整，`detailView` 快照导出时也能稳定保住 `supportSummary / firstPlannedConflict`
+  - 已同步补强 [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 与 [verify_export_task_markdown.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_markdown.py)，把 `detailView.planItems` 与 “detailView 快照导出仍保留冲突摘要” 两条链一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_views_api.py` 已验证任务 `detailView` 当前会返回 `planItems`
+  - `.\.venv\Scripts\python.exe scripts\verify_export_task_markdown.py` 已验证 `detailView` 快照导出时仍会输出 `supportSummary / firstPlannedConflict`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务列表里的summary冲突摘要优先展示`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `renderTaskList` 再补一层：当前任务列表主摘要里的 `firstConflictSupport / firstConflictNote` 会优先复用 `summary.firstConflictSupportStatus / summary.firstConflictNote`

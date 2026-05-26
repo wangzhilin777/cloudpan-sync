@@ -411,6 +411,7 @@ def build_task_detail_view(task: dict[str, object]) -> dict[str, object]:
         "firstConflictSupportStatus": str(first_conflict_row.get("conflictSupportStatus") or ""),
         "firstConflictNote": str(first_conflict_row.get("conflictNote") or ""),
         "planSummary": dict(plan.get("summary") or {}),
+        "planItems": list(plan.get("items") or []),
         "executionGroups": list(plan.get("executionGroups") or []),
         "pendingItems": list(plan.get("pendingItems") or []),
         "results": results,

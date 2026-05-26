@@ -10,6 +10,16 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`已完成记录也补第二条光鸭历史口径`
+- 完成范围：
+  - 已把 [02-COMPLETED_MILESTONES.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/02-COMPLETED_MILESTONES.md) 里几条更早的历史记录继续回填到当前口径：不再把 Guangya orphan/runtime 相关说明停留在只认 `gy-live-1` 的早期状态
+  - 当前效果是：围绕 `12-REAL_EVIDENCE_REMEDIATION_GUIDE.md`、`13-RUNTIME_ORPHAN_RECOVERY.md`、`04-PLAN_AUDIT_REPORT.md` 以及设置页 runtime 摘要的历史完成记录，当前都会同步反映 Guangya 已有 `gy-live-1 / gy-live-defaults-1` 两条 orphan/runtime success，而不是只写第一条
+- 当前验证证据：
+  - `git diff -- docs\\02-COMPLETED_MILESTONES.md` 已确认本轮仅回填历史描述口径，无额外逻辑改动
+  - 提交后复核已确认工作区干净，且 `index.lock` 不存在
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`已完成记录也回填当前四样本实况`
 - 完成范围：
   - 已把 [02-COMPLETED_MILESTONES.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/02-COMPLETED_MILESTONES.md) 里两条仍会误导当前仓库状态的历史描述回填到现口径：不再保留旧的三条 orphan 汇总口径，也不再把 Guangya 继续描述成单条 runtime success

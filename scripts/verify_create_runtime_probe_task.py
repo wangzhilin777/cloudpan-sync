@@ -129,6 +129,8 @@ def main() -> None:
                     r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id ali-orphan-runtime-1 --provider-key aliyundrive_open --auth-mode official_oauth --display-name ali-runtime --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe",
                     r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id ali-orphan-runtime-2 --provider-key aliyundrive_open --auth-mode official_oauth --display-name ali-runtime-2 --token YOUR_TOKEN_2 --set domainId=YOUR_DOMAIN_ID_2 --set driveId=YOUR_DRIVE_ID_2 --probe",
                 ],
+                "recommendedCreateCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name aliyundrive_open-official_oauth --token YOUR_TOKEN --set domainId=YOUR_VALUE --set driveId=YOUR_VALUE",
+                "recommendedBootstrapCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name aliyundrive_open-official_oauth --token YOUR_TOKEN --set domainId=YOUR_VALUE --set driveId=YOUR_VALUE --probe",
                 "recommendedPatchCommand": r".\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id ali-runtime-1 --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write --revalidate",
                 "recommendedPatchProbeCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id ali-runtime-1 --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --write",
                 "recommendedPatchCommands": [
@@ -290,6 +292,8 @@ def main() -> None:
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")
                 and len(dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommands", [])) == 2
                 and any("--profile-id ali-orphan-runtime-2" in value for value in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommands", []))
+                and "--provider-key aliyundrive_open" in dict(output.get("remediationFollowup") or {}).get("recommendedCreateCommand", "")
+                and "--probe" in dict(output.get("remediationFollowup") or {}).get("recommendedBootstrapCommand", "")
                 and "create_auth_profile_stub.py --from-remediation-provider aliyundrive_open" in dict(output.get("remediationFollowup") or {}).get("exactCreateHelper", "")
                 and "create_auth_profile_stub.py --from-remediation-orphan-profile ali-orphan-runtime-1" in dict(output.get("remediationFollowup") or {}).get("exactRecreateHelper", ""),
                 "scriptRemediationPatchIncluded": "patch_auth_profile_extra.py --profile-id ali-runtime-1" in dict(output.get("remediationFollowup") or {}).get("recommendedPatchCommand", "")

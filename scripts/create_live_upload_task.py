@@ -112,6 +112,8 @@ def _remediation_followup(profile_id: str) -> dict[str, object]:
             "recommendedPatchCommand": str(row.get("recommendedPatchCommand") or ""),
             "recommendedPatchProbeCommand": str(row.get("recommendedPatchProbeCommand") or ""),
             "recommendedRecreateProbeCommand": str(row.get("recommendedRecreateProbeCommand") or ""),
+            "recommendedCreateCommand": str(row.get("recommendedCreateCommand") or ""),
+            "recommendedBootstrapCommand": str(row.get("recommendedBootstrapCommand") or ""),
             "exactPatchHelper": str(row.get("exactPatchHelper") or ""),
             "exactCreateHelper": str(row.get("exactCreateHelper") or ""),
             "exactRecreateHelper": str(row.get("exactRecreateHelper") or ""),

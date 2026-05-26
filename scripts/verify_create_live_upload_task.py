@@ -162,6 +162,8 @@ def main() -> None:
                     r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-orphan-live-1 --provider-key guangya --auth-mode manual_token --display-name gy-live --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe",
                     r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --profile-id gy-orphan-live-2 --provider-key guangya --auth-mode manual_token --display-name gy-live-2 --token YOUR_TOKEN_2 --set parentId=YOUR_REAL_PARENT_ID_2 --probe",
                 ],
+                "recommendedCreateCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name guangya-manual_token --token YOUR_TOKEN --set parentId=YOUR_VALUE",
+                "recommendedBootstrapCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name guangya-manual_token --token YOUR_TOKEN --set parentId=YOUR_VALUE --probe",
                 "recommendedPatchCommand": r".\.venv\Scripts\python.exe scripts\patch_auth_profile_extra.py --profile-id gy-live-1 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate",
                 "recommendedPatchProbeCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-live-1 --set parentId=YOUR_REAL_PARENT_ID --write",
                 "recommendedPatchCommands": [
@@ -315,6 +317,8 @@ def main() -> None:
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")
                 and len(dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommands", [])) == 2
                 and any("--profile-id gy-orphan-live-2" in value for value in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommands", []))
+                and "--provider-key guangya" in dict(output.get("remediationFollowup") or {}).get("recommendedCreateCommand", "")
+                and "--probe" in dict(output.get("remediationFollowup") or {}).get("recommendedBootstrapCommand", "")
                 and "create_auth_profile_stub.py --from-remediation-provider guangya" in dict(output.get("remediationFollowup") or {}).get("exactCreateHelper", "")
                 and "create_auth_profile_stub.py --from-remediation-orphan-profile gy-orphan-live-1" in dict(output.get("remediationFollowup") or {}).get("exactRecreateHelper", ""),
                 "remediationPatchIncluded": "patch_auth_profile_extra.py --profile-id gy-live-1" in dict(output.get("remediationFollowup") or {}).get("recommendedPatchCommand", "")

@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务列表里的summary冲突摘要优先展示`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `renderTaskList` 再补一层：当前任务列表主摘要里的 `firstConflictSupport / firstConflictNote` 会优先复用 `summary.firstConflictSupportStatus / summary.firstConflictNote`
+  - 当前效果是：列表主摘要终于真正接上了前面刚补到 `build_task_summary` 里的冲突摘要字段，而不是继续完全依赖前端自己回扫 `plan.items/pendingItems`
+  - 这样任务列表和任务摘要之间的口径更统一了；即便后续只刷新 summary、不重建整份 plan，列表主摘要也会优先跟着 summary 里的首条冲突状态走
+  - 已同步补强 [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py)，把 `summary.firstConflictSupportStatus / summary.firstConflictNote` 的优先使用逻辑一起锁进 UI 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_list_runtime_ui.py` 已验证任务列表主摘要当前会优先使用 `summary.firstConflictSupportStatus / summary.firstConflictNote`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务列表里的冲突支持汇总摘要`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `renderTaskList` 再补一层：当前任务列表主摘要除了 `conflictPolicy` 和首条 `firstConflictSupport / firstConflictNote`，也会直接带出 `summary.conflictSupportSummaryStatuses` 汇总后的 `conflictSummary`

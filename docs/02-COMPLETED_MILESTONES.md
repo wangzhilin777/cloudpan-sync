@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐服务端任务守卫回归断言`
+- 完成范围：
+  - 已把 [verify_task_server_guard.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_server_guard.py) 从单纯打印 `blocked / awaiting_ack / acknowledged` 三段现场，补成真正会给出整体结论的断言型 verifier
+  - 同一条回归现在会用 `serverGuardFlowMatchesExpectedStates` 直接锁住服务端任务守卫链：`189cloud` 只读档案必须进入 `blocked`，`guangya` 下载上传风险必须进入 `awaiting_ack`，确认风险后又必须恢复到 `ready`
+  - 当前效果是：任务创建阶段的 server-side guard 不再只是“看起来字段像对了”，而是多了一条更完整的状态流转回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_server_guard.py` 已验证服务端任务守卫状态流当前符合预期
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐运行样本设置页回归断言`
 - 完成范围：
   - 已把 [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py) 再补一层：当前不再只看若干零散源码片段是否存在

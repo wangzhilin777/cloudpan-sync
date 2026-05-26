@@ -71,30 +71,51 @@ def main() -> None:
         task_runtime._TASKS.clear()
         task_runtime._TASKS.update(original_tasks)
 
+    blocked_task = {
+        "state": blocked.get("state"),
+        "riskReason": (blocked.get("risk") or {}).get("reason"),
+        "hardBlocked": (blocked.get("guard") or {}).get("hardBlocked"),
+        "blockingReasons": (blocked.get("guard") or {}).get("blockingReasons"),
+        "targetProfileWriteReady": (((blocked.get("guard") or {}).get("targetProfile") or {}).get("writeReady")),
+    }
+    soft_guard_task = {
+        "state": soft_guard_snapshot.get("state"),
+        "riskReason": (soft_guard_snapshot.get("risk") or {}).get("reason"),
+        "hardBlocked": (soft_guard_snapshot.get("guard") or {}).get("hardBlocked"),
+        "requiresAcknowledgement": (soft_guard_snapshot.get("guard") or {}).get("requiresAcknowledgement"),
+        "acknowledged": (soft_guard_snapshot.get("guard") or {}).get("acknowledged"),
+        "warningReasons": (soft_guard_snapshot.get("guard") or {}).get("warningReasons"),
+    }
+    acknowledged_soft_guard_task = {
+        "state": acknowledged_soft_guard.get("state"),
+        "riskReason": (acknowledged_soft_guard.get("risk") or {}).get("reason"),
+        "acknowledged": (acknowledged_soft_guard.get("guard") or {}).get("acknowledged"),
+        "warningReasons": (acknowledged_soft_guard.get("guard") or {}).get("warningReasons"),
+    }
+
     print(
         json.dumps(
             {
-                "blockedTask": {
-                    "state": blocked.get("state"),
-                    "riskReason": (blocked.get("risk") or {}).get("reason"),
-                    "hardBlocked": (blocked.get("guard") or {}).get("hardBlocked"),
-                    "blockingReasons": (blocked.get("guard") or {}).get("blockingReasons"),
-                    "targetProfileWriteReady": (((blocked.get("guard") or {}).get("targetProfile") or {}).get("writeReady")),
-                },
-                "softGuardTask": {
-                    "state": soft_guard_snapshot.get("state"),
-                    "riskReason": (soft_guard_snapshot.get("risk") or {}).get("reason"),
-                    "hardBlocked": (soft_guard_snapshot.get("guard") or {}).get("hardBlocked"),
-                    "requiresAcknowledgement": (soft_guard_snapshot.get("guard") or {}).get("requiresAcknowledgement"),
-                    "acknowledged": (soft_guard_snapshot.get("guard") or {}).get("acknowledged"),
-                    "warningReasons": (soft_guard_snapshot.get("guard") or {}).get("warningReasons"),
-                },
-                "acknowledgedSoftGuardTask": {
-                    "state": acknowledged_soft_guard.get("state"),
-                    "riskReason": (acknowledged_soft_guard.get("risk") or {}).get("reason"),
-                    "acknowledged": (acknowledged_soft_guard.get("guard") or {}).get("acknowledged"),
-                    "warningReasons": (acknowledged_soft_guard.get("guard") or {}).get("warningReasons"),
-                },
+                "blockedTask": blocked_task,
+                "softGuardTask": soft_guard_task,
+                "acknowledgedSoftGuardTask": acknowledged_soft_guard_task,
+                "serverGuardFlowMatchesExpectedStates": (
+                    blocked_task["state"] == "blocked"
+                    and blocked_task["riskReason"] == "guard_blocked"
+                    and blocked_task["hardBlocked"] is True
+                    and blocked_task["targetProfileWriteReady"] is False
+                    and any("shareCode/accessCode-only" in str(item) for item in (blocked_task["blockingReasons"] or []))
+                    and soft_guard_task["state"] == "awaiting_ack"
+                    and soft_guard_task["riskReason"] == "awaiting_acknowledgement"
+                    and soft_guard_task["hardBlocked"] is False
+                    and ((soft_guard_task["requiresAcknowledgement"] or {}).get("downloadUpload")) is True
+                    and ((soft_guard_task["acknowledged"] or {}).get("downloadUpload")) is False
+                    and any("explicit confirmation" in str(item) for item in (soft_guard_task["warningReasons"] or []))
+                    and acknowledged_soft_guard_task["state"] == "ready"
+                    and acknowledged_soft_guard_task["riskReason"] == ""
+                    and ((acknowledged_soft_guard_task["acknowledged"] or {}).get("downloadUpload")) is True
+                    and not (acknowledged_soft_guard_task["warningReasons"] or [])
+                ),
             },
             ensure_ascii=False,
             indent=2,

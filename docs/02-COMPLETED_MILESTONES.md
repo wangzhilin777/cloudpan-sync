@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务动作守卫回归断言`
+- 完成范围：
+  - 已把 [verify_task_action_guards.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_action_guards.py) 从单纯打印 action guard 现场，补成真正的断言型 verifier
+  - 当前会直接锁住 `blocked` 任务上的 `resume_not_allowed_from_blocked`，以及 `awaiting_ack` 任务上的 `run_not_allowed_until_acknowledge_risk`
+  - 同一条回归也会继续锁住 `acknowledge_risk` 后任务回到 `ready`，以及 HTTP `POST /api/tasks/{id}/action` 返回的 `actionError / allowedActions` 和 runtime 口径一致
+  - 当前效果是：任务动作守卫不再只是打印“现在像是对的”，而是把 runtime guard 和 API guard 两边的阻断原因一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_action_guards.py` 已验证 `resume`/`run` 的阻断原因与 `acknowledge_risk` 后恢复可运行状态当前都符合预期
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐运行失败样本回归断言`
 - 完成范围：
   - 已把 [verify_task_runtime_failure_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_failure_evidence.py) 从单纯打印 live failure runtime evidence，补成真正的断言型 verifier

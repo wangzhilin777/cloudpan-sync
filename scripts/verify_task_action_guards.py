@@ -90,6 +90,31 @@ def main() -> None:
     print(
         json.dumps(
             {
+                "blockedResumeGuarded": (
+                    blocked_after_resume.get("state") == "blocked"
+                    and task_runtime.allowed_task_actions(blocked_after_resume) == ["retry"]
+                    and dict(blocked_after_resume.get("lastActionError") or {}).get("action") == "resume"
+                    and dict(blocked_after_resume.get("lastActionError") or {}).get("reason") == "resume_not_allowed_from_blocked"
+                ),
+                "awaitingAckRunGuarded": (
+                    awaiting_ack_snapshot.get("state") == "awaiting_ack"
+                    and task_runtime.allowed_task_actions(awaiting_ack_snapshot) == ["acknowledge_risk", "retry"]
+                    and awaiting_ack_after_run_snapshot.get("state") == "awaiting_ack"
+                    and dict(awaiting_ack_after_run_snapshot.get("lastActionError") or {}).get("action") == "run"
+                    and dict(awaiting_ack_after_run_snapshot.get("lastActionError") or {}).get("reason") == "run_not_allowed_until_acknowledge_risk"
+                ),
+                "acknowledgeRiskRestoresRunnableState": (
+                    awaiting_ack_after_ack.get("state") == "ready"
+                    and task_runtime.allowed_task_actions(awaiting_ack_after_ack) == ["run", "pause", "retry"]
+                    and dict(awaiting_ack_after_ack.get("lastActionError") or {}) == {}
+                ),
+                "httpActionGuardMatchesRuntime": (
+                    action_resp.get("action") == "run"
+                    and action_resp.get("actionApplied") is False
+                    and dict(action_resp.get("actionError") or {}).get("action") == "run"
+                    and dict(action_resp.get("actionError") or {}).get("reason") == "run_not_allowed_until_acknowledge_risk"
+                    and action_resp.get("allowedActions") == ["acknowledge_risk", "retry"]
+                ),
                 "blockedResume": {
                     "state": blocked_after_resume.get("state"),
                     "allowedActions": task_runtime.allowed_task_actions(blocked_after_resume),

@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务运行冲突降级回归断言`
+- 完成范围：
+  - 已把 [verify_task_conflict_support.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_support.py) 从只打印冲突字段现场，补成真正锁住运行态冲突降级链的 verifier
+  - 当前除了继续检查计划项里的 `conflictSupportStatus=downgrade_to_auto_rename`，还会继续锁住 `detailView.results[0]` 与 `listView.latestResults[0]` 中的 `conflictSupportStatus / conflictNote`
+  - 同一条回归现在也会把运行态 `liveAttempt.conflictAction=overwrite_downgraded_to_auto_rename`、`resolvedTargetName=demo (1).bin` 与 `verifyMode=list_by_parent_name` 一起接住
+  - 当前效果是：任务运行阶段“计划里声明会降级”和“实际运行结果真的带回了冲突降级证据”终于被同一条 verifier 连起来了，不再只是打印一眼结果
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_conflict_support.py` 已验证计划项、详情结果与列表最新结果当前都会保留 `downgrade_to_auto_rename` 冲突摘要，且运行态会带回 `overwrite_downgraded_to_auto_rename`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务视图回归里的冲突字段断言`
 - 完成范围：
   - 已把 [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 从偏展示型的 API 现场输出，补成真正会失败的任务视图回归断言

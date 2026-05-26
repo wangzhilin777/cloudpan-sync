@@ -12,14 +12,16 @@ if str(SRC) not in sys.path:
 
 from fastapi.testclient import TestClient
 
-from cloudpan_sync import task_runtime, webapp
+from cloudpan_sync import task_guard, task_runtime, webapp
 from cloudpan_sync.guangya_upload_live import GuangyaUploadResult
-from cloudpan_sync.models import SourceEntry
+from cloudpan_sync.models import AuthProfile, SourceEntry
 
 
 def main() -> None:
     original_fast_check = task_runtime.fetch_guangya_live_fast_check
     original_upload = task_runtime.upload_guangya_local_file
+    original_task_guard_get_profile = task_guard.get_profile
+    original_task_runtime_get_profile = task_runtime.get_profile
     original_tasks = dict(task_runtime._TASKS)
     original_password = webapp.ADMIN_PASSWORD
     task_runtime._TASKS.clear()
@@ -81,6 +83,27 @@ def main() -> None:
 
         task_runtime.fetch_guangya_live_fast_check = fake_fast_check
         task_runtime.upload_guangya_local_file = fake_upload
+        mock_profile = AuthProfile(
+            profileId="gy-1",
+            providerKey="guangya",
+            authMode="manual_token",
+            displayName="mock-guangya",
+            token="tok",
+            cookie="",
+            extra={"parentId": "dir-100"},
+            status="verified",
+            lastError="",
+            createdAt="2026-05-27T00:00:00+00:00",
+            updatedAt="2026-05-27T00:00:00+00:00",
+        )
+
+        def fake_get_profile(profile_id: str):
+            if profile_id == "gy-1":
+                return mock_profile
+            return None
+
+        task_guard.get_profile = fake_get_profile
+        task_runtime.get_profile = fake_get_profile
         webapp.ADMIN_PASSWORD = "admin123"
 
         try:
@@ -97,6 +120,8 @@ def main() -> None:
                     "targetParentId": "dir-100",
                     "thresholdMB": 200,
                     "conflictPolicy": "overwrite_existing",
+                    "acknowledgePendingManual": True,
+                    "acknowledgeDownloadUpload": True,
                     "selectedRoots": ["/demo.bin"],
                     "entries": [
                         {
@@ -117,18 +142,51 @@ def main() -> None:
         finally:
             task_runtime.fetch_guangya_live_fast_check = original_fast_check
             task_runtime.upload_guangya_local_file = original_upload
+            task_guard.get_profile = original_task_guard_get_profile
+            task_runtime.get_profile = original_task_runtime_get_profile
             task_runtime._TASKS.clear()
             task_runtime._TASKS.update(original_tasks)
             webapp.ADMIN_PASSWORD = original_password
 
-    row = (((after_run.get("item") or {}).get("results") or [{}])[0])
+    created_plan_item = ((((created.get("item") or {}).get("plan") or {}).get("items") or [{}])[0])
+    detail_row = ((((after_run.get("detailView") or {}).get("results") or [{}]))[0])
+    latest_row = ((((after_run.get("listView") or {}).get("latestResults") or [{}]))[0])
+    detail_live_attempt = dict((detail_row or {}).get("liveAttempt") or {})
+    latest_live_attempt = dict((latest_row or {}).get("liveAttempt") or {})
     print(
         json.dumps(
             {
-                "planItemConflictSupportStatus": ((((created.get("item") or {}).get("plan") or {}).get("items") or [{}])[0]).get("conflictSupportStatus"),
-                "resultConflictSupportStatus": row.get("conflictSupportStatus"),
-                "resultConflictNote": row.get("conflictNote"),
-                "conflictAction": ((row.get("liveAttempt") or {}).get("conflictAction")),
+                "planConflictSupportDowngradeIsRecorded": (
+                    str(created_plan_item.get("conflictSupportStatus") or "") == "downgrade_to_auto_rename"
+                    and "auto_rename_new" in str(created_plan_item.get("conflictNote") or "")
+                ),
+                "detailResultCarriesConflictRuntimeEvidence": (
+                    str((detail_row or {}).get("status") or "") == "done"
+                    and str((detail_row or {}).get("executionMode") or "") == "live"
+                    and str((detail_row or {}).get("conflictSupportStatus") or "") == "downgrade_to_auto_rename"
+                    and "auto_rename_new" in str((detail_row or {}).get("conflictNote") or "")
+                    and detail_live_attempt.get("conflictAction") == "overwrite_downgraded_to_auto_rename"
+                    and detail_live_attempt.get("resolvedTargetName") == "demo (1).bin"
+                    and detail_live_attempt.get("verifyOk") is True
+                    and detail_live_attempt.get("verifyMode") == "list_by_parent_name"
+                ),
+                "listLatestResultCarriesConflictRuntimeEvidence": (
+                    str((latest_row or {}).get("status") or "") == "done"
+                    and str((latest_row or {}).get("executionMode") or "") == "live"
+                    and str((latest_row or {}).get("conflictSupportStatus") or "") == "downgrade_to_auto_rename"
+                    and "auto_rename_new" in str((latest_row or {}).get("conflictNote") or "")
+                    and latest_live_attempt.get("conflictAction") == "overwrite_downgraded_to_auto_rename"
+                    and latest_live_attempt.get("resolvedTargetName") == "demo (1).bin"
+                ),
+                "planItemConflictSupportStatus": created_plan_item.get("conflictSupportStatus"),
+                "planItemConflictNote": created_plan_item.get("conflictNote"),
+                "detailResultConflictSupportStatus": (detail_row or {}).get("conflictSupportStatus"),
+                "detailResultConflictNote": (detail_row or {}).get("conflictNote"),
+                "detailResultConflictAction": detail_live_attempt.get("conflictAction"),
+                "detailResultResolvedTargetName": detail_live_attempt.get("resolvedTargetName"),
+                "listLatestConflictSupportStatus": (latest_row or {}).get("conflictSupportStatus"),
+                "listLatestConflictNote": (latest_row or {}).get("conflictNote"),
+                "listLatestConflictAction": latest_live_attempt.get("conflictAction"),
             },
             ensure_ascii=False,
             indent=2,

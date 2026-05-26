@@ -467,6 +467,11 @@ def task_to_markdown(task: dict[str, object]) -> str:
         f" `candidateOnly={summary.get('candidateOnlyCount', 0)}`"
     )
     lines.append(f"- supportSummary: `statuses={','.join(conflict_statuses) or '(none)'}`")
+    lines.append(
+        f"- summaryConflict: `statuses={','.join(summary.get('conflictSupportSummaryStatuses') or []) or '(none)'}` "
+        f"`firstStatus={summary.get('firstConflictSupportStatus', '') or '(none)'}` "
+        f"`firstNote={summary.get('firstConflictNote', '') or '(none)'}`"
+    )
     if first_conflict_row:
         lines.append(
             f"- firstPlannedConflict: path=`{first_conflict_row.get('path', '') or '(none)'}` "

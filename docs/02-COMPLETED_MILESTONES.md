@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务Markdown里的summary冲突摘要`
+- 完成范围：
+  - 已把 [task_runtime.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime.py) 的 `task_to_markdown` 再补一层：当前冲突小节除了已有的 `supportSummary / firstPlannedConflict`，也会继续输出 `summaryConflict`
+  - 这个 `summaryConflict` 会直接复用 `summary.conflictSupportSummaryStatuses / summary.firstConflictSupportStatus / summary.firstConflictNote`，不再只靠 Markdown 导出时临时回扫 `plan`
+  - 当前效果是：任务 Markdown 终于和任务列表、任务详情、任务摘要里的 summary 级冲突摘要口径对齐了；即便后续 plan 展示层有调整，Markdown 里仍能保住一条来自 summary 的稳定冲突汇总
+  - 已同步补强 [verify_task_markdown_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_markdown_api.py)，把 Markdown 中 `summaryConflict` 这一行一起锁进当前 API 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_markdown_api.py` 已验证任务 Markdown 当前会输出 `summaryConflict: statuses=... firstStatus=... firstNote=...`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务创建返回体里的冲突摘要断言`
 - 完成范围：
   - 已把 [verify_api_plan_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_api_plan_bundle.py) 再补一层：当前这条高层 API 总回归不再只验证任务创建后持久化了 `conflictPolicy`

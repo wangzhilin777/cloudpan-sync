@@ -49,6 +49,7 @@ def main() -> None:
         task = task_runtime.get_task(task_id)
         assert task is not None, task_id
         first_item = dict(((task.get("plan") or {}).get("items") or [{}])[0] or {})
+        summary_before_results = dict(task.get("summary") or {})
         task["results"] = [
             {
                 "path": "/demo.bin",
@@ -78,6 +79,11 @@ def main() -> None:
                     "hasConflictSection": "## 同名文件冲突策略" in markdown,
                     "hasSelectedPolicy": "selectedPolicy: `overwrite_existing`" in markdown,
                     "hasSupportSummary": f"supportSummary: `statuses={first_item.get('conflictSupportStatus', '') or '(none)'}`" in markdown,
+                    "hasSummaryConflict": (
+                        f"summaryConflict: `statuses={','.join(summary_before_results.get('conflictSupportSummaryStatuses') or []) or '(none)'}`" in markdown
+                        and f"`firstStatus={summary_before_results.get('firstConflictSupportStatus', '') or '(none)'}`" in markdown
+                        and f"`firstNote={summary_before_results.get('firstConflictNote', '') or '(none)'}`" in markdown
+                    ),
                     "hasFirstPlannedConflict": (
                         f"firstPlannedConflict: path=`{first_item.get('path', '') or '(none)'}`" in markdown
                         and f"strategy=`{first_item.get('strategy', '') or '(none)'}`" in markdown

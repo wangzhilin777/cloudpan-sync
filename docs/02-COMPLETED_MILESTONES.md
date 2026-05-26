@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权补救设置摘要里的live rejected概要`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `Auth Remediation` 设置页 first-fix 摘要再补一层：现在除了 `liveRejectedStatuses / placeholderLiveRejectedProfiles`，也会把 `liveRejectedSummaries` 一并带进复制文本
+  - 当前效果是：从设置页直接看第一条授权补救项时，不需要再回到 [09-AUTH_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/09-AUTH_REMEDIATION_GUIDE.md) 才能知道“这条占位档案具体是被哪类线上请求拒绝”的概要说明
+  - 这样 `Auth Remediation` 设置页的 first-fix 摘要终于和列表行、补救文档导出链保持同口径了，不再出现“首条摘要只有状态码、没有拒绝概要，但下面列表和文档已经有摘要”的断层
+  - 已同步补强 [verify_auth_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_settings_ui.py)，把 `firstAuthRemediationGap` 级别的 `firstLiveRejectedStatuses / firstPlaceholderLiveRejectedProfiles / firstLiveRejectedSummaries` 拼装逻辑一起锁进 UI 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_settings_ui.py` 已验证设置页 `Auth Evidence` 与 `Auth Remediation` 摘要链当前都能识别并拼接 `liveRejected` 相关文本与概要
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权证据设置摘要里的live rejected状态`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `Auth Evidence` 设置页 first-gap 摘要补齐到当前口径：现在不止会显示 `profileReady / writeReady / validationOk / probeOk`，也会把 `missing / placeholderSecretHints / liveRejectedStatuses / placeholderLiveRejectedProfiles / liveRejectedSummaries` 一并带进复制文本

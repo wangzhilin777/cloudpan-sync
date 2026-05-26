@@ -52,6 +52,9 @@ def main() -> None:
                 and 'captureBtn.textContent = "Open Capture First Fix"' in app_js
                 and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(firstAuthRemediationGap.profileId));' in app_js
                 and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(firstAuthRemediationGap.providerKey || ""));' in app_js
+                and "const firstLiveRejectedStatuses = (firstAuthRemediationGap.liveRejectedStatuses || []).join(\"/\") || \"\";" in app_js
+                and "const firstPlaceholderLiveRejectedProfiles = (firstAuthRemediationGap.placeholderLiveRejectedProfiles || []).join(\"/\") || \"\";" in app_js
+                and "const firstLiveRejectedSummaries = (firstAuthRemediationGap.liveRejectedSummaries || []).join(\" | \") || \"\";" in app_js
                 and "readyProfiles=" in app_js
                 and "needsFixProfiles=" in app_js
                 and "writeNeedsFixProfiles=" in app_js
@@ -62,6 +65,9 @@ def main() -> None:
                 and "liveRejectedStatuses=" in app_js
                 and "placeholderLiveRejectedProfiles=" in app_js
                 and "liveRejectedSummaries=" in app_js
+                and "liveRejectedStatuses=${firstLiveRejectedStatuses}" in app_js
+                and "placeholderLiveRejectedProfiles=${firstPlaceholderLiveRejectedProfiles}" in app_js
+                and "liveRejectedSummaries=${firstLiveRejectedSummaries}" in app_js
                 and "recreateProbe=" in app_js,
                 "jsLogoutClearsAuthBundles": "state.authEvidenceBundle = null;" in app_js and "state.authRemediationBundle = null;" in app_js,
             },

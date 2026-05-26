@@ -2695,7 +2695,12 @@ function renderSettingsPanel() {
     const itemSummary = firstAuthEvidenceGap.summary || {};
     const li = document.createElement("li");
     const copy = document.createElement("span");
-    copy.textContent = `${firstProfile.displayName || firstProfile.profileId || "(unknown)"} [${firstProfile.providerKey || "(unknown)"}]: profileReady=${Boolean(itemSummary.profileReady)}, writeReady=${Boolean(itemSummary.writeReady)}, validationOk=${Boolean(itemSummary.validationOk)}, probeOk=${Boolean(itemSummary.probeOk)}`;
+    const missing = (firstProfile.missingFieldHints || []).join(" | ");
+    const placeholderSecretHints = (firstProfile.placeholderSecretFieldHints || []).join(" | ");
+    const liveRejectedStatuses = (firstProfile.liveRejectedStatuses || []).join("/") || "";
+    const placeholderLiveRejectedProfiles = (firstProfile.placeholderLiveRejectedProfiles || []).join("/") || "";
+    const liveRejectedSummaries = (firstProfile.liveRejectedSummaries || []).join(" | ") || "";
+    copy.textContent = `${firstProfile.displayName || firstProfile.profileId || "(unknown)"} [${firstProfile.providerKey || "(unknown)"}]: profileReady=${Boolean(itemSummary.profileReady)}, writeReady=${Boolean(itemSummary.writeReady)}, validationOk=${Boolean(itemSummary.validationOk)}, probeOk=${Boolean(itemSummary.probeOk)}${missing ? `, missing=${missing}` : ""}${placeholderSecretHints ? `, placeholderSecretHints=${placeholderSecretHints}` : ""}${liveRejectedStatuses ? `, liveRejectedStatuses=${liveRejectedStatuses}` : ""}${placeholderLiveRejectedProfiles ? `, placeholderLiveRejectedProfiles=${placeholderLiveRejectedProfiles}` : ""}${liveRejectedSummaries ? `, liveRejectedSummaries=${liveRejectedSummaries}` : ""}`;
     li.appendChild(copy);
     const actions = document.createElement("span");
     actions.className = "row-actions";

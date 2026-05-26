@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权证据设置摘要里的live rejected状态`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `Auth Evidence` 设置页 first-gap 摘要补齐到当前口径：现在不止会显示 `profileReady / writeReady / validationOk / probeOk`，也会把 `missing / placeholderSecretHints / liveRejectedStatuses / placeholderLiveRejectedProfiles / liveRejectedSummaries` 一并带进复制文本
+  - 当前效果是：从设置页直接看第一条授权证据缺口时，不需要再去翻 [08-AUTH_EVIDENCE_BUNDLE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/08-AUTH_EVIDENCE_BUNDLE.md) 或单 profile evidence Markdown 才知道“这个档案是否已经真的打到线上并被拒绝、状态码是什么”
+  - 这样授权证据链的设置页摘要终于和刚补齐的 evidence 文档导出链保持同口径了，不再出现“docs/08 已经能看见 liveRejected，但设置页第一条 gap 摘要还停在旧布尔值提示”的断层
+  - 已同步补强 [verify_auth_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_settings_ui.py)，把 `firstProfile` 级别的 `missing / placeholderSecretHints / liveRejectedStatuses / placeholderLiveRejectedProfiles / liveRejectedSummaries` 拼装逻辑一起锁进 UI 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_settings_ui.py` 已验证设置页 `Auth Evidence` 与 `Auth Remediation` 摘要链当前都能识别并拼接 `liveRejected` 相关文本
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权证据导出链里的live rejected状态`
 - 完成范围：
   - 已把 [auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_evidence.py) 的两条 Markdown 输出一起补齐：当前无论是单档案 `Auth Profile Evidence`，还是汇总型 [08-AUTH_EVIDENCE_BUNDLE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/08-AUTH_EVIDENCE_BUNDLE.md)，都会把 `liveRejected / liveRejectedSummaries` 明确写出来，不再只剩 `latestValidation / latestProbe` 这种需要人工再读一遍错误文案的弱提示

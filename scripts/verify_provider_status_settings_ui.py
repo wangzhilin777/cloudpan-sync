@@ -19,6 +19,11 @@ def main() -> None:
                 "htmlHasProviderStatusPanel": 'settingsProviderStatusTitle' in html and 'settingsProviderStatusList' in html,
                 "jsLoadStatusMatrixRefreshesSettings": 'renderProviderPanel();' in app_js and 'renderSettingsPanel();' in app_js,
                 "jsProviderStatusHasFirstGapActions": 'const firstProviderStatusGap =' in app_js
+                and 'const firstProviderStatusOrphanItem = (state.runtimeOrphanRecovery?.items || [])[0] || null;' in app_js
+                and 'runtime_orphan_recovery: providers=${providerStatusSummary.taskRuntimeOrphanProviderCount || 0}' in app_js
+                and 'openOrphanBtn.textContent = "Open Runtime Orphan Recovery";' in app_js
+                and 'recreateBtn.textContent = "Recreate First Orphan Stub";' in app_js
+                and 'recreateBtn.addEventListener("click", () => recreateRuntimeOrphanProfile(firstProviderStatusOrphanItem.providerKey, firstProviderStatusOrphanItem.orphanProfileId));' in app_js
                 and 'const firstProviderStatusRealEvidence = realEvidenceByProvider(firstProviderStatusGap.providerKey);' in app_js
                 and 'appendProviderRecoveryActions(actions, firstProviderStatusGap.providerKey);' in app_js
                 and 'runtime_track=${firstProviderStatusGap.task_runtime_track || "runtime_planned"}' in app_js

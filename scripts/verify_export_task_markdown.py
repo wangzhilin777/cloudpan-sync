@@ -38,6 +38,7 @@ def main() -> None:
                 entries=[SourceEntry(path="/demo.bin", size=4, md5="abc")],
             )
         )
+        first_item = dict((((task.get("plan") or {}).get("items") or [{}])[0]) or {})
         task["results"] = [
             {
                 "path": "/demo.bin",
@@ -79,6 +80,13 @@ def main() -> None:
                     "fileExists": output.exists(),
                     "markdownHasTitle": "# CloudPan Sync 任务详情" in markdown,
                     "markdownHasSelectedPolicy": "selectedPolicy: `overwrite_existing`" in markdown,
+                    "markdownHasSupportSummary": f"supportSummary: `statuses={first_item.get('conflictSupportStatus', '') or '(none)'}`" in markdown,
+                    "markdownHasFirstPlannedConflict": (
+                        f"firstPlannedConflict: path=`{first_item.get('path', '') or '(none)'}`" in markdown
+                        and f"strategy=`{first_item.get('strategy', '') or '(none)'}`" in markdown
+                        and f"conflictSupportStatus=`{first_item.get('conflictSupportStatus', '') or '(none)'}`" in markdown
+                        and f"conflictNote=`{first_item.get('conflictNote', '') or '(none)'}`" in markdown
+                    ),
                     "markdownHasConflictAction": "conflictAction=`overwrite_downgraded_to_auto_rename`" in markdown,
                     "markdownHasResolvedTargetName": "resolvedTargetName=`demo (1).bin`" in markdown,
                     "markdownHasPlanConflictSupport": "conflictSupportStatus=`downgrade_to_auto_rename`" in markdown,

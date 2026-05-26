@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务Markdown导出链里的冲突摘要断言`
+- 完成范围：
+  - 已把 [verify_export_task_markdown.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_markdown.py) 再补一层：当前导出脚本回归不再只检查 `selectedPolicy / conflictAction / resolvedTargetName / conflictSupportStatus`
+  - 同一条回归现在还会继续锁住 `supportSummary` 与 `firstPlannedConflict`，确保 `scripts/export_task_markdown.py` 导出的 `task.md` 真正跟上前面已经补齐的任务 Markdown API 口径
+  - 当前效果是：任务 Markdown 的导出链终于不再落后于 API 链，后续如果有人只补了 `GET /api/tasks/{id}/markdown` 却忘了同步 `export_task_markdown.py` 的离线导出回归，这里会第一时间报出来
+  - 这样计划文档里“同名文件冲突策略选择与展示”在离线任务 Markdown 导出这条链路上也更稳了，不会再出现 API 已经带首条冲突摘要、但导出脚本回归还停在旧断言的断层
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_task_markdown.py` 已验证导出的任务 Markdown 当前会输出 `selectedPolicy / supportSummary / firstPlannedConflict / conflictAction / resolvedTargetName`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务视图API里的冲突支持汇总状态`
 - 完成范围：
   - 已把 [task_runtime.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime.py) 的 `build_task_list_view` 与 `build_task_detail_view` 再补一层：当前除了首条 `firstConflictSupportStatus / firstConflictNote`，还会直接返回聚合后的 `conflictSupportSummaryStatuses`

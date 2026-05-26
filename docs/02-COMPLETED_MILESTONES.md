@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务创建返回体里的冲突摘要断言`
+- 完成范围：
+  - 已把 [verify_api_plan_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_api_plan_bundle.py) 再补一层：当前这条高层 API 总回归不再只验证任务创建后持久化了 `conflictPolicy`
+  - 同一条回归现在还会继续锁住 `POST /api/tasks` 当次返回的 `listView / detailView` 与它们各自 `summary` 里的 `conflictSupportSummaryStatuses / firstConflictSupportStatus`，并确认 `detailView.planItems[0].conflictSupportStatus` 仍在
+  - 当前效果是：计划文档里 API 测试要求的“任务 plan 创建 + 同路径同名文件冲突策略保存与返回”这条证据，又把创建接口返回体里的冲突摘要一起接住了，不再只在后续 `GET /api/tasks` 或 `GET /api/tasks/{id}` 才检查
+  - 这样如果后续有人把创建接口即时返回的任务视图精简过头，先把冲突摘要字段弄丢，这条总回归会第一时间报出来
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_api_plan_bundle.py` 已验证 `POST /api/tasks` 当次返回的 `listView / detailView / summary` 当前都保留 `conflictSupportSummaryStatuses / firstConflictSupportStatus`，且 `detailView.planItems` 仍返回 `conflictSupportStatus`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐纯详情快照导出链里的冲突摘要`
 - 完成范围：
   - 已把 [export_task_markdown.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/export_task_markdown.py) 的快照解析再补一层：当前除了支持 `item` 快照、包着 `detailView` 的 JSON，也能直接识别“纯 `detailView` 本体 JSON”并自动重建最小 `plan`

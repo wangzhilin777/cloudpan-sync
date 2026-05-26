@@ -243,6 +243,16 @@ def main() -> None:
                     and (created_task_item.get("plan") or {}).get("conflictPolicy") == "overwrite_existing"
                     and len(created_plan_items) == 1
                     and created_plan_items[0].get("conflictPolicy") == "overwrite_existing"
+                    and created_task_list.get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
+                    and created_task_list.get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
+                    and created_task_list.get("summary", {}).get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
+                    and created_task_list.get("summary", {}).get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
+                    and created_task.get("detailView", {}).get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
+                    and created_task.get("detailView", {}).get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
+                    and len(created_task.get("detailView", {}).get("planItems") or []) == 1
+                    and ((created_task.get("detailView", {}).get("planItems") or [{}])[0]).get("conflictSupportStatus") == "downgrade_to_auto_rename"
+                    and created_task.get("detailView", {}).get("summary", {}).get("conflictSupportSummaryStatuses") == ["downgrade_to_auto_rename"]
+                    and created_task.get("detailView", {}).get("summary", {}).get("firstConflictSupportStatus") == "downgrade_to_auto_rename"
                 ),
                 "taskListReturnsQueueState": (
                     len(listed_task_items) == 1

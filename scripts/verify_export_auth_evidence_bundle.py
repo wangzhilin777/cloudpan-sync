@@ -114,33 +114,52 @@ def main() -> None:
 
         output_path = tmp_root / "docs" / "08-AUTH_EVIDENCE_BUNDLE.md"
         markdown = output_path.read_text(encoding="utf-8")
+    exported_file_exists = True
+    exported_has_title = "# Auth Evidence Bundle" in markdown
+    exported_has_summary = (
+        "- profileCount: `2`" in markdown
+        and "- profileReadyCount: `1`" in markdown
+        and "- writeReadyCount: `1`" in markdown
+        and "- validationOkCount: `1`" in markdown
+        and "- probeOkCount: `1`" in markdown
+        and "- profileSummary: `profileReady=Guangya Primary` `writeReady=Guangya Primary` `validationOk=Guangya Primary` `probeOk=Guangya Primary`" in markdown
+    )
+    exported_has_guangya_profile = (
+        "### Guangya Primary [guangya]" in markdown
+        and "- profileId: `gy-1`" in markdown
+        and "- resolvedParentId: `root-gy`" in markdown
+        and "- latestValidation: `cookie refresh succeeded`" in markdown
+        and "- latestProbe: `list/create_dir checks passed`" in markdown
+    )
+    exported_has_189_hints_and_blocker = (
+        "### 189 Share Profile [189cloud]" in markdown
+        and "- missingFieldHints: `accessToken, sessionKey`" in markdown
+        and "- placeholderFieldHints: `token looks like placeholder data; replace tok-demo with a real token`" in markdown
+        and "- placeholderSecretFieldHints: `token`" in markdown
+        and "- liveRejected: profiles=`189 Share Profile` placeholderProfiles=`189 Share Profile` statuses=`403`" in markdown
+        and "- liveRejectedSummaries: `189 Share Profile:403`" in markdown
+        and "- writeMissingFieldHints: `signature, date`" in markdown
+        and "- writeBlockerNote: 当前 189Cloud share 档案仍为只读。" in markdown
+        and "- latestValidation: `share auth readonly`" in markdown
+        and "- latestProbe: `create_dir probe blocked by readonly auth`" in markdown
+    )
+    export_auth_evidence_bundle_flow_matches_expected_markdown = (
+        exported_file_exists
+        and exported_has_title
+        and exported_has_summary
+        and exported_has_guangya_profile
+        and exported_has_189_hints_and_blocker
+    )
 
     print(
         json.dumps(
             {
-                "exportedFileExists": True,
-                "exportedHasTitle": "# Auth Evidence Bundle" in markdown,
-                "exportedHasSummary": "- profileCount: `2`" in markdown
-                and "- profileReadyCount: `1`" in markdown
-                and "- writeReadyCount: `1`" in markdown
-                and "- validationOkCount: `1`" in markdown
-                and "- probeOkCount: `1`" in markdown
-                and "- profileSummary: `profileReady=Guangya Primary` `writeReady=Guangya Primary` `validationOk=Guangya Primary` `probeOk=Guangya Primary`" in markdown,
-                "exportedHasGuangyaProfile": "### Guangya Primary [guangya]" in markdown
-                and "- profileId: `gy-1`" in markdown
-                and "- resolvedParentId: `root-gy`" in markdown
-                and "- latestValidation: `cookie refresh succeeded`" in markdown
-                and "- latestProbe: `list/create_dir checks passed`" in markdown,
-                "exportedHas189HintsAndBlocker": "### 189 Share Profile [189cloud]" in markdown
-                and "- missingFieldHints: `accessToken, sessionKey`" in markdown
-                and "- placeholderFieldHints: `token looks like placeholder data; replace tok-demo with a real token`" in markdown
-                and "- placeholderSecretFieldHints: `token`" in markdown
-                and "- liveRejected: profiles=`189 Share Profile` placeholderProfiles=`189 Share Profile` statuses=`403`" in markdown
-                and "- liveRejectedSummaries: `189 Share Profile:403`" in markdown
-                and "- writeMissingFieldHints: `signature, date`" in markdown
-                and "- writeBlockerNote: 当前 189Cloud share 档案仍为只读。" in markdown
-                and "- latestValidation: `share auth readonly`" in markdown
-                and "- latestProbe: `create_dir probe blocked by readonly auth`" in markdown,
+                "exportedFileExists": exported_file_exists,
+                "exportedHasTitle": exported_has_title,
+                "exportedHasSummary": exported_has_summary,
+                "exportedHasGuangyaProfile": exported_has_guangya_profile,
+                "exportedHas189HintsAndBlocker": exported_has_189_hints_and_blocker,
+                "exportAuthEvidenceBundleFlowMatchesExpectedMarkdown": export_auth_evidence_bundle_flow_matches_expected_markdown,
             },
             ensure_ascii=False,
             indent=2,

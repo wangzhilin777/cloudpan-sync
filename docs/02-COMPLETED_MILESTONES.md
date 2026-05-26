@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权抓取指引总链回归断言`
+- 完成范围：
+  - 已把 [verify_auth_capture_guide.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_capture_guide.py) 从 Quark、光鸭、阿里云开放平台三条抓取指引的分散字段检查，补成真正会给出整条授权抓取指引链结论的 verifier
+  - 同一条回归现在会用 `authCaptureGuideFlowMatchesExpectedProviders` 直接锁住这条链：`/api/auth/capture/start` 对 `quark / guangya / aliyundrive_open` 必须同时稳定返回 `capture_pending`，并分别保留 Quark 的 `manual_cookie + authCookie/authExtraPwdId + Copy Cookie/Copy Share Hints`、光鸭的 `manual_token + authToken/authExtraParentId + Dump Storage`，以及阿里云开放平台的 `official_oauth + authExtraDomainId/authExtraDriveId + domainId/driveId` 指引
+  - 当前效果是：授权抓取指引能力不再只是三家 provider 的局部提示字段各自为真，而是多了一条覆盖抓取状态、推荐模式、粘贴目标和浏览器辅助脚本的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_capture_guide.py` 已验证授权抓取指引链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐Quark秒传总链回归断言`
 - 完成范围：
   - 已把 [verify_quark_fast_upload_live.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_quark_fast_upload_live.py) 从 `ok/mode/verifyMode/resolvedTargetName` 和三段请求调用的分散输出，补成真正会给出整条 Quark rapid-upload 链结论的 verifier

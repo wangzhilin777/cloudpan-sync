@@ -60,6 +60,29 @@ def main() -> None:
                     and any("authExtraDriveId" in str(item) for item in (aliyun.get("pasteTargets") or []))
                     and any("domainId/driveId" in str(item) for item in (aliyun.get("manualSteps") or []))
                 ),
+                "authCaptureGuideFlowMatchesExpectedProviders": (
+                    quark.get("status") == "capture_pending"
+                    and quark.get("providerKey") == "quark"
+                    and bool(quark.get("loginUrlHint"))
+                    and quark.get("preferredCaptureMode") == "manual_cookie"
+                    and "manual_cookie" in (quark.get("recommendedAuthModes") or [])
+                    and any("authCookie" in str(item) for item in (quark.get("pasteTargets") or []))
+                    and any("authExtraPwdId" in str(item) for item in (quark.get("pasteTargets") or []))
+                    and "Copy Cookie" in _snippet_labels(quark)
+                    and "Copy Share Hints" in _snippet_labels(quark)
+                    and guangya.get("status") == "capture_pending"
+                    and guangya.get("providerKey") == "guangya"
+                    and guangya.get("preferredCaptureMode") == "manual_token"
+                    and any("authToken" in str(item) for item in (guangya.get("pasteTargets") or []))
+                    and any("authExtraParentId" in str(item) for item in (guangya.get("pasteTargets") or []))
+                    and "Dump Storage" in _snippet_labels(guangya)
+                    and aliyun.get("status") == "capture_pending"
+                    and aliyun.get("providerKey") == "aliyundrive_open"
+                    and aliyun.get("preferredCaptureMode") == "official_oauth"
+                    and any("authExtraDomainId" in str(item) for item in (aliyun.get("pasteTargets") or []))
+                    and any("authExtraDriveId" in str(item) for item in (aliyun.get("pasteTargets") or []))
+                    and any("domainId/driveId" in str(item) for item in (aliyun.get("manualSteps") or []))
+                ),
             },
             ensure_ascii=False,
             indent=2,

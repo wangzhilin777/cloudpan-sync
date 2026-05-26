@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -18,12 +19,13 @@ def main() -> None:
     original_tasks = dict(task_runtime._TASKS)
     task_runtime._TASKS.clear()
 
-    output = ROOT / "tmp" / "verify-task-markdown.md"
-    detail_output = ROOT / "tmp" / "verify-task-markdown-detail.md"
-    flat_detail_output = ROOT / "tmp" / "verify-task-markdown-flat-detail.md"
-    snapshot = ROOT / "tmp" / "verify-task-markdown.json"
-    detail_snapshot = ROOT / "tmp" / "verify-task-markdown-detail.json"
-    flat_detail_snapshot = ROOT / "tmp" / "verify-task-markdown-flat-detail.json"
+    run_tag = f"verify-task-markdown-{os.getpid()}"
+    output = ROOT / "tmp" / f"{run_tag}.md"
+    detail_output = ROOT / "tmp" / f"{run_tag}-detail.md"
+    flat_detail_output = ROOT / "tmp" / f"{run_tag}-flat-detail.md"
+    snapshot = ROOT / "tmp" / f"{run_tag}.json"
+    detail_snapshot = ROOT / "tmp" / f"{run_tag}-detail.json"
+    flat_detail_snapshot = ROOT / "tmp" / f"{run_tag}-flat-detail.json"
     if output.exists():
         output.unlink()
     if detail_output.exists():
@@ -169,6 +171,34 @@ def main() -> None:
                         and f"strategy=`{first_item.get('strategy', '') or '(none)'}`" in flat_detail_markdown
                         and f"conflictSupportStatus=`{first_item.get('conflictSupportStatus', '') or '(none)'}`" in flat_detail_markdown
                         and f"conflictNote=`{first_item.get('conflictNote', '') or '(none)'}`" in flat_detail_markdown
+                    ),
+                    "taskMarkdownExportFlowMatchesAllSnapshots": (
+                        str(output) in result.stdout
+                        and output.exists()
+                        and "# CloudPan Sync 任务详情" in markdown
+                        and "selectedPolicy: `overwrite_existing`" in markdown
+                        and f"supportSummary: `statuses={first_item.get('conflictSupportStatus', '') or '(none)'}`" in markdown
+                        and (
+                            f"summaryConflict: `statuses={','.join(summary_before_results.get('conflictSupportSummaryStatuses') or []) or '(none)'}`" in markdown
+                            and f"`firstStatus={summary_before_results.get('firstConflictSupportStatus', '') or '(none)'}`" in markdown
+                            and f"`firstNote={summary_before_results.get('firstConflictNote', '') or '(none)'}`" in markdown
+                        )
+                        and "conflictAction=`overwrite_downgraded_to_auto_rename`" in markdown
+                        and "resolvedTargetName=`demo (1).bin`" in markdown
+                        and str(detail_output) in detail_result.stdout
+                        and f"supportSummary: `statuses={first_item.get('conflictSupportStatus', '') or '(none)'}`" in detail_markdown
+                        and (
+                            f"summaryConflict: `statuses={','.join(summary_before_results.get('conflictSupportSummaryStatuses') or []) or '(none)'}`" in detail_markdown
+                            and f"`firstStatus={summary_before_results.get('firstConflictSupportStatus', '') or '(none)'}`" in detail_markdown
+                            and f"`firstNote={summary_before_results.get('firstConflictNote', '') or '(none)'}`" in detail_markdown
+                        )
+                        and str(flat_detail_output) in flat_detail_result.stdout
+                        and f"supportSummary: `statuses={first_item.get('conflictSupportStatus', '') or '(none)'}`" in flat_detail_markdown
+                        and (
+                            f"summaryConflict: `statuses={','.join(summary_before_results.get('conflictSupportSummaryStatuses') or []) or '(none)'}`" in flat_detail_markdown
+                            and f"`firstStatus={summary_before_results.get('firstConflictSupportStatus', '') or '(none)'}`" in flat_detail_markdown
+                            and f"`firstNote={summary_before_results.get('firstConflictNote', '') or '(none)'}`" in flat_detail_markdown
+                        )
                     ),
                 },
                 ensure_ascii=False,

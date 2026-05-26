@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务Markdown导出三态回归断言`
+- 完成范围：
+  - 已把 [verify_export_task_markdown.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_task_markdown.py) 从三种快照形态各自核对若干 Markdown 片段，补成真正会给出整条导出链结论的 verifier
+  - 同时补掉了它重复运行时复用固定 `tmp/verify-task-markdown-*` 文件名的隐性问题；现在会按进程生成独立前缀，避免连续跑时互相踩掉 flat-detail 输出
+  - 同一条回归现在会用 `taskMarkdownExportFlowMatchesAllSnapshots` 直接锁住 `item`、包着 `detailView` 的快照、纯 `detailView` 快照三种输入都能稳定导出同一套冲突摘要与运行态证据
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_task_markdown.py` 已验证三种任务 Markdown 导出链当前都会稳定输出完整冲突摘要
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务预览UI整链回归断言`
 - 完成范围：
   - 已把 [verify_queue_plan_preview_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_queue_plan_preview_ui.py) 从一组分散的表单/预览/守卫 UI 片段检查，补成真正会给出整条任务预览链结论的 verifier

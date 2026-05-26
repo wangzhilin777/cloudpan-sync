@@ -178,6 +178,24 @@ def main() -> None:
                     and latest_live_attempt.get("conflictAction") == "overwrite_downgraded_to_auto_rename"
                     and latest_live_attempt.get("resolvedTargetName") == "demo (1).bin"
                 ),
+                "conflictDowngradeFlowMatchesRuntimeEvidence": (
+                    str(created_plan_item.get("conflictSupportStatus") or "") == "downgrade_to_auto_rename"
+                    and "auto_rename_new" in str(created_plan_item.get("conflictNote") or "")
+                    and str((detail_row or {}).get("status") or "") == "done"
+                    and str((detail_row or {}).get("executionMode") or "") == "live"
+                    and str((detail_row or {}).get("conflictSupportStatus") or "") == "downgrade_to_auto_rename"
+                    and "auto_rename_new" in str((detail_row or {}).get("conflictNote") or "")
+                    and detail_live_attempt.get("conflictAction") == "overwrite_downgraded_to_auto_rename"
+                    and detail_live_attempt.get("resolvedTargetName") == "demo (1).bin"
+                    and detail_live_attempt.get("verifyOk") is True
+                    and detail_live_attempt.get("verifyMode") == "list_by_parent_name"
+                    and str((latest_row or {}).get("status") or "") == "done"
+                    and str((latest_row or {}).get("executionMode") or "") == "live"
+                    and str((latest_row or {}).get("conflictSupportStatus") or "") == "downgrade_to_auto_rename"
+                    and "auto_rename_new" in str((latest_row or {}).get("conflictNote") or "")
+                    and latest_live_attempt.get("conflictAction") == "overwrite_downgraded_to_auto_rename"
+                    and latest_live_attempt.get("resolvedTargetName") == "demo (1).bin"
+                ),
                 "planItemConflictSupportStatus": created_plan_item.get("conflictSupportStatus"),
                 "planItemConflictNote": created_plan_item.get("conflictNote"),
                 "detailResultConflictSupportStatus": (detail_row or {}).get("conflictSupportStatus"),

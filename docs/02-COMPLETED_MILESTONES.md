@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐冲突降级整链回归断言`
+- 完成范围：
+  - 已把 [verify_task_conflict_support.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_support.py) 从 plan/detail/list 三段各自核对，补成真正会给出冲突降级整条链结论的 verifier
+  - 同一条回归现在会用 `conflictDowngradeFlowMatchesRuntimeEvidence` 直接锁住 `overwrite_existing -> downgrade_to_auto_rename -> overwrite_downgraded_to_auto_rename` 这条链：计划项、详情结果、列表最新结果都必须一致，并继续带回 `demo (1).bin` 与 `verifyMode=list_by_parent_name`
+  - 当前效果是：冲突降级能力不再只是多个局部字段各自为真，而是多了一条从计划摘要贯穿到运行态证据的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_conflict_support.py` 已验证冲突降级当前会稳定贯穿 plan/detail/list 与 runtime evidence
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务列表运行态UI链路回归断言`
 - 完成范围：
   - 已把 [verify_task_list_runtime_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_list_runtime_ui.py) 从很多分散的队列页/待处理页 UI 片段检查，补成真正会给出整条渲染链结论的 verifier

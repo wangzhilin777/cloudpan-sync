@@ -120,6 +120,7 @@ def main() -> None:
         "items": [
             {
                 "providerKey": "115_open",
+                "displayName": "115 Open",
                 "profileIds": ["115-fast-1", "115-fast-2"],
                 "recommendedAuthModes": ["manual_cookie", "official_oauth"],
                 "requiredFieldHints": ["cookie or extra.cookie_header", "optional extra.parentId or extra.cid"],
@@ -326,6 +327,9 @@ def main() -> None:
                 and dict(output.get("remediationFollowup") or {}).get("overwriteSupportStatus") == "unsupported"
                 and dict(output.get("remediationFollowup") or {}).get("autoRenameSupportStatus") == "probe_only_runtime_write_check",
                 "scriptRemediationStatusContextIncluded": dict(output.get("remediationFollowup") or {}).get("profileCount") == 2
+                and dict(output.get("remediationFollowup") or {}).get("providerKey") == "115_open"
+                and dict(output.get("remediationFollowup") or {}).get("displayName") == "115 Open"
+                and dict(output.get("remediationFollowup") or {}).get("profileIds") == ["115-fast-1", "115-fast-2"]
                 and dict(output.get("remediationFollowup") or {}).get("authReadyProfiles") == 0
                 and dict(output.get("remediationFollowup") or {}).get("writeReadyProfiles") == 2
                 and dict(output.get("remediationFollowup") or {}).get("needsAuthEvidence") is True

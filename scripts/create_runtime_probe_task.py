@@ -118,6 +118,9 @@ def _remediation_followup(profile_id: str) -> dict[str, object]:
         if profile_id not in profile_ids:
             continue
         return {
+            "providerKey": str(row.get("providerKey") or ""),
+            "displayName": str(row.get("displayName") or ""),
+            "profileIds": list(row.get("profileIds") or []),
             "profileCount": int(row.get("profileCount") or 0),
             "authReadyProfiles": int(row.get("authReadyProfiles") or 0),
             "writeReadyProfiles": int(row.get("writeReadyProfiles") or 0),

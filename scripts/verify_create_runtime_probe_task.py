@@ -129,6 +129,7 @@ def main() -> None:
         "items": [
             {
                 "providerKey": "aliyundrive_open",
+                "displayName": "Aliyun Drive Open",
                 "profileIds": ["ali-runtime-1", "ali-runtime-2"],
                 "recommendedAuthModes": ["official_oauth"],
                 "requiredFieldHints": ["token or extra.authorization", "extra.domainId", "extra.driveId"],
@@ -324,6 +325,9 @@ def main() -> None:
                 and dict(output.get("remediationFollowup") or {}).get("overwriteSupportStatus") == "supported"
                 and dict(output.get("remediationFollowup") or {}).get("autoRenameSupportStatus") == "supported",
                 "scriptRemediationStatusContextIncluded": dict(output.get("remediationFollowup") or {}).get("profileCount") == 2
+                and dict(output.get("remediationFollowup") or {}).get("providerKey") == "aliyundrive_open"
+                and dict(output.get("remediationFollowup") or {}).get("displayName") == "Aliyun Drive Open"
+                and dict(output.get("remediationFollowup") or {}).get("profileIds") == ["ali-runtime-1", "ali-runtime-2"]
                 and dict(output.get("remediationFollowup") or {}).get("authReadyProfiles") == 0
                 and dict(output.get("remediationFollowup") or {}).get("writeReadyProfiles") == 2
                 and dict(output.get("remediationFollowup") or {}).get("needsAuthEvidence") is True

@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`运行脚本补救输出也补齐提供方标识字段`
+- 完成范围：
+  - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 的 `remediationFollowup` 再补一层：当前会同步返回 `providerKey / displayName / profileIds`
+  - 当前效果是：CLI helper 结果除了“当前缺什么、下一步做什么”之外，还会直接带出补救条目属于哪个 provider、对应显示名称是什么、当前命中的 profile 列表是哪几条，减少终端结果和 remediation 文档之间的再对照
+  - 这样 probe / live upload / fast candidate 三支 helper 的 follow-up 已经把当前 remediation item 的基础标识字段也带全了，更接近“单次 CLI 结果就能完整描述当前补救对象”的口径
+  - 已同步补强 [verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py)、[verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py)、[verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py)，把 `providerKey / displayName / profileIds` 一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_runtime_probe_task.py` 已验证 runtime probe 脚本输出的 `remediationFollowup` 当前会返回 `providerKey / displayName / profileIds`
+  - `.\.venv\Scripts\python.exe scripts\verify_create_live_upload_task.py` 已验证 live upload 脚本输出的 `remediationFollowup` 当前会返回 `providerKey / displayName / profileIds`
+  - `.\.venv\Scripts\python.exe scripts\verify_create_fast_upload_candidate_task.py` 已验证 fast candidate 脚本输出的 `remediationFollowup` 当前会返回 `providerKey / displayName / profileIds`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`运行脚本补救输出也补齐当前状态摘要`
 - 完成范围：
   - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 的 `remediationFollowup` 再补一层：当前会同步返回 `profileCount / authReadyProfiles / writeReadyProfiles / needsAuthEvidence / needsListEvidence / needsMetadataEvidence / needsCreateDirEvidence / needsRuntimeSuccess / runtimeBlockedOnly / runtimeCandidateOnly / runtimeProbeOnly / runtimeOrphanOnly / runtimeOrphanProfiles / gaps`

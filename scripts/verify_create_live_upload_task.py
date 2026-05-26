@@ -152,6 +152,7 @@ def main() -> None:
         "items": [
             {
                 "providerKey": "guangya",
+                "displayName": "Guangya",
                 "profileIds": ["gy-live-1", "gy-live-2"],
                 "recommendedAuthModes": ["web_login_capture", "manual_token"],
                 "requiredFieldHints": ["token or extra.authorization", "extra.parentId"],
@@ -347,6 +348,9 @@ def main() -> None:
                 and dict(output.get("remediationFollowup") or {}).get("overwriteSupportStatus") == "downgrade_to_auto_rename"
                 and dict(output.get("remediationFollowup") or {}).get("autoRenameSupportStatus") == "supported",
                 "remediationStatusContextIncluded": dict(output.get("remediationFollowup") or {}).get("profileCount") == 2
+                and dict(output.get("remediationFollowup") or {}).get("providerKey") == "guangya"
+                and dict(output.get("remediationFollowup") or {}).get("displayName") == "Guangya"
+                and dict(output.get("remediationFollowup") or {}).get("profileIds") == ["gy-live-1", "gy-live-2"]
                 and dict(output.get("remediationFollowup") or {}).get("authReadyProfiles") == 0
                 and dict(output.get("remediationFollowup") or {}).get("writeReadyProfiles") == 2
                 and dict(output.get("remediationFollowup") or {}).get("needsAuthEvidence") is True

@@ -90,6 +90,18 @@ def main() -> None:
                         and (payload.get("summary") or {}).get("providersWithSavedProfilesList") == ["guangya"]
                         and (payload.get("summary") or {}).get("providersWithoutSavedProfilesList") == ["uc"]
                     ),
+                    "summaryHasBatchCommands": (
+                        "scripts\\recreate_runtime_orphan_stubs.py" in str((payload.get("summary") or {}).get("recommendedBatchDryRunCommand") or "")
+                        and "--write" in str((payload.get("summary") or {}).get("recommendedBatchWriteMissingCommand") or "")
+                        and "--overwrite-existing" in str((payload.get("summary") or {}).get("recommendedBatchOverwriteExistingCommand") or "")
+                        and any(
+                            row.get("providerKey") == "guangya"
+                            and "--provider-key guangya" in str(row.get("dryRunCommand") or "")
+                            and "--write" in str(row.get("writeMissingCommand") or "")
+                            and "--overwrite-existing" in str(row.get("overwriteExistingCommand") or "")
+                            for row in ((payload.get("summary") or {}).get("providerBatchCommands") or [])
+                        )
+                    ),
                     "guangyaItemHasProfileIdCommand": any(
                         row.get("providerKey") == "guangya"
                         and "--profile-id gy-orphan" in str(row.get("recommendedCreateCommand") or "")
@@ -121,10 +133,14 @@ def main() -> None:
                     "markdownHasTitle": "# CloudPan Sync Runtime Orphan Recovery Guide" in markdown,
                     "markdownHasSummary": "orphanProfileCount=2" in markdown and "providersWithSavedProfiles=1" in markdown,
                     "markdownHasOrphanSummary": "orphanSummary:" in markdown and "profiles=gy-orphan, uc-orphan" in markdown,
+                    "markdownHasBatchCommands": "batchCommands:" in markdown
+                    and "recreate_runtime_orphan_stubs.py" in markdown
+                    and "## Batch Recreate Commands" in markdown
+                    and "dryRun=`.\\.venv\\Scripts\\python.exe scripts\\recreate_runtime_orphan_stubs.py --provider-key guangya`" in markdown,
                     "markdownHasCreateCommands": "--profile-id gy-orphan" in markdown and "--profile-id uc-orphan" in markdown,
                     "markdownHasFollowupCommands": "recommendedPrimaryCommand" in markdown and "exactCreateHelper" in markdown and "recommendedRefreshEvidenceCommand" in markdown and "exactRefreshEvidenceHelper" in markdown and "recommendedRuntimeProbeCommand" in markdown and "recommendedRuntimeSuccessCommand" in markdown and "recommendedOverwriteVariantCommand" in markdown and "exactOverwriteVariantHelper" in markdown,
                     "apiHasSummary": (api_payload.get("summary") or {}).get("orphanProfiles") == ["gy-orphan", "uc-orphan"],
-                    "apiMarkdownHasGuide": "--profile-id gy-orphan" in str(api_markdown.get("markdown") or "") and "exactCreateHelper" in str(api_markdown.get("markdown") or "") and "exactRefreshEvidenceHelper" in str(api_markdown.get("markdown") or "") and "recommendedRuntimeSuccessCommand" in str(api_markdown.get("markdown") or ""),
+                    "apiMarkdownHasGuide": "--profile-id gy-orphan" in str(api_markdown.get("markdown") or "") and "exactCreateHelper" in str(api_markdown.get("markdown") or "") and "exactRefreshEvidenceHelper" in str(api_markdown.get("markdown") or "") and "recommendedRuntimeSuccessCommand" in str(api_markdown.get("markdown") or "") and "recreate_runtime_orphan_stubs.py" in str(api_markdown.get("markdown") or ""),
                 },
                 ensure_ascii=False,
                 indent=2,

@@ -3315,6 +3315,7 @@ function renderSettingsPanel() {
     `providers=${orphanRecoverySummary.providerCount || 0}, orphanProfiles=${orphanRecoverySummary.orphanProfileCount || 0}, runtimeSamples=${orphanRecoverySummary.runtimeSampleCount || 0}, providersWithSavedProfiles=${orphanRecoverySummary.providersWithSavedProfiles || 0}, providersWithoutSavedProfiles=${orphanRecoverySummary.providersWithoutSavedProfiles || 0}`,
     `orphanProviders=${(orphanRecoverySummary.orphanProviders || []).join("/") || "(none)"}, orphanProfilesList=${(orphanRecoverySummary.orphanProfiles || []).join("/") || "(none)"}`,
     `savedProfileProviders=${(orphanRecoverySummary.providersWithSavedProfilesList || []).join("/") || "(none)"}, missingProfileProviders=${(orphanRecoverySummary.providersWithoutSavedProfilesList || []).join("/") || "(none)"}`,
+    `batchDryRun=${orphanRecoverySummary.recommendedBatchDryRunCommand || "(none)"}, batchWriteMissing=${orphanRecoverySummary.recommendedBatchWriteMissingCommand || "(none)"}, batchOverwriteExisting=${orphanRecoverySummary.recommendedBatchOverwriteExistingCommand || "(none)"}`,
   ];
   for (const row of orphanRecoveryRows) {
     const li = document.createElement("li");

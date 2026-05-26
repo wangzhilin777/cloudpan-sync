@@ -52,6 +52,21 @@ def main() -> None:
                     and summary.get("orphanProviders") == ["guangya", "pikpak", "uc"]
                     and summary.get("orphanProfiles") == ["gy-live-1", "gy-live-2", "gy-live-defaults-1", "gy-orphan-live-1", "pikpak-live-1", "uc-live-1"]
                 ),
+                "summaryHasCurrentBatchCommands": "recreate_runtime_orphan_stubs.py" in str(summary.get("recommendedBatchDryRunCommand") or "")
+                and "--write" in str(summary.get("recommendedBatchWriteMissingCommand") or "")
+                and "--overwrite-existing" in str(summary.get("recommendedBatchOverwriteExistingCommand") or "")
+                and any(
+                    row.get("providerKey") == "guangya"
+                    and "--provider-key guangya" in str(row.get("dryRunCommand") or "")
+                    and "--write" in str(row.get("writeMissingCommand") or "")
+                    for row in (summary.get("providerBatchCommands") or [])
+                ),
+                "markdownHasCurrentBatchCommands": "batchCommands:" in markdown
+                and "scripts\\recreate_runtime_orphan_stubs.py --write" in markdown
+                and "## Batch Recreate Commands" in markdown
+                and "dryRun=`.\\.venv\\Scripts\\python.exe scripts\\recreate_runtime_orphan_stubs.py --provider-key guangya`" in markdown
+                and "dryRun=`.\\.venv\\Scripts\\python.exe scripts\\recreate_runtime_orphan_stubs.py --provider-key pikpak`" in markdown
+                and "dryRun=`.\\.venv\\Scripts\\python.exe scripts\\recreate_runtime_orphan_stubs.py --provider-key uc`" in markdown,
                 "guangyaSectionHasRecoveryCommand": "--profile-id gy-live-1" in guangya and "existingProviderProfiles: count=`2`" in guangya,
                 "guangyaSectionHasPrimaryCommand": "recommendedPrimaryCommand:" in guangya and "label=Refresh Existing Orphan Profile" in guangya,
                 "guangyaSectionHasExactRuntimeHelpers": "exactCreateHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_auth_profile_stub.py --from-runtime-orphan-profile gy-live-1`" in guangya

@@ -1,14 +1,30 @@
 # CloudPan Sync Runtime Orphan Recovery Guide
 
-- 生成时间：`2026-05-26T10:55:26.561618+00:00`
+- 生成时间：`2026-05-26T12:18:22.557171+00:00`
 - 汇总： `providerCount=3` `orphanProfileCount=6` `runtimeSampleCount=6` `providersWithSavedProfiles=1` `providersWithoutSavedProfiles=2`
 - orphanSummary: `providers=guangya, pikpak, uc` `profiles=gy-live-1, gy-live-2, gy-live-defaults-1, gy-orphan-live-1, pikpak-live-1, uc-live-1` `savedProfileProviders=guangya` `missingProfileProviders=pikpak, uc`
+- batchCommands: `dryRun=.\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py` `writeMissing=.\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --write` `overwriteExisting=.\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --write --overwrite-existing`
 
 > 说明：这里的 recovery command 只是帮助你把历史 runtime success 对应的 `profileId` 重建回当前仓库，便于后续重新验证；它不会自动把旧样本算成新的真实完成证据。
 
+## Batch Recreate Commands
+
+- guangya: profiles=`gy-live-1, gy-live-2, gy-live-defaults-1, gy-orphan-live-1`
+  dryRun=`.\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --provider-key guangya`
+  writeMissing=`.\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --write --provider-key guangya`
+  overwriteExisting=`.\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --write --overwrite-existing --provider-key guangya`
+- pikpak: profiles=`pikpak-live-1`
+  dryRun=`.\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --provider-key pikpak`
+  writeMissing=`.\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --write --provider-key pikpak`
+  overwriteExisting=`.\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --write --overwrite-existing --provider-key pikpak`
+- uc: profiles=`uc-live-1`
+  dryRun=`.\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --provider-key uc`
+  writeMissing=`.\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --write --provider-key uc`
+  overwriteExisting=`.\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --write --overwrite-existing --provider-key uc`
+
 ## guangya - Guangya - gy-live-1
 - orphanProfileId: `gy-live-1`
-- sampleCount: `1` pathCount=`1` latestSavedAt=`2026-05-26T04:49:02.062898+00:00`
+- sampleCount: `1` pathCount=`1` latestSavedAt=`2026-05-26T12:03:37.004192+00:00`
 - runtimeModes: `binary_upload_multipart` verifyModes=`list_by_parent_name` conflictPolicies=`overwrite_existing` conflictActions=`overwrite_downgraded_to_auto_rename`
 - existingProviderProfiles: count=`2` ids=`0318479d-4669-415f-9083-7aecc102bf90, 08684618-ea29-48a4-b603-2e40cdc37c3d` names=`smoke-guangya, risk-smoke-guangya`
 - authHints: modes=`web_login_capture, manual_token` preferred=`manual_token` fields=`token or extra.authorization | extra.parentId | optional extra.did | optional extra.dt`
@@ -29,7 +45,7 @@
 
 ## guangya - Guangya - gy-live-2
 - orphanProfileId: `gy-live-2`
-- sampleCount: `1` pathCount=`1` latestSavedAt=`2026-05-26T04:49:02.109338+00:00`
+- sampleCount: `1` pathCount=`1` latestSavedAt=`2026-05-26T12:03:37.065194+00:00`
 - runtimeModes: `binary_upload_multipart` verifyModes=`list_by_parent_name` conflictPolicies=`auto_rename_new` conflictActions=`overwrite_downgraded_to_auto_rename`
 - existingProviderProfiles: count=`2` ids=`0318479d-4669-415f-9083-7aecc102bf90, 08684618-ea29-48a4-b603-2e40cdc37c3d` names=`smoke-guangya, risk-smoke-guangya`
 - authHints: modes=`web_login_capture, manual_token` preferred=`manual_token` fields=`token or extra.authorization | extra.parentId | optional extra.did | optional extra.dt`
@@ -71,7 +87,7 @@
 
 ## guangya - Guangya - gy-orphan-live-1
 - orphanProfileId: `gy-orphan-live-1`
-- sampleCount: `1` pathCount=`1` latestSavedAt=`2026-05-26T04:49:02.136415+00:00`
+- sampleCount: `1` pathCount=`1` latestSavedAt=`2026-05-26T12:03:37.091030+00:00`
 - runtimeModes: `binary_upload_multipart` verifyModes=`list_by_parent_name` conflictPolicies=`auto_rename_new` conflictActions=`overwrite_downgraded_to_auto_rename`
 - existingProviderProfiles: count=`2` ids=`0318479d-4669-415f-9083-7aecc102bf90, 08684618-ea29-48a4-b603-2e40cdc37c3d` names=`smoke-guangya, risk-smoke-guangya`
 - authHints: modes=`web_login_capture, manual_token` preferred=`manual_token` fields=`token or extra.authorization | extra.parentId | optional extra.did | optional extra.dt`

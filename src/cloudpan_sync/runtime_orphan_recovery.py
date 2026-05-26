@@ -10,6 +10,30 @@ from .provider_registry import build_provider_registry
 from .task_runtime_evidence_store import latest_task_runtime_evidence
 
 
+def _batch_stub_command(
+    *,
+    provider_key: str = "",
+    orphan_profile_id: str = "",
+    write: bool = False,
+    overwrite_existing: bool = False,
+) -> str:
+    parts = [
+        ".\\.venv\\Scripts\\python.exe",
+        "scripts\\recreate_runtime_orphan_stubs.py",
+    ]
+    if write:
+        parts.append("--write")
+    if overwrite_existing:
+        parts.append("--overwrite-existing")
+    provider = str(provider_key or "").strip()
+    profile_id = str(orphan_profile_id or "").strip()
+    if provider:
+        parts.extend(["--provider-key", provider])
+    if profile_id:
+        parts.extend(["--orphan-profile-id", profile_id])
+    return " ".join(parts)
+
+
 def _provider_display_name(provider_key: str) -> str:
     target = str(provider_key or "")
     for adapter in build_provider_registry():
@@ -370,6 +394,26 @@ def build_runtime_orphan_recovery() -> dict[str, object]:
             if int(item.get("existingProviderProfileCount") or 0) <= 0 and str(item.get("providerKey") or "")
         }
     )
+    provider_batch_commands: list[dict[str, object]] = []
+    for provider_key in summary_orphan_providers:
+        orphan_profile_ids = [
+            str(item.get("orphanProfileId") or "")
+            for item in items
+            if str(item.get("providerKey") or "") == provider_key and str(item.get("orphanProfileId") or "")
+        ]
+        provider_batch_commands.append(
+            {
+                "providerKey": provider_key,
+                "orphanProfileIds": orphan_profile_ids,
+                "dryRunCommand": _batch_stub_command(provider_key=provider_key),
+                "writeMissingCommand": _batch_stub_command(provider_key=provider_key, write=True),
+                "overwriteExistingCommand": _batch_stub_command(
+                    provider_key=provider_key,
+                    write=True,
+                    overwrite_existing=True,
+                ),
+            }
+        )
     summary = {
         "providerCount": len({str(item.get("providerKey") or "") for item in items if str(item.get("providerKey") or "")}),
         "orphanProfileCount": len(items),
@@ -380,6 +424,10 @@ def build_runtime_orphan_recovery() -> dict[str, object]:
         "orphanProfiles": [str(item.get("orphanProfileId") or "") for item in items if str(item.get("orphanProfileId") or "")],
         "providersWithSavedProfilesList": summary_saved_profile_providers,
         "providersWithoutSavedProfilesList": summary_missing_profile_providers,
+        "recommendedBatchDryRunCommand": _batch_stub_command(),
+        "recommendedBatchWriteMissingCommand": _batch_stub_command(write=True),
+        "recommendedBatchOverwriteExistingCommand": _batch_stub_command(write=True, overwrite_existing=True),
+        "providerBatchCommands": provider_batch_commands,
     }
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
@@ -531,9 +579,31 @@ def runtime_orphan_recovery_to_markdown(payload: dict[str, object]) -> str:
         f" `savedProfileProviders={', '.join(summary.get('providersWithSavedProfilesList', [])) or '(none)'}`"
         f" `missingProfileProviders={', '.join(summary.get('providersWithoutSavedProfilesList', [])) or '(none)'}`"
     )
+    if summary.get("recommendedBatchDryRunCommand"):
+        lines.append(
+            "- batchCommands:"
+            f" `dryRun={summary.get('recommendedBatchDryRunCommand', '')}`"
+            f" `writeMissing={summary.get('recommendedBatchWriteMissingCommand', '')}`"
+            f" `overwriteExisting={summary.get('recommendedBatchOverwriteExistingCommand', '')}`"
+        )
     lines.append("")
     lines.append("> 说明：这里的 recovery command 只是帮助你把历史 runtime success 对应的 `profileId` 重建回当前仓库，便于后续重新验证；它不会自动把旧样本算成新的真实完成证据。")
     lines.append("")
+    provider_batch_commands = list(summary.get("providerBatchCommands") or [])
+    if provider_batch_commands:
+        lines.append("## Batch Recreate Commands")
+        lines.append("")
+        for row in provider_batch_commands:
+            provider_key = str((row or {}).get("providerKey") or "")
+            orphan_profile_ids = ", ".join((row or {}).get("orphanProfileIds") or []) or "(none)"
+            lines.append(f"- {provider_key}: profiles=`{orphan_profile_ids}`")
+            if row.get("dryRunCommand"):
+                lines.append(f"  dryRun=`{row.get('dryRunCommand', '')}`")
+            if row.get("writeMissingCommand"):
+                lines.append(f"  writeMissing=`{row.get('writeMissingCommand', '')}`")
+            if row.get("overwriteExistingCommand"):
+                lines.append(f"  overwriteExisting=`{row.get('overwriteExistingCommand', '')}`")
+        lines.append("")
     for row in payload.get("items", []):
         item = dict(row or {})
         lines.append(f"## {item.get('providerKey', '')} - {item.get('providerDisplayName', '')} - {item.get('orphanProfileId', '')}")

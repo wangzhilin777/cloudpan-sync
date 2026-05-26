@@ -34,6 +34,18 @@ def main() -> None:
             "orphanProfiles": ["gy-orphan", "uc-orphan"],
             "providersWithSavedProfilesList": ["guangya"],
             "providersWithoutSavedProfilesList": ["uc"],
+            "recommendedBatchDryRunCommand": r".\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py",
+            "recommendedBatchWriteMissingCommand": r".\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --write",
+            "recommendedBatchOverwriteExistingCommand": r".\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --write --overwrite-existing",
+            "providerBatchCommands": [
+                {
+                    "providerKey": "guangya",
+                    "orphanProfileIds": ["gy-orphan"],
+                    "dryRunCommand": r".\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --provider-key guangya",
+                    "writeMissingCommand": r".\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --write --provider-key guangya",
+                    "overwriteExistingCommand": r".\.venv\Scripts\python.exe scripts\recreate_runtime_orphan_stubs.py --write --overwrite-existing --provider-key guangya",
+                }
+            ],
         },
         "items": [
             {
@@ -89,6 +101,10 @@ def main() -> None:
                 "exportedHasTitle": "# CloudPan Sync Runtime Orphan Recovery Guide" in markdown,
                 "exportedHasSummary": "orphanProfileCount=2" in markdown and "providersWithSavedProfiles=1" in markdown,
                 "exportedHasOrphanSummary": "orphanSummary:" in markdown and "profiles=gy-orphan, uc-orphan" in markdown,
+                "exportedHasBatchCommands": "batchCommands:" in markdown
+                and "recreate_runtime_orphan_stubs.py --write" in markdown
+                and "## Batch Recreate Commands" in markdown
+                and "--provider-key guangya" in markdown,
                 "exportedHasProviderSection": "## guangya - Guangya - gy-orphan" in markdown,
                 "exportedHasCreateCommand": "--profile-id gy-orphan" in markdown and "create_auth_profile_stub.py" in markdown,
             },

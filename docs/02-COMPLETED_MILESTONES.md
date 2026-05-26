@@ -10,6 +10,22 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`runtime orphan 恢复主链补上批量入口`
+- 完成范围：
+  - 已把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 的 summary 主载荷继续补强：现在除了逐条 orphan 的 `recommendedCreate / refresh / runtimeProbe / runtimeSuccess`，顶层 summary 也会直接统一产出 `recommendedBatchDryRunCommand / recommendedBatchWriteMissingCommand / recommendedBatchOverwriteExistingCommand`
+  - 同一轮还把按 provider 的批量入口也一并补进 summary：当前 `providerBatchCommands` 会直接列出 `guangya / pikpak / uc` 各自命中的 orphanProfileIds，以及对应 `dryRun / writeMissing / overwriteExisting` 三条批量命令，后续恢复不必再一条条抄单样本 helper
+  - 已把 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 重导出到当前口径：文档顶部现在会直接写出全量 batch commands，并新增 `Batch Recreate Commands` 段落按 provider 给出批量恢复入口
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `Runtime Orphan Recovery` 设置页摘要一并补上 `batchDryRun / batchWriteMissing / batchOverwriteExisting` 文本，主界面上也能直接看到当前批量恢复命令，不再只有逐条 orphan 行
+  - 已同步补强 [verify_runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery.py)、[verify_export_runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_runtime_orphan_recovery.py)、[verify_current_runtime_orphan_recovery_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_runtime_orphan_recovery_sync.py)、[verify_runtime_orphan_recovery_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery_settings_ui.py)，把 payload、导出文档、当前 docs、设置页摘要四层一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery.py` 已验证 payload / markdown / API markdown 当前都会带 batch commands
+  - `.\.venv\Scripts\python.exe scripts\verify_export_runtime_orphan_recovery.py` 已验证临时导出的 orphan recovery 文档当前会写出 batch commands 与 provider 级批量命令
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证设置页摘要当前会显示 `batchDryRun / batchWriteMissing / batchOverwriteExisting`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_runtime_orphan_recovery_sync.py` 已验证当前 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 已同步写出 batch commands 与 `guangya / pikpak / uc` 的 provider 级批量入口
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补上 runtime orphan 批量重建脚本`
 - 完成范围：
   - 已新增批量 helper [recreate_runtime_orphan_stubs.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/recreate_runtime_orphan_stubs.py)，可直接读取当前 `runtime_orphan_recovery` 结果，按 `providerKey / orphanProfileId` 过滤要处理的 orphan 样本

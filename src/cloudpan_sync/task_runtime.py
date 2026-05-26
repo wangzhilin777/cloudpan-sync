@@ -310,6 +310,15 @@ def build_task_list_view(task: dict[str, object]) -> dict[str, object]:
     plan = dict(task.get("plan") or {})
     last_action_error = dict(task.get("lastActionError") or {})
     latest_results = list(task.get("results") or [])[:3]
+    conflict_rows = [dict(item or {}) for item in list(plan.get("pendingItems") or []) + list(plan.get("items") or [])]
+    first_conflict_row = next(
+        (
+            row
+            for row in conflict_rows
+            if str(row.get("conflictSupportStatus") or "").strip() or str(row.get("conflictNote") or "").strip()
+        ),
+        {},
+    )
     return {
         "taskId": str(task.get("taskId") or ""),
         "state": summary.get("state", ""),
@@ -326,6 +335,8 @@ def build_task_list_view(task: dict[str, object]) -> dict[str, object]:
         "hasRealTransferSuccess": bool(summary.get("hasRealTransferSuccess")),
         "guard": guard,
         "lastActionError": last_action_error,
+        "firstConflictSupportStatus": str(first_conflict_row.get("conflictSupportStatus") or ""),
+        "firstConflictNote": str(first_conflict_row.get("conflictNote") or ""),
         "pendingItems": list(plan.get("pendingItems") or []),
         "latestResults": latest_results,
     }
@@ -335,6 +346,15 @@ def build_task_detail_view(task: dict[str, object]) -> dict[str, object]:
     summary = dict(task.get("summary") or build_task_summary(task))
     plan = dict(task.get("plan") or {})
     results = list(task.get("results") or [])
+    conflict_rows = [dict(item or {}) for item in list(plan.get("pendingItems") or []) + list(plan.get("items") or [])]
+    first_conflict_row = next(
+        (
+            row
+            for row in conflict_rows
+            if str(row.get("conflictSupportStatus") or "").strip() or str(row.get("conflictNote") or "").strip()
+        ),
+        {},
+    )
     return {
         "taskId": str(task.get("taskId") or ""),
         "state": str(summary.get("state") or task.get("state") or ""),
@@ -352,6 +372,8 @@ def build_task_detail_view(task: dict[str, object]) -> dict[str, object]:
         "guard": dict(task.get("guard") or {}),
         "risk": dict(task.get("risk") or {}),
         "lastActionError": dict(task.get("lastActionError") or {}),
+        "firstConflictSupportStatus": str(first_conflict_row.get("conflictSupportStatus") or ""),
+        "firstConflictNote": str(first_conflict_row.get("conflictNote") or ""),
         "planSummary": dict(plan.get("summary") or {}),
         "executionGroups": list(plan.get("executionGroups") or []),
         "pendingItems": list(plan.get("pendingItems") or []),

@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务视图API里的首条冲突支持摘要`
+- 完成范围：
+  - 已把 [task_runtime.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime.py) 的 `build_task_list_view` 与 `build_task_detail_view` 再补一层：当前 `listView / detailView` 不再只返回整包 `plan.items/pendingItems`，还会直接给出结构化的 `firstConflictSupportStatus / firstConflictNote`
+  - 当前效果是：无论是 `POST /api/tasks`、`GET /api/tasks`、`GET /api/tasks/{id}` 还是 `POST /api/tasks/{id}/action`，调用方都能直接读到首条计划项的同名冲突支持口径，不必每次自己回扫 `pendingItems/items` 才知道当前 provider 是真支持、会降级，还是带了额外说明
+  - 这样任务视图 API 终于和刚补齐的任务列表主摘要、任务 Markdown 导出口径对齐了，不再出现“前端页面和 Markdown 已能看首条冲突说明，但 API 结构化返回还缺最后一跳”的断层
+  - 已同步补强 [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py)，把 create/list/get/action 四条任务视图返回里的 `firstConflictSupportStatus / firstConflictNote` 一起锁进 API 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_views_api.py` 已验证任务 create/list/get/action 视图当前都会返回 `firstConflictSupportStatus / firstConflictNote`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务列表里的首条冲突支持摘要`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `renderTaskList` 再补一层：当前任务列表主摘要除了 `targetProfile / conflictPolicy / profileReady / writeReady`，也会直接带出首条计划项的 `firstConflictSupport / firstConflictNote`

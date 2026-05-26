@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`审计首个缺口入口也直写运行孤儿现状`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Plan Audit` 的“首个缺口”摘要补强：当当前缺口落在 `M4 / M5 / P-REAL` 时，现在会直接带出 `runtime_samples / runtime_success / runtime_orphan_providers / runtime_orphan_profiles`
+  - 对于当前最典型的 `M4` 光鸭缺口，还会额外直写 `guangya_runtime_success / guangya_runtime_orphan_profiles`，让用户在审计总入口就能直接看见“为什么还是 partial”以及 Guangya 当前到底卡在几条 orphan success 上
+  - 当前效果是：`Plan Audit` 不再只是抽象地写 `gaps=...`，而是把严格完成度还被 `runtime_orphan` 卡住的核心量化信息一起前移到最顶层入口，减少和 `Real Evidence` 面板之间的人肉对照
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_audit_settings_ui.py` 已验证 `Plan Audit` 的首个缺口入口当前会写出 `runtime_samples / runtime_success / runtime_orphan_*`，并在 `M4` 场景下补充 Guangya 级别的 orphan 数
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`审计与真实证据文档也同步四条孤儿样本现状`
 - 完成范围：
   - 已把 [10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 重新导出到当前仓库实况：汇总区现在会同步反映 `runtime_samples=4`、`runtime_success=4`、`runtime_conflict_handled=4`、`runtime_orphan_profiles=4`，并把 Guangya 的 `gy-live-1 / gy-live-defaults-1` 双样本也写到 provider 明细里

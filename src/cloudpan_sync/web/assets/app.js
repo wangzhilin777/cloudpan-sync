@@ -3324,7 +3324,20 @@ function renderSettingsPanel() {
   if (firstAuditGap) {
     const li = document.createElement("li");
     const copy = document.createElement("span");
-    copy.textContent = `${firstAuditGap.key || "(unknown)"}: status=${firstAuditGap.status || "unknown"}, title=${firstAuditGap.title || "(none)"}, gaps=${firstAuditGap.gaps || "(none)"}`;
+    const firstAuditGapRuntimeDetails = [];
+    if (["M4", "M5", "P-REAL"].includes(firstAuditGap.key)) {
+      const auditRuntime = state.realEvidenceSummary || {};
+      firstAuditGapRuntimeDetails.push(`runtime_samples=${auditRuntime.taskRuntimeSampleCount || 0}`);
+      firstAuditGapRuntimeDetails.push(`runtime_success=${auditRuntime.taskRuntimeSuccessCount || 0}`);
+      firstAuditGapRuntimeDetails.push(`runtime_orphan_providers=${auditRuntime.taskRuntimeOrphanProviderCount || 0}`);
+      firstAuditGapRuntimeDetails.push(`runtime_orphan_profiles=${auditRuntime.taskRuntimeOrphanProfileCount || 0}`);
+      if (firstAuditGap.key === "M4") {
+        const guangyaRuntime = ((state.realEvidenceReport?.items || []).find((item) => item.providerKey === "guangya") || {}).taskRuntimeEvidence || {};
+        firstAuditGapRuntimeDetails.push(`guangya_runtime_success=${guangyaRuntime.successCount || 0}`);
+        firstAuditGapRuntimeDetails.push(`guangya_runtime_orphan_profiles=${guangyaRuntime.orphanProfileCount || 0}`);
+      }
+    }
+    copy.textContent = `${firstAuditGap.key || "(unknown)"}: status=${firstAuditGap.status || "unknown"}, title=${firstAuditGap.title || "(none)"}, gaps=${firstAuditGap.gaps || "(none)"}${firstAuditGapRuntimeDetails.length ? `, ${firstAuditGapRuntimeDetails.join(", ")}` : ""}`;
     li.appendChild(copy);
     const actions = document.createElement("span");
     actions.className = "row-actions";

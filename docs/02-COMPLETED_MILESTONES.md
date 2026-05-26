@@ -1087,14 +1087,14 @@
 - 提交：`补充补救链按原档案恢复命令`
 - 完成范围：
   - [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 现已把 `runtime_orphan` provider 的 `recommendedRecreateProbeCommand` 提升为优先恢复链路；当存在历史成功样本但当前仓库缺少对应 auth profile 时，会优先给出带原 `profileId` 的恢复命令，而不是只停留在泛化的 bootstrap
-  - 这次补齐后，[12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 对 `guangya / pikpak / uc` 三个 `runtimeOrphanOnly` provider 都会直接输出 `--profile-id gy-live-1 / pikpak-live-1 / uc-live-1` 的 `recommendedPrimaryCommand / recommendedRecreateProbeCommand`，并保留 provider-aware 的字段占位符，例如 `YOUR_REAL_PARENT_ID / YOUR_DEVICE_ID / YOUR_SHARE_PWD_ID`
+  - 这次补齐后，[12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 会对 `guangya / pikpak / uc` 三个 `runtimeOrphanOnly` provider 输出按原 `profileId` 恢复的 `recommendedPrimaryCommand / recommendedRecreateProbeCommand`；其中 Guangya 当前还会同步承认 `gy-live-1, gy-live-defaults-1` 两条 orphan profile，并保留 provider-aware 的字段占位符，例如 `YOUR_REAL_PARENT_ID / YOUR_DEVICE_ID / YOUR_SHARE_PWD_ID`
   - 当前补救链现在会更诚实地区分“恢复旧 profileId 以便重新验证”和“post-bootstrap runtime helper”；`guangya / pikpak / uc` 会优先提示先把原 orphan profile 恢复回当前仓库，再去补 auth/list/metadata/create_dir 证据，避免把历史 runtime success 误读成当前仓库已可复验完成
   - 已同步补强 [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 与 [verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)，把 synthetic bundle、当前仓库 Markdown 和 API 输出里的 orphan-specific `recreate_probe` 命令、`providerSummary`、`runtimeOrphanOnly` 列表一起锁进回归
 - 当前验证证据：
   - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 synthetic remediation bundle/API/Markdown 当前会对 orphan provider 输出 `--profile-id gy-orphan / uc-orphan` 这类恢复命令，并保持 `recreate_probe` 主命令优先级
   - `.\.venv\Scripts\python.exe scripts\export_real_evidence_remediation.py` 已重导出当前 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md)
   - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证导出的补救指南仍会输出 `primaryCommand / recreateProbe / conflictPolicy` 等现有汇总与分项字段
-  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前仓库文档中的 `gy-live-1 / pikpak-live-1 / uc-live-1` orphan 恢复命令与 `build_real_evidence_remediation_bundle()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前仓库文档中的 Guangya 双 orphan profile 以及 `pikpak / uc` 的 orphan 恢复命令与 `build_real_evidence_remediation_bundle()` 保持同步
   - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
 
 ### 已完成补齐项 - `2026-05-26`
@@ -1102,7 +1102,7 @@
 - 提交：`补充运行样本脱节恢复指南`
 - 完成范围：
   - 已新增应用侧聚合模块 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py)，把当前 `runtime_orphan` 样本正式汇总成可消费的 `summary / items / markdown` 三种形态，不再只停留在 `Real Evidence` 与 `Remediation` 里的旁注
-  - 这次补齐后，[13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 会直接列出当前 `gy-live-1 / pikpak-live-1 / uc-live-1` 三条 orphan profile，对每条样本给出 `provider / latestSavedAt / runtimeModes / verifyModes / existingProviderProfiles / suggestedAuthModes / recommendedCreateCommand`
+  - 这次补齐后，[13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 当前会直接列出 `gy-live-1 / gy-live-defaults-1 / pikpak-live-1 / uc-live-1` 四条 orphan profile，对每条样本给出 `provider / latestSavedAt / runtimeModes / verifyModes / existingProviderProfiles / suggestedAuthModes / recommendedCreateCommand`
   - 已补齐按原 `profileId` 重建 stub 的底层能力；这次补齐后，[create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 现已支持 `--profile-id`，配合 [auth_store.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_store.py) 的 `profile_id_override` 保存逻辑，可以显式把历史 runtime success 对应的 `profileId` 恢复回当前仓库，而不是只能新建一个完全无关的新 id
   - 已新增 [webapp.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/webapp.py) 接口 `GET /api/runtime_orphan_recovery` 与 `GET /api/runtime_orphan_recovery_markdown`，登录后可直接在产品内读取 orphan recovery 汇总与 Markdown
   - 设置页现已新增 `Runtime Orphan Recovery` 面板；这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 会在设置页直接显示 `providerCount / orphanProfileCount / runtimeSampleCount / providersWithSavedProfiles / providersWithoutSavedProfiles`，并附带 `orphanProviders / orphanProfilesList / savedProfileProviders / missingProfileProviders` 以及逐 orphan profile 的 `preferredAuthMode / existingProfiles / recreate` 命令摘要
@@ -1113,14 +1113,14 @@
   - `.\.venv\Scripts\python.exe scripts\verify_export_runtime_orphan_recovery.py` 已验证导出的 orphan recovery 指南会写出 `orphanSummary` 与 `recommendedCreateCommand`
   - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证设置页当前含 `Runtime Orphan Recovery` 面板，并会加载与展示对应 summary/command 字段
   - `.\.venv\Scripts\python.exe scripts\export_runtime_orphan_recovery.py` 已重导出当前 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md)
-  - `.\.venv\Scripts\python.exe scripts\verify_current_runtime_orphan_recovery_sync.py` 已验证当前仓库文档中的 `gy-live-1 / pikpak-live-1 / uc-live-1` 与 `build_runtime_orphan_recovery()` 保持同步
+  - `.\.venv\Scripts\python.exe scripts\verify_current_runtime_orphan_recovery_sync.py` 已验证当前仓库文档中的 `gy-live-1 / gy-live-defaults-1 / pikpak-live-1 / uc-live-1` 与 `build_runtime_orphan_recovery()` 保持同步
   - 本轮启动的项目 `.venv` `python` verifier / 导出进程已主动清理，无残留项目测试进程
 
 ### 已完成补齐项 - `2026-05-26`
 
 - 提交：`补充计划审计脱节阻塞说明`
 - 完成范围：
-  - [plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/plan_audit.py) 现已把 `M4 / M5 / P-REAL` 的缺口说明继续对齐到当前真实证据状态，不再只笼统写“缺真实成功样本”，而是明确写出 `runtime_orphan` 阻塞：`guangya` 的 `gy-live-1`、以及 `pikpak / uc` 的历史 runtime success 记录虽然存在，但对应 auth profile 当前并不在仓库内，因此不能当作可复验完成证据
+  - [plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/plan_audit.py) 现已把 `M4 / M5 / P-REAL` 的缺口说明继续对齐到当前真实证据状态，不再只笼统写“缺真实成功样本”，而是明确写出 `runtime_orphan` 阻塞：Guangya 当前已有 `gy-live-1 / gy-live-defaults-1` 两条 orphan success，另有 `pikpak / uc` 的历史 runtime success 记录，但对应 auth profile 当前并不在仓库内，因此不能当作可复验完成证据
   - 这次补齐后，[04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md) 会在 `M4 / M5 / P-REAL` 三段里直接解释为什么 `strictCompletionPercent` 仍停在 `75.0`：不是“完全没样本”，而是现有 `guangya / uc / pikpak` 样本都落在 `runtime_orphan` 场景，缺少当前仓库可复验的 auth profile
   - 已同步补强 [verify_current_plan_audit_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_plan_audit_sync.py) 与 [verify_export_plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_plan_audit.py)，把当前仓库文档与 synthetic 导出里的 `runtime_orphan / auth profile 脱节` 解释一起锁进回归，同时保持 `85.7 / 75.0` 两个百分比口径不变
 - 当前验证证据：
@@ -1216,7 +1216,7 @@
 - 提交：`补充运行样本设置页聚合明细`
 - 完成范围：
   - 设置页 `Task Runtime Evidence` 摘要面板现已继续吸收 [task_runtime_evidence_store.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime_evidence_store.py) 已有的 `profileSummary` 聚合，不再只显示 `success / failed / candidate / probe / blocked / conflictHandled` 的 count
-  - 这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 现在会在设置页摘要中直接显示 `successProfiles / failedProfiles / candidateProfiles / probeProfiles / blockedProfiles / conflictHandledProfiles`，因此当前 UI 已能直接看见 `gy-live-1 / pikpak-live-1 / uc-live-1` 这些已保存运行样本档案
+  - 这次补齐后，[app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 现在会在设置页摘要中直接显示 `successProfiles / failedProfiles / candidateProfiles / probeProfiles / blockedProfiles / conflictHandledProfiles`，因此当前 UI 已能直接看见 `gy-live-1 / gy-live-defaults-1 / pikpak-live-1 / uc-live-1` 这些已保存运行样本档案
   - 已同步补强 [verify_task_runtime_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_runtime_evidence_settings_ui.py)，把这些新的设置页摘要字段一起锁进回归
 - 当前验证证据：
   - `.\.venv\Scripts\python.exe scripts\verify_task_runtime_evidence_settings_ui.py` 已验证设置页摘要当前会读取并展示新的 task runtime profile 级 summary 字段

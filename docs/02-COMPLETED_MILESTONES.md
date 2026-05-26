@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权补救链里的live rejected状态`
+- 完成范围：
+  - 已把 [auth_profile_view.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_view.py) 补上一层轻量拒绝状态识别：当前会基于 `lastError` 中的 `http_error:401/404/...` 解析出 `liveRejectedProfiles / placeholderLiveRejectedProfiles / liveRejectedStatuses / liveRejectedSummaries`
+  - 已把 [auth_profile_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/auth_profile_remediation.py) 接上这组字段，授权补救 bundle / markdown 不再只会说 `needsSecretRefresh`，也会直接写出“这个占位 secret 对应的档案已经打到线上并被哪类状态码拒绝”
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的授权补救设置摘要同步补齐：现在 `Auth Remediation` 的首条修复摘要和列表行都会直接带 `liveRejectedStatuses / placeholderLiveRejectedProfiles / liveRejectedSummaries`
+  - 这样授权补救链终于和前面已经补齐的真实补救链保持同口径了：从授权设置、授权补救 markdown 到 auth profile view，都会明确区分“只是占位 secret”还是“占位 secret 已经真正命中过线上拒绝”
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_profile_readiness.py` 已验证 `auth_profile_view` 当前会把 `http_error:404` 识别成 `liveRejected*` 字段
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_remediation_bundle.py` 已验证授权补救 bundle / markdown / API markdown 当前都已包含 `liveRejected` 状态
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_settings_ui.py` 已验证授权补救设置页摘要当前已经接上这组状态文本
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐建档补救输出里的live rejected状态`
 - 完成范围：
   - 已把 [create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 的 `remediation` 输出再补一层：当前除了 `needsSecretRefresh / placeholderSecretFieldHints`，也会直接返回 `liveRejectedProfiles / placeholderLiveRejectedProfiles / liveRejectedStatuses / liveRejectedSummaries`

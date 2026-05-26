@@ -91,7 +91,11 @@ def main() -> None:
                 "aliyunPlaceholderFieldsBlockReadiness": ali_placeholder.get("profileReady") is False
                 and "token looks like placeholder data; replace tok-demo with a real Aliyun OAuth token" in (ali_placeholder.get("placeholderFieldHints") or [])
                 and "extra.domainId still uses placeholder data; replace domain-demo with a real domainId" in (ali_placeholder.get("placeholderFieldHints") or [])
-                and "extra.driveId still uses placeholder data; replace drive-demo with a real driveId" in (ali_placeholder.get("placeholderFieldHints") or []),
+                and "extra.driveId still uses placeholder data; replace drive-demo with a real driveId" in (ali_placeholder.get("placeholderFieldHints") or [])
+                and ali_placeholder.get("liveRejectedProfiles") == ["ali-placeholder"]
+                and ali_placeholder.get("placeholderLiveRejectedProfiles") == ["ali-placeholder"]
+                and ali_placeholder.get("liveRejectedStatuses") == ["404"]
+                and ali_placeholder.get("liveRejectedSummaries") == ["ali-placeholder:404"],
             },
             ensure_ascii=False,
             indent=2,

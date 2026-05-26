@@ -168,6 +168,27 @@ def profile_placeholder_secret_field_hints(profile: object) -> list[str]:
     return hints
 
 
+def profile_live_rejected_status(profile: object) -> tuple[list[str], list[str], list[str], list[str]]:
+    profile_id = str(getattr(profile, "profileId", "") or "").strip()
+    display_name = str(getattr(profile, "displayName", "") or profile_id).strip()
+    last_error = str(getattr(profile, "lastError", "") or "").strip()
+    placeholder_secret_hints = profile_placeholder_secret_field_hints(profile)
+    if not profile_id or not last_error:
+        return [], [], [], []
+    status = ""
+    if last_error.startswith("http_error:"):
+        status = last_error.split(":", 1)[1].strip()
+    elif last_error.isdigit():
+        status = last_error
+    if not status:
+        return [], [], [], []
+    live_rejected_profiles = [display_name or profile_id]
+    placeholder_live_rejected_profiles = [display_name or profile_id] if placeholder_secret_hints else []
+    live_rejected_statuses = [status]
+    live_rejected_summaries = [f"{display_name or profile_id}:{status}"]
+    return live_rejected_profiles, placeholder_live_rejected_profiles, live_rejected_statuses, live_rejected_summaries
+
+
 def profile_write_readiness(profile: object) -> tuple[bool, list[str], str]:
     provider_key = str(getattr(profile, "providerKey", "") or "")
     token = str(getattr(profile, "token", "") or "").strip()
@@ -200,12 +221,17 @@ def auth_profile_view(profile: object) -> dict[str, object]:
     missing = profile_missing_field_hints(profile)
     placeholder_missing = profile_placeholder_field_hints(profile)
     placeholder_secret_missing = profile_placeholder_secret_field_hints(profile)
+    live_rejected_profiles, placeholder_live_rejected_profiles, live_rejected_statuses, live_rejected_summaries = profile_live_rejected_status(profile)
     resolved_parent_id, resolved_file_id = resolved_probe_defaults(profile)
     write_ready, write_missing, write_blocker_note = profile_write_readiness(profile)
     data["missingFieldHints"] = missing + placeholder_missing
     data["placeholderFieldHints"] = placeholder_missing
     data["placeholderSecretFieldHints"] = placeholder_secret_missing
     data["needsSecretRefresh"] = bool(placeholder_secret_missing)
+    data["liveRejectedProfiles"] = live_rejected_profiles
+    data["placeholderLiveRejectedProfiles"] = placeholder_live_rejected_profiles
+    data["liveRejectedStatuses"] = live_rejected_statuses
+    data["liveRejectedSummaries"] = live_rejected_summaries
     data["profileHasPlaceholderValues"] = bool(placeholder_missing)
     data["profileReady"] = not (missing or placeholder_missing)
     data["resolvedParentId"] = resolved_parent_id

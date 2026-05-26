@@ -49,6 +49,9 @@ def main() -> None:
                 and 'focusBtn.addEventListener("click", () => focusAuthRemediationProfile(item.profileId));' in app_js
                 and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(item.providerKey));' in app_js
                 and "placeholderSecretHints=" in app_js
+                and "liveRejectedStatuses=" in app_js
+                and "placeholderLiveRejectedProfiles=" in app_js
+                and "liveRejectedSummaries=" in app_js
                 and "recreateProbe=" in app_js,
                 "jsLogoutClearsAuthBundles": "state.authEvidenceBundle = null;" in app_js and "state.authRemediationBundle = null;" in app_js,
             },

@@ -2736,7 +2736,9 @@ function renderSettingsPanel() {
     const copy = document.createElement("span");
     const missing = (firstAuthRemediationGap.missingFieldHints || []).join(" | ");
     const writeMissing = (firstAuthRemediationGap.writeMissingFieldHints || []).join(" | ");
-    copy.textContent = `${firstAuthRemediationGap.displayName || firstAuthRemediationGap.profileId || "(unknown)"} [${firstAuthRemediationGap.providerKey || "(unknown)"}]: profileReady=${Boolean(firstAuthRemediationGap.profileReady)}, writeReady=${Boolean(firstAuthRemediationGap.writeReady)}${missing ? `, missing=${missing}` : ""}${writeMissing ? `, writeMissing=${writeMissing}` : ""}, needsSecretRefresh=${Boolean(firstAuthRemediationGap.needsSecretRefresh)}`;
+    const firstLiveRejectedStatuses = (firstAuthRemediationGap.liveRejectedStatuses || []).join("/") || "";
+    const firstPlaceholderLiveRejectedProfiles = (firstAuthRemediationGap.placeholderLiveRejectedProfiles || []).join("/") || "";
+    copy.textContent = `${firstAuthRemediationGap.displayName || firstAuthRemediationGap.profileId || "(unknown)"} [${firstAuthRemediationGap.providerKey || "(unknown)"}]: profileReady=${Boolean(firstAuthRemediationGap.profileReady)}, writeReady=${Boolean(firstAuthRemediationGap.writeReady)}${missing ? `, missing=${missing}` : ""}${writeMissing ? `, writeMissing=${writeMissing}` : ""}, needsSecretRefresh=${Boolean(firstAuthRemediationGap.needsSecretRefresh)}${firstLiveRejectedStatuses ? `, liveRejectedStatuses=${firstLiveRejectedStatuses}` : ""}${firstPlaceholderLiveRejectedProfiles ? `, placeholderLiveRejectedProfiles=${firstPlaceholderLiveRejectedProfiles}` : ""}`;
     li.appendChild(copy);
     const actions = document.createElement("span");
     actions.className = "row-actions";
@@ -2759,8 +2761,11 @@ function renderSettingsPanel() {
     const copy = document.createElement("span");
     const missing = (item.missingFieldHints || []).join(" | ");
     const placeholderSecretHints = (item.placeholderSecretFieldHints || []).join("/");
+    const liveRejectedStatuses = (item.liveRejectedStatuses || []).join("/") || "";
+    const placeholderLiveRejectedProfiles = (item.placeholderLiveRejectedProfiles || []).join("/") || "";
+    const liveRejectedSummaries = (item.liveRejectedSummaries || []).join(" | ") || "";
     const writeMissing = (item.writeMissingFieldHints || []).join(" | ");
-    copy.textContent = `${item.displayName || item.profileId || "(unknown)"} [${item.providerKey || "(unknown)"}]: profileReady=${Boolean(item.profileReady)}, writeReady=${Boolean(item.writeReady)}, resolvedParentId=${item.resolvedParentId || "(none)"}, resolvedFileId=${item.resolvedFileId || "(none)"}${missing ? `, missing=${missing}` : ""}${placeholderSecretHints ? `, placeholderSecretHints=${placeholderSecretHints}` : ""}${writeMissing ? `, writeMissing=${writeMissing}` : ""}${item.recommendedPatchCommand ? `, patch=${item.recommendedPatchCommand}` : ""}${item.recommendedRecreateProbeCommand ? `, recreateProbe=${item.recommendedRecreateProbeCommand}` : ""}${item.exactRecreateHelper ? `, exactRecreate=${item.exactRecreateHelper}` : ""}`;
+    copy.textContent = `${item.displayName || item.profileId || "(unknown)"} [${item.providerKey || "(unknown)"}]: profileReady=${Boolean(item.profileReady)}, writeReady=${Boolean(item.writeReady)}, resolvedParentId=${item.resolvedParentId || "(none)"}, resolvedFileId=${item.resolvedFileId || "(none)"}${missing ? `, missing=${missing}` : ""}${placeholderSecretHints ? `, placeholderSecretHints=${placeholderSecretHints}` : ""}${liveRejectedStatuses ? `, liveRejectedStatuses=${liveRejectedStatuses}` : ""}${placeholderLiveRejectedProfiles ? `, placeholderLiveRejectedProfiles=${placeholderLiveRejectedProfiles}` : ""}${liveRejectedSummaries ? `, liveRejectedSummaries=${liveRejectedSummaries}` : ""}${writeMissing ? `, writeMissing=${writeMissing}` : ""}${item.recommendedPatchCommand ? `, patch=${item.recommendedPatchCommand}` : ""}${item.recommendedRecreateProbeCommand ? `, recreateProbe=${item.recommendedRecreateProbeCommand}` : ""}${item.exactRecreateHelper ? `, exactRecreate=${item.exactRecreateHelper}` : ""}`;
     li.appendChild(copy);
     const actions = document.createElement("span");
     actions.className = "row-actions";

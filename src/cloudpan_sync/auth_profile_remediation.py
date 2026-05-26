@@ -71,6 +71,10 @@ def build_auth_remediation_bundle(*, profile_views: list[dict[str, object]]) -> 
                 "placeholderFieldHints": list(profile.get("placeholderFieldHints") or []),
                 "placeholderSecretFieldHints": list(profile.get("placeholderSecretFieldHints") or []),
                 "needsSecretRefresh": needs_secret_refresh,
+                "liveRejectedProfiles": list(profile.get("liveRejectedProfiles") or []),
+                "placeholderLiveRejectedProfiles": list(profile.get("placeholderLiveRejectedProfiles") or []),
+                "liveRejectedStatuses": list(profile.get("liveRejectedStatuses") or []),
+                "liveRejectedSummaries": list(profile.get("liveRejectedSummaries") or []),
                 "writeMissingFieldHints": list(profile.get("writeMissingFieldHints") or []),
                 "writeBlockerNote": str(profile.get("writeBlockerNote") or ""),
                 "resolvedParentId": str(profile.get("resolvedParentId") or ""),
@@ -176,6 +180,14 @@ def auth_remediation_bundle_to_markdown(payload: dict[str, object]) -> str:
         placeholder_secret_missing = list(row.get("placeholderSecretFieldHints") or [])
         if placeholder_secret_missing:
             lines.append(f"- placeholderSecretFieldHints: `{', '.join(placeholder_secret_missing)}`")
+        if row.get("placeholderLiveRejectedProfiles") or row.get("liveRejectedProfiles"):
+            lines.append(
+                f"- liveRejected: profiles=`{', '.join(row.get('liveRejectedProfiles') or []) or '(none)'}` "
+                f"placeholderProfiles=`{', '.join(row.get('placeholderLiveRejectedProfiles') or []) or '(none)'}` "
+                f"statuses=`{', '.join(row.get('liveRejectedStatuses') or []) or '(none)'}`"
+            )
+        if row.get("liveRejectedSummaries"):
+            lines.append(f"- liveRejectedSummaries: `{ ' | '.join(row.get('liveRejectedSummaries') or []) }`")
         write_missing = list(row.get("writeMissingFieldHints") or [])
         if write_missing:
             lines.append(f"- writeMissingFieldHints: `{', '.join(write_missing)}`")

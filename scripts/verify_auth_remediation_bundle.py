@@ -44,7 +44,7 @@ def main() -> None:
                         "cookie": "",
                         "extra": {},
                         "status": "invalid",
-                        "lastError": "missing_parent_id",
+                        "lastError": "http_error:401",
                         "createdAt": "2026-05-23T00:00:00+00:00",
                         "updatedAt": "2026-05-23T00:00:00+00:00",
                     },
@@ -57,7 +57,7 @@ def main() -> None:
                     "cookie": "",
                     "extra": {"domainId": "domain-demo", "driveId": "drive-demo"},
                     "status": "invalid",
-                    "lastError": "placeholder_secret",
+                    "lastError": "http_error:404",
                     "createdAt": "2026-05-23T00:00:00+00:00",
                     "updatedAt": "2026-05-23T00:00:00+00:00",
                 },
@@ -122,12 +122,16 @@ def main() -> None:
                     ),
                     "markdownHasGuangyaRecreateProbeCommand": (
                         "- placeholderSecretFieldHints: `token`" in smoke_guangya
+                        and "- liveRejected: profiles=`smoke-guangya` placeholderProfiles=`smoke-guangya` statuses=`401`" in smoke_guangya
+                        and "- liveRejectedSummaries: `smoke-guangya:401`" in smoke_guangya
                         and "- recommendedPatchCommand:" not in smoke_guangya
                         and "create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token --display-name smoke-guangya --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe"
                         in smoke_guangya
                     ),
                     "markdownHasAliyunRecreateProbeCommand": (
                         "- placeholderSecretFieldHints: `token`" in aliyun_bootstrap
+                        and "- liveRejected: profiles=`aliyun-bootstrap` placeholderProfiles=`aliyun-bootstrap` statuses=`404`" in aliyun_bootstrap
+                        and "- liveRejectedSummaries: `aliyun-bootstrap:404`" in aliyun_bootstrap
                         and "- recommendedPatchCommand:" not in aliyun_bootstrap
                         and "create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name aliyun-bootstrap --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe"
                         in aliyun_bootstrap
@@ -165,6 +169,8 @@ def main() -> None:
                                 if str((row or {}).get("providerKey") or "") == "aliyundrive_open"
                                 and bool((row or {}).get("needsSecretRefresh"))
                                 and "token" in ",".join((row or {}).get("placeholderSecretFieldHints") or [])
+                                and list((row or {}).get("liveRejectedStatuses") or []) == ["404"]
+                                and list((row or {}).get("placeholderLiveRejectedProfiles") or []) == ["aliyun-bootstrap"]
                                 and "create_auth_profile_stub.py" in str((row or {}).get("recommendedRecreateProbeCommand") or "")
                             ),
                             None,
@@ -173,6 +179,7 @@ def main() -> None:
                     "apiMarkdownHasTitle": "# 授权补救指南 / Auth Remediation Guide" in str(api_markdown.get("markdown", "")),
                     "apiMarkdownHasRecreateProbeCommand": "recommendedRecreateProbeCommand" in str(api_markdown.get("markdown", ""))
                     and "placeholderSecretFieldHints: `token`" in str(api_markdown.get("markdown", ""))
+                    and "liveRejected: profiles=`aliyun-bootstrap` placeholderProfiles=`aliyun-bootstrap` statuses=`404`" in str(api_markdown.get("markdown", ""))
                     and "profileSummary: `ready=189-readonly-share` `needsFix=aliyun-bootstrap, smoke-guangya` `writeReady=aliyun-bootstrap, smoke-guangya` `writeNeedsFix=189-readonly-share` `needsSecretRefresh=aliyun-bootstrap, smoke-guangya`" in str(api_markdown.get("markdown", "")),
                     "apiMarkdownHas189ReadonlyPatchCommand": "patch_189cloud_account_auth.py" in str(api_markdown.get("markdown", "")),
                 },

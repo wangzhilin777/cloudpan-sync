@@ -112,6 +112,12 @@ class RuntimeOrphanRecreateRequest(BaseModel):
     orphanProfileId: str
 
 
+class RuntimeOrphanBatchRecreateRequest(BaseModel):
+    providerKey: str = ""
+    orphanProfileIds: list[str] = Field(default_factory=list)
+    overwriteExisting: bool = False
+
+
 class RemediationCreateProfileRequest(BaseModel):
     providerKey: str
 

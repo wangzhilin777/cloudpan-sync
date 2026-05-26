@@ -10,6 +10,22 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`runtime orphan 恢复补上批量重建 API`
+- 完成范围：
+  - 已把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 从“只支持单条 orphan stub 重建”继续推进成支持批量恢复：当前新增 `recreate_runtime_orphan_profiles()`，默认可批量补齐当前缺失的 orphan stub；当显式 `overwriteExisting=true` 时，也可直接基于历史 runtime success 样本覆盖同 `profileId` 的现有本地档案
+  - 已把 [webapp.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/webapp.py) 接上新的 `POST /api/runtime_orphan_recovery/recreate_profiles`，这样批量 orphan 恢复不再只是脚本或命令展示，而是正式进入当前 Web 主链
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `Runtime Orphan Recovery` 设置页补上可点击批量动作：当前会直接显示 `Batch Recreate Missing Orphan Stubs` 与 `Batch Overwrite Existing Orphan Stubs` 两个按钮，并把最新批量动作摘要写入 `latestRuntimeOrphanBatchAction`
+  - 同一轮还把 batch 动作的刷新链路补齐：批量恢复后会和单条恢复一样，同步刷新 `Auth / Runtime Orphan Recovery / Real Evidence / Real Evidence Remediation / Task Runtime Evidence / Status Matrix / Audit` 这些直接影响 `M4 / M5 / P-REAL` 判断的面板
+  - 已同步补强 [verify_runtime_orphan_batch_recreate_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_batch_recreate_api.py)、[verify_runtime_orphan_recovery_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery_settings_ui.py)、[verify_runtime_orphan_recreate_refreshes_views.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_refreshes_views.py)，把 batch API、设置页按钮、刷新链路三层一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_batch_recreate_api.py` 已验证批量 API 当前能正确完成“只补缺失 stub”以及“覆盖现有 stub”两条路径
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_api.py` 已验证原有单条 orphan 重建 API 仍保持可用
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证设置页当前已显示 batch 按钮与 batch 摘要状态
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_refreshes_views.py` 已验证 batch 重建动作当前会刷新与 `P-REAL` 直接相关的同一组视图
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`runtime orphan 恢复主链补上批量入口`
 - 完成范围：
   - 已把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 的 summary 主载荷继续补强：现在除了逐条 orphan 的 `recommendedCreate / refresh / runtimeProbe / runtimeSuccess`，顶层 summary 也会直接统一产出 `recommendedBatchDryRunCommand / recommendedBatchWriteMissingCommand / recommendedBatchOverwriteExistingCommand`

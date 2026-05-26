@@ -288,94 +288,109 @@ def _recommended_primary_command(
     return ("", "")
 
 
-def build_runtime_orphan_recovery() -> dict[str, object]:
+def _runtime_orphan_groups(*, include_saved_profiles: bool = False) -> dict[tuple[str, str], list[dict[str, object]]]:
     runtime_rows = latest_task_runtime_evidence()
     saved_profiles = list_profiles()
     saved_profile_ids = {str(profile.profileId or "") for profile in saved_profiles if str(profile.profileId or "")}
-    provider_profiles: dict[str, list[object]] = {}
-    for profile in saved_profiles:
-        provider_profiles.setdefault(str(profile.providerKey or ""), []).append(profile)
-
     orphan_groups: dict[tuple[str, str], list[dict[str, object]]] = {}
     for row in runtime_rows:
         provider_key = str(row.get("providerKey") or "")
         profile_id = str(row.get("profileId") or "")
-        if not provider_key or not profile_id or profile_id in saved_profile_ids:
+        if not provider_key or not profile_id:
+            continue
+        if not include_saved_profiles and profile_id in saved_profile_ids:
             continue
         if not bool(row.get("success")):
             continue
         if bool(row.get("candidateOnly")) or bool(row.get("probeOnly")):
             continue
         orphan_groups.setdefault((provider_key, profile_id), []).append(dict(row))
+    return orphan_groups
+
+
+def _build_runtime_orphan_item(
+    provider_key: str,
+    profile_id: str,
+    rows: list[dict[str, object]],
+    same_provider_profiles: list[object],
+) -> dict[str, object]:
+    auth_modes = provider_auth_modes(provider_key)
+    field_hints = capture_field_hints(provider_key)
+    preferred_auth_mode = _preferred_stub_auth_mode(provider_key, auth_modes)
+    sample_paths = sorted({str(row.get("path") or "") for row in rows if str(row.get("path") or "")})
+    runtime_modes = sorted({str(row.get("mode") or "") for row in rows if str(row.get("mode") or "")})
+    verify_modes = sorted({str(row.get("verifyMode") or "") for row in rows if str(row.get("verifyMode") or "")})
+    conflict_policies = sorted({str(row.get("conflictPolicy") or "") for row in rows if str(row.get("conflictPolicy") or "")})
+    conflict_actions = sorted({str(row.get("conflictAction") or "") for row in rows if str(row.get("conflictAction") or "")})
+    latest_saved_at = max((str(row.get("savedAt") or "") for row in rows if str(row.get("savedAt") or "")), default="")
+    command = _command_with_field_hints(provider_key, profile_id, preferred_auth_mode, field_hints)
+    refresh_command = _refresh_evidence_command(provider_key, profile_id)
+    runtime_probe_command = _runtime_probe_command(provider_key, profile_id)
+    runtime_success_command = _runtime_success_command(provider_key, profile_id)
+    primary_label, primary_command = _recommended_primary_command(
+        create_command=command,
+        refresh_command=refresh_command,
+        runtime_probe_command=runtime_probe_command,
+        runtime_success_command=runtime_success_command,
+        has_existing_provider_profiles=bool(same_provider_profiles),
+    )
+    exact_refresh_helper = _exact_refresh_helper(refresh_command, profile_id)
+    exact_create_helper = _exact_create_helper(command, profile_id)
+    exact_runtime_probe_helper = _exact_runtime_helper(runtime_probe_command, profile_id)
+    exact_runtime_success_helper = _exact_runtime_helper(runtime_success_command, profile_id)
+    exact_overwrite_variant_helper = _exact_runtime_helper(
+        _overwrite_variant_command(runtime_success_command or runtime_probe_command),
+        profile_id,
+    )
+    return {
+        "providerKey": provider_key,
+        "providerDisplayName": _provider_display_name(provider_key),
+        "orphanProfileId": profile_id,
+        "sampleCount": len(rows),
+        "pathCount": len(sample_paths),
+        "paths": sample_paths,
+        "runtimeModes": runtime_modes,
+        "verifyModes": verify_modes,
+        "conflictPolicies": conflict_policies,
+        "conflictActions": conflict_actions,
+        "latestSavedAt": latest_saved_at,
+        "suggestedAuthModes": auth_modes,
+        "preferredAuthMode": preferred_auth_mode,
+        "requiredFieldHints": field_hints,
+        "webLoginUrl": capture_login_url(provider_key),
+        "officialDocsUrl": official_docs_url(provider_key),
+        "existingProviderProfileCount": len(same_provider_profiles),
+        "existingProviderProfileIds": [str(profile.profileId or "") for profile in same_provider_profiles if str(profile.profileId or "")],
+        "existingProviderProfileNames": [str(profile.displayName or profile.profileId or "") for profile in same_provider_profiles],
+        "recommendedCreateCommand": command,
+        "recommendedRefreshEvidenceCommand": refresh_command,
+        "recommendedRuntimeProbeCommand": runtime_probe_command,
+        "recommendedRuntimeSuccessCommand": runtime_success_command,
+        "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command),
+        "recommendedPrimaryCommandLabel": primary_label,
+        "recommendedPrimaryCommand": primary_command,
+        "exactCreateHelper": exact_create_helper,
+        "exactRefreshEvidenceHelper": exact_refresh_helper,
+        "exactRuntimeProbeHelper": exact_runtime_probe_helper,
+        "exactRuntimeSuccessHelper": exact_runtime_success_helper,
+        "exactOverwriteVariantHelper": exact_overwrite_variant_helper,
+        "nextStep": "先按原 runtime profileId 重建一个可复验 auth profile stub，再用真实凭证补字段并重跑 validation / live probe；只有这样，这条历史 runtime success 样本才有机会重新变成当前仓库可复验的证据。",
+        "note": "这一步只是把历史 runtime success 样本对应的 profileId 恢复回当前仓库，不会自动把样本算成新的真实完成证据；仍需后续用真实凭证重新验证。",
+    }
+
+
+def build_runtime_orphan_recovery() -> dict[str, object]:
+    saved_profiles = list_profiles()
+    saved_profile_ids = {str(profile.profileId or "") for profile in saved_profiles if str(profile.profileId or "")}
+    provider_profiles: dict[str, list[object]] = {}
+    for profile in saved_profiles:
+        provider_profiles.setdefault(str(profile.providerKey or ""), []).append(profile)
+    orphan_groups = _runtime_orphan_groups(include_saved_profiles=False)
 
     items: list[dict[str, object]] = []
     for (provider_key, profile_id), rows in sorted(orphan_groups.items(), key=lambda item: (item[0][0], item[0][1])):
-        auth_modes = provider_auth_modes(provider_key)
-        field_hints = capture_field_hints(provider_key)
-        preferred_auth_mode = _preferred_stub_auth_mode(provider_key, auth_modes)
         same_provider_profiles = provider_profiles.get(provider_key, [])
-        sample_paths = sorted({str(row.get("path") or "") for row in rows if str(row.get("path") or "")})
-        runtime_modes = sorted({str(row.get("mode") or "") for row in rows if str(row.get("mode") or "")})
-        verify_modes = sorted({str(row.get("verifyMode") or "") for row in rows if str(row.get("verifyMode") or "")})
-        conflict_policies = sorted({str(row.get("conflictPolicy") or "") for row in rows if str(row.get("conflictPolicy") or "")})
-        conflict_actions = sorted({str(row.get("conflictAction") or "") for row in rows if str(row.get("conflictAction") or "")})
-        latest_saved_at = max((str(row.get("savedAt") or "") for row in rows if str(row.get("savedAt") or "")), default="")
-        command = _command_with_field_hints(provider_key, profile_id, preferred_auth_mode, field_hints)
-        refresh_command = _refresh_evidence_command(provider_key, profile_id)
-        runtime_probe_command = _runtime_probe_command(provider_key, profile_id)
-        runtime_success_command = _runtime_success_command(provider_key, profile_id)
-        primary_label, primary_command = _recommended_primary_command(
-            create_command=command,
-            refresh_command=refresh_command,
-            runtime_probe_command=runtime_probe_command,
-            runtime_success_command=runtime_success_command,
-            has_existing_provider_profiles=bool(same_provider_profiles),
-        )
-        exact_refresh_helper = _exact_refresh_helper(refresh_command, profile_id)
-        exact_create_helper = _exact_create_helper(command, profile_id)
-        exact_runtime_probe_helper = _exact_runtime_helper(runtime_probe_command, profile_id)
-        exact_runtime_success_helper = _exact_runtime_helper(runtime_success_command, profile_id)
-        exact_overwrite_variant_helper = _exact_runtime_helper(
-            _overwrite_variant_command(runtime_success_command or runtime_probe_command),
-            profile_id,
-        )
-        items.append(
-            {
-                "providerKey": provider_key,
-                "providerDisplayName": _provider_display_name(provider_key),
-                "orphanProfileId": profile_id,
-                "sampleCount": len(rows),
-                "pathCount": len(sample_paths),
-                "paths": sample_paths,
-                "runtimeModes": runtime_modes,
-                "verifyModes": verify_modes,
-                "conflictPolicies": conflict_policies,
-                "conflictActions": conflict_actions,
-                "latestSavedAt": latest_saved_at,
-                "suggestedAuthModes": auth_modes,
-                "preferredAuthMode": preferred_auth_mode,
-                "requiredFieldHints": field_hints,
-                "webLoginUrl": capture_login_url(provider_key),
-                "officialDocsUrl": official_docs_url(provider_key),
-                "existingProviderProfileCount": len(same_provider_profiles),
-                "existingProviderProfileIds": [str(profile.profileId or "") for profile in same_provider_profiles if str(profile.profileId or "")],
-                "existingProviderProfileNames": [str(profile.displayName or profile.profileId or "") for profile in same_provider_profiles],
-                "recommendedCreateCommand": command,
-                "recommendedRefreshEvidenceCommand": refresh_command,
-                "recommendedRuntimeProbeCommand": runtime_probe_command,
-                "recommendedRuntimeSuccessCommand": runtime_success_command,
-                "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command),
-                "recommendedPrimaryCommandLabel": primary_label,
-                "recommendedPrimaryCommand": primary_command,
-                "exactCreateHelper": exact_create_helper,
-                "exactRefreshEvidenceHelper": exact_refresh_helper,
-                "exactRuntimeProbeHelper": exact_runtime_probe_helper,
-                "exactRuntimeSuccessHelper": exact_runtime_success_helper,
-                "exactOverwriteVariantHelper": exact_overwrite_variant_helper,
-                "nextStep": "先按原 runtime profileId 重建一个可复验 auth profile stub，再用真实凭证补字段并重跑 validation / live probe；只有这样，这条历史 runtime success 样本才有机会重新变成当前仓库可复验的证据。",
-                "note": "这一步只是把历史 runtime success 样本对应的 profileId 恢复回当前仓库，不会自动把样本算成新的真实完成证据；仍需后续用真实凭证重新验证。",
-            }
-        )
+        items.append(_build_runtime_orphan_item(provider_key, profile_id, rows, same_provider_profiles))
 
     summary_orphan_providers = sorted(
         {str(item.get("providerKey") or "") for item in items if str(item.get("providerKey") or "")}
@@ -437,13 +452,22 @@ def build_runtime_orphan_recovery() -> dict[str, object]:
 
 
 def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -> dict[str, object]:
+    return recreate_runtime_orphan_profile_with_options(provider_key, orphan_profile_id, overwrite_existing=False)
+
+
+def recreate_runtime_orphan_profile_with_options(
+    provider_key: str,
+    orphan_profile_id: str,
+    *,
+    overwrite_existing: bool = False,
+) -> dict[str, object]:
     provider = str(provider_key or "").strip()
     profile_id = str(orphan_profile_id or "").strip()
     if not provider or not profile_id:
         return {"ok": False, "error": "provider_or_profile_missing"}
 
     existing = get_profile(profile_id)
-    if existing is not None:
+    if existing is not None and not overwrite_existing:
         refresh_command = _refresh_evidence_command(provider, profile_id)
         runtime_probe_command = _runtime_probe_command(provider, profile_id)
         runtime_success_command = _runtime_success_command(provider, profile_id)
@@ -498,6 +522,11 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
         if str(item.get("providerKey") or "") == provider and str(item.get("orphanProfileId") or "") == profile_id:
             target_item = item
             break
+    if target_item is None and overwrite_existing:
+        rows = _runtime_orphan_groups(include_saved_profiles=True).get((provider, profile_id), [])
+        if rows:
+            same_provider_profiles = [profile for profile in list_profiles() if str(profile.providerKey or "") == provider]
+            target_item = _build_runtime_orphan_item(provider, profile_id, rows, same_provider_profiles)
     if target_item is None:
         return {"ok": False, "error": "runtime_orphan_not_found"}
 
@@ -538,7 +567,7 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
     return {
         "ok": True,
         "created": True,
-        "status": "stub_created",
+        "status": "stub_overwritten" if existing is not None and overwrite_existing else "stub_created",
         "message": "A placeholder auth profile stub was recreated for this runtime orphan. Fill the real credentials, then rerun validation/live probe before treating the old runtime success as re-verifiable evidence.",
         "item": auth_profile_view(profile),
         "requiredFieldHints": list(target_item.get("requiredFieldHints") or []),
@@ -555,6 +584,69 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
         "exactRuntimeSuccessHelper": exact_runtime_success_helper,
         "exactOverwriteVariantHelper": exact_overwrite_variant_helper,
         "nextStep": str(target_item.get("nextStep") or ""),
+    }
+
+
+def recreate_runtime_orphan_profiles(
+    *,
+    provider_key: str = "",
+    orphan_profile_ids: list[str] | None = None,
+    overwrite_existing: bool = False,
+) -> dict[str, object]:
+    provider = str(provider_key or "").strip()
+    target_profile_ids = {
+        str(value or "").strip()
+        for value in (orphan_profile_ids or [])
+        if str(value or "").strip()
+    }
+    if overwrite_existing:
+        selected_items = [
+            {
+                "providerKey": provider_key_value,
+                "orphanProfileId": profile_id_value,
+            }
+            for (provider_key_value, profile_id_value), _rows in sorted(
+                _runtime_orphan_groups(include_saved_profiles=True).items(),
+                key=lambda item: (item[0][0], item[0][1]),
+            )
+            if (not provider or provider_key_value == provider)
+            and (not target_profile_ids or profile_id_value in target_profile_ids)
+        ]
+    else:
+        payload = build_runtime_orphan_recovery()
+        selected_items = [
+            dict(item or {})
+            for item in (payload.get("items") or [])
+            if (not provider or str((item or {}).get("providerKey") or "").strip() == provider)
+            and (not target_profile_ids or str((item or {}).get("orphanProfileId") or "").strip() in target_profile_ids)
+        ]
+    if not selected_items:
+        return {"ok": False, "error": "runtime_orphan_not_found"}
+
+    results: list[dict[str, object]] = []
+    for item in selected_items:
+        result = recreate_runtime_orphan_profile_with_options(
+            str(item.get("providerKey") or ""),
+            str(item.get("orphanProfileId") or ""),
+            overwrite_existing=overwrite_existing,
+        )
+        results.append(result)
+
+    return {
+        "ok": True,
+        "status": "batch_completed",
+        "providerKey": provider,
+        "overwriteExisting": bool(overwrite_existing),
+        "selectedCount": len(selected_items),
+        "createdCount": sum(1 for item in results if item.get("status") == "stub_created"),
+        "overwrittenCount": sum(1 for item in results if item.get("status") == "stub_overwritten"),
+        "alreadyExistsCount": sum(1 for item in results if item.get("status") == "already_exists"),
+        "errorCount": sum(1 for item in results if not bool(item.get("ok"))),
+        "orphanProfileIds": [str(item.get("orphanProfileId") or "") for item in selected_items if str(item.get("orphanProfileId") or "")],
+        "items": results,
+        "recommendedBatchDryRunCommand": _batch_stub_command(provider_key=provider),
+        "recommendedBatchWriteMissingCommand": _batch_stub_command(provider_key=provider, write=True),
+        "recommendedBatchOverwriteExistingCommand": _batch_stub_command(provider_key=provider, write=True, overwrite_existing=True),
     }
 
 

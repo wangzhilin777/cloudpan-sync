@@ -53,6 +53,7 @@ const state = {
   taskRuntimeEvidenceMeta: { historyCount: 0, summary: null },
   runtimeOrphanRecovery: null,
   lastRuntimeOrphanAction: null,
+  lastRuntimeOrphanBatchAction: null,
   authCaptureGuide: null,
   authCaptureParseResult: null,
   tasks: [],
@@ -1344,6 +1345,27 @@ async function recreateRuntimeOrphanProfile(providerKey, orphanProfileId) {
     state.activeTab = "nav.auth";
     render();
   }
+}
+
+async function batchRecreateRuntimeOrphanProfiles(providerKey = "", overwriteExisting = false) {
+  const data = await fetchJson("/api/runtime_orphan_recovery/recreate_profiles", {
+    method: "POST",
+    body: JSON.stringify({ providerKey, overwriteExisting, orphanProfileIds: [] }),
+  });
+  state.lastRuntimeOrphanBatchAction = data;
+  setAuthValidationSummary(data, "Runtime Orphan Batch");
+  await Promise.all([
+    loadAuthProfiles(),
+    loadRuntimeOrphanRecoverySummary(),
+    loadAuthEvidenceBundleSummary(),
+    loadAuthRemediationSummary(),
+    loadLiveValidations(),
+    loadRealEvidenceSummary(),
+    loadRealEvidenceRemediationSummary(),
+    loadTaskRuntimeEvidence(),
+    loadStatusMatrix(),
+    loadAuditSummary(),
+  ]);
 }
 
 function appendRuntimeOrphanRecreateButtons(actions, orphanItems, buttonPrefix = "Recreate Orphan Stub") {
@@ -3311,6 +3333,7 @@ function renderSettingsPanel() {
   const orphanRecoverySummary = state.runtimeOrphanRecovery?.summary || {};
   const orphanRecoveryItems = state.runtimeOrphanRecovery?.items || [];
   const lastRuntimeOrphanAction = state.lastRuntimeOrphanAction || null;
+  const lastRuntimeOrphanBatchAction = state.lastRuntimeOrphanBatchAction || null;
   const orphanRecoveryRows = [
     `providers=${orphanRecoverySummary.providerCount || 0}, orphanProfiles=${orphanRecoverySummary.orphanProfileCount || 0}, runtimeSamples=${orphanRecoverySummary.runtimeSampleCount || 0}, providersWithSavedProfiles=${orphanRecoverySummary.providersWithSavedProfiles || 0}, providersWithoutSavedProfiles=${orphanRecoverySummary.providersWithoutSavedProfiles || 0}`,
     `orphanProviders=${(orphanRecoverySummary.orphanProviders || []).join("/") || "(none)"}, orphanProfilesList=${(orphanRecoverySummary.orphanProfiles || []).join("/") || "(none)"}`,
@@ -3320,6 +3343,33 @@ function renderSettingsPanel() {
   for (const row of orphanRecoveryRows) {
     const li = document.createElement("li");
     li.textContent = row;
+    runtimeOrphanRecoveryList.appendChild(li);
+  }
+  if (orphanRecoverySummary.orphanProfileCount > 0) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    copy.textContent = `runtime_orphan_batch_actions: dryRun=${orphanRecoverySummary.recommendedBatchDryRunCommand || "(none)"}, writeMissing=${orphanRecoverySummary.recommendedBatchWriteMissingCommand || "(none)"}, overwriteExisting=${orphanRecoverySummary.recommendedBatchOverwriteExistingCommand || "(none)"}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    const batchBtn = document.createElement("button");
+    batchBtn.className = "ghost";
+    batchBtn.textContent = "Batch Recreate Missing Orphan Stubs";
+    batchBtn.addEventListener("click", () => batchRecreateRuntimeOrphanProfiles("", false));
+    actions.appendChild(batchBtn);
+    const overwriteBtn = document.createElement("button");
+    overwriteBtn.className = "ghost";
+    overwriteBtn.textContent = "Batch Overwrite Existing Orphan Stubs";
+    overwriteBtn.addEventListener("click", () => batchRecreateRuntimeOrphanProfiles("", true));
+    actions.appendChild(overwriteBtn);
+    li.appendChild(actions);
+    runtimeOrphanRecoveryList.appendChild(li);
+  }
+  if (lastRuntimeOrphanBatchAction?.status) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    copy.textContent = `latestRuntimeOrphanBatchAction=${lastRuntimeOrphanBatchAction.status || "(unknown)"}, provider=${lastRuntimeOrphanBatchAction.providerKey || "(all)"}, selected=${lastRuntimeOrphanBatchAction.selectedCount || 0}, created=${lastRuntimeOrphanBatchAction.createdCount || 0}, overwritten=${lastRuntimeOrphanBatchAction.overwrittenCount || 0}, alreadyExists=${lastRuntimeOrphanBatchAction.alreadyExistsCount || 0}${lastRuntimeOrphanBatchAction.recommendedBatchWriteMissingCommand ? `, writeMissing=${lastRuntimeOrphanBatchAction.recommendedBatchWriteMissingCommand}` : ""}${lastRuntimeOrphanBatchAction.recommendedBatchOverwriteExistingCommand ? `, overwriteExisting=${lastRuntimeOrphanBatchAction.recommendedBatchOverwriteExistingCommand}` : ""}`;
+    li.appendChild(copy);
     runtimeOrphanRecoveryList.appendChild(li);
   }
   if (lastRuntimeOrphanAction?.status) {
@@ -3606,6 +3656,7 @@ async function onLogout() {
   state.taskRuntimeEvidenceMeta = { historyCount: 0, summary: null };
   state.runtimeOrphanRecovery = null;
   state.lastRuntimeOrphanAction = null;
+  state.lastRuntimeOrphanBatchAction = null;
   state.providerResearch = [];
   state.statusMatrix = null;
   state.auditSummary = null;

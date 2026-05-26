@@ -43,7 +43,7 @@ from .baidu_netdisk_live import fetch_baidu_create_dir, fetch_baidu_live_list, f
 from .auth import build_session_token, verify_session_token
 from .config import ADMIN_PASSWORD, SESSION_COOKIE
 from .i18n import MESSAGES, messages_for
-from .models import AuthLiveValidateRequest, AuthProfileInput, CaptureParseRequest, ConflictPolicy, RemediationCreateProfileRequest, RuntimeOrphanRecreateRequest, SourceEntry
+from .models import AuthLiveValidateRequest, AuthProfileInput, CaptureParseRequest, ConflictPolicy, RemediationCreateProfileRequest, RuntimeOrphanBatchRecreateRequest, RuntimeOrphanRecreateRequest, SourceEntry
 from .models import TaskActionRequest, TaskCreateRequest
 from .pan115_open_live import fetch_115_open_create_folder, fetch_115_open_live_list, fetch_115_open_live_metadata
 from .pan123_open_live import fetch_123_open_create_folder, fetch_123_open_live_list, fetch_123_open_live_metadata
@@ -79,7 +79,7 @@ from .task_runtime_evidence_store import (
     build_task_runtime_evidence_payload,
     task_runtime_evidence_to_markdown,
 )
-from .runtime_orphan_recovery import build_runtime_orphan_recovery, recreate_runtime_orphan_profile, runtime_orphan_recovery_to_markdown
+from .runtime_orphan_recovery import build_runtime_orphan_recovery, recreate_runtime_orphan_profile, recreate_runtime_orphan_profiles, runtime_orphan_recovery_to_markdown
 from .tianyi_live import fetch_tianyi_live_list, fetch_tianyi_live_metadata, fetch_tianyi_create_folder
 from .task_runtime import (
     acknowledge_task_risk,
@@ -388,6 +388,22 @@ def create_app() -> FastAPI:
         result = recreate_runtime_orphan_profile(payload.providerKey, payload.orphanProfileId)
         if not bool(result.get("ok")):
             error = str(result.get("error") or "runtime_orphan_recreate_failed")
+            if error == "runtime_orphan_not_found":
+                raise HTTPException(status_code=404, detail=error)
+            raise HTTPException(status_code=400, detail=error)
+        return result
+
+    @app.post("/api/runtime_orphan_recovery/recreate_profiles")
+    def runtime_orphan_recovery_recreate_profiles(payload: RuntimeOrphanBatchRecreateRequest, request: Request) -> dict[str, object]:
+        if not _is_logged_in(request):
+            raise HTTPException(status_code=401, detail="please_login_first")
+        result = recreate_runtime_orphan_profiles(
+            provider_key=payload.providerKey,
+            orphan_profile_ids=list(payload.orphanProfileIds or []),
+            overwrite_existing=bool(payload.overwriteExisting),
+        )
+        if not bool(result.get("ok")):
+            error = str(result.get("error") or "runtime_orphan_batch_recreate_failed")
             if error == "runtime_orphan_not_found":
                 raise HTTPException(status_code=404, detail=error)
             raise HTTPException(status_code=400, detail=error)

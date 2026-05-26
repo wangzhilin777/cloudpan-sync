@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`审计与真实证据文档也同步四条孤儿样本现状`
+- 完成范围：
+  - 已把 [10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 重新导出到当前仓库实况：汇总区现在会同步反映 `runtime_samples=4`、`runtime_success=4`、`runtime_conflict_handled=4`、`runtime_orphan_profiles=4`，并把 Guangya 的 `gy-live-1 / gy-live-defaults-1` 双样本也写到 provider 明细里
+  - 已把 [plan_audit.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/plan_audit.py) 和 [04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md) 的 `M4 / M5 / P-REAL` 证据文案同步到当前口径：不再停留在旧的“3 条 runtime success”，而是明确写出当前 `4` 条样本、`gy-live-defaults-1` 也属于 orphan success，以及 Guangya 当前已有 `2` 条 orphan 型 runtime success
+  - 当前效果是：计划审计和真实证据两份核心长期文档已经和当前仓库状态重新对齐，后续再看 `75%` 严格完成度时，至少不会再被旧快照误导
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_report.py` 已验证真实证据报告导出链正常
+  - `.\.venv\Scripts\python.exe scripts\verify_export_plan_audit.py` 已验证计划审计报告导出链正常
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_status_sync.py` 已验证 [10-REAL_EVIDENCE_STATUS.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/10-REAL_EVIDENCE_STATUS.md) 当前已同步 `4` 条 runtime success 与 Guangya 双 orphan 样本
+  - `.\.venv\Scripts\python.exe scripts\verify_current_plan_audit_sync.py` 已验证 [04-PLAN_AUDIT_REPORT.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/04-PLAN_AUDIT_REPORT.md) 当前已同步 `M4 / M5 / P-REAL` 的新 orphan 口径
+  - 顺序复查已确认上述 verifier 每轮退出后项目 `.venv` `python` 进程均为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`任务运行报告也显式同步孤儿档案现状`
 - 完成范围：
   - 已把 [task_runtime_evidence_store.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/task_runtime_evidence_store.py) 的任务运行真实样本汇总补到当前仓库 auth profile 口径：现在会额外产出 `runtimeOrphanProviderCount / runtimeOrphanProfileCount / runtimeOrphanProviders / runtimeOrphanProfiles`

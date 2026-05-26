@@ -66,23 +66,27 @@ def main() -> None:
                     and f"`runtime_blocked_providers={summary.get('taskRuntimeBlockedProviderCount', 0)}`" in markdown
                     and f"`runtime_blocked={summary.get('taskRuntimeBlockedCount', 0)}`" in markdown
                     and f"`runtime_conflict_handled={summary.get('taskRuntimeConflictHandledCount', 0)}`" in markdown
+                    and f"`runtime_orphan_providers={summary.get('taskRuntimeOrphanProviderCount', 0)}`" in markdown
+                    and f"`runtime_orphan_profiles={summary.get('taskRuntimeOrphanProfileCount', 0)}`" in markdown
                 ),
                 "summaryHasCurrentProviderSummary": (
-                    f"- providerSummary: `auth={', '.join(summary.get('authEvidenceProviders', [])) or '(none)'}` `list={', '.join(summary.get('listEvidenceProviders', [])) or '(none)'}` `metadata={', '.join(summary.get('metadataEvidenceProviders', [])) or '(none)'}` `create_dir={', '.join(summary.get('createDirEvidenceProviders', [])) or '(none)'}` `fully_verified={', '.join(summary.get('fullyVerifiedProviders', [])) or '(none)'}` `runtime_success={', '.join(summary.get('taskRuntimeEvidenceProviders', [])) or '(none)'}` `runtime_failed={', '.join(summary.get('taskRuntimeFailedProviders', [])) or '(none)'}` `runtime_candidate={', '.join(summary.get('taskRuntimeCandidateProviders', [])) or '(none)'}` `runtime_probe={', '.join(summary.get('taskRuntimeProbeProviders', [])) or '(none)'}` `runtime_blocked={', '.join(summary.get('taskRuntimeBlockedProviders', [])) or '(none)'}`" in markdown
+                    f"- providerSummary: `auth={', '.join(summary.get('authEvidenceProviders', [])) or '(none)'}` `list={', '.join(summary.get('listEvidenceProviders', [])) or '(none)'}` `metadata={', '.join(summary.get('metadataEvidenceProviders', [])) or '(none)'}` `create_dir={', '.join(summary.get('createDirEvidenceProviders', [])) or '(none)'}` `fully_verified={', '.join(summary.get('fullyVerifiedProviders', [])) or '(none)'}` `runtime_success={', '.join(summary.get('taskRuntimeEvidenceProviders', [])) or '(none)'}` `runtime_failed={', '.join(summary.get('taskRuntimeFailedProviders', [])) or '(none)'}` `runtime_candidate={', '.join(summary.get('taskRuntimeCandidateProviders', [])) or '(none)'}` `runtime_probe={', '.join(summary.get('taskRuntimeProbeProviders', [])) or '(none)'}` `runtime_blocked={', '.join(summary.get('taskRuntimeBlockedProviders', [])) or '(none)'}` `runtime_orphan={', '.join(summary.get('taskRuntimeOrphanProviders', [])) or '(none)'}`" in markdown
                 ),
                 "summaryShowsCurrentRuntimeDistribution": (
                     summary.get("taskRuntimeEvidenceProviderCount") == 3
                     and summary.get("taskRuntimeFailedProviderCount") == 0
                     and summary.get("taskRuntimeCandidateProviderCount") == 0
                     and summary.get("taskRuntimeProbeProviderCount") == 0
-                    and summary.get("taskRuntimeSampleCount") == 3
-                    and summary.get("taskRuntimeSuccessCount") == 3
+                    and summary.get("taskRuntimeSampleCount") == 4
+                    and summary.get("taskRuntimeSuccessCount") == 4
                     and summary.get("taskRuntimeFailedCount") == 0
                     and summary.get("taskRuntimeCandidateCount") == 0
                     and summary.get("taskRuntimeProbeCount") == 0
                     and summary.get("taskRuntimeBlockedProviderCount") == 0
                     and summary.get("taskRuntimeBlockedCount") == 0
-                    and summary.get("taskRuntimeConflictHandledCount") == 3
+                    and summary.get("taskRuntimeConflictHandledCount") == 4
+                    and summary.get("taskRuntimeOrphanProviderCount") == 3
+                    and summary.get("taskRuntimeOrphanProfileCount") == 4
                 ),
                 "summaryShowsCurrentProviderDistribution": (
                     summary.get("authEvidenceProviders") == []
@@ -96,13 +100,13 @@ def main() -> None:
                     and summary.get("taskRuntimeProbeProviders") == []
                     and summary.get("taskRuntimeBlockedProviders") == []
                 ),
-                "guangyaSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in guangya,
+                "guangyaSectionShowsRuntimeSuccess": "samples=2 success=2 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=2 orphanProfiles=2" in guangya,
                 "ucSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in uc,
                 "pikpakSectionShowsRuntimeSuccess": "samples=1 success=1 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=1" in pikpak,
                 "runtimeSuccessSectionsShowCurrentProfiles": (
-                    f"taskRuntimeProfiles: success={', '.join(((guangya_item.get('taskRuntimeEvidence') or {}).get('profiles') or [])) or '(none)'} failed=(none) candidate=(none) probe=(none)" in guangya
-                    and f"taskRuntimeProfiles: success={', '.join(((uc_item.get('taskRuntimeEvidence') or {}).get('profiles') or [])) or '(none)'} failed=(none) candidate=(none) probe=(none)" in uc
-                    and f"taskRuntimeProfiles: success={', '.join(((pikpak_item.get('taskRuntimeEvidence') or {}).get('profiles') or [])) or '(none)'} failed=(none) candidate=(none) probe=(none)" in pikpak
+                    f"taskRuntimeProfiles: success={', '.join(((guangya_item.get('taskRuntimeEvidence') or {}).get('profiles') or [])) or '(none)'} failed=(none) candidate=(none) probe=(none) orphan={', '.join(((guangya_item.get('taskRuntimeEvidence') or {}).get('orphanProfiles') or [])) or '(none)'}" in guangya
+                    and f"taskRuntimeProfiles: success={', '.join(((uc_item.get('taskRuntimeEvidence') or {}).get('profiles') or [])) or '(none)'} failed=(none) candidate=(none) probe=(none) orphan={', '.join(((uc_item.get('taskRuntimeEvidence') or {}).get('orphanProfiles') or [])) or '(none)'}" in uc
+                    and f"taskRuntimeProfiles: success={', '.join(((pikpak_item.get('taskRuntimeEvidence') or {}).get('profiles') or [])) or '(none)'} failed=(none) candidate=(none) probe=(none) orphan={', '.join(((pikpak_item.get('taskRuntimeEvidence') or {}).get('orphanProfiles') or [])) or '(none)'}" in pikpak
                 ),
                 "cloud115SectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in cloud115,
                 "cloud189SectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in cloud189,
@@ -112,13 +116,13 @@ def main() -> None:
                 "baiduSectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in baidu,
                 "pan123SectionShowsNoRuntimeSuccess": "samples=0 success=0 failed=0 candidate=0 probe=0 blocked=0 conflictHandled=0" in pan123,
                 "noRuntimeSuccessSectionsShowEmptyProfiles": (
-                    "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none)" in cloud115
-                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none)" in cloud189
-                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none)" in xunlei
-                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none)" in aliyun
-                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none)" in quark
-                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none)" in baidu
-                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none)" in pan123
+                    "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)" in cloud115
+                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)" in cloud189
+                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)" in xunlei
+                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)" in aliyun
+                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)" in quark
+                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)" in baidu
+                    and "taskRuntimeProfiles: success=(none) failed=(none) candidate=(none) probe=(none) orphan=(none)" in pan123
                 ),
                 "noRuntimeSuccessSectionsKeepTodoNote": (
                     "当前尚未记录到任务运行阶段真实成功样本，因此此项仍按未完成处理。" in cloud115

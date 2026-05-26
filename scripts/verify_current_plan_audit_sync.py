@@ -57,16 +57,21 @@ def main() -> None:
                     and "仍缺稳定的真实在线联调成功样本" in m4
                     and "runtime_orphan" in m4
                     and "gy-live-1" in m4
+                    and "gy-live-defaults-1" in m4
+                    and "当前 Guangya 已有 `2` 条 runtime success 记录" in m4
                 ),
                 "m5SectionStillPartial": (
                     "- 状态：`partial`" in m5
                     and "仍缺真实在线成功样本" in m5
                     and "runtime_orphan" in m5
                     and "pikpak / uc" in m5
+                    and "gy-live-1 / gy-live-defaults-1" in m5
                 ),
                 "prealSectionStillTodo": (
                     "- 状态：`todo`" in preal
-                    and "当前 `guangya / uc / pikpak` 的 runtime success 样本都属于 auth profile 已脱节的 `runtime_orphan` 记录" in preal
+                    and "仓库里有 `4` 条 runtime success 样本" in preal
+                    and "当前 `guangya / uc / pikpak` 的 `4` 条 runtime success 样本都属于 auth profile 已脱节的 `runtime_orphan` 记录" in preal
+                    and "gy-live-1 / gy-live-defaults-1" in preal
                 ),
                 "markdownExplainsFeatureFormula": "featureCompletionPercent" in markdown and "M1-M7" in markdown,
                 "markdownExplainsStrictFormula": "strictCompletionPercent" in markdown and "P-REAL" in markdown,

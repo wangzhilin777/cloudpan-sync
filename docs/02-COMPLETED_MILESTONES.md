@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐冲突策略API运行态回归断言`
+- 完成范围：
+  - 已把 [verify_task_conflict_policy_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_policy_api.py) 从“只打印创建和运行返回值”的现场脚本，补成真正能跑到 live upload 并给出聚合结论的 verifier
+  - 这次同时补齐了它原先没准备 mock `guangya` profile、也没确认 `downloadUpload` 风险的缺口，所以现在不会再停在 `awaiting_ack` 导致运行态冲突字段全是 `null`
+  - 同一条回归现在会用 `conflictPolicyFlowsThroughApiRun` 直接锁住 API 链：创建返回、plan、结果行、liveAttempt 都必须保留 `overwrite_existing`，并继续带回 `overwrite_downgraded_to_auto_rename`、`demo (1).bin` 与 `verifyMode=list_by_parent_name`
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_conflict_policy_api.py` 已验证冲突策略当前会稳定从 API 创建阶段贯穿到运行态返回
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐冲突策略非法值校验回归断言`
 - 完成范围：
   - 已把 [verify_task_conflict_policy_validation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_conflict_policy_validation.py) 从单纯打印两个 `422` 现场，补成真正会汇总判定的断言型 verifier

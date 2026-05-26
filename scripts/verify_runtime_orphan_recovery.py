@@ -104,6 +104,8 @@ def main() -> None:
                     ),
                     "itemsHaveFollowupCommands": any(
                         row.get("providerKey") == "guangya"
+                        and str(row.get("recommendedPrimaryCommandLabel") or "") == "Refresh Existing Orphan Profile"
+                        and "patch_and_probe_auth_profile.py --profile-id gy-orphan --write" in str(row.get("recommendedPrimaryCommand") or "")
                         and "patch_and_probe_auth_profile.py --profile-id gy-orphan --write" in str(row.get("recommendedRefreshEvidenceCommand") or "")
                         and "create_runtime_probe_task.py --target-provider guangya --target-profile-id gy-orphan" in str(row.get("recommendedRuntimeProbeCommand") or "")
                         and "create_live_upload_task.py --target-provider guangya --target-profile-id gy-orphan" in str(row.get("recommendedRuntimeSuccessCommand") or "")
@@ -114,7 +116,7 @@ def main() -> None:
                     "markdownHasSummary": "orphanProfileCount=2" in markdown and "providersWithSavedProfiles=1" in markdown,
                     "markdownHasOrphanSummary": "orphanSummary:" in markdown and "profiles=gy-orphan, uc-orphan" in markdown,
                     "markdownHasCreateCommands": "--profile-id gy-orphan" in markdown and "--profile-id uc-orphan" in markdown,
-                    "markdownHasFollowupCommands": "recommendedRefreshEvidenceCommand" in markdown and "recommendedRuntimeProbeCommand" in markdown and "recommendedRuntimeSuccessCommand" in markdown and "recommendedOverwriteVariantCommand" in markdown,
+                    "markdownHasFollowupCommands": "recommendedPrimaryCommand" in markdown and "recommendedRefreshEvidenceCommand" in markdown and "recommendedRuntimeProbeCommand" in markdown and "recommendedRuntimeSuccessCommand" in markdown and "recommendedOverwriteVariantCommand" in markdown,
                     "apiHasSummary": (api_payload.get("summary") or {}).get("orphanProfiles") == ["gy-orphan", "uc-orphan"],
                     "apiMarkdownHasGuide": "--profile-id gy-orphan" in str(api_markdown.get("markdown") or "") and "recommendedRuntimeSuccessCommand" in str(api_markdown.get("markdown") or ""),
                 },

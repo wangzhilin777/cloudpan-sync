@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`运行孤儿恢复链也补主推荐命令`
+- 完成范围：
+  - 已把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 的 orphan 恢复载荷继续补强：现在除了 `recommendedCreateCommand / recommendedRefreshEvidenceCommand / recommendedRuntimeProbeCommand / recommendedRuntimeSuccessCommand`，还会额外统一产出 `recommendedPrimaryCommand / recommendedPrimaryCommandLabel`
+  - 当前规则是：对“当前仓库还没有同 provider 已保存档案”的 orphan 项，主推荐命令会直接指向 `Recreate Orphan Stub`；对已存在同 provider 档案或已经通过恢复 API 重建成功的场景，主推荐命令会前移成 `Refresh Existing Orphan Profile`，明确告诉用户恢复后第一步优先该跑哪条命令
+  - 已把 `Runtime Orphan Recovery` 设置页面板与 markdown 导出链同步补上 `primary / primaryLabel`，当前效果是 orphan 恢复链不再只是罗列多条命令，而是开始明确“现在最该先跑哪一条”，更接近把历史 runtime success 收敛成可复验证据的实际操作顺序
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery.py` 已验证恢复载荷与 markdown 当前会输出 `recommendedPrimaryCommand / recommendedPrimaryCommandLabel`
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证 `Runtime Orphan Recovery` 设置页当前会显示 `primary / primaryLabel`
+  - 顺序复查已确认本轮 verifier 退出后项目 `.venv` `python` 进程为 `[]`，无残留项目测试进程
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`真实证据补救总览也补直达孤儿恢复入口`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 里设置页 `Real Evidence Remediation` 总览层继续补强：当当前仓库存在 `runtimeOrphanOnly` provider 时，现在会额外出现一条 `runtime_orphan_recovery` 摘要，直接写出 orphan-only provider 数、provider 列表以及当前第一条 orphan 档案

@@ -207,6 +207,29 @@ def _overwrite_variant_command(command: str) -> str:
     return text.replace("--conflict-policy auto_rename_new", "--conflict-policy overwrite_existing", 1)
 
 
+def _recommended_primary_command(
+    *,
+    create_command: str,
+    refresh_command: str,
+    runtime_probe_command: str,
+    runtime_success_command: str,
+    has_existing_provider_profiles: bool,
+) -> tuple[str, str]:
+    create_text = str(create_command or "").strip()
+    refresh_text = str(refresh_command or "").strip()
+    runtime_probe_text = str(runtime_probe_command or "").strip()
+    runtime_success_text = str(runtime_success_command or "").strip()
+    if not has_existing_provider_profiles and create_text:
+        return ("Recreate Orphan Stub", create_text)
+    if refresh_text:
+        return ("Refresh Existing Orphan Profile", refresh_text)
+    if runtime_probe_text:
+        return ("Probe Existing Orphan Profile", runtime_probe_text)
+    if runtime_success_text:
+        return ("Run Runtime Success Command", runtime_success_text)
+    return ("", "")
+
+
 def build_runtime_orphan_recovery() -> dict[str, object]:
     runtime_rows = latest_task_runtime_evidence()
     saved_profiles = list_profiles()
@@ -243,6 +266,13 @@ def build_runtime_orphan_recovery() -> dict[str, object]:
         refresh_command = _refresh_evidence_command(provider_key, profile_id)
         runtime_probe_command = _runtime_probe_command(provider_key, profile_id)
         runtime_success_command = _runtime_success_command(provider_key, profile_id)
+        primary_label, primary_command = _recommended_primary_command(
+            create_command=command,
+            refresh_command=refresh_command,
+            runtime_probe_command=runtime_probe_command,
+            runtime_success_command=runtime_success_command,
+            has_existing_provider_profiles=bool(same_provider_profiles),
+        )
         items.append(
             {
                 "providerKey": provider_key,
@@ -269,6 +299,8 @@ def build_runtime_orphan_recovery() -> dict[str, object]:
                 "recommendedRuntimeProbeCommand": runtime_probe_command,
                 "recommendedRuntimeSuccessCommand": runtime_success_command,
                 "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command),
+                "recommendedPrimaryCommandLabel": primary_label,
+                "recommendedPrimaryCommand": primary_command,
                 "nextStep": "先按原 runtime profileId 重建一个可复验 auth profile stub，再用真实凭证补字段并重跑 validation / live probe；只有这样，这条历史 runtime success 样本才有机会重新变成当前仓库可复验的证据。",
                 "note": "这一步只是把历史 runtime success 样本对应的 profileId 恢复回当前仓库，不会自动把样本算成新的真实完成证据；仍需后续用真实凭证重新验证。",
             }
@@ -307,6 +339,13 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
         refresh_command = _refresh_evidence_command(provider, profile_id)
         runtime_probe_command = _runtime_probe_command(provider, profile_id)
         runtime_success_command = _runtime_success_command(provider, profile_id)
+        primary_label, primary_command = _recommended_primary_command(
+            create_command="",
+            refresh_command=refresh_command,
+            runtime_probe_command=runtime_probe_command,
+            runtime_success_command=runtime_success_command,
+            has_existing_provider_profiles=True,
+        )
         return {
             "ok": True,
             "created": False,
@@ -317,6 +356,8 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
             "recommendedRuntimeProbeCommand": runtime_probe_command,
             "recommendedRuntimeSuccessCommand": runtime_success_command,
             "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command),
+            "recommendedPrimaryCommandLabel": primary_label,
+            "recommendedPrimaryCommand": primary_command,
         }
 
     payload = build_runtime_orphan_recovery()
@@ -348,6 +389,13 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
     refresh_command = _refresh_evidence_command(provider, profile_id)
     runtime_probe_command = _runtime_probe_command(provider, profile_id)
     runtime_success_command = _runtime_success_command(provider, profile_id)
+    primary_label, primary_command = _recommended_primary_command(
+        create_command="",
+        refresh_command=refresh_command,
+        runtime_probe_command=runtime_probe_command,
+        runtime_success_command=runtime_success_command,
+        has_existing_provider_profiles=True,
+    )
     return {
         "ok": True,
         "created": True,
@@ -360,6 +408,8 @@ def recreate_runtime_orphan_profile(provider_key: str, orphan_profile_id: str) -
         "recommendedRuntimeProbeCommand": runtime_probe_command,
         "recommendedRuntimeSuccessCommand": runtime_success_command,
         "recommendedOverwriteVariantCommand": _overwrite_variant_command(runtime_success_command or runtime_probe_command),
+        "recommendedPrimaryCommandLabel": primary_label,
+        "recommendedPrimaryCommand": primary_command,
         "nextStep": str(target_item.get("nextStep") or ""),
     }
 
@@ -416,6 +466,11 @@ def runtime_orphan_recovery_to_markdown(payload: dict[str, object]) -> str:
         lines.append(f"- nextStep: {item.get('nextStep', '')}")
         lines.append(f"- note: {item.get('note', '')}")
         lines.append(f"- recommendedCreateCommand: `{item.get('recommendedCreateCommand', '')}`")
+        if item.get("recommendedPrimaryCommand"):
+            lines.append(
+                f"- recommendedPrimaryCommand: `{item.get('recommendedPrimaryCommand', '')}` "
+                f"`label={item.get('recommendedPrimaryCommandLabel', '')}`"
+            )
         if item.get("recommendedRefreshEvidenceCommand"):
             lines.append(f"- recommendedRefreshEvidenceCommand: `{item.get('recommendedRefreshEvidenceCommand', '')}`")
         if item.get("recommendedRuntimeProbeCommand"):

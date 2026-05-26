@@ -96,10 +96,86 @@ def main() -> None:
         action_detail = dict(action.get("detailView") or {})
         first_action_result = dict((action_detail.get("results") or [None])[0] or {})
 
+        expected_conflict_statuses = ["supported"]
+        expected_conflict_status = "supported"
+        expected_conflict_note = ""
+
         print(
             json.dumps(
                 {
                     "createTaskHasViews": bool(created_list and created_detail),
+                    "createTaskViewsCarryConflictSummary": (
+                        created_list.get("taskId") == task_id
+                        and created_list.get("state") == "ready"
+                        and isinstance(created_list.get("progress"), dict)
+                        and isinstance(created_list.get("summary"), dict)
+                        and isinstance(created_list.get("guard"), dict)
+                        and created_list.get("conflictSupportSummaryStatuses") == expected_conflict_statuses
+                        and created_list.get("firstConflictSupportStatus") == expected_conflict_status
+                        and created_list.get("firstConflictNote") == expected_conflict_note
+                        and created_detail.get("taskId") == task_id
+                        and created_detail.get("state") == "ready"
+                        and created_detail.get("state") == ((created_detail.get("summary") or {}).get("state"))
+                        and created_detail.get("conflictSupportSummaryStatuses") == expected_conflict_statuses
+                        and created_detail.get("firstConflictSupportStatus") == expected_conflict_status
+                        and created_detail.get("firstConflictNote") == expected_conflict_note
+                        and isinstance(created_detail.get("planSummary"), dict)
+                        and len(created_detail.get("planItems") or []) == 1
+                        and len(created_detail.get("executionGroups") or []) == 1
+                        and len(created_detail.get("sourceEntries") or []) == 1
+                    ),
+                    "pendingTaskListViewCarriesPendingItems": (
+                        pending_list_view.get("state") == "ready"
+                        and len(pending_list_view.get("pendingItems") or []) == 1
+                        and isinstance((((pending_list_view.get("pendingItems") or [None])[0]) or {}).get("availableFastInputs"), list)
+                    ),
+                    "listEndpointCarriesConflictSummary": (
+                        len(listed.get("items") or []) == 2
+                        and len(list_items) == 2
+                        and isinstance(first_list.get("summary"), dict)
+                        and isinstance(first_list.get("progress"), dict)
+                        and first_list.get("conflictSupportSummaryStatuses") == expected_conflict_statuses
+                        and first_list.get("firstConflictSupportStatus") == expected_conflict_status
+                        and first_list.get("firstConflictNote") == expected_conflict_note
+                        and isinstance(first_list.get("pendingItems"), list)
+                        and isinstance(first_list.get("latestResults"), list)
+                        and isinstance(pending_list_item.get("pendingItems"), list)
+                        and isinstance(((((pending_list_item.get("pendingItems") or [None])[0]) or {}).get("availableFastInputs")), list)
+                    ),
+                    "getEndpointCarriesConflictSummary": (
+                        bool(fetched_list)
+                        and bool(fetched_detail)
+                        and fetched_list.get("conflictSupportSummaryStatuses") == expected_conflict_statuses
+                        and fetched_list.get("firstConflictSupportStatus") == expected_conflict_status
+                        and fetched_list.get("firstConflictNote") == expected_conflict_note
+                        and fetched_detail.get("conflictSupportSummaryStatuses") == expected_conflict_statuses
+                        and fetched_detail.get("firstConflictSupportStatus") == expected_conflict_status
+                        and fetched_detail.get("firstConflictNote") == expected_conflict_note
+                        and isinstance(fetched_detail.get("planItems"), list)
+                        and isinstance(fetched_detail.get("state"), str)
+                        and "completionKind" in fetched_detail
+                        and isinstance(fetched_detail.get("results"), list)
+                        and isinstance(fetched_detail.get("sourceEntries"), list)
+                    ),
+                    "actionEndpointCarriesConflictSummary": (
+                        action.get("action") == "run"
+                        and action.get("actionApplied") is True
+                        and action.get("allowedActions") == ["retry"]
+                        and bool(action_list)
+                        and bool(action_detail)
+                        and action_list.get("conflictSupportSummaryStatuses") == expected_conflict_statuses
+                        and action_list.get("firstConflictSupportStatus") == expected_conflict_status
+                        and action_list.get("firstConflictNote") == expected_conflict_note
+                        and action_detail.get("conflictSupportSummaryStatuses") == expected_conflict_statuses
+                        and action_detail.get("firstConflictSupportStatus") == expected_conflict_status
+                        and action_detail.get("firstConflictNote") == expected_conflict_note
+                        and isinstance(action_detail.get("planItems"), list)
+                        and isinstance(action_detail.get("state"), str)
+                        and "completionKind" in action_detail
+                        and action_detail.get("state") == ((action_detail.get("summary") or {}).get("state"))
+                        and len(action_detail.get("results") or []) == 1
+                        and first_action_result.get("executionMode") == "mock"
+                    ),
                     "createListView": {
                         "taskId": created_list.get("taskId"),
                         "state": created_list.get("state"),

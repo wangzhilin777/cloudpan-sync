@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐任务视图回归里的冲突字段断言`
+- 完成范围：
+  - 已把 [verify_task_views_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_views_api.py) 从偏展示型的 API 现场输出，补成真正会失败的任务视图回归断言
+  - 当前会分别锁住 `POST /api/tasks` 创建返回、`GET /api/tasks` 列表、`GET /api/tasks/{id}` 详情，以及 `POST /api/tasks/{id}/action` 执行返回里的 `listView / detailView` 冲突摘要字段
+  - 同时也继续顺手锁住 `pendingItems`、`planItems`、`executionGroups`、`results`、`sourceEntries` 与 `state == summary.state` 这些任务视图结构点
+  - 当前效果是：任务视图 API 这条回归不再只是打印“现在看起来像对的”，而是会在创建、读取、执行三个阶段直接卡住 `conflictSupportSummaryStatuses / firstConflictSupportStatus / firstConflictNote`
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_task_views_api.py` 已验证任务视图 API 在创建、读取、执行三段当前都会稳定返回 `supported` 冲突摘要，且 `firstConflictNote` 为空串
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务摘要回归里的冲突字段断言`
 - 完成范围：
   - 已把 [verify_task_summary_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_task_summary_api.py) 从单纯打印 `summary` 现场，补成真正的冲突字段回归断言

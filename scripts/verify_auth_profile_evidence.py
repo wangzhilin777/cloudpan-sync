@@ -91,15 +91,32 @@ def main() -> None:
         finally:
             webapp.ADMIN_PASSWORD = original_password
 
+        summary = evidence.get("summary", {})
+        api_markdown = str(markdown_payload.get("markdown", ""))
+        auth_profile_evidence_flow_matches_expected_profile = (
+            summary.get("profileReady") is False
+            and summary.get("writeReady") is True
+            and summary.get("validationOk") is True
+            and summary.get("probeOk") is True
+            and summary.get("resolvedParentId") == "dir-100"
+            and summary.get("resolvedFileId") == "file-9"
+            and (api_payload.get("latestValidation") or {}).get("ok") is True
+            and (api_payload.get("latestProbe") or {}).get("ok") is True
+            and "`gy-evidence-1`" in markdown
+            and "probe ok" in markdown
+            and "`gy-evidence-1`" in api_markdown
+        )
+
         print(
             json.dumps(
                 {
-                    "summary": evidence.get("summary", {}),
+                    "summary": summary,
                     "apiValidationOk": (api_payload.get("latestValidation") or {}).get("ok"),
                     "apiProbeOk": (api_payload.get("latestProbe") or {}).get("ok"),
                     "markdownHasProfileId": "`gy-evidence-1`" in markdown,
                     "markdownHasProbeSummary": "probe ok" in markdown,
-                    "apiMarkdownHasProfileId": "`gy-evidence-1`" in str(markdown_payload.get("markdown", "")),
+                    "apiMarkdownHasProfileId": "`gy-evidence-1`" in api_markdown,
+                    "authProfileEvidenceFlowMatchesExpectedProfile": auth_profile_evidence_flow_matches_expected_profile,
                 },
                 ensure_ascii=False,
                 indent=2,

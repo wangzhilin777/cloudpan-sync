@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐单档案证据总链回归断言`
+- 完成范围：
+  - 已把 [verify_auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_profile_evidence.py) 从本地 summary、API validation/probe、Markdown profileId 与 probe summary 片段等分散检查，补成真正会给出整条单档案证据总链结论的 verifier
+  - 同一条回归现在会用 `authProfileEvidenceFlowMatchesExpectedProfile` 直接锁住这条总链：本地 `_auth_profile_evidence()` summary、`GET /api/auth/profiles/{id}/evidence`、`GET /api/auth/profiles/{id}/evidence_markdown` 与本地 Markdown 内容都必须一起对齐
+  - 当前效果是：单档案证据能力不再只是几个局部字段各自为真，而是多了一条从本地 evidence 构建到 API / Markdown 暴露的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_auth_profile_evidence.py` 已验证单档案证据总链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐单档案证据刷新回归断言`
 - 完成范围：
   - 已把 [verify_refresh_auth_profile_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_refresh_auth_profile_evidence.py) 从 validation/probe、Markdown 标题与 profileId 片段等分散检查，补成真正会给出整条单档案证据刷新链结论的 verifier

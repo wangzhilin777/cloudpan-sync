@@ -87,17 +87,34 @@ def main() -> None:
 
         output_path = tmp_root / "docs" / "07-LOCAL_LIVE_ADAPTER_VERIFICATION.md"
         markdown = output_path.read_text(encoding="utf-8")
+    exported_file_exists = True
+    exported_has_title = "# CloudPan Sync Local Live Adapter Verification" in markdown
+    exported_has_provider_summary = "- providerSummary: `all_ok=guangya, 189cloud` `md5_ready=guangya, 189cloud` `gcid_ready=guangya` `probe_ready=guangya, 189cloud` `matrix_ready=guangya, 189cloud` `account_create_mode=189cloud=live_account_auth`" in markdown
+    exported_has_guangya_section = "## guangya" in markdown and "- metadata_gcid: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`" in markdown
+    exported_has_189_section = "## 189cloud" in markdown and "- create_mode: `live_account_auth`" in markdown and "- create_file_id: `dir-189-1`" in markdown
+    exported_has_probe_checks = "- guangya: `3`" in markdown and "- 189cloud: `3`" in markdown
+    exported_has_matrix_rows = "- guangya: `list_ready=True` `metadata_ready=True` `create_dir_ready=True` `live_probe_ok=True`" in markdown and "- 189cloud: `list_ready=True` `metadata_ready=True` `create_dir_ready=True` `live_probe_ok=True`" in markdown
+    export_local_live_adapter_verification_flow_matches_expected_markdown = (
+        exported_file_exists
+        and exported_has_title
+        and exported_has_provider_summary
+        and exported_has_guangya_section
+        and exported_has_189_section
+        and exported_has_probe_checks
+        and exported_has_matrix_rows
+    )
 
     print(
         json.dumps(
             {
-                "exportedFileExists": True,
-                "exportedHasTitle": "# CloudPan Sync Local Live Adapter Verification" in markdown,
-                "exportedHasProviderSummary": "- providerSummary: `all_ok=guangya, 189cloud` `md5_ready=guangya, 189cloud` `gcid_ready=guangya` `probe_ready=guangya, 189cloud` `matrix_ready=guangya, 189cloud` `account_create_mode=189cloud=live_account_auth`" in markdown,
-                "exportedHasGuangyaSection": "## guangya" in markdown and "- metadata_gcid: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`" in markdown,
-                "exportedHas189Section": "## 189cloud" in markdown and "- create_mode: `live_account_auth`" in markdown and "- create_file_id: `dir-189-1`" in markdown,
-                "exportedHasProbeChecks": "- guangya: `3`" in markdown and "- 189cloud: `3`" in markdown,
-                "exportedHasMatrixRows": "- guangya: `list_ready=True` `metadata_ready=True` `create_dir_ready=True` `live_probe_ok=True`" in markdown and "- 189cloud: `list_ready=True` `metadata_ready=True` `create_dir_ready=True` `live_probe_ok=True`" in markdown,
+                "exportedFileExists": exported_file_exists,
+                "exportedHasTitle": exported_has_title,
+                "exportedHasProviderSummary": exported_has_provider_summary,
+                "exportedHasGuangyaSection": exported_has_guangya_section,
+                "exportedHas189Section": exported_has_189_section,
+                "exportedHasProbeChecks": exported_has_probe_checks,
+                "exportedHasMatrixRows": exported_has_matrix_rows,
+                "exportLocalLiveAdapterVerificationFlowMatchesExpectedMarkdown": export_local_live_adapter_verification_flow_matches_expected_markdown,
             },
             ensure_ascii=False,
             indent=2,

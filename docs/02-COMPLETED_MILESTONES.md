@@ -10,6 +10,21 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`运行脚本补救输出也补齐当前状态摘要`
+- 完成范围：
+  - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 的 `remediationFollowup` 再补一层：当前会同步返回 `profileCount / authReadyProfiles / writeReadyProfiles / needsAuthEvidence / needsListEvidence / needsMetadataEvidence / needsCreateDirEvidence / needsRuntimeSuccess / runtimeBlockedOnly / runtimeCandidateOnly / runtimeProbeOnly / runtimeOrphanOnly / runtimeOrphanProfiles / gaps`
+  - 当前效果是：CLI helper 结果不再只是“下一步做什么”，也能直接告诉用户“当前 provider 为什么还没收口、到底卡在哪一层”，更贴近 `M4 / M5 / P-REAL` 当前仍是 partial/todo 的真实原因
+  - 这样 probe / live upload / fast candidate 三支 helper 的 follow-up 已经开始携带和 remediation 文档同口径的状态摘要，终端里能直接看出当前是缺 auth/list/metadata/create_dir、还是只有 probe-only / runtime_orphan 等特定状态
+  - 同一轮还顺手把 [verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py) 的 evidence 目录清理改成递归删除，避免重复回归时因为残留子目录导致 `rmdir` 失败
+  - 已同步补强 [verify_create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_runtime_probe_task.py)、[verify_create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_live_upload_task.py)、[verify_create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_fast_upload_candidate_task.py)，把这组状态类字段一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_runtime_probe_task.py` 已验证 runtime probe 脚本输出的 `remediationFollowup` 当前会返回状态类字段，且重复回归时 evidence 目录清理不再卡住
+  - `.\.venv\Scripts\python.exe scripts\verify_create_live_upload_task.py` 已验证 live upload 脚本输出的 `remediationFollowup` 当前会返回状态类字段
+  - `.\.venv\Scripts\python.exe scripts\verify_create_fast_upload_candidate_task.py` 已验证 fast candidate 脚本输出的 `remediationFollowup` 当前会返回状态类字段
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`运行脚本补救输出也补齐结构化冲突支持状态`
 - 完成范围：
   - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 的 `remediationFollowup` 再补一层：当前除了文字版 `conflictPolicyNote / providerConflictNotes`，也会同步返回 `declaredConflictPolicies / supportsOverwrite / supportsAutoRename / overwriteBehavior / overwriteSupportStatus / autoRenameSupportStatus`

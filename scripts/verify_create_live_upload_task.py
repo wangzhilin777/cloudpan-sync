@@ -163,6 +163,20 @@ def main() -> None:
                 "overwriteBehavior": "downgrade_to_auto_rename",
                 "overwriteSupportStatus": "downgrade_to_auto_rename",
                 "autoRenameSupportStatus": "supported",
+                "profileCount": 2,
+                "authReadyProfiles": 0,
+                "writeReadyProfiles": 2,
+                "needsAuthEvidence": True,
+                "needsListEvidence": True,
+                "needsMetadataEvidence": True,
+                "needsCreateDirEvidence": True,
+                "needsRuntimeSuccess": False,
+                "runtimeBlockedOnly": False,
+                "runtimeCandidateOnly": False,
+                "runtimeProbeOnly": False,
+                "runtimeOrphanOnly": True,
+                "runtimeOrphanProfiles": ["gy-orphan-live-1", "gy-orphan-live-2"],
+                "gaps": ["缺少通过的 auth validation 证据", "已有 runtime 样本，但对应 auth profile 未保存在当前仓库"],
                 "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["token"],
@@ -332,6 +346,20 @@ def main() -> None:
                 and dict(output.get("remediationFollowup") or {}).get("overwriteBehavior") == "downgrade_to_auto_rename"
                 and dict(output.get("remediationFollowup") or {}).get("overwriteSupportStatus") == "downgrade_to_auto_rename"
                 and dict(output.get("remediationFollowup") or {}).get("autoRenameSupportStatus") == "supported",
+                "remediationStatusContextIncluded": dict(output.get("remediationFollowup") or {}).get("profileCount") == 2
+                and dict(output.get("remediationFollowup") or {}).get("authReadyProfiles") == 0
+                and dict(output.get("remediationFollowup") or {}).get("writeReadyProfiles") == 2
+                and dict(output.get("remediationFollowup") or {}).get("needsAuthEvidence") is True
+                and dict(output.get("remediationFollowup") or {}).get("needsListEvidence") is True
+                and dict(output.get("remediationFollowup") or {}).get("needsMetadataEvidence") is True
+                and dict(output.get("remediationFollowup") or {}).get("needsCreateDirEvidence") is True
+                and dict(output.get("remediationFollowup") or {}).get("needsRuntimeSuccess") is False
+                and dict(output.get("remediationFollowup") or {}).get("runtimeBlockedOnly") is False
+                and dict(output.get("remediationFollowup") or {}).get("runtimeCandidateOnly") is False
+                and dict(output.get("remediationFollowup") or {}).get("runtimeProbeOnly") is False
+                and dict(output.get("remediationFollowup") or {}).get("runtimeOrphanOnly") is True
+                and dict(output.get("remediationFollowup") or {}).get("runtimeOrphanProfiles") == ["gy-orphan-live-1", "gy-orphan-live-2"]
+                and dict(output.get("remediationFollowup") or {}).get("gaps") == ["缺少通过的 auth validation 证据", "已有 runtime 样本，但对应 auth profile 未保存在当前仓库"],
                 "remediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["token"]
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")

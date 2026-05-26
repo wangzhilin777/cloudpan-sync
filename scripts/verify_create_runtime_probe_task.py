@@ -23,6 +23,16 @@ runtime_probe_script = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(runtime_probe_script)
 
 
+def _remove_path_tree(path: Path) -> None:
+    if path.exists():
+        for child in path.iterdir():
+            if child.is_dir():
+                _remove_path_tree(child)
+            else:
+                child.unlink()
+        path.rmdir()
+
+
 def main() -> None:
     original_create_task = task_runtime.create_task
     original_run_task = task_runtime.run_task
@@ -130,6 +140,20 @@ def main() -> None:
                 "overwriteBehavior": "provider_managed",
                 "overwriteSupportStatus": "supported",
                 "autoRenameSupportStatus": "supported",
+                "profileCount": 2,
+                "authReadyProfiles": 0,
+                "writeReadyProfiles": 2,
+                "needsAuthEvidence": True,
+                "needsListEvidence": True,
+                "needsMetadataEvidence": True,
+                "needsCreateDirEvidence": True,
+                "needsRuntimeSuccess": True,
+                "runtimeBlockedOnly": False,
+                "runtimeCandidateOnly": False,
+                "runtimeProbeOnly": False,
+                "runtimeOrphanOnly": False,
+                "runtimeOrphanProfiles": ["ali-orphan-runtime-1", "ali-orphan-runtime-2"],
+                "gaps": ["缺少通过的 auth validation 证据", "缺少通过的 live list 证据"],
                 "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["token"],
@@ -181,11 +205,7 @@ def main() -> None:
     }
     try:
         evidence_dir = ROOT / "tmp" / "verify-runtime-probe-evidence"
-        if evidence_dir.exists():
-            for child in evidence_dir.iterdir():
-                if child.is_file():
-                    child.unlink()
-            evidence_dir.rmdir()
+        _remove_path_tree(evidence_dir)
         stdout_buffer = io.StringIO()
         with contextlib.redirect_stdout(stdout_buffer):
             result = runtime_probe_script.main(
@@ -268,11 +288,7 @@ def main() -> None:
             remediation.exists(),
         ]
     )
-    if evidence_dir.exists():
-        for child in evidence_dir.iterdir():
-            if child.is_file():
-                child.unlink()
-        evidence_dir.rmdir()
+    _remove_path_tree(evidence_dir)
     second_task_json = ROOT / "tmp" / "verify-runtime-probe-task.json"
     second_auth_evidence = ROOT / "tmp" / "verify-runtime-auth-evidence.md"
     second_outputs_ok = second_task_json.exists() and second_auth_evidence.exists()
@@ -307,6 +323,20 @@ def main() -> None:
                 and dict(output.get("remediationFollowup") or {}).get("overwriteBehavior") == "provider_managed"
                 and dict(output.get("remediationFollowup") or {}).get("overwriteSupportStatus") == "supported"
                 and dict(output.get("remediationFollowup") or {}).get("autoRenameSupportStatus") == "supported",
+                "scriptRemediationStatusContextIncluded": dict(output.get("remediationFollowup") or {}).get("profileCount") == 2
+                and dict(output.get("remediationFollowup") or {}).get("authReadyProfiles") == 0
+                and dict(output.get("remediationFollowup") or {}).get("writeReadyProfiles") == 2
+                and dict(output.get("remediationFollowup") or {}).get("needsAuthEvidence") is True
+                and dict(output.get("remediationFollowup") or {}).get("needsListEvidence") is True
+                and dict(output.get("remediationFollowup") or {}).get("needsMetadataEvidence") is True
+                and dict(output.get("remediationFollowup") or {}).get("needsCreateDirEvidence") is True
+                and dict(output.get("remediationFollowup") or {}).get("needsRuntimeSuccess") is True
+                and dict(output.get("remediationFollowup") or {}).get("runtimeBlockedOnly") is False
+                and dict(output.get("remediationFollowup") or {}).get("runtimeCandidateOnly") is False
+                and dict(output.get("remediationFollowup") or {}).get("runtimeProbeOnly") is False
+                and dict(output.get("remediationFollowup") or {}).get("runtimeOrphanOnly") is False
+                and dict(output.get("remediationFollowup") or {}).get("runtimeOrphanProfiles") == ["ali-orphan-runtime-1", "ali-orphan-runtime-2"]
+                and dict(output.get("remediationFollowup") or {}).get("gaps") == ["缺少通过的 auth validation 证据", "缺少通过的 live list 证据"],
                 "scriptRemediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["token"]
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")

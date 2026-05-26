@@ -131,6 +131,20 @@ def main() -> None:
                 "overwriteBehavior": "not_implemented",
                 "overwriteSupportStatus": "unsupported",
                 "autoRenameSupportStatus": "probe_only_runtime_write_check",
+                "profileCount": 2,
+                "authReadyProfiles": 0,
+                "writeReadyProfiles": 2,
+                "needsAuthEvidence": True,
+                "needsListEvidence": True,
+                "needsMetadataEvidence": True,
+                "needsCreateDirEvidence": True,
+                "needsRuntimeSuccess": True,
+                "runtimeBlockedOnly": False,
+                "runtimeCandidateOnly": False,
+                "runtimeProbeOnly": True,
+                "runtimeOrphanOnly": False,
+                "runtimeOrphanProfiles": [],
+                "gaps": ["缺少通过的 auth validation 证据", "已有 probe-only 样本，但尚未记录到真实传输成功样本"],
                 "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                 "needsSecretRefresh": True,
                 "placeholderSecretFieldHints": ["cookie"],
@@ -311,6 +325,20 @@ def main() -> None:
                 and dict(output.get("remediationFollowup") or {}).get("overwriteBehavior") == "not_implemented"
                 and dict(output.get("remediationFollowup") or {}).get("overwriteSupportStatus") == "unsupported"
                 and dict(output.get("remediationFollowup") or {}).get("autoRenameSupportStatus") == "probe_only_runtime_write_check",
+                "scriptRemediationStatusContextIncluded": dict(output.get("remediationFollowup") or {}).get("profileCount") == 2
+                and dict(output.get("remediationFollowup") or {}).get("authReadyProfiles") == 0
+                and dict(output.get("remediationFollowup") or {}).get("writeReadyProfiles") == 2
+                and dict(output.get("remediationFollowup") or {}).get("needsAuthEvidence") is True
+                and dict(output.get("remediationFollowup") or {}).get("needsListEvidence") is True
+                and dict(output.get("remediationFollowup") or {}).get("needsMetadataEvidence") is True
+                and dict(output.get("remediationFollowup") or {}).get("needsCreateDirEvidence") is True
+                and dict(output.get("remediationFollowup") or {}).get("needsRuntimeSuccess") is True
+                and dict(output.get("remediationFollowup") or {}).get("runtimeBlockedOnly") is False
+                and dict(output.get("remediationFollowup") or {}).get("runtimeCandidateOnly") is False
+                and dict(output.get("remediationFollowup") or {}).get("runtimeProbeOnly") is True
+                and dict(output.get("remediationFollowup") or {}).get("runtimeOrphanOnly") is False
+                and dict(output.get("remediationFollowup") or {}).get("runtimeOrphanProfiles") == []
+                and dict(output.get("remediationFollowup") or {}).get("gaps") == ["缺少通过的 auth validation 证据", "已有 probe-only 样本，但尚未记录到真实传输成功样本"],
                 "scriptRemediationSecretRefreshIncluded": dict(output.get("remediationFollowup") or {}).get("needsSecretRefresh") is True
                 and dict(output.get("remediationFollowup") or {}).get("placeholderSecretFieldHints") == ["cookie"]
                 and "create_auth_profile_stub.py" in dict(output.get("remediationFollowup") or {}).get("recommendedRecreateProbeCommand", "")

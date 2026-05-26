@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐真实证据设置页回归断言`
+- 完成范围：
+  - 已把 [verify_real_evidence_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_settings_ui.py) 从设置页真实证据面板、summary loader、first gap remediation actions、runtime orphan recovery 入口等分散片段检查，补成真正会给出整条设置页 wiring 结论的 verifier
+  - 同一条回归现在会用 `realEvidenceSettingsUiFlowIsWired` 直接锁住这条设置页真实证据链：面板 DOM、`/api/real_evidence` 加载、刷新链路、首个 gap 的 focus/refresh/probe/capture/create stub 动作，以及 settings 汇总中的 runtime/orphan recovery 展示与 logout 清理都必须一起存在
+  - 当前效果是：真实证据设置页不再只是许多局部文案和按钮还在，而是多了一条从数据加载到 remediation/orphan recovery 动作的完整 UI 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_settings_ui.py` 已验证真实证据设置页链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐真实证据报告整链回归断言`
 - 完成范围：
   - 已把 [verify_real_evidence_report.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_report.py) 从 report payload、Markdown 导出、`/api/real_evidence`、`/api/real_evidence_markdown` 四段分散检查，补成真正会给出整条真实证据报告链结论的 verifier

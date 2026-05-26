@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补救指南也补全部孤儿恢复命令`
+- 完成范围：
+  - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的 orphan 补救载荷继续补强：当同一 provider 下存在多条 `runtimeOrphanProfiles` 时，现在除了保留第一条 `recommendedRecreateProbeCommand` 作为主入口，还会额外输出完整的 `recommendedRecreateProbeCommands`
+  - 当前效果是：像 Guangya 这种同时存在 `gy-live-1 / gy-live-defaults-1` 两条 orphan profile 的 provider，不再只能看到第一条恢复命令；[12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 现在会明确列出两条恢复命令，减少“只恢复了一半 orphan profile”的操作遗漏
+  - 已同步补强 [verify_real_evidence_remediation_bundle.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_bundle.py) 与 [verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)，把 synthetic bundle/API 与当前仓库文档中的多 orphan 恢复命令列表一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_bundle.py` 已验证 synthetic remediation bundle/API/Markdown 当前会为 Guangya 输出 `recommendedRecreateProbeCommands: count=2`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 中已同时写出 `gy-live-1` 与 `gy-live-defaults-1` 两条恢复命令
+  - 本轮残留的项目 `.venv` `python` 进程已主动清理为 `POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`已完成记录也补第二条光鸭历史口径`
 - 完成范围：
   - 已把 [02-COMPLETED_MILESTONES.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/02-COMPLETED_MILESTONES.md) 里几条更早的历史记录继续回填到当前口径：不再把 Guangya orphan/runtime 相关说明停留在只认 `gy-live-1` 的早期状态

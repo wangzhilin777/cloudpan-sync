@@ -186,9 +186,11 @@ def main() -> None:
                 "guangyaSectionUsesRecreateProbePath": (
                     "runtimeOrphanProfiles: `gy-live-1, gy-live-defaults-1`" in guangya
                     and "recommendedRecreateProbeCommand" in guangya
+                    and "recommendedRecreateProbeCommands: count=`2`" in guangya
                     and "recommendedPrimaryCommand" in guangya
                     and "label=recreate_probe" in guangya
                     and "create_auth_profile_stub.py --profile-id gy-live-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe" in guangya
+                    and "create_auth_profile_stub.py --profile-id gy-live-defaults-1 --provider-key guangya --auth-mode manual_token --display-name guangya-restore-gy-live-defaults-1 --token YOUR_TOKEN --set parentId=YOUR_REAL_PARENT_ID --probe" in guangya
                     and "placeholderSecretFieldHints: `token`" in guangya
                     and "recommendedPostRefreshRuntimeCommand" not in guangya
                 ),

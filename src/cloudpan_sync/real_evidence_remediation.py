@@ -317,6 +317,30 @@ def _orphan_recreate_probe_command_for_provider(
     return base.replace(marker, f"{marker}--profile-id {profile_id} ", 1)
 
 
+def _orphan_recreate_probe_commands_for_provider(
+    *,
+    provider_key: str,
+    orphan_profile_ids: list[str],
+    auth_modes: list[str],
+    field_hints: list[str],
+) -> list[str]:
+    commands: list[str] = []
+    seen: set[str] = set()
+    for orphan_profile_id in orphan_profile_ids:
+        command = _orphan_recreate_probe_command_for_provider(
+            provider_key=provider_key,
+            orphan_profile_id=orphan_profile_id,
+            auth_modes=auth_modes,
+            field_hints=field_hints,
+        )
+        text = str(command or "").strip()
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        commands.append(text)
+    return commands
+
+
 def _profile_views() -> list[dict[str, object]]:
     return [auth_profile_view(profile) for profile in list_profiles()]
 
@@ -475,12 +499,13 @@ def build_real_evidence_remediation_bundle(
         runtime_probe_only = bool(runtime_evidence.get("probeCount")) and not bool(runtime_evidence.get("ok"))
         runtime_orphan_only = int(runtime_evidence.get("orphanProfileCount", 0) or 0) > 0
         runtime_orphan_profiles = [str(value or "").strip() for value in (runtime_evidence.get("orphanProfiles") or []) if str(value or "").strip()]
-        runtime_orphan_recreate_probe_command = _orphan_recreate_probe_command_for_provider(
+        runtime_orphan_recreate_probe_commands = _orphan_recreate_probe_commands_for_provider(
             provider_key=provider_key,
-            orphan_profile_id=runtime_orphan_profiles[0] if runtime_orphan_profiles else "",
+            orphan_profile_ids=runtime_orphan_profiles,
             auth_modes=provider_auth_modes(provider_key),
             field_hints=capture_field_hints(provider_key),
         )
+        runtime_orphan_recreate_probe_command = runtime_orphan_recreate_probe_commands[0] if runtime_orphan_recreate_probe_commands else ""
         runtime_live_upload_command = _live_upload_command_for_profile(provider_profiles[0] if provider_profiles else {})
         runtime_success_command = _runtime_success_command_for_profile(provider_profiles[0] if provider_profiles else {})
         post_bootstrap_runtime_command = _post_bootstrap_runtime_command_for_provider(provider_key)
@@ -506,6 +531,7 @@ def build_real_evidence_remediation_bundle(
             "runtimeProbeOnly": runtime_probe_only,
             "runtimeOrphanOnly": runtime_orphan_only,
             "runtimeOrphanProfiles": runtime_orphan_profiles,
+            "recommendedRecreateProbeCommands": runtime_orphan_recreate_probe_commands,
             "declaredConflictPolicies": list(conflict_snapshot.get("declaredConflictPolicies") or []),
             "supportsOverwrite": bool(conflict_snapshot.get("supportsOverwrite")),
             "supportsAutoRename": bool(conflict_snapshot.get("supportsAutoRename")),
@@ -919,6 +945,11 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedPatchProbeCommand: `{row.get('recommendedPatchProbeCommand', '')}`")
         if row.get("recommendedRecreateProbeCommand"):
             lines.append(f"- recommendedRecreateProbeCommand: `{row.get('recommendedRecreateProbeCommand', '')}`")
+        recreate_commands = [str(value or "") for value in (row.get("recommendedRecreateProbeCommands") or []) if str(value or "")]
+        if len(recreate_commands) > 1:
+            lines.append(f"- recommendedRecreateProbeCommands: count=`{len(recreate_commands)}`")
+            for index, command in enumerate(recreate_commands, start=1):
+                lines.append(f"  - [{index}] `{command}`")
         if row.get("recommendedRefreshEvidenceCommand"):
             lines.append(f"- recommendedRefreshEvidenceCommand: `{row.get('recommendedRefreshEvidenceCommand', '')}`")
         if row.get("recommendedPostRefreshRuntimeCommand"):

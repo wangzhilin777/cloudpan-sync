@@ -32,7 +32,7 @@ def main() -> None:
                 "listEvidence": {"ok": True},
                 "metadataEvidence": {"ok": True},
                 "createDirEvidence": {"ok": True},
-                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0, "orphanProfileCount": 1, "orphanProfiles": ["gy-orphan"]},
+                "taskRuntimeEvidence": {"ok": False, "blockedCount": 0, "orphanProfileCount": 2, "orphanProfiles": ["gy-orphan", "gy-orphan-2"]},
                 "gaps": ["基础证据已齐，但尚未记录到真实 runtime 成功样本", "已有 runtime 样本，但对应 auth profile 未保存在当前仓库"],
             },
             {
@@ -280,6 +280,9 @@ def main() -> None:
                 "markdownHasPostBootstrapRuntimeCommand": "recommendedPostBootstrapRuntimeCommand" in markdown and "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown,
                 "markdownHasPrimaryCommand": "recommendedPrimaryCommand" in markdown and "label=recreate_probe" in markdown and "label=post_bootstrap_runtime" in markdown,
                 "markdownHasRecreateProbeCommand": "recommendedRecreateProbeCommand" in markdown and "placeholderSecretFieldHints: `token`" in markdown,
+                "markdownHasMultipleGuangyaRecreateCommands": "recommendedRecreateProbeCommands: count=`2`" in markdown
+                and "--profile-id gy-orphan " in markdown
+                and "--profile-id gy-orphan-2 " in markdown,
                 "markdownHasExpandedPostBootstrapHelpers": "tmp\\quark-post-bootstrap-runtime-evidence" in markdown and "tmp\\xunlei-post-bootstrap-runtime-evidence" in markdown and "tmp\\123_open-post-bootstrap-runtime-evidence" in markdown and "tmp\\uc-post-bootstrap-runtime-evidence" in markdown,
                 "postBootstrapCommandShowsConflictChoice": "tmp\\189cloud-post-bootstrap-runtime-evidence" in markdown and "--conflict-policy auto_rename_new" in markdown,
                 "markdownHasOverwriteVariantCommand": "recommendedOverwriteVariantCommand" in markdown and "--conflict-policy overwrite_existing" in markdown,
@@ -428,6 +431,8 @@ def main() -> None:
                             if str((row or {}).get("providerKey") or "") == "guangya"
                             and str((row or {}).get("recommendedPrimaryCommandLabel") or "") == "recreate_probe"
                             and "--profile-id gy-orphan" in str((row or {}).get("recommendedRecreateProbeCommand") or "")
+                            and len(((row or {}).get("recommendedRecreateProbeCommands") or [])) == 2
+                            and "--profile-id gy-orphan-2" in "\n".join((row or {}).get("recommendedRecreateProbeCommands") or [])
                             and "guangya-restore-gy-orphan" in str((row or {}).get("recommendedPrimaryCommand") or "")
                         ),
                         None,

@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐补救设置摘要里的live rejected状态`
+- 完成范围：
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `Real Evidence Remediation` 设置页复制摘要再补一层：当前除了 `needsSecretRefresh / placeholderSecretHints`，也会直接带出 `liveRejectedStatuses / placeholderLiveRejectedProfiles / liveRejectedSummaries`
+  - 当前效果是：设置页里点开补救项时，复制出来的摘要不再只告诉用户“需要换 secret”，而是能直接看见当前是否已经命中过线上拒绝，以及对应的状态码和简要概要，和前面三条 CLI helper 的 `remediationFollowup` 口径一致
+  - 这样“脚本输出已带 live rejected 状态，但设置页复制摘要仍看不见”的最后一跳断层已经补上；当前用户无论从脚本继续补救，还是从设置页复制当前补救摘要，看到的都是同一组 `placeholder secret + live rejected` 关键信息
+  - 已同步补强 [verify_real_evidence_remediation_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_real_evidence_remediation_ui.py)，把这组 `liveRejected*` 文本占位一起锁进 UI 回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_real_evidence_remediation_ui.py` 已验证设置页复制摘要当前会包含 `liveRejectedStatuses / placeholderLiveRejectedProfiles / liveRejectedSummaries`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐任务脚本补救输出的live rejected状态`
 - 完成范围：
   - 已把 [create_runtime_probe_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_runtime_probe_task.py)、[create_live_upload_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_live_upload_task.py)、[create_fast_upload_candidate_task.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_fast_upload_candidate_task.py) 的 `remediationFollowup` 再补一层：当前除了 `needsSecretRefresh / placeholderSecretFieldHints`，也会直接返回 `liveRejectedProfiles / placeholderLiveRejectedProfiles / liveRejectedStatuses / liveRejectedSummaries`

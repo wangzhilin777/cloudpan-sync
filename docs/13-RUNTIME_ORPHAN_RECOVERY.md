@@ -1,6 +1,6 @@
 # CloudPan Sync Runtime Orphan Recovery Guide
 
-- 生成时间：`2026-05-26T10:23:24.198785+00:00`
+- 生成时间：`2026-05-26T10:34:23.512794+00:00`
 - 汇总： `providerCount=3` `orphanProfileCount=6` `runtimeSampleCount=6` `providersWithSavedProfiles=1` `providersWithoutSavedProfiles=2`
 - orphanSummary: `providers=guangya, pikpak, uc` `profiles=gy-live-1, gy-live-2, gy-live-defaults-1, gy-orphan-live-1, pikpak-live-1, uc-live-1` `savedProfileProviders=guangya` `missingProfileProviders=pikpak, uc`
 
@@ -24,6 +24,7 @@
 - recommendedRuntimeSuccessCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-runtime-orphan-success-evidence`
 - exactRuntimeSuccessHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-runtime-orphan-profile gy-live-1`
 - recommendedOverwriteVariantCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-runtime-orphan-success-evidence`
+- exactOverwriteVariantHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-runtime-orphan-profile gy-live-1`
 
 ## guangya - Guangya - gy-live-2
 - orphanProfileId: `gy-live-2`
@@ -43,6 +44,7 @@
 - recommendedRuntimeSuccessCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-2 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-runtime-orphan-success-evidence`
 - exactRuntimeSuccessHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-runtime-orphan-profile gy-live-2`
 - recommendedOverwriteVariantCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-2 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-runtime-orphan-success-evidence`
+- exactOverwriteVariantHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-runtime-orphan-profile gy-live-2`
 
 ## guangya - Guangya - gy-live-defaults-1
 - orphanProfileId: `gy-live-defaults-1`
@@ -62,6 +64,7 @@
 - recommendedRuntimeSuccessCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-defaults-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-runtime-orphan-success-evidence`
 - exactRuntimeSuccessHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-runtime-orphan-profile gy-live-defaults-1`
 - recommendedOverwriteVariantCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-live-defaults-1 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-runtime-orphan-success-evidence`
+- exactOverwriteVariantHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-runtime-orphan-profile gy-live-defaults-1`
 
 ## guangya - Guangya - gy-orphan-live-1
 - orphanProfileId: `gy-orphan-live-1`
@@ -81,6 +84,7 @@
 - recommendedRuntimeSuccessCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-orphan-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\guangya-runtime-orphan-success-evidence`
 - exactRuntimeSuccessHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-runtime-orphan-profile gy-orphan-live-1`
 - recommendedOverwriteVariantCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider guangya --target-profile-id gy-orphan-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\guangya-runtime-orphan-success-evidence`
+- exactOverwriteVariantHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-runtime-orphan-profile gy-orphan-live-1`
 
 ## pikpak - PikPak - pikpak-live-1
 - orphanProfileId: `pikpak-live-1`
@@ -101,6 +105,7 @@
 - recommendedRuntimeSuccessCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider pikpak --target-profile-id pikpak-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\pikpak-runtime-orphan-success-evidence`
 - exactRuntimeSuccessHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-runtime-orphan-profile pikpak-live-1`
 - recommendedOverwriteVariantCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider pikpak --target-profile-id pikpak-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\pikpak-runtime-orphan-success-evidence`
+- exactOverwriteVariantHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-runtime-orphan-profile pikpak-live-1`
 
 ## uc - UC Drive - uc-live-1
 - orphanProfileId: `uc-live-1`
@@ -120,3 +125,4 @@
 - recommendedRuntimeSuccessCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider uc --target-profile-id uc-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy auto_rename_new --evidence-dir tmp\uc-runtime-orphan-success-evidence`
 - exactRuntimeSuccessHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-runtime-orphan-profile uc-live-1`
 - recommendedOverwriteVariantCommand: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --target-provider uc --target-profile-id uc-live-1 --auto-temp-file --threshold-mb 1 --conflict-policy overwrite_existing --evidence-dir tmp\uc-runtime-orphan-success-evidence`
+- exactOverwriteVariantHelper: `.\.venv\Scripts\python.exe scripts\create_live_upload_task.py --from-runtime-orphan-profile uc-live-1`

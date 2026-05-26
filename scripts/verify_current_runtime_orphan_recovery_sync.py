@@ -56,32 +56,38 @@ def main() -> None:
                 "guangyaSectionHasPrimaryCommand": "recommendedPrimaryCommand:" in guangya and "label=Refresh Existing Orphan Profile" in guangya,
                 "guangyaSectionHasExactRuntimeHelpers": "exactRefreshEvidenceHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-live-1`" in guangya
                 and "exactRuntimeProbeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py --from-runtime-orphan-profile gy-live-1`" in guangya
-                and "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile gy-live-1`" in guangya,
+                and "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile gy-live-1`" in guangya
+                and "exactOverwriteVariantHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile gy-live-1`" in guangya,
                 "guangyaLive2SectionHasRecoveryCommand": "--profile-id gy-live-2" in guangya_live_2 and "existingProviderProfiles: count=`2`" in guangya_live_2,
                 "guangyaLive2SectionHasPrimaryCommand": "recommendedPrimaryCommand:" in guangya_live_2 and "label=Refresh Existing Orphan Profile" in guangya_live_2,
                 "guangyaLive2SectionHasExactRuntimeHelpers": "exactRefreshEvidenceHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-live-2`" in guangya_live_2
                 and "exactRuntimeProbeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py --from-runtime-orphan-profile gy-live-2`" in guangya_live_2
-                and "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile gy-live-2`" in guangya_live_2,
+                and "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile gy-live-2`" in guangya_live_2
+                and "exactOverwriteVariantHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile gy-live-2`" in guangya_live_2,
                 "guangyaDefaultsSectionHasRecoveryCommand": "--profile-id gy-live-defaults-1" in guangya_defaults and "existingProviderProfiles: count=`2`" in guangya_defaults,
                 "guangyaDefaultsSectionHasPrimaryCommand": "recommendedPrimaryCommand:" in guangya_defaults and "label=Refresh Existing Orphan Profile" in guangya_defaults,
                 "guangyaDefaultsSectionHasExactRuntimeHelpers": "exactRefreshEvidenceHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-live-defaults-1`" in guangya_defaults
                 and "exactRuntimeProbeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py --from-runtime-orphan-profile gy-live-defaults-1`" in guangya_defaults
-                and "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile gy-live-defaults-1`" in guangya_defaults,
+                and "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile gy-live-defaults-1`" in guangya_defaults
+                and "exactOverwriteVariantHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile gy-live-defaults-1`" in guangya_defaults,
                 "guangyaOrphanLiveSectionHasRecoveryCommand": "--profile-id gy-orphan-live-1" in guangya_orphan_live and "existingProviderProfiles: count=`2`" in guangya_orphan_live,
                 "guangyaOrphanLiveSectionHasPrimaryCommand": "recommendedPrimaryCommand:" in guangya_orphan_live and "label=Refresh Existing Orphan Profile" in guangya_orphan_live,
                 "guangyaOrphanLiveSectionHasExactRuntimeHelpers": "exactRefreshEvidenceHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-runtime-orphan-profile gy-orphan-live-1`" in guangya_orphan_live
                 and "exactRuntimeProbeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py --from-runtime-orphan-profile gy-orphan-live-1`" in guangya_orphan_live
-                and "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile gy-orphan-live-1`" in guangya_orphan_live,
+                and "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile gy-orphan-live-1`" in guangya_orphan_live
+                and "exactOverwriteVariantHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile gy-orphan-live-1`" in guangya_orphan_live,
                 "pikpakSectionHasRecoveryCommand": "--profile-id pikpak-live-1" in pikpak and "preferred=`manual_token`" in pikpak,
                 "pikpakSectionHasPrimaryCommand": "recommendedPrimaryCommand:" in pikpak and "label=Recreate Orphan Stub" in pikpak,
                 "pikpakSectionHasExactRuntimeHelpers": "exactRefreshEvidenceHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-runtime-orphan-profile pikpak-live-1`" in pikpak
                 and "exactRuntimeProbeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py --from-runtime-orphan-profile pikpak-live-1`" in pikpak
-                and "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile pikpak-live-1`" in pikpak,
+                and "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile pikpak-live-1`" in pikpak
+                and "exactOverwriteVariantHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile pikpak-live-1`" in pikpak,
                 "ucSectionHasRecoveryCommand": "--profile-id uc-live-1" in uc and "preferred=`manual_cookie`" in uc,
                 "ucSectionHasPrimaryCommand": "recommendedPrimaryCommand:" in uc and "label=Recreate Orphan Stub" in uc,
                 "ucSectionHasExactRuntimeHelpers": "exactRefreshEvidenceHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-runtime-orphan-profile uc-live-1`" in uc
                 and "exactRuntimeProbeHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_runtime_probe_task.py --from-runtime-orphan-profile uc-live-1`" in uc
-                and "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile uc-live-1`" in uc,
+                and "exactRuntimeSuccessHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile uc-live-1`" in uc
+                and "exactOverwriteVariantHelper: `.\\.venv\\Scripts\\python.exe scripts\\create_live_upload_task.py --from-runtime-orphan-profile uc-live-1`" in uc,
             },
             ensure_ascii=False,
             indent=2,

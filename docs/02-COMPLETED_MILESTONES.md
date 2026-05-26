@@ -10,6 +10,23 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`孤儿恢复覆盖变体也支持精确辅助命令`
+- 完成范围：
+  - 已把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 的 orphan follow-up 再补最后一截：当前 `recommendedOverwriteVariantCommand` 旁边也会同步产出 `exactOverwriteVariantHelper`
+  - 当前效果是：当历史 orphan 样本需要把互传冲突策略切到 `overwrite_existing` 时，不必再手抄整条长命令；现在可以像 `refresh / runtimeProbe / runtimeSuccess` 一样，直接按 `orphanProfileId` 复用 `create_live_upload_task.py --from-runtime-orphan-profile ...` 或 `create_fast_upload_candidate_task.py --from-runtime-orphan-profile ...`
+  - 已把 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md) 重新导出到当前口径：每条 orphan 分段现在除了 `recommendedOverwriteVariantCommand`，也会直接写出 `exactOverwriteVariantHelper`
+  - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 orphan follow-up 检测、`latestRuntimeOrphanAction` 摘要、`Runtime Orphan Recovery` 设置行、以及首个 orphan gap 摘要一起补上 `exactOverwriteVariant` 展示；这样“切覆盖模式再重跑”也能在设置页直接拿到最短 helper
+  - 已同步补强 [verify_runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery.py)、[verify_runtime_orphan_recreate_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_api.py)、[verify_runtime_orphan_recreate_followup_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recreate_followup_ui.py)、[verify_runtime_orphan_recovery_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_runtime_orphan_recovery_settings_ui.py)、[verify_current_runtime_orphan_recovery_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_runtime_orphan_recovery_sync.py)，把 API、UI、当前文档三层一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\export_runtime_orphan_recovery.py` 已重导出当前 [13-RUNTIME_ORPHAN_RECOVERY.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/13-RUNTIME_ORPHAN_RECOVERY.md)
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recovery.py` 已验证 runtime orphan recovery 的 payload / markdown 当前会输出 `exactOverwriteVariantHelper`
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_api.py` 已验证 orphan recreate API 在 `created=true/false` 两条路径下都会返回 `exactOverwriteVariantHelper`
+  - `.\.venv\Scripts\python.exe scripts\verify_runtime_orphan_recreate_followup_ui.py` 与 `scripts\verify_runtime_orphan_recovery_settings_ui.py` 已验证设置页 follow-up / 摘要当前都会展示 `exactOverwriteVariant`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_runtime_orphan_recovery_sync.py` 已验证当前 `docs/13` 中 Guangya / PikPak / UC 各 orphan 分段都已同步写出 `exactOverwriteVariantHelper`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`孤儿恢复接口与界面也显示精确辅助命令`
 - 完成范围：
   - 已把 [runtime_orphan_recovery.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/runtime_orphan_recovery.py) 的 runtime orphan item 载荷继续补齐到 API 当前态：现在 `build_runtime_orphan_recovery()` 与 `recreate_runtime_orphan_profile()` 返回值都会直接带上 `exactRefreshEvidenceHelper`、`exactRuntimeProbeHelper`、`exactRuntimeSuccessHelper`

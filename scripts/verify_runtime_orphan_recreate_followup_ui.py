@@ -20,7 +20,8 @@ def main() -> None:
                 and "data?.recommendedRuntimeSuccessCommand" in app_js
                 and "data?.exactRuntimeSuccessHelper" in app_js
                 and "data?.recommendedPostBootstrapRuntimeCommand" in app_js
-                and "data?.recommendedOverwriteVariantCommand" in app_js,
+                and "data?.recommendedOverwriteVariantCommand" in app_js
+                and "data?.exactOverwriteVariantHelper" in app_js,
                 "jsStoresLatestOrphanAction": "state.lastRuntimeOrphanAction = data;" in app_js,
                 "jsOnlyAutoJumpsWhenOrphanStubCreated": 'if (data?.created === true && recreated) {' in app_js,
                 "jsOrphanFollowupUsesAccurateLabels": 'focus: followupIsExisting ? "Focus Existing Orphan Profile" : "Focus Recreated Stub"' in app_js
@@ -43,7 +44,8 @@ def main() -> None:
                 and 'captureBtn.addEventListener("click", () => openCaptureGuideForProvider(followupProviderKey));' in app_js,
                 "jsLatestOrphanActionShowsExactHelpers": "exactRefresh=" in app_js
                 and "exactRuntimeProbe=" in app_js
-                and "exactRuntimeSuccess=" in app_js,
+                and "exactRuntimeSuccess=" in app_js
+                and "exactOverwriteVariant=" in app_js,
             },
             ensure_ascii=False,
             indent=2,

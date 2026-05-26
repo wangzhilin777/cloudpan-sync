@@ -113,13 +113,14 @@ def main() -> None:
                         and "create_live_upload_task.py --target-provider guangya --target-profile-id gy-orphan" in str(row.get("recommendedRuntimeSuccessCommand") or "")
                         and "create_live_upload_task.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactRuntimeSuccessHelper") or "")
                         and "--conflict-policy overwrite_existing" in str(row.get("recommendedOverwriteVariantCommand") or "")
+                        and "create_live_upload_task.py --from-runtime-orphan-profile gy-orphan" in str(row.get("exactOverwriteVariantHelper") or "")
                         for row in (payload.get("items") or [])
                     ),
                     "markdownHasTitle": "# CloudPan Sync Runtime Orphan Recovery Guide" in markdown,
                     "markdownHasSummary": "orphanProfileCount=2" in markdown and "providersWithSavedProfiles=1" in markdown,
                     "markdownHasOrphanSummary": "orphanSummary:" in markdown and "profiles=gy-orphan, uc-orphan" in markdown,
                     "markdownHasCreateCommands": "--profile-id gy-orphan" in markdown and "--profile-id uc-orphan" in markdown,
-                    "markdownHasFollowupCommands": "recommendedPrimaryCommand" in markdown and "recommendedRefreshEvidenceCommand" in markdown and "exactRefreshEvidenceHelper" in markdown and "recommendedRuntimeProbeCommand" in markdown and "recommendedRuntimeSuccessCommand" in markdown and "recommendedOverwriteVariantCommand" in markdown,
+                    "markdownHasFollowupCommands": "recommendedPrimaryCommand" in markdown and "recommendedRefreshEvidenceCommand" in markdown and "exactRefreshEvidenceHelper" in markdown and "recommendedRuntimeProbeCommand" in markdown and "recommendedRuntimeSuccessCommand" in markdown and "recommendedOverwriteVariantCommand" in markdown and "exactOverwriteVariantHelper" in markdown,
                     "apiHasSummary": (api_payload.get("summary") or {}).get("orphanProfiles") == ["gy-orphan", "uc-orphan"],
                     "apiMarkdownHasGuide": "--profile-id gy-orphan" in str(api_markdown.get("markdown") or "") and "exactRefreshEvidenceHelper" in str(api_markdown.get("markdown") or "") and "recommendedRuntimeSuccessCommand" in str(api_markdown.get("markdown") or ""),
                 },

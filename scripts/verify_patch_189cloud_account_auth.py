@@ -60,6 +60,18 @@ def main() -> None:
         payload = json.loads(completed.stdout)
         saved_profiles = json.loads((data_dir / "auth_profiles.json").read_text(encoding="utf-8"))
         saved = saved_profiles[0]
+        patch_189cloud_account_auth_flow_matches_expected_fields = (
+            (payload.get("extracted") or {}).get("accessToken") == "access-token-demo"
+            and (payload.get("extracted") or {}).get("signature") == "sig-demo"
+            and (payload.get("extracted") or {}).get("date") == "Sat, 24 May 2026 00:00:00 GMT"
+            and ((payload.get("result") or {}).get("matchedCount")) == 1
+            and ((payload.get("result") or {}).get("writtenCount")) == 1
+            and (saved.get("extra") or {}).get("shareCode") == "share-demo"
+            and (saved.get("extra") or {}).get("fileId") == "root-file"
+            and (saved.get("extra") or {}).get("accessToken") == "access-token-demo"
+            and (saved.get("extra") or {}).get("signature") == "sig-demo"
+            and (saved.get("extra") or {}).get("date") == "Sat, 24 May 2026 00:00:00 GMT"
+        )
 
         print(
             json.dumps(
@@ -68,6 +80,7 @@ def main() -> None:
                     "matchedCount": ((payload.get("result") or {}).get("matchedCount")),
                     "writtenCount": ((payload.get("result") or {}).get("writtenCount")),
                     "savedExtra": saved.get("extra"),
+                    "patch189cloudAccountAuthFlowMatchesExpectedFields": patch_189cloud_account_auth_flow_matches_expected_fields,
                 },
                 ensure_ascii=False,
                 indent=2,

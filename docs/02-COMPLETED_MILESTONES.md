@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐189Cloud写鉴权回填总链回归断言`
+- 完成范围：
+  - 已把 [verify_patch_189cloud_account_auth.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_189cloud_account_auth.py) 从提取值、matched/written 计数和保存后 extra 字段的分散输出，补成真正会给出整条 189Cloud 写鉴权回填链结论的 verifier
+  - 同一条回归现在会用 `patch189cloudAccountAuthFlowMatchesExpectedFields` 直接锁住这条链：`patch_189cloud_account_auth.py` 必须从原始 header 文本稳定提取 `accessToken/signature/date`，按 `profileId` 命中 1 条并真实写回 `auth_profiles.json`，同时保留原有 `shareCode/fileId`
+  - 当前效果是：189Cloud 写鉴权回填能力不再只是几个提取值和保存字段各自为真，而是多了一条从原始文本解析到档案 extra 回写都一致的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_patch_189cloud_account_auth.py` 已验证 189Cloud 写鉴权回填链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐189Cloud账号鉴权建目录总链回归断言`
 - 完成范围：
   - 已把 [verify_189cloud_account_auth_create_dir.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_account_auth_create_dir.py) 从 `ok/mode/fileId` 和请求头/请求体字段的分散输出，补成真正会给出整条 189Cloud 账号鉴权建目录链结论的 verifier

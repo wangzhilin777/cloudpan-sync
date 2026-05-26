@@ -3136,6 +3136,34 @@ function renderSettingsPanel() {
     li.textContent = row;
     taskRuntimeEvidenceList.appendChild(li);
   }
+  const firstRuntimeOrphanItem = runtimeOrphanRows[0] || null;
+  if (runtimeOrphanRows.length > 0) {
+    const li = document.createElement("li");
+    const copy = document.createElement("span");
+    copy.textContent = `runtime_orphan_recovery: providers=${runtimeOrphanProviders.length || 0}, profiles=${runtimeOrphanProfiles.length || 0}, firstProvider=${firstRuntimeOrphanItem?.providerKey || "(none)"}, firstProfile=${firstRuntimeOrphanItem?.profileId || "(none)"}`;
+    li.appendChild(copy);
+    const actions = document.createElement("span");
+    actions.className = "row-actions";
+    const openOrphanBtn = document.createElement("button");
+    openOrphanBtn.className = "ghost";
+    openOrphanBtn.textContent = "Open Runtime Orphan Recovery";
+    openOrphanBtn.addEventListener("click", () => {
+      state.activeTab = "nav.settings";
+      render();
+    });
+    actions.appendChild(openOrphanBtn);
+    if (firstRuntimeOrphanItem?.providerKey && firstRuntimeOrphanItem?.profileId) {
+      const recreateBtn = document.createElement("button");
+      recreateBtn.className = "ghost";
+      recreateBtn.textContent = "Recreate First Runtime Orphan Stub";
+      recreateBtn.addEventListener("click", () =>
+        recreateRuntimeOrphanProfile(firstRuntimeOrphanItem.providerKey, firstRuntimeOrphanItem.profileId)
+      );
+      actions.appendChild(recreateBtn);
+    }
+    li.appendChild(actions);
+    taskRuntimeEvidenceList.appendChild(li);
+  }
   for (const item of (state.taskRuntimeEvidence || []).slice(0, 3)) {
     const li = document.createElement("li");
     const copy = document.createElement("span");

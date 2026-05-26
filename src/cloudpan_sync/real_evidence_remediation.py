@@ -978,6 +978,12 @@ def real_evidence_remediation_to_markdown(payload: dict[str, object]) -> str:
             lines.append(f"- recommendedPatchProbeCommands: count=`{len(patch_probe_commands)}`")
             for index, command in enumerate(patch_probe_commands, start=1):
                 lines.append(f"  - [{index}] `{command}`")
+            profile_ids = [str(value or "") for value in (row.get("profileIds") or []) if str(value or "")]
+            exact_patch_profile = profile_ids[-1] if profile_ids else ""
+            if exact_patch_profile:
+                lines.append(
+                    f"- exactPatchHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id {exact_patch_profile}`"
+                )
         if row.get("recommendedRecreateProbeCommand"):
             lines.append(f"- recommendedRecreateProbeCommand: `{row.get('recommendedRecreateProbeCommand', '')}`")
         recreate_commands = [str(value or "") for value in (row.get("recommendedRecreateProbeCommands") or []) if str(value or "")]

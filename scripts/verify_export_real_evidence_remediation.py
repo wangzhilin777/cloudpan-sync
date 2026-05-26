@@ -68,6 +68,7 @@ def main() -> None:
                 "providerKey": "guangya",
                 "displayName": "Guangya",
                 "profileCount": 1,
+                "profileIds": ["gy-1", "gy-2"],
                 "authReadyProfiles": 1,
                 "writeReadyProfiles": 1,
                 "recommendedAuthModes": ["manual_token"],
@@ -369,6 +370,7 @@ def main() -> None:
                 "exportedHasMultiPatchProbeCommandList": "recommendedPatchProbeCommands: count=`2`" in markdown
                 and "--profile-id gy-1 " in markdown
                 and "--profile-id gy-2 " in markdown,
+                "exportedHasExactPatchHelper": "exactPatchHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id gy-2`" in markdown,
                 "exportedHasRecreateProbeCommand": "recommendedRecreateProbeCommand" in markdown
                 and "placeholderSecretFieldHints: `token`" in markdown
                 and "create_auth_profile_stub.py --provider-key guangya --auth-mode manual_token" in markdown,

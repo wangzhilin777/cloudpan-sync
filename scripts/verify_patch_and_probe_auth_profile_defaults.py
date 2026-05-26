@@ -44,6 +44,19 @@ def main() -> None:
                         "lastError": "",
                         "createdAt": "2026-05-26T00:00:00+00:00",
                         "updatedAt": "2026-05-26T00:00:00+00:00",
+                    },
+                    {
+                        "profileId": "gy-patch-defaults-2",
+                        "providerKey": "guangya",
+                        "authMode": "manual_token",
+                        "displayName": "gy-defaults-2",
+                        "token": "tok_defaults_2",
+                        "cookie": "",
+                        "extra": {},
+                        "status": "unknown",
+                        "lastError": "",
+                        "createdAt": "2026-05-26T00:00:00+00:00",
+                        "updatedAt": "2026-05-26T00:00:00+00:00",
                     }
                 ],
                 ensure_ascii=False,
@@ -105,7 +118,11 @@ def main() -> None:
             "items": [
                 {
                     "providerKey": "guangya",
-                    "profileIds": ["gy-patch-defaults"],
+                    "profileIds": ["gy-patch-defaults", "gy-patch-defaults-2"],
+                    "recommendedPatchProbeCommands": [
+                        r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-patch-defaults --set parentId=YOUR_REAL_PARENT_ID --set fileId=YOUR_FILE_ID --write",
+                        r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-patch-defaults-2 --set parentId=YOUR_REAL_PARENT_ID --set fileId=YOUR_FILE_ID_2 --write",
+                    ],
                     "recommendedPatchProbeCommand": r".\.venv\Scripts\python.exe scripts\patch_and_probe_auth_profile.py --profile-id gy-patch-defaults --set parentId=YOUR_REAL_PARENT_ID --set fileId=YOUR_FILE_ID --write",
                 },
                 {
@@ -134,11 +151,34 @@ def main() -> None:
                 )
             defaults_payload = json.loads(defaults_stdout.getvalue())
 
+            exact_defaults_stdout = io.StringIO()
+            with redirect_stdout(exact_defaults_stdout):
+                patch_and_probe_script.main(
+                    [
+                        "--from-remediation-profile-id",
+                        "gy-patch-defaults-2",
+                        "--set",
+                        "parentId=dir-exact",
+                        "--dir-name",
+                        "verify-exact-dir",
+                        "--page-size",
+                        "7",
+                        "--data-dir",
+                        str(data_dir),
+                    ]
+                )
+            exact_defaults_payload = json.loads(exact_defaults_stdout.getvalue())
+
             missing_profile_id_error = ""
             try:
                 patch_and_probe_script.main(["--from-remediation-provider", "missing-provider", "--data-dir", str(data_dir)])
             except SystemExit as exc:
                 missing_profile_id_error = str(exc)
+            missing_exact_profile_id_error = ""
+            try:
+                patch_and_probe_script.main(["--from-remediation-profile-id", "missing-profile", "--data-dir", str(data_dir)])
+            except SystemExit as exc:
+                missing_exact_profile_id_error = str(exc)
         finally:
             auth_live_validate.validate_profile_object = original_validate
             provider_live_probe.run_provider_live_probe = original_probe
@@ -147,7 +187,8 @@ def main() -> None:
             patch_and_probe_script.build_real_evidence_remediation_bundle = original_remediation_builder
 
         profiles = json.loads((data_dir / "auth_profiles.json").read_text(encoding="utf-8"))
-        profile = profiles[0]
+        profile = next(item for item in profiles if item.get("profileId") == "gy-patch-defaults")
+        exact_profile = next(item for item in profiles if item.get("profileId") == "gy-patch-defaults-2")
         print(
             json.dumps(
                 {
@@ -156,7 +197,7 @@ def main() -> None:
                     "writeInherited": defaults_payload.get("written") is True and profile.get("updatedAt", "") != "2026-05-26T00:00:00+00:00",
                     "defaultAndExplicitSetsMerged": dict(defaults_payload.get("extra") or {}).get("fileId") == "YOUR_FILE_ID"
                     and dict(defaults_payload.get("extra") or {}).get("parentId") == "dir-explicit",
-                    "probeUsedMergedValues": len(probe_calls) == 1
+                    "probeUsedMergedValues": len(probe_calls) >= 1
                     and probe_calls[0].get("profileId") == "gy-patch-defaults"
                     and probe_calls[0].get("parentId") == "dir-explicit"
                     and probe_calls[0].get("fileId") == "YOUR_FILE_ID"
@@ -164,7 +205,21 @@ def main() -> None:
                     and probe_calls[0].get("pageSize") == 9,
                     "profilePersistedMergedValues": dict(profile.get("extra") or {}).get("fileId") == "YOUR_FILE_ID"
                     and dict(profile.get("extra") or {}).get("parentId") == "dir-explicit",
+                    "exactDefaultsSourceApplied": exact_defaults_payload.get("defaultsSource") == "remediation:recommendedPatchProbeCommands",
+                    "exactDefaultProfileResolved": exact_defaults_payload.get("profileId") == "gy-patch-defaults-2",
+                    "exactWriteInherited": exact_defaults_payload.get("written") is True and exact_profile.get("updatedAt", "") != "2026-05-26T00:00:00+00:00",
+                    "exactDefaultAndExplicitSetsMerged": dict(exact_defaults_payload.get("extra") or {}).get("fileId") == "YOUR_FILE_ID_2"
+                    and dict(exact_defaults_payload.get("extra") or {}).get("parentId") == "dir-exact",
+                    "exactProbeUsedMergedValues": len(probe_calls) == 2
+                    and probe_calls[1].get("profileId") == "gy-patch-defaults-2"
+                    and probe_calls[1].get("parentId") == "dir-exact"
+                    and probe_calls[1].get("fileId") == "YOUR_FILE_ID_2"
+                    and probe_calls[1].get("dirName") == "verify-exact-dir"
+                    and probe_calls[1].get("pageSize") == 7,
+                    "exactProfilePersistedMergedValues": dict(exact_profile.get("extra") or {}).get("fileId") == "YOUR_FILE_ID_2"
+                    and dict(exact_profile.get("extra") or {}).get("parentId") == "dir-exact",
                     "missingProviderStillNeedsProfileId": missing_profile_id_error == "profile_id_required",
+                    "missingExactProfileStillNeedsProfileId": missing_exact_profile_id_error == "profile_id_required",
                 },
                 ensure_ascii=False,
                 indent=2,

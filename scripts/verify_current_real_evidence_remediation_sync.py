@@ -189,6 +189,7 @@ def main() -> None:
                     and "recommendedRecreateProbeCommands: count=`2`" in guangya
                     and "recommendedPatchCommands: count=`2`" in guangya
                     and "recommendedPatchProbeCommands: count=`2`" in guangya
+                    and "exactPatchHelper: `.\\.venv\\Scripts\\python.exe scripts\\patch_and_probe_auth_profile.py --from-remediation-profile-id 08684618-ea29-48a4-b603-2e40cdc37c3d`" in guangya
                     and "recommendedPrimaryCommand" in guangya
                     and "label=recreate_probe" in guangya
                     and "patch_auth_profile_extra.py --profile-id 0318479d-4669-415f-9083-7aecc102bf90 --set parentId=YOUR_REAL_PARENT_ID --write --revalidate" in guangya

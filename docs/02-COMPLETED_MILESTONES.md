@@ -10,6 +10,20 @@
 
 ### 已完成补齐项 - `2026-05-26`
 
+- 提交：`补丁探针脚本也支持按档案精确带默认值`
+- 完成范围：
+  - 已把 [patch_and_probe_auth_profile.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/patch_and_probe_auth_profile.py) 的 remediation 默认值入口继续补齐：除了原来的 `--from-remediation-provider` 外，现在新增 `--from-remediation-profile-id`
+  - 当前效果是：当同一 provider 下存在多条待修 patch profile 时，不再只能默认吃第一条；现在既可以继续用 provider 级入口拿首条 `recommendedPatchProbeCommand`，也可以像 Guangya 这样直接指定第二条 profile，精确带出对应 `profileId / --set 默认值 / --write`，避免 patch 到错误档案
+  - 已同步把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 的导出文案补上 `exactPatchHelper`，这样 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 在出现多条 `recommendedPatchProbeCommands` 时，会明确给出 `--from-remediation-profile-id ...` 的精确 helper
+  - 已同步补强 [verify_patch_and_probe_auth_profile_defaults.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_and_probe_auth_profile_defaults.py)、[verify_export_real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_export_real_evidence_remediation.py)、[verify_current_real_evidence_remediation_sync.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_current_real_evidence_remediation_sync.py)，把“provider 级默认值 + profile 级精确默认值 + 导出 exactPatchHelper”三条路径一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_patch_and_probe_auth_profile_defaults.py` 已验证 `--from-remediation-provider` 与 `--from-remediation-profile-id` 两条默认值入口都能解析到预期 profile，且默认 patch 值与显式 `--set` 可正确合并
+  - `.\.venv\Scripts\python.exe scripts\verify_export_real_evidence_remediation.py` 已验证临时导出的 remediation markdown 当前会同时保留 `recommendedPatchProbeCommands: count=2` 与 `exactPatchHelper`
+  - `.\.venv\Scripts\python.exe scripts\verify_current_real_evidence_remediation_sync.py` 已验证当前 [12-REAL_EVIDENCE_REMEDIATION_GUIDE.md](E:/Workspace/VSCode/CloudPan%20Sync/docs/12-REAL_EVIDENCE_REMEDIATION_GUIDE.md) 中已同步写出 Guangya 的 `exactPatchHelper`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `POST_RUN_PROCESSES=[] / POST_CLEAN_PROCESSES=[]`
+
+### 已完成补齐项 - `2026-05-26`
+
 - 提交：`补救指南也支持多档案 patch probe 列表`
 - 完成范围：
   - 已把 [real_evidence_remediation.py](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/real_evidence_remediation.py) 里 provider 级 patch 补救继续补齐：当同一 provider 下存在多条待修 auth profile 时，现在除了保留第一条 `recommendedPatchCommand / recommendedPatchProbeCommand` 兼容旧入口，还会额外输出完整的 `recommendedPatchCommands / recommendedPatchProbeCommands`

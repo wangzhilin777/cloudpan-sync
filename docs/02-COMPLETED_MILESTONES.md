@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐UC秒传总链回归断言`
+- 完成范围：
+  - 已把 [verify_uc_fast_upload_live.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_uc_fast_upload_live.py) 从 `ok/mode/verifyMode/resolvedTargetName` 和三段请求调用的分散输出，补成真正会给出整条 UC rapid-upload 链结论的 verifier
+  - 同一条回归现在会用 `ucFastUploadLiveFlowMatchesExpectedRequests` 直接锁住这条链：`upload_uc_fast_file()` 必须稳定返回 `mode=rapid_upload_by_hash`、`verifyMode=finish_response`、`resolvedTargetName=movie.mkv`，并真实走过 `upload/pre / update/hash / upload/finish` 三段调用
+  - 当前效果是：UC 秒传能力不再只是返回字段和请求痕迹各自为真，而是多了一条从 rapid-upload 调用到 finish-response 验证的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_uc_fast_upload_live.py` 已验证 UC 秒传链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐Provider建目录接口总链回归断言`
 - 完成范围：
   - 已把 [verify_provider_create_dir_apis.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_create_dir_apis.py) 从 Quark/UC 两条 `create_dir` 返回值的分散输出，补成真正会给出整条 Provider 建目录接口链结论的 verifier

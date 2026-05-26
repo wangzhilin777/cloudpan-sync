@@ -10,6 +10,18 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐建档补救输出里的live rejected状态`
+- 完成范围：
+  - 已把 [create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/create_auth_profile_stub.py) 的 `remediation` 输出再补一层：当前除了 `needsSecretRefresh / placeholderSecretFieldHints`，也会直接返回 `liveRejectedProfiles / placeholderLiveRejectedProfiles / liveRejectedStatuses / liveRejectedSummaries`
+  - 当前效果是：从“创建或重建 auth profile stub”这条入口继续补救时，脚本输出不再只是告诉用户“需要替换占位 secret”，也能直接说明当前档案是否已经命中过线上拒绝、对应状态码是什么，和 runtime probe / live upload / fast candidate 那几条 helper 保持同口径
+  - 这样 `create_auth_profile_stub.py` 不再是补救链里唯一还停留在旧提示粒度的入口；当前无论是从建档、probe、live upload 还是 fast candidate 路径继续往下走，都能看到一致的 `placeholder secret + live rejected` 状态摘要
+  - 已同步补强 [verify_create_auth_profile_stub.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_auth_profile_stub.py)，把这组 `liveRejected*` 字段一起锁进回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_auth_profile_stub.py` 已验证建档脚本输出的 `remediation` 当前会直接返回 `liveRejectedProfiles / placeholderLiveRejectedProfiles / liveRejectedStatuses / liveRejectedSummaries`
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程会在提交前复查并清理到 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐补救设置摘要里的live rejected状态`
 - 完成范围：
   - 已把 [app.js](E:/Workspace/VSCode/CloudPan%20Sync/src/cloudpan_sync/web/assets/app.js) 的 `Real Evidence Remediation` 设置页复制摘要再补一层：当前除了 `needsSecretRefresh / placeholderSecretHints`，也会直接带出 `liveRejectedStatuses / placeholderLiveRejectedProfiles / liveRejectedSummaries`

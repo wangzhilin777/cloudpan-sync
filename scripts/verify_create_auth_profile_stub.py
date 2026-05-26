@@ -85,6 +85,10 @@ def main() -> None:
                     "nextStep": "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",
                     "needsSecretRefresh": True,
                     "placeholderSecretFieldHints": ["token"],
+                    "liveRejectedProfiles": ["aliyun-bootstrap"],
+                    "placeholderLiveRejectedProfiles": ["aliyun-bootstrap"],
+                    "liveRejectedStatuses": ["404"],
+                    "liveRejectedSummaries": ["aliyun-bootstrap:404"],
                     "recommendedPrimaryCommandLabel": "recreate_probe",
                     "recommendedPrimaryCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name aliyun-bootstrap --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe",
                     "recommendedRecreateProbeCommand": r".\.venv\Scripts\python.exe scripts\create_auth_profile_stub.py --provider-key aliyundrive_open --auth-mode official_oauth --display-name aliyun-bootstrap --token YOUR_TOKEN --set domainId=YOUR_DOMAIN_ID --set driveId=YOUR_DRIVE_ID --probe",
@@ -160,6 +164,10 @@ def main() -> None:
                     and "create_auth_profile_stub.py" in dict(payload.get("remediation") or {}).get("recommendedPrimaryCommand", ""),
                     "remediationSecretRefreshIncluded": dict(payload.get("remediation") or {}).get("needsSecretRefresh") is True
                     and dict(payload.get("remediation") or {}).get("placeholderSecretFieldHints") == ["token"]
+                    and dict(payload.get("remediation") or {}).get("liveRejectedProfiles") == ["aliyun-bootstrap"]
+                    and dict(payload.get("remediation") or {}).get("placeholderLiveRejectedProfiles") == ["aliyun-bootstrap"]
+                    and dict(payload.get("remediation") or {}).get("liveRejectedStatuses") == ["404"]
+                    and dict(payload.get("remediation") or {}).get("liveRejectedSummaries") == ["aliyun-bootstrap:404"]
                     and "create_auth_profile_stub.py" in dict(payload.get("remediation") or {}).get("recommendedRecreateProbeCommand", ""),
                     "remediationFollowupIncluded": dict(payload.get("remediation") or {}).get("nextStep")
                     == "当前档案仍含占位 token/cookie 等 secret 字段；先用真实凭证重建或编辑档案，再重跑 validation / live probe。",

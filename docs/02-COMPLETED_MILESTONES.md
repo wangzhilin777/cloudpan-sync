@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐Provider真实证据面板总链回归断言`
+- 完成范围：
+  - 已把 [verify_provider_real_evidence_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_real_evidence_ui.py) 从 Provider 真实证据摘要、补救动作、runtime orphan 摘要、冲突统计和 logout 清理的分散检查，补成真正会给出整条 Provider 真实证据面板链结论的 verifier
+  - 同一条回归现在会用 `providerRealEvidenceUiFlowIsWired` 直接锁住这条链：面板必须继续维护 `realEvidenceReport` 状态和 `realEvidenceByProvider()` 帮助方法，稳定展示 `real_evidence auth/gaps/task_runtime` 等摘要，为 provider 级缺口保留 `Focus/Refresh/Probe/Open Capture/Create Stub/Recreate Orphan Stub` 恢复动作，继续在面板摘要里带出 runtime orphan 首条样本与 `autoRenameProbeOnly/conflictUnsupported/runtimeBlocked/runtimeConflictHandled/runtimeOrphan` 等冲突统计标签，并在载入与 logout 时正确刷新/清空真实证据状态
+  - 当前效果是：Provider 真实证据面板能力不再只是摘要字段、恢复动作和冲突统计片段各自为真，而是多了一条覆盖 provider 视角真实证据展示、补救动作和状态生命周期处理的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_real_evidence_ui.py` 已验证 Provider 真实证据面板链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐审计设置页总链回归断言`
 - 完成范围：
   - 已把 [verify_audit_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_audit_settings_ui.py) 从审计设置面板、首个缺口动作、runtime orphan 摘要和 logout 清理的分散检查，补成真正会给出整条审计设置页链结论的 verifier

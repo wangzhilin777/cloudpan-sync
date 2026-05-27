@@ -104,6 +104,18 @@ def main() -> None:
                 "signCheckUsed": second_attempt.get("signCheck"),
                 "resolvedTargetName": ((payload.get("payload") or {}).get("resolvedTargetName")),
                 "target": ((payload.get("payload") or {}).get("target")),
+                "pan115FastUploadLiveFlowMatchesExpectedRapidUpload": (
+                    payload.get("ok") is True
+                    and payload.get("mode") == "rapid_upload_by_hash"
+                    and payload.get("verifyOk") is True
+                    and payload.get("verifyMode") == "metadata_by_file_id"
+                    and len(request_calls) == 2
+                    and (((payload.get("payload") or {}).get("initResponse") or {}).get("data") or {}).get("status") == 7
+                    and (((payload.get("payload") or {}).get("followupResponse") or {}).get("data") or {}).get("status") == 2
+                    and second_attempt.get("signCheck") == "0-5"
+                    and ((payload.get("payload") or {}).get("resolvedTargetName")) == "movie.mkv"
+                    and ((payload.get("payload") or {}).get("target")) == "U_1_115-root"
+                ),
             },
             ensure_ascii=False,
             indent=2,

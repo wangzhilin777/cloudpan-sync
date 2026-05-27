@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐115秒传命中总链回归断言`
+- 完成范围：
+  - 已把 [verify_115_fast_upload_live.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_115_fast_upload_live.py) 从首轮 `status=7`、二次 `sign_check` 请求、最终秒传命中和 metadata 校验的分散输出，补成真正会给出整条 115 秒传命中链结论的 verifier
+  - 同一条回归现在会用 `pan115FastUploadLiveFlowMatchesExpectedRapidUpload` 直接锁住这条链：`115_open` 必须继续先走一次 `upload/init`，在 `status=7` 时再补发带 `signCheck=0-5` 的二次请求，并以 `mode=rapid_upload_by_hash`、`verifyMode=metadata_by_file_id` 收尾，同时保持当前真实 `target=U_1_115-root`
+  - 当前效果是：115 秒传命中能力不再只是请求次数、状态码和 metadata verify 片段各自为真，而是多了一条覆盖 `status=7 -> sign_check -> status=2` 命中链的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_115_fast_upload_live.py` 已验证 115 秒传命中链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐189Cloud秒传二进制回退总链回归断言`
 - 完成范围：
   - 已把 [verify_189cloud_fast_upload_binary_fallback.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_fast_upload_binary_fallback.py) 从创建上传会话、PUT 上传、查询状态和 commit 返回值的分散输出，补成真正会给出整条 189Cloud 秒传二进制回退链结论的 verifier

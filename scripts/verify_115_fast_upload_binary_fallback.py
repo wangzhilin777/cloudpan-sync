@@ -137,6 +137,19 @@ def main() -> None:
                 "bucket": upload_session.get("bucket"),
                 "object": upload_session.get("object"),
                 "endpoint": upload_session.get("endpoint"),
+                "pan115FastUploadBinaryFallbackFlowMatchesExpectedUploadPath": (
+                    payload.get("ok") is True
+                    and payload.get("mode") == "binary_upload_after_hash_miss"
+                    and payload.get("verifyOk") is True
+                    and payload.get("verifyMode") == "list_by_parent_name"
+                    and len(request_calls) == 2
+                    and len(token_calls) == 1
+                    and len(upload_calls) == 1
+                    and binary_payload.get("uploadKind") == "single_part"
+                    and upload_session.get("bucket") == "115-bucket-demo"
+                    and upload_session.get("object") == "folder/movie.mkv"
+                    and upload_session.get("endpoint") == "https://oss-cn-hangzhou.aliyuncs.com"
+                ),
             },
             ensure_ascii=False,
             indent=2,

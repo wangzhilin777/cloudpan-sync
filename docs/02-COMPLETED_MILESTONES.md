@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐115秒传二进制回退总链回归断言`
+- 完成范围：
+  - 已把 [verify_115_fast_upload_binary_fallback.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_115_fast_upload_binary_fallback.py) 从 hash miss 后的请求次数、token 获取、OSS 二进制上传和最终 verify 结果的分散输出，补成真正会给出整条 115 秒传二进制回退链结论的 verifier
+  - 同一条回归现在会用 `pan115FastUploadBinaryFallbackFlowMatchesExpectedUploadPath` 直接锁住这条链：`115_open` 在 hash miss 后必须继续走 `mode=binary_upload_after_hash_miss`，请求两次秒传接口、拉取一次上传 token、执行一次 OSS 二进制上传，并以 `verifyMode=list_by_parent_name` 完成校验，同时保持 `bucket/object/endpoint` 为当前真实上传会话口径
+  - 当前效果是：115 秒传二进制回退能力不再只是请求计数、上传调用和 verify 结果片段各自为真，而是多了一条覆盖 hash miss 转上传、STS 会话和上传后校验的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_115_fast_upload_binary_fallback.py` 已验证 115 秒传二进制回退链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐189Cloud建目录接口总链回归断言`
 - 完成范围：
   - 已把 [verify_189cloud_create_dir_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_create_dir_api.py) 从只读 share fallback 字段和账号级建目录返回值的分散输出，补成真正会给出整条 189Cloud 建目录接口链结论的 verifier

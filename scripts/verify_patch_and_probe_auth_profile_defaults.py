@@ -267,6 +267,47 @@ def main() -> None:
                     "missingProviderStillNeedsProfileId": missing_profile_id_error == "profile_id_required",
                     "missingExactProfileStillNeedsProfileId": missing_exact_profile_id_error == "profile_id_required",
                     "missingOrphanProfileStillNeedsProfileId": missing_orphan_profile_id_error == "profile_id_required",
+                    "patchAndProbeAuthProfileDefaultsFlowMatchesExpectedSources": (
+                        defaults_payload.get("defaultsSource") == "remediation:recommendedPatchProbeCommand"
+                        and defaults_payload.get("profileId") == "gy-patch-defaults"
+                        and defaults_payload.get("written") is True
+                        and dict(defaults_payload.get("extra") or {}).get("fileId") == "YOUR_FILE_ID"
+                        and dict(defaults_payload.get("extra") or {}).get("parentId") == "dir-explicit"
+                        and profile.get("updatedAt", "") != "2026-05-26T00:00:00+00:00"
+                        and len(probe_calls) >= 1
+                        and probe_calls[0].get("profileId") == "gy-patch-defaults"
+                        and probe_calls[0].get("parentId") == "dir-explicit"
+                        and probe_calls[0].get("fileId") == "YOUR_FILE_ID"
+                        and probe_calls[0].get("dirName") == "verify-defaults-dir"
+                        and probe_calls[0].get("pageSize") == 9
+                        and dict(profile.get("extra") or {}).get("fileId") == "YOUR_FILE_ID"
+                        and dict(profile.get("extra") or {}).get("parentId") == "dir-explicit"
+                        and exact_defaults_payload.get("defaultsSource") == "remediation:recommendedPatchProbeCommands"
+                        and exact_defaults_payload.get("profileId") == "gy-patch-defaults-2"
+                        and exact_defaults_payload.get("written") is True
+                        and dict(exact_defaults_payload.get("extra") or {}).get("fileId") == "YOUR_FILE_ID_2"
+                        and dict(exact_defaults_payload.get("extra") or {}).get("parentId") == "dir-exact"
+                        and exact_profile.get("updatedAt", "") != "2026-05-26T00:00:00+00:00"
+                        and len(probe_calls) >= 2
+                        and probe_calls[1].get("profileId") == "gy-patch-defaults-2"
+                        and probe_calls[1].get("parentId") == "dir-exact"
+                        and probe_calls[1].get("fileId") == "YOUR_FILE_ID_2"
+                        and probe_calls[1].get("dirName") == "verify-exact-dir"
+                        and probe_calls[1].get("pageSize") == 7
+                        and orphan_defaults_payload.get("defaultsSource") == "runtime_orphan:recommendedRefreshEvidenceCommand"
+                        and orphan_defaults_payload.get("profileId") == "gy-patch-defaults-2"
+                        and dict(orphan_defaults_payload.get("extra") or {}).get("fileId") == "YOUR_ORPHAN_FILE_ID"
+                        and dict(orphan_defaults_payload.get("extra") or {}).get("parentId") == "dir-orphan-exact"
+                        and len(probe_calls) == 3
+                        and probe_calls[2].get("profileId") == "gy-patch-defaults-2"
+                        and probe_calls[2].get("parentId") == "dir-orphan-exact"
+                        and probe_calls[2].get("fileId") == "YOUR_ORPHAN_FILE_ID"
+                        and probe_calls[2].get("dirName") == "verify-orphan-dir"
+                        and probe_calls[2].get("pageSize") == 5
+                        and missing_profile_id_error == "profile_id_required"
+                        and missing_exact_profile_id_error == "profile_id_required"
+                        and missing_orphan_profile_id_error == "profile_id_required"
+                    ),
                 },
                 ensure_ascii=False,
                 indent=2,

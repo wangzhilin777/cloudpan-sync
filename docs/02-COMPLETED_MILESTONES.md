@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐补丁探测默认值总链回归断言`
+- 完成范围：
+  - 已把 [verify_patch_and_probe_auth_profile_defaults.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_and_probe_auth_profile_defaults.py) 从 remediation 默认值、精确 profile 默认值、runtime orphan 默认值和缺失目标报错的分散断言，补成真正会给出整条补丁探测默认值解析链结论的 verifier
+  - 同一条回归现在会用 `patchAndProbeAuthProfileDefaultsFlowMatchesExpectedSources` 直接锁住这条链：`patch_and_probe_auth_profile.py` 必须稳定从 `remediation:recommendedPatchProbeCommand`、`remediation:recommendedPatchProbeCommands` 和 `runtime_orphan:recommendedRefreshEvidenceCommand` 三类来源解析出默认 `profileId/set/write`，并把默认值与显式 `--set` 正确合并后透传到 probe 调用与档案写回
+  - 当前效果是：补丁探测默认值能力不再只是三种入口默认值和缺失目标报错各自为真，而是多了一条覆盖 provider 默认入口、精确 profile 入口、runtime orphan 入口和错误回退口径的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_patch_and_probe_auth_profile_defaults.py` 已验证补丁探测默认值链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权补丁脚本总链回归断言`
 - 完成范围：
   - 已把 [verify_patch_auth_profile_extra.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_auth_profile_extra.py) 从命中数量、写回结果、重验落盘和变更键名的分散输出，补成真正会给出整条授权补丁回填链结论的 verifier

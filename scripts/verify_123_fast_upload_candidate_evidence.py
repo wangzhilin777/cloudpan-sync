@@ -98,6 +98,24 @@ def main() -> None:
                 "firstRuntimeRow": rows[0] if rows else {},
                 "reportTaskRuntimeEvidence": provider_row.get("taskRuntimeEvidence"),
                 "reportSummary": report.get("summary"),
+                "pan123FastUploadCandidateEvidenceFlowMatchesExpectedProbeOnlyReport": (
+                    len(rows) == 1
+                    and (results[0] if results else {}).get("executionMode") == "probe"
+                    and ((results[0] if results else {}).get("liveAttempt") or {}).get("mode") == "123_open_fast_upload_candidate"
+                    and ((results[0] if results else {}).get("liveAttempt") or {}).get("hashKind") == "md5"
+                    and (rows[0] if rows else {}).get("providerKey") == "123_open"
+                    and (rows[0] if rows else {}).get("executionMode") == "probe"
+                    and (rows[0] if rows else {}).get("mode") == "123_open_fast_upload_candidate"
+                    and (rows[0] if rows else {}).get("verifyMode") == "fingerprint_candidate"
+                    and ((provider_row.get("taskRuntimeEvidence") or {}).get("ok")) is False
+                    and ((provider_row.get("taskRuntimeEvidence") or {}).get("sampleCount")) == 1
+                    and ((provider_row.get("taskRuntimeEvidence") or {}).get("candidateCount")) == 1
+                    and ((provider_row.get("taskRuntimeEvidence") or {}).get("candidateProfiles")) == ["123 Fast Candidate"]
+                    and (report.get("summary") or {}).get("taskRuntimeEvidenceProviderCount") == 0
+                    and (report.get("summary") or {}).get("taskRuntimeCandidateProviderCount") == 1
+                    and (report.get("summary") or {}).get("taskRuntimeCandidateCount") == 1
+                    and (report.get("summary") or {}).get("taskRuntimeCandidateProviders") == ["123_open"]
+                ),
             },
             ensure_ascii=False,
             indent=2,

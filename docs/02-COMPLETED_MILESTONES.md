@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐Provider冲突能力总链回归断言`
+- 完成范围：
+  - 已把 [verify_provider_conflict_capabilities.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_conflict_capabilities.py) 从 provider 列表冲突策略、状态矩阵冲突口径和运行态冲突处理计数的分散输出，补成真正会给出整条 Provider 冲突能力链结论的 verifier
+  - 同一条回归现在会用 `providerConflictCapabilitiesFlowMatchesExpectedPolicies` 直接锁住这条链：状态矩阵 summary 必须稳定给出 `overwriteSupportedProviders=aliyundrive_open`、`autoRenameSupportedProviders` 八家和 `conflictUnsupportedProviders=189cloud`；Guangya/123/百度都必须继续落在 `overwrite_existing + auto_rename_new` 且 `downgrade_to_auto_rename` 口径下；189Cloud 则必须继续保持 `create_dir_ready=true`、冲突策略空、`overwriteBehavior=readonly_auth_blocked`，并把运行态失败/阻断计数正确沉淀到矩阵里
+  - 当前效果是：Provider 冲突能力不再只是 provider 列表字段、矩阵摘要和运行态计数各自为真，而是多了一条覆盖策略声明、降级语义和运行态统计口径的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_provider_conflict_capabilities.py` 已验证 Provider 冲突能力链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐光鸭校验提示总链回归断言`
 - 完成范围：
   - 已把 [verify_guangya_validation_hints.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_guangya_validation_hints.py) 从 Guangya 别名字段解析、缺字段提示和 live 请求头透传的分散检查，补成真正会给出整条 Guangya 校验提示链结论的 verifier

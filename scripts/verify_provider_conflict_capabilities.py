@@ -115,6 +115,49 @@ def main() -> None:
                     "task_runtime_blocked": tianyi_matrix.get("task_runtime_blocked"),
                     "task_runtime_conflict_handled": tianyi_matrix.get("task_runtime_conflict_handled"),
                 },
+                "providerConflictCapabilitiesFlowMatchesExpectedPolicies": (
+                    list((matrix.get("summary") or {}).get("overwriteSupportedProviders") or []) == ["aliyundrive_open"]
+                    and list((matrix.get("summary") or {}).get("autoRenameSupportedProviders") or []) == ["guangya", "aliyundrive_open", "quark", "baidu_netdisk", "uc", "xunlei", "pikpak", "123_open"]
+                    and list((matrix.get("summary") or {}).get("conflictUnsupportedProviders") or []) == ["189cloud"]
+                    and guangya_provider.get("conflictPolicies") == ["overwrite_existing", "auto_rename_new"]
+                    and guangya_provider.get("supportsOverwrite") is False
+                    and guangya_provider.get("supportsAutoRename") is True
+                    and guangya_provider.get("overwriteBehavior") == "downgrade_to_auto_rename"
+                    and guangya_matrix.get("conflictPolicies") == ["overwrite_existing", "auto_rename_new"]
+                    and guangya_matrix.get("overwrite_support_status") == "downgrade_to_auto_rename"
+                    and guangya_matrix.get("auto_rename_support_status") == "supported"
+                    and guangya_matrix.get("task_runtime_track") == "runtime_active"
+                    and guangya_matrix.get("task_runtime_samples") == 1
+                    and guangya_matrix.get("task_runtime_success") == 1
+                    and guangya_matrix.get("task_runtime_failed") == 0
+                    and guangya_matrix.get("task_runtime_blocked") == 0
+                    and guangya_matrix.get("task_runtime_conflict_handled") == 1
+                    and pan123_matrix.get("conflictPolicies") == ["overwrite_existing", "auto_rename_new"]
+                    and pan123_matrix.get("supportsOverwrite") is False
+                    and pan123_matrix.get("supportsAutoRename") is True
+                    and pan123_matrix.get("overwriteBehavior") == "downgrade_to_auto_rename"
+                    and pan123_matrix.get("overwrite_support_status") == "downgrade_to_auto_rename"
+                    and pan123_matrix.get("auto_rename_support_status") == "supported"
+                    and baidu_matrix.get("conflictPolicies") == ["overwrite_existing", "auto_rename_new"]
+                    and baidu_matrix.get("supportsOverwrite") is False
+                    and baidu_matrix.get("supportsAutoRename") is True
+                    and baidu_matrix.get("overwriteBehavior") == "downgrade_to_auto_rename"
+                    and baidu_matrix.get("overwrite_support_status") == "downgrade_to_auto_rename"
+                    and baidu_matrix.get("auto_rename_support_status") == "supported"
+                    and tianyi_matrix.get("create_dir_ready") is True
+                    and tianyi_matrix.get("conflictPolicies") == []
+                    and tianyi_matrix.get("supportsOverwrite") is False
+                    and tianyi_matrix.get("supportsAutoRename") is False
+                    and tianyi_matrix.get("overwriteBehavior") == "readonly_auth_blocked"
+                    and tianyi_matrix.get("overwrite_support_status") == "unsupported"
+                    and tianyi_matrix.get("auto_rename_support_status") == "unsupported"
+                    and tianyi_matrix.get("task_runtime_track") == "runtime_active"
+                    and tianyi_matrix.get("task_runtime_samples") == 1
+                    and tianyi_matrix.get("task_runtime_success") == 0
+                    and tianyi_matrix.get("task_runtime_failed") == 1
+                    and tianyi_matrix.get("task_runtime_blocked") == 1
+                    and tianyi_matrix.get("task_runtime_conflict_handled") == 0
+                ),
             },
             ensure_ascii=False,
             indent=2,

@@ -139,6 +139,33 @@ def main() -> None:
                 "reportCountsRuntimeSuccess": bool(((provider_row.get("taskRuntimeEvidence") or {}).get("ok"))),
                 "detailSummaryMarksRealTransfer": str(((detail_view.get("summary") or {}).get("completionKind") or "")) == "real_transfer",
                 "taskStateIsCompleted": str((run_result.get("item") or {}).get("state") or detail_view.get("state") or "") == "completed",
+                "pan123RuntimeLiveUploadEvidenceFlowMatchesExpectedRealTransferReport": (
+                    len(rows) == 1
+                    and (results[0] if results else {}).get("strategy") == "download_upload"
+                    and (results[0] if results else {}).get("executionMode") == "live"
+                    and ((results[0] if results else {}).get("liveAttempt") or {}).get("mode") == "binary_upload_single_part"
+                    and ((results[0] if results else {}).get("liveAttempt") or {}).get("verifyMode") == "metadata_by_file_id"
+                    and ((results[0] if results else {}).get("liveAttempt") or {}).get("resolvedTargetName") == "demo (1).bin"
+                    and ((results[0] if results else {}).get("liveAttempt") or {}).get("conflictAction") == "auto_rename_new"
+                    and (rows[0] if rows else {}).get("providerKey") == "123_open"
+                    and (rows[0] if rows else {}).get("executionMode") == "live"
+                    and (rows[0] if rows else {}).get("mode") == "binary_upload_single_part"
+                    and (rows[0] if rows else {}).get("verifyMode") == "metadata_by_file_id"
+                    and (rows[0] if rows else {}).get("resolvedTargetName") == "demo (1).bin"
+                    and (rows[0] if rows else {}).get("conflictAction") == "auto_rename_new"
+                    and ((detail_view.get("summary") or {}).get("completionKind")) == "real_transfer"
+                    and bool(((detail_view.get("summary") or {}).get("hasRealTransferSuccess")))
+                    and ((provider_row.get("taskRuntimeEvidence") or {}).get("ok")) is True
+                    and ((provider_row.get("taskRuntimeEvidence") or {}).get("sampleCount")) == 1
+                    and ((provider_row.get("taskRuntimeEvidence") or {}).get("successCount")) == 1
+                    and ((provider_row.get("taskRuntimeEvidence") or {}).get("conflictHandledCount")) == 1
+                    and ((provider_row.get("taskRuntimeEvidence") or {}).get("profiles")) == ["123 Smoke"]
+                    and (report.get("summary") or {}).get("taskRuntimeEvidenceProviderCount") == 1
+                    and (report.get("summary") or {}).get("taskRuntimeSampleCount") == 1
+                    and (report.get("summary") or {}).get("taskRuntimeSuccessCount") == 1
+                    and (report.get("summary") or {}).get("taskRuntimeConflictHandledCount") == 1
+                    and (report.get("summary") or {}).get("taskRuntimeEvidenceProviders") == ["123_open"]
+                ),
             },
             ensure_ascii=False,
             indent=2,

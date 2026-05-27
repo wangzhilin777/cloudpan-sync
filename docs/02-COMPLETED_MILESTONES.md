@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐123运行时实传证据总链回归断言`
+- 完成范围：
+  - 已把 [verify_123_runtime_live_upload_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_123_runtime_live_upload_evidence.py) 从任务运行结果、runtime evidence 落盘和 real evidence 汇总口径的分散输出，补成真正会给出整条 123 运行时实传证据链结论的 verifier
+  - 同一条回归现在会用 `pan123RuntimeLiveUploadEvidenceFlowMatchesExpectedRealTransferReport` 直接锁住这条链：`123_open` 任务在当前 download-upload 运行路径下，必须继续按 `executionMode=live`、`liveAttempt.mode=binary_upload_single_part`、`verifyMode=metadata_by_file_id`、`conflictAction=auto_rename_new` 和最终 `resolvedTargetName=demo (1).bin` 的真实成功口径运行，把成功样本写入 `task_runtime_evidence`，并让 `real_evidence_report` 把它计入 `taskRuntimeEvidenceProviderCount/taskRuntimeSuccessCount/taskRuntimeConflictHandledCount`
+  - 当前效果是：123 运行时实传证据能力不再只是任务详情、runtime evidence 行和 real evidence summary 片段各自为真，而是多了一条覆盖 live 执行、冲突处理、metadata 校验、落盘与汇总统计的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_123_runtime_live_upload_evidence.py` 已验证 123 运行时实传证据链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐115运行时实传证据总链回归断言`
 - 完成范围：
   - 已把 [verify_115_runtime_fast_upload_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_115_runtime_fast_upload_evidence.py) 从任务运行结果、runtime evidence 落盘和 real evidence 汇总口径的分散输出，补成真正会给出整条 115 运行时实传证据链结论的 verifier

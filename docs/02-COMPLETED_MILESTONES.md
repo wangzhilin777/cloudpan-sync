@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐错误风险分类总链回归断言`
+- 完成范围：
+  - 已把 [verify_error_risk_classification.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_error_risk_classification.py) 从 Guangya live、Guangya 上传、阿里云开放平台上传三组错误分类的分散断言，补成真正会给出整条错误风险分类链结论的 verifier
+  - 同一条回归现在会用 `errorRiskClassificationFlowMatchesExpectedKinds` 直接锁住这条链：Guangya live 场景必须稳定把 `401/403/429/url_error/invalid_json/unexpected` 分到 `auth/risk/rate_limit/network/api_change/unexpected`，Guangya 上传场景必须稳定分出 `auth/risk/rate_limit/input`，阿里云开放平台上传场景则必须稳定分出 `auth/risk/conflict/rate_limit/provider`，并继续保留 `auto_rename_new` 与 `MD5` 等关键提示文本
+  - 当前效果是：错误风险分类能力不再只是单个 provider 或单个场景的分类各自为真，而是多了一条覆盖 live 校验、上传校验和冲突提示语义的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_error_risk_classification.py` 已验证错误风险分类链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐中英文切换总链回归断言`
 - 完成范围：
   - 已把 [verify_i18n_language_switch.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_i18n_language_switch.py) 从语言选择器、`/api/i18n` 返回、fallback 逻辑、前端状态同步和导航/向导文本翻译的分散检查，补成真正会给出整条中英文切换链结论的 verifier

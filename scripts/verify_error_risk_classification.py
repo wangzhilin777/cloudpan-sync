@@ -75,6 +75,31 @@ def main() -> None:
                     and aliyun_upload_rate[0] == "rate_limit"
                     and aliyun_upload_provider[0] == "provider"
                 ),
+                "errorRiskClassificationFlowMatchesExpectedKinds": (
+                    guangya_live_auth[0] == "auth"
+                    and "授权很可能失效" in guangya_live_auth[1]
+                    and guangya_live_risk[0] == "risk"
+                    and "命中风控" in guangya_live_risk[1]
+                    and guangya_live_rate[0] == "rate_limit"
+                    and "降并发" in guangya_live_rate[1]
+                    and guangya_live_network[0] == "network"
+                    and "检查网络或代理" in guangya_live_network[1]
+                    and guangya_live_api_change[0] == "api_change"
+                    and "接口结构变化" in guangya_live_api_change[1]
+                    and guangya_live_unexpected[0] == "unexpected"
+                    and "错误文本继续排查" in guangya_live_unexpected[1]
+                    and guangya_upload_auth[0] == "auth"
+                    and guangya_upload_risk[0] == "risk"
+                    and guangya_upload_rate[0] == "rate_limit"
+                    and guangya_upload_input[0] == "input"
+                    and "MD5" in guangya_upload_input[1]
+                    and aliyun_upload_auth[0] == "auth"
+                    and aliyun_upload_risk[0] == "risk"
+                    and aliyun_upload_conflict[0] == "conflict"
+                    and "auto_rename_new" in aliyun_upload_conflict[1]
+                    and aliyun_upload_rate[0] == "rate_limit"
+                    and aliyun_upload_provider[0] == "provider"
+                ),
             },
             ensure_ascii=False,
             indent=2,

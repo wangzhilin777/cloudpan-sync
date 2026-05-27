@@ -93,6 +93,21 @@ def main() -> None:
                 "fileDataExists": ((payload.get("payload") or {}).get("fileDataExists")),
                 "commitFileId": commit_payload.get("fileId"),
                 "resolvedTargetName": ((payload.get("payload") or {}).get("resolvedTargetName")),
+                "tianyiFastUploadLiveFlowMatchesExpectedOfficialChain": (
+                    payload.get("ok") is True
+                    and payload.get("mode") == "rapid_upload_by_hash"
+                    and payload.get("verifyOk") is True
+                    and payload.get("verifyMode") == "commit_response_xml"
+                    and len(json_calls) == 1
+                    and len(xml_calls) == 1
+                    and ((json_calls[0] if json_calls else {}).get("form") or {}).get("parentFolderId") == "189-root"
+                    and ((json_calls[0] if json_calls else {}).get("form") or {}).get("fileName") == "movie.mkv"
+                    and ((json_calls[0] if json_calls else {}).get("form") or {}).get("opertype") == "3"
+                    and ((xml_calls[0] if xml_calls else {}).get("form") or {}).get("uploadFileId") == "1001"
+                    and ((payload.get("payload") or {}).get("fileDataExists")) == 1
+                    and commit_payload.get("fileId") == "189-file-1"
+                    and ((payload.get("payload") or {}).get("resolvedTargetName")) == "movie.mkv"
+                ),
             },
             ensure_ascii=False,
             indent=2,

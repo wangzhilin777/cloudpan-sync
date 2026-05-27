@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐123上传实传总链回归断言`
+- 完成范围：
+  - 已把 [verify_123_upload_live.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_123_upload_live.py) 从 `create/get_upload_url/PUT/upload_complete/upload_async_result` 调用和最终 verify 结果的分散输出，补成真正会给出整条 123 官方上传链结论的 verifier
+  - 同一条回归现在会用 `pan123UploadLiveFlowMatchesExpectedOfficialChain` 直接锁住这条链：`123_open` 上传模块必须继续按官方链路完成 `create / get_upload_url / PUT / upload_complete / upload_async_result`，并以 `mode=binary_upload_single_part`、`verifyMode=metadata_by_file_id`、`conflictAction=overwrite_downgraded_to_auto_rename` 与最终 `resolvedTargetName=demo (1).bin` 收尾
+  - 当前效果是：123 实传上传能力不再只是 API 调用片段、PUT 执行和 verify 结果各自为真，而是多了一条覆盖官方上传主链、冲突降级与最终 metadata 校验的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_123_upload_live.py` 已验证 123 官方上传链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐迅雷秒传候选证据总链回归断言`
 - 完成范围：
   - 已把 [verify_xunlei_fast_upload_candidate_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_xunlei_fast_upload_candidate_evidence.py) 从任务运行结果、runtime evidence 落盘和 real evidence 汇总口径的分散输出，补成真正会给出整条迅雷秒传候选证据链结论的 verifier

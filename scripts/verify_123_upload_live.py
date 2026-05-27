@@ -165,6 +165,20 @@ def main() -> None:
                 "completeCalled": any(path == pan123_open_upload_live.PAN123_OPEN_UPLOAD_COMPLETE_PATH for path, _ in post_calls),
                 "asyncResultCalled": any(path == pan123_open_upload_live.PAN123_OPEN_UPLOAD_ASYNC_RESULT_PATH for path, _ in post_calls),
                 "putCalled": len(put_calls) == 1 and "demo.bin|4" in put_calls[0],
+                "pan123UploadLiveFlowMatchesExpectedOfficialChain": (
+                    result.get("ok") is True
+                    and result.get("mode") == "binary_upload_single_part"
+                    and result.get("verifyOk") is True
+                    and result.get("verifyMode") == "metadata_by_file_id"
+                    and ((result.get("payload") or {}).get("resolvedTargetName")) == "demo (1).bin"
+                    and ((result.get("payload") or {}).get("conflictAction")) == "overwrite_downgraded_to_auto_rename"
+                    and any(path == pan123_open_upload_live.PAN123_OPEN_UPLOAD_CREATE_PATH for path, _ in post_calls)
+                    and any(path == pan123_open_upload_live.PAN123_OPEN_UPLOAD_URL_PATH for path, _ in post_calls)
+                    and any(path == pan123_open_upload_live.PAN123_OPEN_UPLOAD_COMPLETE_PATH for path, _ in post_calls)
+                    and any(path == pan123_open_upload_live.PAN123_OPEN_UPLOAD_ASYNC_RESULT_PATH for path, _ in post_calls)
+                    and len(put_calls) == 1
+                    and "demo.bin|4" in put_calls[0]
+                ),
             },
             ensure_ascii=False,
             indent=2,

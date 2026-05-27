@@ -29,6 +29,7 @@ def main() -> None:
     file_path = ROOT / "tmp" / "verify-189cloud-fast-upload-fallback.bin"
     file_path.parent.mkdir(parents=True, exist_ok=True)
     file_path.write_bytes(b"cloudpan-sync-189-fast-upload-fallback")
+    file_size = file_path.stat().st_size
     file_md5 = hashlib.md5(file_path.read_bytes()).hexdigest()
 
     def fake_load_profile(profile_id: str):
@@ -68,14 +69,14 @@ def main() -> None:
             "fileCommitUrl": "https://api.cloud.189.cn/commit-demo.action",
             "fileDataExists": 0,
             "dataSize": 0,
-            "size": file_path.stat().st_size,
+            "size": file_size,
         }
 
     def fake_request_signed_xml(url: str, *, form: dict[str, object], session_key: str, session_secret: str):
         xml_calls.append({"url": url, "form": dict(form)})
         return 200, (
             "<file><id>189-file-fallback-1</id><name>movie.mkv</name><size>"
-            f"{file_path.stat().st_size}</size><md5>{file_md5}</md5>"
+            f"{file_size}</size><md5>{file_md5}</md5>"
             "<createDate>2026-05-25 12:00:00</createDate></file>"
         )
 
@@ -85,7 +86,7 @@ def main() -> None:
                 "path": str(upload_path),
                 "fileUploadUrl": file_upload_url,
                 "uploadFileId": upload_file_id,
-                "size": upload_path.stat().st_size,
+                "size": file_size,
             }
         )
         return 200, {"status": 200}
@@ -131,6 +132,18 @@ def main() -> None:
                 "commitCalled": len(xml_calls) == 1,
                 "statusUploadedBytes": ((verify_payload.get("statusView") or {}).get("uploadedBytes")),
                 "commitFileId": verify_payload.get("fileId"),
+                "tianyiFastUploadBinaryFallbackFlowMatchesExpectedCommitPath": (
+                    payload.get("ok") is True
+                    and payload.get("mode") == "binary_upload_put_then_commit"
+                    and payload.get("verifyOk") is True
+                    and payload.get("verifyMode") == "commit_response_xml_after_binary_put"
+                    and len(json_calls) == 1
+                    and len(put_calls) == 1
+                    and len(get_calls) == 1
+                    and len(xml_calls) == 1
+                    and ((verify_payload.get("statusView") or {}).get("uploadedBytes")) == file_size
+                    and verify_payload.get("fileId") == "189-file-fallback-1"
+                ),
             },
             ensure_ascii=False,
             indent=2,

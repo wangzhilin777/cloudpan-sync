@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐189Cloud秒传二进制回退总链回归断言`
+- 完成范围：
+  - 已把 [verify_189cloud_fast_upload_binary_fallback.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_fast_upload_binary_fallback.py) 从创建上传会话、PUT 上传、查询状态和 commit 返回值的分散输出，补成真正会给出整条 189Cloud 秒传二进制回退链结论的 verifier
+  - 同一条回归现在会用 `tianyiFastUploadBinaryFallbackFlowMatchesExpectedCommitPath` 直接锁住这条链：当 `fileDataExists=0` 时，`189cloud` 必须继续走 `mode=binary_upload_put_then_commit`，稳定执行 `create -> PUT -> getUploadFileStatus -> commit` 四步，并以 `verifyMode=commit_response_xml_after_binary_put` 和 `commitFileId=189-file-fallback-1` 收尾
+  - 当前效果是：189Cloud 秒传二进制回退能力不再只是 PUT 调用、状态查询和 commit 结果片段各自为真，而是多了一条覆盖上传会话创建、二进制上传、状态确认和 commit 校验的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_189cloud_fast_upload_binary_fallback.py` 已验证 189Cloud 秒传二进制回退链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐115秒传二进制回退总链回归断言`
 - 完成范围：
   - 已把 [verify_115_fast_upload_binary_fallback.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_115_fast_upload_binary_fallback.py) 从 hash miss 后的请求次数、token 获取、OSS 二进制上传和最终 verify 结果的分散输出，补成真正会给出整条 115 秒传二进制回退链结论的 verifier

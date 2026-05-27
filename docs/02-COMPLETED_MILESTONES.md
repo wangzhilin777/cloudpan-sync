@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐189Cloud秒传候选证据总链回归断言`
+- 完成范围：
+  - 已把 [verify_189cloud_fast_upload_candidate_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_fast_upload_candidate_evidence.py) 从任务运行结果、runtime evidence 落盘、candidate 计数和 real evidence 汇总口径的分散输出，补成真正会给出整条 189Cloud 秒传候选证据链结论的 verifier
+  - 同一条回归现在会用 `tianyiFastUploadCandidateEvidenceFlowMatchesExpectedProbeOnlyReport` 直接锁住这条链：`189cloud` 任务在具备 `md5/size` 指纹和账号级写鉴权、但没有本地文件可实传时，必须继续产出 `executionMode=probe`、`liveAttempt.mode=189cloud_fast_upload_candidate`、`verifyMode=fingerprint_candidate` 的候选样本，把该样本写进 `task_runtime_evidence`，并让 `real_evidence_report` 按当前 candidate-only 口径把它计入 `taskRuntimeCandidateProviderCount/Count` 而不是 `taskRuntimeEvidenceProviderCount`
+  - 当前效果是：189Cloud 秒传候选证据能力不再只是任务结果、runtime evidence 行、`candidateCount` 和 summary 片段各自为真，而是多了一条覆盖 probe-only 样本生成、落盘、账号级鉴权前提与 candidate 聚合口径的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_189cloud_fast_upload_candidate_evidence.py` 已验证 189Cloud 秒传候选证据链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐123秒传候选证据总链回归断言`
 - 完成范围：
   - 已把 [verify_123_fast_upload_candidate_evidence.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_123_fast_upload_candidate_evidence.py) 从任务运行结果、runtime evidence 落盘和 real evidence 汇总口径的分散输出，补成真正会给出整条 123 秒传候选证据链结论的 verifier

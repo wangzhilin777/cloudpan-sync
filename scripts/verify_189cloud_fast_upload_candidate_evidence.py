@@ -123,6 +123,24 @@ def main() -> None:
                 "reportSummary": report.get("summary"),
                 "candidateDoesNotCountAsRuntimeSuccess": not bool(((provider_row.get("taskRuntimeEvidence") or {}).get("ok"))),
                 "candidateCountPreserved": int(((provider_row.get("taskRuntimeEvidence") or {}).get("candidateCount", 0)) or 0) == 1,
+                "tianyiFastUploadCandidateEvidenceFlowMatchesExpectedProbeOnlyReport": (
+                    len(rows) == 1
+                    and (results[0] if results else {}).get("executionMode") == "probe"
+                    and ((results[0] if results else {}).get("liveAttempt") or {}).get("mode") == "189cloud_fast_upload_candidate"
+                    and ((results[0] if results else {}).get("liveAttempt") or {}).get("hashKind") == "md5"
+                    and (rows[0] if rows else {}).get("providerKey") == "189cloud"
+                    and (rows[0] if rows else {}).get("executionMode") == "probe"
+                    and (rows[0] if rows else {}).get("mode") == "189cloud_fast_upload_candidate"
+                    and (rows[0] if rows else {}).get("verifyMode") == "fingerprint_candidate"
+                    and not bool(((provider_row.get("taskRuntimeEvidence") or {}).get("ok")))
+                    and int(((provider_row.get("taskRuntimeEvidence") or {}).get("sampleCount", 0)) or 0) == 1
+                    and int(((provider_row.get("taskRuntimeEvidence") or {}).get("candidateCount", 0)) or 0) == 1
+                    and ((provider_row.get("taskRuntimeEvidence") or {}).get("candidateProfiles")) == ["189 Fast Candidate"]
+                    and (report.get("summary") or {}).get("taskRuntimeEvidenceProviderCount") == 0
+                    and (report.get("summary") or {}).get("taskRuntimeCandidateProviderCount") == 1
+                    and (report.get("summary") or {}).get("taskRuntimeCandidateCount") == 1
+                    and (report.get("summary") or {}).get("taskRuntimeCandidateProviders") == ["189cloud"]
+                ),
             },
             ensure_ascii=False,
             indent=2,

@@ -72,6 +72,42 @@ def main() -> None:
                     and "navNode.textContent = t(step.title);" in app_js
                     and "summaryBody.textContent = t(wizardSteps[state.activeWizardStep].description);" in app_js
                 ),
+                "i18nLanguageSwitchFlowMatchesExpectedMessages": (
+                    'id="langSelect"' in index_html
+                    and '<option value="zh-CN">中文</option>' in index_html
+                    and '<option value="en-US">English</option>' in index_html
+                    and '<html lang="zh-CN">' in index_html
+                    and zh_payload.get("lang") == "zh-CN"
+                    and en_payload.get("lang") == "en-US"
+                    and fallback_payload.get("lang") == "zh-CN"
+                    and messages_for("invalid-lang") == MESSAGES["zh-CN"]
+                    and zh_messages.get("nav.pending") == "待处理"
+                    and zh_messages.get("panel.new_task.title") == "新建任务向导"
+                    and zh_messages.get("wizard.step.1") == "选择来源网盘"
+                    and en_messages.get("nav.pending") == "Pending"
+                    and en_messages.get("panel.new_task.title") == "New Task Wizard"
+                    and en_messages.get("wizard.step.1") == "Choose source provider"
+                    and fallback_messages.get("nav.pending") == "待处理"
+                    and fallback_messages.get("panel.new_task.title") == "新建任务向导"
+                    and 'lang: "zh-CN"' in app_js
+                    and "messages: {}" in app_js
+                    and 'async function loadI18n(lang)' in app_js
+                    and 'fetchJson(`/api/i18n?lang=${encodeURIComponent(lang)}`)' in app_js
+                    and "document.documentElement.lang = state.lang;" in app_js
+                    and 'document.getElementById("langSelect").value = state.lang;' in app_js
+                    and 'const langSelect = document.getElementById("langSelect");' in app_js
+                    and 'langSelect.addEventListener("change", async () => {' in app_js
+                    and "await loadI18n(langSelect.value);" in app_js
+                    and 'document.getElementById("newTaskTitle").textContent = t("panel.new_task.title");' in app_js
+                    and 'document.getElementById("newTaskSubtitle").textContent = t("panel.new_task.subtitle");' in app_js
+                    and 'document.getElementById("wizardSecondaryTitle").textContent = t("panel.new_task.secondary");' in app_js
+                    and 'document.getElementById("wizardSummaryTitle").textContent = t("panel.new_task.summary");' in app_js
+                    and "for (const key of tabKeys)" in app_js
+                    and "node.textContent = t(key);" in app_js
+                    and "stepNode.textContent = `${index + 1}. ${t(step.title)}`;" in app_js
+                    and "navNode.textContent = t(step.title);" in app_js
+                    and "summaryBody.textContent = t(wizardSteps[state.activeWizardStep].description);" in app_js
+                ),
             },
             ensure_ascii=False,
             indent=2,

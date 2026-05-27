@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐中英文切换总链回归断言`
+- 完成范围：
+  - 已把 [verify_i18n_language_switch.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_i18n_language_switch.py) 从语言选择器、`/api/i18n` 返回、fallback 逻辑、前端状态同步和导航/向导文本翻译的分散检查，补成真正会给出整条中英文切换链结论的 verifier
+  - 同一条回归现在会用 `i18nLanguageSwitchFlowMatchesExpectedMessages` 直接锁住这条链：首页必须保留 `langSelect` 与 `zh-CN/en-US` 选项，`/api/i18n` 必须稳定返回中英文消息和非法语言回退到中文，前端必须继续维护 `state.lang/messages`、调用 `loadI18n(lang)`、同步 `document.documentElement.lang` 与下拉框值，并把导航、新建任务向导和步骤文本统一切到翻译结果
+  - 当前效果是：中英文切换能力不再只是 HTML、API 和 JS 翻译绑定片段各自为真，而是多了一条覆盖语言选择、消息加载、fallback 和界面文本同步的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_i18n_language_switch.py` 已验证中英文切换链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权探测设置页总链回归断言`
 - 完成范围：
   - 已把 [verify_auth_probe_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_auth_probe_settings_ui.py) 从授权校验面板、Provider 探测面板、首个失败项动作、受保护数据刷新和登出清理的分散检查，补成真正会给出整条授权探测设置页链结论的 verifier

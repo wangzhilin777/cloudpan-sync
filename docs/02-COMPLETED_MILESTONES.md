@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐光鸭校验提示总链回归断言`
+- 完成范围：
+  - 已把 [verify_guangya_validation_hints.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_guangya_validation_hints.py) 从 Guangya 别名字段解析、缺字段提示和 live 请求头透传的分散检查，补成真正会给出整条 Guangya 校验提示链结论的 verifier
+  - 同一条回归现在会用 `guangyaValidationHintsFlowMatchesExpectedAliases` 直接锁住这条链：当 Guangya 档案使用 `authorization/parentFileId/file_id/did/dt` 这组别名字段时，`validate_profile_object()` 必须稳定解析出 `parentId=file-demo` 与 `fileId=file-demo`，缺少 parentId 的档案则必须继续返回 `extra.parentId + aliases + optional extra.did/extra.dt` 这组结构化提示，同时 `fetch_guangya_live_list()` 也必须把 `parent-demo`、`did-demo`、`dt-demo` 和 `Bearer tok-demo` 正确透传到 live 请求里
+  - 当前效果是：Guangya 校验提示能力不再只是别名解析、缺字段提示和请求透传片段各自为真，而是多了一条覆盖解析默认值、风险提示和 live 请求构造的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_guangya_validation_hints.py` 已验证 Guangya 校验提示链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐189Cloud写鉴权提示总链回归断言`
 - 完成范围：
   - 已把 [verify_189cloud_write_auth_ui_hints.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_write_auth_ui_hints.py) 从 189Cloud 写鉴权输入框、表单回填、提交采集、抓取字段提示和补丁命令的分散检查，补成真正会给出整条 189Cloud 写鉴权提示链结论的 verifier

@@ -123,6 +123,23 @@ def main() -> None:
                     "hasDt": bool(lower_headers.get("dt")),
                     "authHeader": lower_headers.get("authorization", ""),
                 },
+                "guangyaValidationHintsFlowMatchesExpectedAliases": (
+                    alias_validation.get("parentId") == "parent-demo"
+                    and alias_validation.get("fileId") == "file-demo"
+                    and list(alias_validation.get("requiredFieldHints") or []) == []
+                    and missing_validation.get("error") == "missing_parent_id"
+                    and "extra.parentId" in list(missing_validation.get("requiredFieldHints") or [])
+                    and "aliases: parent_id/parentFileId/dirId/pid" in list(missing_validation.get("requiredFieldHints") or [])
+                    and "optional extra.did" in list(missing_validation.get("requiredFieldHints") or [])
+                    and "optional extra.dt" in list(missing_validation.get("requiredFieldHints") or [])
+                    and "parentId" in str(missing_validation.get("riskHint") or "")
+                    and live_result.ok is True
+                    and live_result.parentId == "parent-demo"
+                    and captured.get("body", {}).get("parentId") == "parent-demo"
+                    and bool(lower_headers.get("did"))
+                    and bool(lower_headers.get("dt"))
+                    and lower_headers.get("authorization", "") == "Bearer tok-demo"
+                ),
             },
             ensure_ascii=False,
             indent=2,

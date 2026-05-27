@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐审计设置页总链回归断言`
+- 完成范围：
+  - 已把 [verify_audit_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_audit_settings_ui.py) 从审计设置面板、首个缺口动作、runtime orphan 摘要和 logout 清理的分散检查，补成真正会给出整条审计设置页链结论的 verifier
+  - 同一条回归现在会用 `auditSettingsUiFlowIsWired` 直接锁住这条链：设置页必须保留 `settingsAuditTitle/settingsAuditList` 审计面板，继续维护 `auditSummary/auditItems` 状态和 `loadAuditSummary()` 加载逻辑，为首个未完成审计项提供 `Open First Gap Settings/Open Provider Matrix/Open Auth Profiles` 以及 runtime orphan 重建动作，同时在摘要里稳定展示 `done/partial/todo/featureCompletionPercent/strictCompletionPercent/providerCount/researchCount` 与 `runtime_orphan_*` 等口径，并在 logout 时清空审计状态
+  - 当前效果是：审计设置页能力不再只是 HTML 节点、JS 摘要和缺口动作片段各自为真，而是多了一条覆盖面板结构、缺口导航、runtime orphan 关联动作和登出清理的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_audit_settings_ui.py` 已验证审计设置页链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐本地联调验证设置页总链回归断言`
 - 完成范围：
   - 已把 [verify_local_live_adapter_verification_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_local_live_adapter_verification_settings_ui.py) 从本地联调验证设置面板、首个缺口动作、摘要展示和 logout 清理的分散检查，补成真正会给出整条本地联调验证设置页链结论的 verifier

@@ -141,6 +141,29 @@ def main() -> None:
                 "reportCountsRuntimeSuccess": bool(((provider_row.get("taskRuntimeEvidence") or {}).get("ok"))),
                 "detailSummaryMarksRealTransfer": str(((detail_view.get("summary") or {}).get("completionKind") or "")) == "real_transfer",
                 "taskStateIsCompleted": str((run_result.get("item") or {}).get("state") or detail_view.get("state") or "") == "completed",
+                "pan115RuntimeFastUploadEvidenceFlowMatchesExpectedRealTransferReport": (
+                    len(rows) == 1
+                    and (results[0] if results else {}).get("executionMode") == "live"
+                    and ((results[0] if results else {}).get("liveAttempt") or {}).get("mode") == "rapid_upload_by_hash"
+                    and ((results[0] if results else {}).get("liveAttempt") or {}).get("verifyMode") == "metadata_by_file_id"
+                    and ((results[0] if results else {}).get("liveAttempt") or {}).get("resolvedTargetName") == "movie.mkv"
+                    and (rows[0] if rows else {}).get("providerKey") == "115_open"
+                    and (rows[0] if rows else {}).get("executionMode") == "live"
+                    and (rows[0] if rows else {}).get("mode") == "rapid_upload_by_hash"
+                    and (rows[0] if rows else {}).get("verifyMode") == "metadata_by_file_id"
+                    and (rows[0] if rows else {}).get("resolvedTargetName") == "movie.mkv"
+                    and (rows[0] if rows else {}).get("conflictAction") == ""
+                    and ((detail_view.get("summary") or {}).get("completionKind")) == "real_transfer"
+                    and bool(((detail_view.get("summary") or {}).get("hasRealTransferSuccess")))
+                    and ((provider_row.get("taskRuntimeEvidence") or {}).get("ok")) is True
+                    and ((provider_row.get("taskRuntimeEvidence") or {}).get("sampleCount")) == 1
+                    and ((provider_row.get("taskRuntimeEvidence") or {}).get("successCount")) == 1
+                    and ((provider_row.get("taskRuntimeEvidence") or {}).get("profiles")) == ["115 Fast Upload"]
+                    and (report.get("summary") or {}).get("taskRuntimeEvidenceProviderCount") == 1
+                    and (report.get("summary") or {}).get("taskRuntimeSampleCount") == 1
+                    and (report.get("summary") or {}).get("taskRuntimeSuccessCount") == 1
+                    and (report.get("summary") or {}).get("taskRuntimeEvidenceProviders") == ["115_open"]
+                ),
             },
             ensure_ascii=False,
             indent=2,

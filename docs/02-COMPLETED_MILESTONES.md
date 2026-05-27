@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐本地联调验证设置页总链回归断言`
+- 完成范围：
+  - 已把 [verify_local_live_adapter_verification_settings_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_local_live_adapter_verification_settings_ui.py) 从本地联调验证设置面板、首个缺口动作、摘要展示和 logout 清理的分散检查，补成真正会给出整条本地联调验证设置页链结论的 verifier
+  - 同一条回归现在会用 `localLiveAdapterVerificationSettingsUiFlowIsWired` 直接锁住这条链：设置页必须保留 `settingsLocalAdapterVerificationTitle/settingsLocalAdapterVerificationList` 面板，继续维护 `localLiveAdapterVerification` 状态和 `loadLocalLiveAdapterVerificationSummary()` 加载逻辑，为首个缺口提供 `Focus/Refresh/Run First Probe/Open Capture/Create Stub` 动作，并在摘要里稳定展示 `allOkProviders/md5ReadyProviders/gcidReadyProviders/probeReadyProviders/matrixReadyProviders/accountCreateModeProviders` 等聚合口径，logout 时还要清空本地联调验证状态
+  - 当前效果是：本地联调验证设置页能力不再只是 HTML 节点、JS 加载器和动作按钮片段各自为真，而是多了一条覆盖面板结构、首个缺口补救动作、摘要渲染和登出清理的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_local_live_adapter_verification_settings_ui.py` 已验证本地联调验证设置页链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐错误风险分类总链回归断言`
 - 完成范围：
   - 已把 [verify_error_risk_classification.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_error_risk_classification.py) 从 Guangya live、Guangya 上传、阿里云开放平台上传三组错误分类的分散断言，补成真正会给出整条错误风险分类链结论的 verifier

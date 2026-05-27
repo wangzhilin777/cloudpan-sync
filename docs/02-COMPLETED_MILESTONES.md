@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐189Cloud建目录接口总链回归断言`
+- 完成范围：
+  - 已把 [verify_189cloud_create_dir_api.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_create_dir_api.py) 从只读 share fallback 字段和账号级建目录返回值的分散输出，补成真正会给出整条 189Cloud 建目录接口链结论的 verifier
+  - 同一条回归现在会用 `tianyiCreateDirApiFlowMatchesExpectedModes` 直接锁住这条链：`POST /api/providers/189cloud/create_dir` 在只读 share 鉴权下必须继续返回 `mode=unsupported_readonly_share_auth + fallbackReason=share_auth_readonly + requiredAuth=[AccessToken, Signature, Date]`，而在账号级写鉴权下则必须继续返回 `mode=live` 和新目录 `fileId=189-dir-1`
+  - 当前效果是：189Cloud 建目录接口能力不再只是只读 fallback 口径和账号写入结果片段各自为真，而是多了一条覆盖两种鉴权分支与返回模式切换的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_189cloud_create_dir_api.py` 已验证 189Cloud 建目录接口链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐补丁探测默认值总链回归断言`
 - 完成范围：
   - 已把 [verify_patch_and_probe_auth_profile_defaults.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_and_probe_auth_profile_defaults.py) 从 remediation 默认值、精确 profile 默认值、runtime orphan 默认值和缺失目标报错的分散断言，补成真正会给出整条补丁探测默认值解析链结论的 verifier

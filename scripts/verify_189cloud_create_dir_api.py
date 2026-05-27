@@ -84,11 +84,26 @@ def main() -> None:
                     "fallbackReason": readonly_result.get("fallbackReason"),
                     "requiredAuth": readonly_result.get("requiredAuth"),
                 },
+                "readonlyCreateDirFallbackMatchesExpectedAuthHints": readonly_result.get("mode")
+                == "unsupported_readonly_share_auth"
+                and readonly_result.get("fallbackReason") == "share_auth_readonly"
+                and readonly_result.get("requiredAuth") == ["AccessToken", "Signature", "Date"],
                 "accountAuth": {
                     "mode": account_result.get("mode"),
                     "fileId": ((account_result.get("item") or {}).get("fileId")),
                     "parentId": account_result.get("parentId"),
                 },
+                "accountCreateDirReturnsLiveFolderResult": account_result.get("mode") == "live"
+                and ((account_result.get("item") or {}).get("fileId")) == "189-dir-1"
+                and account_result.get("parentId") == "root-file",
+                "tianyiCreateDirApiFlowMatchesExpectedModes": (
+                    readonly_result.get("mode") == "unsupported_readonly_share_auth"
+                    and readonly_result.get("fallbackReason") == "share_auth_readonly"
+                    and readonly_result.get("requiredAuth") == ["AccessToken", "Signature", "Date"]
+                    and account_result.get("mode") == "live"
+                    and ((account_result.get("item") or {}).get("fileId")) == "189-dir-1"
+                    and account_result.get("parentId") == "root-file"
+                ),
             },
             ensure_ascii=False,
             indent=2,

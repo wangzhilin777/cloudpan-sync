@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐189Cloud写鉴权提示总链回归断言`
+- 完成范围：
+  - 已把 [verify_189cloud_write_auth_ui_hints.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_189cloud_write_auth_ui_hints.py) 从 189Cloud 写鉴权输入框、表单回填、提交采集、抓取字段提示和补丁命令的分散检查，补成真正会给出整条 189Cloud 写鉴权提示链结论的 verifier
+  - 同一条回归现在会用 `tianyiWriteAuthUiHintsFlowMatchesExpectedFields` 直接锁住这条链：页面必须保留 `authExtraAccessToken/authExtraSignature/authExtraDate` 三个写鉴权字段，前端必须继续正确清空、回填并采集这三项 extra 字段，抓取提示里必须继续包含 `account write auth: token/accessToken + signature + date`，补救命令也必须稳定指向 `patch_189cloud_account_auth.py --raw-file captured_189_headers.txt --write --revalidate`
+  - 当前效果是：189Cloud 写鉴权提示能力不再只是输入框、采集逻辑和补丁命令片段各自为真，而是多了一条覆盖 UI 字段、抓取提示和写鉴权补丁入口的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_189cloud_write_auth_ui_hints.py` 已验证 189Cloud 写鉴权提示链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐Provider真实证据面板总链回归断言`
 - 完成范围：
   - 已把 [verify_provider_real_evidence_ui.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_real_evidence_ui.py) 从 Provider 真实证据摘要、补救动作、runtime orphan 摘要、冲突统计和 logout 清理的分散检查，补成真正会给出整条 Provider 真实证据面板链结论的 verifier

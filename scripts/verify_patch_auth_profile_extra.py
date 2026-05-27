@@ -112,20 +112,50 @@ def main() -> None:
                     "matchedCount": result["matchedCount"],
                     "writtenCount": result["writtenCount"],
                     "revalidatedCount": result["revalidatedCount"],
+                    "matchedSingleTarget": result["matchedCount"] == 1,
+                    "wroteSingleTarget": result["writtenCount"] == 1,
+                    "revalidatedSingleTarget": result["revalidatedCount"] == 1,
                     "targetProfile": {
                         "parentId": target["extra"].get("parentId", ""),
                         "fileId": target["extra"].get("fileId", ""),
                         "status": target["status"],
                         "lastError": target["lastError"],
                     },
+                    "targetProfilePatchedAndValidated": target["extra"].get("parentId", "") == "dir-100"
+                    and target["extra"].get("fileId", "") == "file-9"
+                    and target["status"] == "verified"
+                    and target["lastError"] == "",
                     "untouchedProfile": {
                         "profileId": untouched["profileId"],
                         "extra": untouched["extra"],
                         "status": untouched["status"],
                     },
+                    "untouchedProfileStayedSame": untouched["profileId"] == "ali-smoke-1"
+                    and untouched["extra"] == {"domainId": "d-1"}
+                    and untouched["status"] == "saved",
                     "validationCount": len(validations),
                     "validationProfileIds": [row.get("profileId", "") for row in validations],
+                    "validationRecordedForTargetOnly": len(validations) == 1
+                    and [row.get("profileId", "") for row in validations] == ["gy-smoke-1"],
                     "changedKeys": ((result.get("items") or [{}])[0]).get("changedKeys", []),
+                    "changedKeysMatchExpectedPatch": ((result.get("items") or [{}])[0]).get("changedKeys", [])
+                    == ["fileId", "parentId"],
+                    "patchAuthProfileExtraFlowMatchesExpectedWriteAndRevalidate": (
+                        result["matchedCount"] == 1
+                        and result["writtenCount"] == 1
+                        and result["revalidatedCount"] == 1
+                        and target["extra"].get("parentId", "") == "dir-100"
+                        and target["extra"].get("fileId", "") == "file-9"
+                        and target["status"] == "verified"
+                        and target["lastError"] == ""
+                        and untouched["profileId"] == "ali-smoke-1"
+                        and untouched["extra"] == {"domainId": "d-1"}
+                        and untouched["status"] == "saved"
+                        and len(validations) == 1
+                        and [row.get("profileId", "") for row in validations] == ["gy-smoke-1"]
+                        and ((result.get("items") or [{}])[0]).get("changedKeys", [])
+                        == ["fileId", "parentId"]
+                    ),
                 },
                 ensure_ascii=False,
                 indent=2,

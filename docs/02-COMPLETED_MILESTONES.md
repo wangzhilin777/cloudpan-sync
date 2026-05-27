@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权补丁脚本总链回归断言`
+- 完成范围：
+  - 已把 [verify_patch_auth_profile_extra.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_patch_auth_profile_extra.py) 从命中数量、写回结果、重验落盘和变更键名的分散输出，补成真正会给出整条授权补丁回填链结论的 verifier
+  - 同一条回归现在会用 `patchAuthProfileExtraFlowMatchesExpectedWriteAndRevalidate` 直接锁住这条链：`patch_auth_profiles(..., write=True, revalidate=True)` 必须稳定只命中 `gy-smoke-1`，把 `parentId/fileId` 写成 `dir-100/file-9`，把档案状态更新为 `verified` 且清空 `lastError`，同时只为目标档案追加一条 live validation 记录
+  - 当前效果是：授权补丁脚本能力不再只是命中数、目标档案内容和校验落盘片段各自为真，而是多了一条覆盖精确命中、写回、重验与 validation 追记的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_patch_auth_profile_extra.py` 已验证授权补丁脚本链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐授权桩默认值解析总链回归断言`
 - 完成范围：
   - 已把 [verify_create_auth_profile_stub_defaults.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_auth_profile_stub_defaults.py) 从 remediation/runtime orphan 多入口默认值解析和保存调用的分散断言，补成真正会给出整条授权桩默认值解析链结论的 verifier

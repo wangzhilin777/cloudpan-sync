@@ -10,6 +10,17 @@
 
 ### 已完成补齐项 - `2026-05-27`
 
+- 提交：`补齐授权桩默认值解析总链回归断言`
+- 完成范围：
+  - 已把 [verify_create_auth_profile_stub_defaults.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_create_auth_profile_stub_defaults.py) 从 remediation/runtime orphan 多入口默认值解析和保存调用的分散断言，补成真正会给出整条授权桩默认值解析链结论的 verifier
+  - 同一条回归现在会用 `createAuthProfileStubDefaultsFlowMatchesExpectedSources` 直接锁住这条链：`create_auth_profile_stub.py` 必须稳定从 `remediation:recommendedPrimaryCommand`、`runtime_orphan:recommendedCreateCommand`、`runtime_orphan_profile:recommendedCreateCommand`、`remediation_orphan:recommendedRecreateProbeCommands` 和 `remediation_profile:recommendedRecreateProbeCommand` 五类来源解析出默认 provider/authMode/displayName/extra 字段，并把这些默认值原样落到 `save_profile()` 调用里
+  - 当前效果是：授权桩默认值解析能力不再只是几种入口默认值各自为真，而是多了一条覆盖 remediation、runtime orphan 和精确 profile 入口的完整回归
+- 当前验证证据：
+  - `.\.venv\Scripts\python.exe scripts\verify_create_auth_profile_stub_defaults.py` 已验证授权桩默认值解析链当前完整接通
+  - 本轮 verifier 退出后项目 `.venv` `python` 进程已复查为 `[]`
+
+### 已完成补齐项 - `2026-05-27`
+
 - 提交：`补齐Provider冲突能力总链回归断言`
 - 完成范围：
   - 已把 [verify_provider_conflict_capabilities.py](E:/Workspace/VSCode/CloudPan%20Sync/scripts/verify_provider_conflict_capabilities.py) 从 provider 列表冲突策略、状态矩阵冲突口径和运行态冲突处理计数的分散输出，补成真正会给出整条 Provider 冲突能力链结论的 verifier

@@ -268,6 +268,85 @@ def main() -> None:
                         "profileIdOverride": "gy-live-defaults-1",
                     },
                 ],
+                "createAuthProfileStubDefaultsFlowMatchesExpectedSources": (
+                    remediation_payload.get("providerKey") == "aliyundrive_open"
+                    and remediation_payload.get("authMode") == "official_oauth"
+                    and remediation_payload.get("displayName") == "aliyun-bootstrap"
+                    and dict(remediation_payload.get("extra") or {}).get("domainId") == "YOUR_DOMAIN_ID"
+                    and dict(remediation_payload.get("extra") or {}).get("driveId") == "YOUR_DRIVE_ID"
+                    and remediation_payload.get("defaultsSource") == "remediation:recommendedPrimaryCommand"
+                    and orphan_payload.get("profileId") == "gy-live-1"
+                    and orphan_payload.get("providerKey") == "guangya"
+                    and orphan_payload.get("authMode") == "manual_token"
+                    and orphan_payload.get("displayName") == "guangya-restore-gy-live-1"
+                    and dict(orphan_payload.get("extra") or {}).get("parentId") == "YOUR_REAL_PARENT_ID"
+                    and orphan_payload.get("defaultsSource") == "runtime_orphan:recommendedCreateCommand"
+                    and runtime_exact_payload.get("profileId") == "gy-live-defaults-1"
+                    and runtime_exact_payload.get("providerKey") == "guangya"
+                    and runtime_exact_payload.get("authMode") == "manual_token"
+                    and runtime_exact_payload.get("displayName") == "guangya-restore-gy-live-defaults-1"
+                    and dict(runtime_exact_payload.get("extra") or {}).get("parentId") == "YOUR_REAL_PARENT_ID"
+                    and runtime_exact_payload.get("defaultsSource") == "runtime_orphan_profile:recommendedCreateCommand"
+                    and remediation_exact_payload.get("profileId") == "gy-live-defaults-1"
+                    and remediation_exact_payload.get("providerKey") == "guangya"
+                    and remediation_exact_payload.get("authMode") == "manual_token"
+                    and remediation_exact_payload.get("displayName") == "guangya-restore-gy-live-defaults-1"
+                    and dict(remediation_exact_payload.get("extra") or {}).get("parentId") == "YOUR_REAL_PARENT_ID"
+                    and remediation_exact_payload.get("defaultsSource") == "remediation_orphan:recommendedRecreateProbeCommands"
+                    and remediation_profile_exact_payload.get("profileId") == "gy-live-defaults-1"
+                    and remediation_profile_exact_payload.get("providerKey") == "guangya"
+                    and remediation_profile_exact_payload.get("authMode") == "manual_token"
+                    and remediation_profile_exact_payload.get("displayName") == "guangya-restore-gy-live-1"
+                    and dict(remediation_profile_exact_payload.get("extra") or {}).get("parentId") == "YOUR_REAL_PARENT_ID"
+                    and remediation_profile_exact_payload.get("defaultsSource") == "remediation_profile:recommendedRecreateProbeCommand"
+                    and save_calls == [
+                        {
+                            "providerKey": "aliyundrive_open",
+                            "authMode": "official_oauth",
+                            "displayName": "aliyun-bootstrap",
+                            "token": "YOUR_TOKEN",
+                            "cookie": "",
+                            "extra": {"domainId": "YOUR_DOMAIN_ID", "driveId": "YOUR_DRIVE_ID"},
+                            "profileIdOverride": "",
+                        },
+                        {
+                            "providerKey": "guangya",
+                            "authMode": "manual_token",
+                            "displayName": "guangya-restore-gy-live-1",
+                            "token": "YOUR_TOKEN",
+                            "cookie": "",
+                            "extra": {"parentId": "YOUR_REAL_PARENT_ID"},
+                            "profileIdOverride": "gy-live-1",
+                        },
+                        {
+                            "providerKey": "guangya",
+                            "authMode": "manual_token",
+                            "displayName": "guangya-restore-gy-live-defaults-1",
+                            "token": "YOUR_TOKEN",
+                            "cookie": "",
+                            "extra": {"parentId": "YOUR_REAL_PARENT_ID"},
+                            "profileIdOverride": "gy-live-defaults-1",
+                        },
+                        {
+                            "providerKey": "guangya",
+                            "authMode": "manual_token",
+                            "displayName": "guangya-restore-gy-live-defaults-1",
+                            "token": "YOUR_TOKEN",
+                            "cookie": "",
+                            "extra": {"parentId": "YOUR_REAL_PARENT_ID"},
+                            "profileIdOverride": "gy-live-defaults-1",
+                        },
+                        {
+                            "providerKey": "guangya",
+                            "authMode": "manual_token",
+                            "displayName": "guangya-restore-gy-live-1",
+                            "token": "YOUR_TOKEN",
+                            "cookie": "",
+                            "extra": {"parentId": "YOUR_REAL_PARENT_ID"},
+                            "profileIdOverride": "gy-live-defaults-1",
+                        },
+                    ]
+                ),
             },
             ensure_ascii=False,
             indent=2,
